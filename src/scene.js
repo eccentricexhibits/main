@@ -5,11 +5,13 @@
 // gets encoded. Everything is a pure function of loop time `t`, which makes
 // the piece scrubbable and seamlessly loopable.
 //
-// The field is a single sustained state rather than a sequence of movements:
-// brand marks drift slowly up and to the right along the arrow axis, carrying
-// motion trails, and leave the frame at the top. Colour is a function of
-// horizontal position, so the room reads magenta on the south wall, violet
-// across the west wall in the viewer's eye-line, and cobalt on the north.
+// The field is a single sustained state rather than a sequence of movements.
+// Two flows run at once: the mark field drifts left to right along a band that
+// funnels toward a vanishing point on the west wall — large at the outer walls,
+// small and tight in the middle — while the arrows travel up and right along
+// their own 67.93 degree axis and shoot off the top of the frame. Colour is a
+// function of horizontal position, so the room reads magenta on the south wall,
+// violet across the west wall in the viewer's eye-line, cobalt on the north.
 
 import {
   VENUE,
@@ -55,16 +57,71 @@ const lerp = (a, b, k) => a + (b - a) * k;
 const frac = (v) => v - Math.floor(v);
 
 // ---------------------------------------------------------------------------
-// Flow field geometry
+// Perspective — the funnel
+//
+// The single strongest cue in the reference mockups: marks are large at the
+// outer walls and converge to a small, tight throat in the middle of the room.
+// One factor drives element size, band height and trail length together, which
+// is what makes it read as depth rather than as a size gradient.
+// ---------------------------------------------------------------------------
+
+const THROAT = 0.3; // relative scale at the vanishing point
+
+function perspective(xn) {
+  return THROAT + (1 - THROAT) * Math.pow(Math.abs(2 * xn - 1), 1.15);
+}
+
+// Height of the band as a fraction of the canvas, before perspective.
+const BAND_SPREAD = 1.0;
+
+// Centreline of the band. Rises gently left to right so the field carries
+// upward energy even while travelling horizontally.
+function bandCentre(xn, t) {
+  const loop = (t / DURATION) * Math.PI * 2;
+  const rise = 0.53 - 0.06 * xn;
+  const sag = 0.03 * Math.sin(Math.PI * xn);
+  const drift = 0.018 * Math.sin(loop + xn * 3.2) + 0.01 * Math.sin(loop * 2 + xn * 6.6);
+  return CANVAS_H * (rise + sag + drift);
+}
+
+function bandHalf(xn) {
+  return CANVAS_H * 0.5 * BAND_SPREAD * perspective(xn);
+}
+
+// ---------------------------------------------------------------------------
+// Field flow — left to right along the band
+//
+// Vertical position is expressed as a fraction of the local band height, so a
+// mark converges toward the centreline as it approaches the throat and opens
+// out again beyond it. That convergence is the funnel in motion.
+// ---------------------------------------------------------------------------
+
+// Travel spans 1.22 canvas widths so marks enter and leave off-screen.
+const FIELD_SPAN = 1.22;
+const FIELD_LAPS = [1, 1, 1, 2, 2, 2]; // ~47 to ~93 px/s
+
+function placeField(el, phase, t) {
+  const u = frac(el.u0 + el.laps * phase);
+  const x = (u * FIELD_SPAN - (FIELD_SPAN - 1) / 2) * CANVAS_W;
+  const xn = clamp01(x / CANVAS_W);
+  const persp = perspective(xn);
+  const wob = Math.sin(el.wob + (t / DURATION) * Math.PI * 2 * el.wobRate) * el.wobAmt * persp;
+  const y = bandCentre(xn, t) + el.lane * bandHalf(xn) + wob;
+  return { x, y, xn, persp };
+}
+
+// ---------------------------------------------------------------------------
+// Arrow flow — up and to the right along the arrow's own axis
 //
 // Positions are tracked in a basis aligned to the travel direction: `a` runs
 // along it, `b` across it. Wrapping `a` on a span comfortably larger than the
-// canvas means elements recycle well outside the frame, so the loop never
-// shows a seam and marks genuinely exit the top edge.
+// canvas means arrows recycle well outside the frame, so the loop never shows
+// a seam and they genuinely exit the top edge.
 // ---------------------------------------------------------------------------
 
 const MARGIN_A = 950;
 const MARGIN_B = 420;
+const ARROW_LAPS = [1, 1, 2, 2, 3, 3]; // ~30 to ~91 px/s
 
 const EXT = (() => {
   let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity;
@@ -84,26 +141,21 @@ const EXT = (() => {
   };
 })();
 
-// Whole laps per loop. With a constant rate these keep the loop exact while
-// still giving parallax: roughly 30 px/s for the far field up to 90 px/s for
-// the nearest marks — slow enough to sit calmly across a very wide projection.
-const LAPS = [1, 1, 2, 2, 3, 3];
-
-function place(el, phase, t) {
-  const a = EXT.a0 + frac(el.a0 + el.laps * phase) * EXT.aLen;
-  // A slow drift across the travel axis keeps paths from reading as rails.
+function placeSlope(el, phase, t) {
+  const a = EXT.a0 + frac(el.u0 + el.laps * phase) * EXT.aLen;
   const drift = Math.sin(el.wob + (t / DURATION) * Math.PI * 2 * el.wobRate) * el.wobAmt;
-  const b = EXT.b0 + el.b0 * EXT.bLen + drift;
+  const b = EXT.b0 + el.lane * EXT.bLen + drift;
   const x = a * DIR.x + b * PERP.x;
   const y = a * DIR.y + b * PERP.y;
-  return { x, y, xn: clamp01(x / CANVAS_W) };
+  const xn = clamp01(x / CANVAS_W);
+  return { x, y, xn, persp: perspective(xn) };
 }
 
-// Gentle vertical weighting so the field has a centre of gravity without
-// hard-edged banding — marks stay visible as they leave the top of the frame.
-function bandWeight(y) {
-  const d = (y / CANVAS_H - 0.5) / 0.52;
-  return 0.26 + 0.74 * Math.exp(-d * d * 2.1);
+// How near a point sits to the band, for elements not placed inside it.
+function bandProximity(x, y, t) {
+  const xn = clamp01(x / CANVAS_W);
+  const d = (y - bandCentre(xn, t)) / (bandHalf(xn) * 1.9);
+  return Math.exp(-d * d * 1.1);
 }
 
 // Blend a weighting toward 1. Large shapes need the field's density
@@ -115,24 +167,51 @@ const soft = (w, k) => 1 - k + k * w;
 // this is texture, not choreography.
 function fieldWeight(xn, t) {
   const loop = (t / DURATION) * Math.PI * 2;
-  return 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
+  const swell = 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
+  // Lift the throat a little. Marks there are small by design; without this
+  // the middle of the room reads as a gap rather than as a convergence.
+  const throat = 1 + 0.35 * Math.exp(-Math.pow((xn - 0.5) / 0.12, 2));
+  return swell * throat;
 }
 
 // ---------------------------------------------------------------------------
 // Element construction
 // ---------------------------------------------------------------------------
 
-function baseFields(rnd, depth) {
+function common(rnd) {
   return {
-    a0: rnd(),
-    b0: rnd(),
-    depth,
-    laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+    u0: rnd(),
     wob: rnd() * Math.PI * 2,
     wobRate: 1 + Math.floor(rnd() * 3),
-    wobAmt: 30 + rnd() * 90,
     twPhase: rnd() * Math.PI * 2,
     twRate: 1 + Math.floor(rnd() * 4),
+  };
+}
+
+// Marks that ride the band. `lane` is a fraction of the local band height, so
+// the mark converges on the centreline as it approaches the throat.
+function fieldElement(rnd, depth) {
+  // A blend of uniform and triangular: the band keeps a centre of gravity but
+  // still fills its full height at the outer walls.
+  const lane = rnd() < 0.45 ? rnd() * 2 - 1 : ((rnd() + rnd()) / 2) * 2 - 1;
+  return {
+    ...common(rnd),
+    depth,
+    lane,
+    laps: FIELD_LAPS[Math.min(FIELD_LAPS.length - 1, Math.floor(depth * FIELD_LAPS.length + rnd() * 0.9))],
+    wobAmt: 12 + rnd() * 34,
+  };
+}
+
+// Arrows ride their own axis. `across` is a uniform position on the
+// perpendicular, since they are not bound to the band.
+function slopeElement(rnd, depth) {
+  return {
+    ...common(rnd),
+    depth,
+    lane: rnd(),
+    laps: ARROW_LAPS[Math.min(ARROW_LAPS.length - 1, Math.floor(depth * ARROW_LAPS.length + rnd() * 0.9))],
+    wobAmt: 30 + rnd() * 90,
   };
 }
 
@@ -142,7 +221,7 @@ function buildParticles(seed, count) {
   for (let i = 0; i < count; i++) {
     const depth = Math.pow(rnd(), 1.9);
     out.push({
-      ...baseFields(rnd, depth),
+      ...fieldElement(rnd, depth),
       kind: rnd() < 0.55 ? 0 : 1, // 0 = pixel, 1 = plus
       twAmt: 0.12 + rnd() * 0.34,
       sizeVar: 0.75 + rnd() * 0.55,
@@ -158,7 +237,7 @@ function buildClusters(seed, count, minSize, maxSize) {
   for (let i = 0; i < count; i++) {
     const depth = Math.pow(rnd(), 1.5);
     out.push({
-      ...baseFields(rnd, depth),
+      ...fieldElement(rnd, depth),
       size: lerp(minSize, maxSize, clamp01(depth * 0.8 + rnd() * 0.3)),
       alphaVar: 0.7 + rnd() * 0.5,
     });
@@ -172,7 +251,7 @@ function buildArrows(seed, count, minH, maxH, longChance) {
   for (let i = 0; i < count; i++) {
     const depth = Math.pow(rnd(), 1.35);
     out.push({
-      ...baseFields(rnd, depth),
+      ...slopeElement(rnd, depth),
       // Size tracks depth. Decoupling them produces large, dim arrows that
       // read as flat washes rather than as objects sitting further back.
       h: lerp(minH, maxH, clamp01(depth * 0.78 + rnd() * 0.3)),
@@ -196,16 +275,16 @@ export function createScene() {
       arrowRegular: new P2D(ARROW_REGULAR.d),
       arrowLong: new P2D(ARROW_LONG.d),
     },
-    // Counts are set against the rotated wrap region, not the canvas. Only
-    // about 18% of that region is on screen at any moment, so the totals here
-    // are far larger than the number of marks actually visible.
-    particles: buildParticles(0x5ec7, 13500),
-    plusClusters: buildClusters(0xe55a, 40, 190, 620),
-    pixelClusters: buildClusters(0xf66b, 24, 170, 520),
-    arrowsFar: buildArrows(0xa11e, 240, 0.03, 0.1, 0.0),
-    arrowsMid: buildArrows(0xb22f, 100, 0.11, 0.26, 0.1),
-    arrowsHero: buildArrows(0xc33a, 38, 0.34, 0.78, 0.3),
-    arrowsLong: buildArrows(0xd44b, 24, 0.55, 0.98, 1.0),
+    // Field elements travel 1.22 canvas widths, so most of them are on screen.
+    // Arrows wrap on a rotated region of which only about 18% is visible at
+    // once, so their totals are much larger than the count actually seen.
+    particles: buildParticles(0x5ec7, 2600),
+    plusClusters: buildClusters(0xe55a, 11, 200, 700),
+    pixelClusters: buildClusters(0xf66b, 7, 180, 600),
+    arrowsFar: buildArrows(0xa11e, 150, 0.03, 0.1, 0.0),
+    arrowsMid: buildArrows(0xb22f, 65, 0.11, 0.26, 0.1),
+    arrowsHero: buildArrows(0xc33a, 26, 0.34, 0.78, 0.3),
+    arrowsLong: buildArrows(0xd44b, 16, 0.55, 0.98, 1.0),
   };
 }
 
@@ -218,12 +297,12 @@ export function drawScene(ctx, time, scene) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, 0.62);
+  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, 0.7);
   drawClusterLayer(ctx, scene.pixelClusters, t, phase, 0, 0.62);
   drawParticles(ctx, scene, t, phase);
   drawClusterLayer(ctx, scene.plusClusters, t, phase, 1, 0.75);
-  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, 0.85);
-  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, 0.72);
+  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, 0.92);
+  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, 0.8);
   drawArrowLayer(ctx, scene, scene.arrowsHero, t, phase, 1.05);
 
   ctx.restore();
@@ -294,22 +373,28 @@ function drawTrail(ctx, x, y, len, thickness, style) {
 
 function drawParticles(ctx, scene, t, phase) {
   for (const p of scene.particles) {
-    const pos = place(p, phase, t);
-    if (pos.x < -180 || pos.x > CANVAS_W + 180 || pos.y < -180 || pos.y > CANVAS_H + 180) continue;
+    const pos = placeField(p, phase, t);
+    if (pos.x < -180 || pos.x > CANVAS_W + 180) continue;
 
     const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
-    const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * bandWeight(pos.y) * fieldWeight(pos.xn, t) * tw;
+    const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t) * tw;
     if (alpha < 0.006) continue;
 
     const col = gradientAt(pos.xn, clamp01(0.25 + p.depth * 0.75));
-    const size = CANVAS_H * (0.0055 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
+    // Perspective drives size, so marks shrink into the throat and open out
+    // again toward the outer walls.
+    const base = CANVAS_H * (0.008 + 0.062 * Math.pow(p.depth, 2.1)) * p.sizeVar;
+    const size = base * pos.persp;
+    if (size < 0.6) continue;
 
-    // Trails are a permanent part of the look, not a passing effect: they give
-    // the wide middle of the room something to read at walking pace.
+    // Trails run along the direction of travel — horizontal. They keep most of
+    // their length through the throat, so the middle of the room still has the
+    // streaking that carries the eye across it.
     if (p.depth > 0.3) {
-      const len = size * (2.2 + 9 * p.trail * (p.laps / 3));
+      const len = base * (2.4 + 10 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
       const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
-      drawTrail(ctx, pos.x, pos.y, len, th, rgba(col, alpha * 0.2));
+      ctx.fillStyle = rgba(col, alpha * 0.18);
+      ctx.fillRect(pos.x - len, pos.y - th / 2, len, th);
     }
 
     ctx.fillStyle = rgba(col, alpha);
@@ -327,19 +412,21 @@ function drawClusterLayer(ctx, clusters, t, phase, kind, weight) {
   const markRatio = kind === 1 ? PLUS_CLUSTER_MARK : PIXEL_CLUSTER_MARK;
 
   for (const c of clusters) {
-    const pos = place(c, phase, t);
-    const r = c.size * 0.75;
+    const pos = placeField(c, phase, t);
+    const size = c.size * pos.persp;
+    const r = size * 0.75;
     if (pos.x < -r || pos.x > CANVAS_W + r || pos.y < -r || pos.y > CANVAS_H + r) continue;
 
     const tw = 0.75 + 0.25 * Math.sin(c.twPhase + phase * Math.PI * 2 * c.twRate * 2);
-    const alpha = weight * (0.2 + 0.8 * c.depth) * bandWeight(pos.y) * fieldWeight(pos.xn, t) * tw * c.alphaVar;
+    const alpha = weight * (0.2 + 0.8 * c.depth) * fieldWeight(pos.xn, t) * tw * c.alphaVar;
     if (alpha < 0.006) continue;
 
-    const mark = c.size * markRatio;
+    const mark = size * markRatio;
+    if (mark < 0.6) continue;
 
     for (const [dx, dy] of pattern) {
-      const mx = pos.x + dx * c.size;
-      const my = pos.y + dy * c.size;
+      const mx = pos.x + dx * size;
+      const my = pos.y + dy * size;
       if (mx < -mark || mx > CANVAS_W + mark || my < -mark || my > CANVAS_H + mark) continue;
       // Colour each mark by its own position so a cluster spanning the west
       // wall still sits correctly on the gradient.
@@ -358,9 +445,11 @@ function drawClusterLayer(ctx, clusters, t, phase, kind, weight) {
 
 function drawArrowLayer(ctx, scene, arrows, t, phase, weight) {
   for (const a of arrows) {
-    const pos = place(a, phase, t);
+    const pos = placeSlope(a, phase, t);
     const src = a.long ? ARROW_LONG : ARROW_REGULAR;
-    const h = CANVAS_H * a.h;
+    // Arrows sit in the same perspective as the field, so they too are large
+    // at the outer walls and small through the throat.
+    const h = CANVAS_H * a.h * lerp(1, pos.persp, 0.72);
     const w = (h / src.h) * src.w;
 
     if (pos.x < -w - 80 || pos.x > CANVAS_W + w + 80) continue;
@@ -369,7 +458,7 @@ function drawArrowLayer(ctx, scene, arrows, t, phase, weight) {
     const tw = 0.8 + 0.2 * Math.sin(a.twPhase + phase * Math.PI * 2 * a.twRate * 2);
     const alpha =
       weight * (0.22 + 0.78 * a.depth) *
-      soft(bandWeight(pos.y), 0.55) * soft(fieldWeight(pos.xn, t), 0.5) *
+      soft(bandProximity(pos.x, pos.y, t), 0.35) * soft(fieldWeight(pos.xn, t), 0.5) *
       tw * a.alphaVar;
     if (alpha < 0.006) continue;
 

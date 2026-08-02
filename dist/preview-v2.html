@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vector — Convergence · 3-wall preview</title>
+<title>Vector — Convergence v2 (archived)</title>
 <style>
   /* Committed to a single dark ground on purpose: this is a projection piece
      for a darkened room, and it cannot be judged honestly on a light page. */
@@ -159,14 +159,14 @@
 </style>
 </head>
 <body>
+<div style="background:#3a1420;border-bottom:1px solid #6b2038;color:#ffb3cd;padding:9px 26px;font:600 12px/1.4 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase">Version 2 — all-diagonal flow · no funnel · superseded</div>
 
 <header>
   <h1>Vector Institute — <em>Convergence</em></h1>
   <div class="specs">
     <div><span class="lbl">Canvas</span><b class="num">6878 × 1080</b></div>
     <div><span class="lbl">Duration</span><b class="num">3:00 · seamless</b></div>
-    <div><span class="lbl">Field</span><b class="num">L → R · 47–93 px/s</b></div>
-    <div><span class="lbl">Arrows</span><b class="num">67.93° · 30–91 px/s</b></div>
+    <div><span class="lbl">Flow</span><b class="num">67.93° · 30–91 px/s</b></div>
     <div><span class="lbl">Surfaces</span><b>3 walls + 4 corners</b></div>
     <div><span class="lbl">Palette</span><b>Magenta → violet → cobalt</b></div>
   </div>
@@ -237,8 +237,7 @@
   <section>
     <span class="lbl">Notes</span>
     <div class="notes">
-      <p>A single sustained field — no phase changes. The mark field travels <b>left to right</b> along a band that funnels toward a vanishing point on the west wall: large at the outer walls, small and tight through the middle.</p>
-      <p>Arrows run on their own axis, travelling up and right at <b>67.93°</b> and leaving through the top of the frame.</p>
+      <p>A single sustained field — no phase changes. Everything drifts up and right along the arrow axis at <b>67.93°</b> and leaves through the top of the frame.</p>
       <p>Nothing rotates: arrows, pixels and pluses are all drawn at their official orientation. The complete plus and pixel cluster patterns drift through the field alongside individual marks.</p>
       <p><b>Space</b> play/pause · <b>← →</b> step 1 s · <b>⇧← ⇧→</b> step 10 s</p>
     </div>
@@ -247,7 +246,7 @@
 
 <script>
 (() => {
-  // src/brand.js
+  // ../../../tmp/tmp.2WDjfLuPxv/src/brand.js
   var GRADIENT = [
     { t: 0, base: [235, 8, 138], glow: [253, 9, 124] },
     // magenta
@@ -390,7 +389,7 @@
   ];
   var PIXEL_CLUSTER_MARK = 0.06942;
 
-  // src/scene.js
+  // ../../../tmp/tmp.2WDjfLuPxv/src/scene.js
   var DURATION = 180;
   var FLOW_DEG = 67.93;
   var TH = FLOW_DEG * Math.PI / 180;
@@ -409,35 +408,8 @@
   var clamp012 = (v) => clamp(v, 0, 1);
   var lerp = (a, b, k) => a + (b - a) * k;
   var frac = (v) => v - Math.floor(v);
-  var THROAT = 0.3;
-  function perspective(xn) {
-    return THROAT + (1 - THROAT) * Math.pow(Math.abs(2 * xn - 1), 1.15);
-  }
-  var BAND_SPREAD = 1;
-  function bandCentre(xn, t2) {
-    const loop = t2 / DURATION * Math.PI * 2;
-    const rise = 0.53 - 0.06 * xn;
-    const sag = 0.03 * Math.sin(Math.PI * xn);
-    const drift = 0.018 * Math.sin(loop + xn * 3.2) + 0.01 * Math.sin(loop * 2 + xn * 6.6);
-    return CANVAS_H * (rise + sag + drift);
-  }
-  function bandHalf(xn) {
-    return CANVAS_H * 0.5 * BAND_SPREAD * perspective(xn);
-  }
-  var FIELD_SPAN = 1.22;
-  var FIELD_LAPS = [1, 1, 1, 2, 2, 2];
-  function placeField(el, phase, t2) {
-    const u = frac(el.u0 + el.laps * phase);
-    const x = (u * FIELD_SPAN - (FIELD_SPAN - 1) / 2) * CANVAS_W;
-    const xn = clamp012(x / CANVAS_W);
-    const persp = perspective(xn);
-    const wob = Math.sin(el.wob + t2 / DURATION * Math.PI * 2 * el.wobRate) * el.wobAmt * persp;
-    const y = bandCentre(xn, t2) + el.lane * bandHalf(xn) + wob;
-    return { x, y, xn, persp };
-  }
   var MARGIN_A = 950;
   var MARGIN_B = 420;
-  var ARROW_LAPS = [1, 1, 2, 2, 3, 3];
   var EXT = (() => {
     let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity;
     for (const [x, y] of [[0, 0], [CANVAS_W, 0], [0, CANVAS_H], [CANVAS_W, CANVAS_H]]) {
@@ -455,53 +427,35 @@
       bLen: bMax - bMin + MARGIN_B * 2
     };
   })();
-  function placeSlope(el, phase, t2) {
-    const a = EXT.a0 + frac(el.u0 + el.laps * phase) * EXT.aLen;
+  var LAPS = [1, 1, 2, 2, 3, 3];
+  function place(el, phase, t2) {
+    const a = EXT.a0 + frac(el.a0 + el.laps * phase) * EXT.aLen;
     const drift = Math.sin(el.wob + t2 / DURATION * Math.PI * 2 * el.wobRate) * el.wobAmt;
-    const b = EXT.b0 + el.lane * EXT.bLen + drift;
+    const b = EXT.b0 + el.b0 * EXT.bLen + drift;
     const x = a * DIR.x + b * PERP.x;
     const y = a * DIR.y + b * PERP.y;
-    const xn = clamp012(x / CANVAS_W);
-    return { x, y, xn, persp: perspective(xn) };
+    return { x, y, xn: clamp012(x / CANVAS_W) };
   }
-  function bandProximity(x, y, t2) {
-    const xn = clamp012(x / CANVAS_W);
-    const d = (y - bandCentre(xn, t2)) / (bandHalf(xn) * 1.9);
-    return Math.exp(-d * d * 1.1);
+  function bandWeight(y) {
+    const d = (y / CANVAS_H - 0.5) / 0.52;
+    return 0.26 + 0.74 * Math.exp(-d * d * 2.1);
   }
   var soft = (w, k) => 1 - k + k * w;
   function fieldWeight(xn, t2) {
     const loop = t2 / DURATION * Math.PI * 2;
-    const swell = 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
-    const throat = 1 + 0.35 * Math.exp(-Math.pow((xn - 0.5) / 0.12, 2));
-    return swell * throat;
+    return 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
   }
-  function common(rnd) {
+  function baseFields(rnd, depth) {
     return {
-      u0: rnd(),
+      a0: rnd(),
+      b0: rnd(),
+      depth,
+      laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
       wob: rnd() * Math.PI * 2,
       wobRate: 1 + Math.floor(rnd() * 3),
+      wobAmt: 30 + rnd() * 90,
       twPhase: rnd() * Math.PI * 2,
       twRate: 1 + Math.floor(rnd() * 4)
-    };
-  }
-  function fieldElement(rnd, depth) {
-    const lane = rnd() < 0.45 ? rnd() * 2 - 1 : (rnd() + rnd()) / 2 * 2 - 1;
-    return {
-      ...common(rnd),
-      depth,
-      lane,
-      laps: FIELD_LAPS[Math.min(FIELD_LAPS.length - 1, Math.floor(depth * FIELD_LAPS.length + rnd() * 0.9))],
-      wobAmt: 12 + rnd() * 34
-    };
-  }
-  function slopeElement(rnd, depth) {
-    return {
-      ...common(rnd),
-      depth,
-      lane: rnd(),
-      laps: ARROW_LAPS[Math.min(ARROW_LAPS.length - 1, Math.floor(depth * ARROW_LAPS.length + rnd() * 0.9))],
-      wobAmt: 30 + rnd() * 90
     };
   }
   function buildParticles(seed, count) {
@@ -510,7 +464,7 @@
     for (let i = 0; i < count; i++) {
       const depth = Math.pow(rnd(), 1.9);
       out.push({
-        ...fieldElement(rnd, depth),
+        ...baseFields(rnd, depth),
         kind: rnd() < 0.55 ? 0 : 1,
         // 0 = pixel, 1 = plus
         twAmt: 0.12 + rnd() * 0.34,
@@ -526,7 +480,7 @@
     for (let i = 0; i < count; i++) {
       const depth = Math.pow(rnd(), 1.5);
       out.push({
-        ...fieldElement(rnd, depth),
+        ...baseFields(rnd, depth),
         size: lerp(minSize, maxSize, clamp012(depth * 0.8 + rnd() * 0.3)),
         alphaVar: 0.7 + rnd() * 0.5
       });
@@ -539,7 +493,7 @@
     for (let i = 0; i < count; i++) {
       const depth = Math.pow(rnd(), 1.35);
       out.push({
-        ...slopeElement(rnd, depth),
+        ...baseFields(rnd, depth),
         // Size tracks depth. Decoupling them produces large, dim arrows that
         // read as flat washes rather than as objects sitting further back.
         h: lerp(minH, maxH, clamp012(depth * 0.78 + rnd() * 0.3)),
@@ -557,16 +511,16 @@
         arrowRegular: new P2D(ARROW_REGULAR.d),
         arrowLong: new P2D(ARROW_LONG.d)
       },
-      // Field elements travel 1.22 canvas widths, so most of them are on screen.
-      // Arrows wrap on a rotated region of which only about 18% is visible at
-      // once, so their totals are much larger than the count actually seen.
-      particles: buildParticles(24263, 2600),
-      plusClusters: buildClusters(58714, 11, 200, 700),
-      pixelClusters: buildClusters(63083, 7, 180, 600),
-      arrowsFar: buildArrows(41246, 150, 0.03, 0.1, 0),
-      arrowsMid: buildArrows(45615, 65, 0.11, 0.26, 0.1),
-      arrowsHero: buildArrows(49978, 26, 0.34, 0.78, 0.3),
-      arrowsLong: buildArrows(54347, 16, 0.55, 0.98, 1)
+      // Counts are set against the rotated wrap region, not the canvas. Only
+      // about 18% of that region is on screen at any moment, so the totals here
+      // are far larger than the number of marks actually visible.
+      particles: buildParticles(24263, 13500),
+      plusClusters: buildClusters(58714, 40, 190, 620),
+      pixelClusters: buildClusters(63083, 24, 170, 520),
+      arrowsFar: buildArrows(41246, 240, 0.03, 0.1, 0),
+      arrowsMid: buildArrows(45615, 100, 0.11, 0.26, 0.1),
+      arrowsHero: buildArrows(49978, 38, 0.34, 0.78, 0.3),
+      arrowsLong: buildArrows(54347, 24, 0.55, 0.98, 1)
     };
   }
   function drawScene(ctx2, time, scene2) {
@@ -575,12 +529,12 @@
     drawBackground(ctx2, t2);
     ctx2.save();
     ctx2.globalCompositeOperation = "lighter";
-    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, 0.7);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, 0.62);
     drawClusterLayer(ctx2, scene2.pixelClusters, t2, phase, 0, 0.62);
     drawParticles(ctx2, scene2, t2, phase);
     drawClusterLayer(ctx2, scene2.plusClusters, t2, phase, 1, 0.75);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, 0.92);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, 0.8);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, 0.85);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, 0.72);
     drawArrowLayer(ctx2, scene2, scene2.arrowsHero, t2, phase, 1.05);
     ctx2.restore();
   }
@@ -620,22 +574,27 @@
     ctx2.fillRect(cx - h, cy - b, size, b * 2);
     ctx2.fillRect(cx - b, cy - h, b * 2, size);
   }
+  function drawTrail(ctx2, x, y, len, thickness, style) {
+    ctx2.save();
+    ctx2.translate(x, y);
+    ctx2.rotate(-TH);
+    ctx2.fillStyle = style;
+    ctx2.fillRect(-len, -thickness / 2, len, thickness);
+    ctx2.restore();
+  }
   function drawParticles(ctx2, scene2, t2, phase) {
     for (const p of scene2.particles) {
-      const pos = placeField(p, phase, t2);
-      if (pos.x < -180 || pos.x > CANVAS_W + 180) continue;
+      const pos = place(p, phase, t2);
+      if (pos.x < -180 || pos.x > CANVAS_W + 180 || pos.y < -180 || pos.y > CANVAS_H + 180) continue;
       const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
-      const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t2) * tw;
+      const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * bandWeight(pos.y) * fieldWeight(pos.xn, t2) * tw;
       if (alpha < 6e-3) continue;
       const col = gradientAt(pos.xn, clamp012(0.25 + p.depth * 0.75));
-      const base = CANVAS_H * (8e-3 + 0.062 * Math.pow(p.depth, 2.1)) * p.sizeVar;
-      const size = base * pos.persp;
-      if (size < 0.6) continue;
+      const size = CANVAS_H * (55e-4 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
       if (p.depth > 0.3) {
-        const len = base * (2.4 + 10 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
+        const len = size * (2.2 + 9 * p.trail * (p.laps / 3));
         const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
-        ctx2.fillStyle = rgba(col, alpha * 0.18);
-        ctx2.fillRect(pos.x - len, pos.y - th / 2, len, th);
+        drawTrail(ctx2, pos.x, pos.y, len, th, rgba(col, alpha * 0.2));
       }
       ctx2.fillStyle = rgba(col, alpha);
       if (p.kind === 0) fillPixel(ctx2, pos.x, pos.y, size);
@@ -646,18 +605,16 @@
     const pattern = kind === 1 ? PLUS_CLUSTER : PIXEL_CLUSTER;
     const markRatio = kind === 1 ? PLUS_CLUSTER_MARK : PIXEL_CLUSTER_MARK;
     for (const c of clusters) {
-      const pos = placeField(c, phase, t2);
-      const size = c.size * pos.persp;
-      const r = size * 0.75;
+      const pos = place(c, phase, t2);
+      const r = c.size * 0.75;
       if (pos.x < -r || pos.x > CANVAS_W + r || pos.y < -r || pos.y > CANVAS_H + r) continue;
       const tw = 0.75 + 0.25 * Math.sin(c.twPhase + phase * Math.PI * 2 * c.twRate * 2);
-      const alpha = weight * (0.2 + 0.8 * c.depth) * fieldWeight(pos.xn, t2) * tw * c.alphaVar;
+      const alpha = weight * (0.2 + 0.8 * c.depth) * bandWeight(pos.y) * fieldWeight(pos.xn, t2) * tw * c.alphaVar;
       if (alpha < 6e-3) continue;
-      const mark = size * markRatio;
-      if (mark < 0.6) continue;
+      const mark = c.size * markRatio;
       for (const [dx, dy] of pattern) {
-        const mx = pos.x + dx * size;
-        const my = pos.y + dy * size;
+        const mx = pos.x + dx * c.size;
+        const my = pos.y + dy * c.size;
         if (mx < -mark || mx > CANVAS_W + mark || my < -mark || my > CANVAS_H + mark) continue;
         const col = gradientAt(clamp012(mx / CANVAS_W), clamp012(0.3 + c.depth * 0.7));
         ctx2.fillStyle = rgba(col, alpha);
@@ -668,14 +625,14 @@
   }
   function drawArrowLayer(ctx2, scene2, arrows, t2, phase, weight) {
     for (const a of arrows) {
-      const pos = placeSlope(a, phase, t2);
+      const pos = place(a, phase, t2);
       const src = a.long ? ARROW_LONG : ARROW_REGULAR;
-      const h = CANVAS_H * a.h * lerp(1, pos.persp, 0.72);
+      const h = CANVAS_H * a.h;
       const w = h / src.h * src.w;
       if (pos.x < -w - 80 || pos.x > CANVAS_W + w + 80) continue;
       if (pos.y < -h - 80 || pos.y > CANVAS_H + h + 80) continue;
       const tw = 0.8 + 0.2 * Math.sin(a.twPhase + phase * Math.PI * 2 * a.twRate * 2);
-      const alpha = weight * (0.22 + 0.78 * a.depth) * soft(bandProximity(pos.x, pos.y, t2), 0.35) * soft(fieldWeight(pos.xn, t2), 0.5) * tw * a.alphaVar;
+      const alpha = weight * (0.22 + 0.78 * a.depth) * soft(bandWeight(pos.y), 0.55) * soft(fieldWeight(pos.xn, t2), 0.5) * tw * a.alphaVar;
       if (alpha < 6e-3) continue;
       const col = gradientAt(pos.xn, clamp012(0.45 + a.depth * 0.55));
       const tail = gradientAt(pos.xn, clamp012(0.2 + a.depth * 0.4));
@@ -758,7 +715,7 @@
     ctx2.restore();
   }
 
-  // src/preview-main.js
+  // ../../../tmp/tmp.2WDjfLuPxv/src/preview-main.js
   var canvas = document.getElementById("c");
   var ctx = canvas.getContext("2d");
   var quality = 0.25;

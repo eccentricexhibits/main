@@ -37,7 +37,8 @@ the current one:
 
 | File | Version |
 | --- | --- |
-| `dist/preview.html` | Current — single sustained field on the 67.93° arrow axis |
+| `dist/preview.html` | Current — funnelled left-to-right field, arrows on the 67.93° axis |
+| `dist/preview-v2.html` | v2 — everything on the 67.93° axis, no funnel |
 | `dist/preview-v1.html` | v1 — five-phase arc, horizontal flow, logo reveal |
 
 To rebuild any earlier version from git:
@@ -45,6 +46,7 @@ To rebuild any earlier version from git:
 ```bash
 tools/build-archive.sh <commit> <name> "<banner text>"
 tools/build-archive.sh 84271cc v1 "Version 1 — phase arc, horizontal flow"
+tools/build-archive.sh 061d85b v2 "Version 2 — all-diagonal flow, no funnel"
 ```
 
 ## Render the final file
@@ -97,19 +99,26 @@ or lost behind a grill.
 
 ## The piece
 
-A single sustained field rather than a sequence of movements. Brand marks drift
-up and to the right along the arrow axis at **67.93°**, carrying motion trails,
-and leave through the top of the frame. Nothing about the look changes over the
-three minutes — density, palette and rate hold steady, so the room never
-"cuts" to a different design.
+A single sustained field rather than a sequence of movements. Two flows run at
+once:
 
-Rate is deliberately slow for the scale of the projection: whole laps per loop
-give **30 px/s** for the far field up to **91 px/s** for the nearest marks. A
-mark takes between 13 and 38 seconds to cross the height of the frame.
+- **The mark field travels left to right** along a band that funnels toward a
+  vanishing point on the west wall. One perspective factor drives element size,
+  band height and trail length together, so marks are large at the outer walls
+  and converge to a small, tight throat in the middle of the room — the read
+  from the reference mockups. Horizontal motion trails carry the eye across the
+  throat even where the marks themselves are tiny. Rate is **47–93 px/s**.
+- **Arrows travel on their own axis**, up and to the right at **67.93°**,
+  leaving through the top of the frame at **30–91 px/s**. They sit in the same
+  perspective as the field, so they too are large at the walls and small through
+  the middle.
 
-Depth drives everything together — near marks are larger, brighter and faster;
-far marks are small, dim and slow — which is what keeps the field readable
-rather than flat.
+Nothing about the look changes over the three minutes — density, palette and
+rate hold steady, so the room never "cuts" to a different design.
+
+Depth drives everything together: near marks are larger, brighter and faster;
+far marks are small, dim and slow. That is what keeps the field readable rather
+than flat.
 
 ## Brand compliance
 
