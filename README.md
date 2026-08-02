@@ -29,6 +29,24 @@ For live development with module reloading, serve `src/` instead:
 npx http-server src -p 8099   # then open http://127.0.0.1:8099/preview.html
 ```
 
+### Earlier versions
+
+Every cut of the piece stays viewable, not just recoverable. `dist/` holds a
+standalone preview per version, each with a banner so it cannot be mistaken for
+the current one:
+
+| File | Version |
+| --- | --- |
+| `dist/preview.html` | Current — single sustained field on the 67.93° arrow axis |
+| `dist/preview-v1.html` | v1 — five-phase arc, horizontal flow, logo reveal |
+
+To rebuild any earlier version from git:
+
+```bash
+tools/build-archive.sh <commit> <name> "<banner text>"
+tools/build-archive.sh 84271cc v1 "Version 1 — phase arc, horizontal flow"
+```
+
 ## Render the final file
 
 ```bash
@@ -116,6 +134,7 @@ src/scene.js        the renderer — one deterministic function of loop time
 src/preview.html    browser preview shell
 src/preview-main.js preview controls
 tools/build-preview.js  bundles the preview into one self-contained file
+tools/build-archive.sh  rebuilds an earlier version from git into dist/
 tools/render.js     parallel full-resolution render and encode
 tools/still.js      single-frame renders for quick checks
 ```

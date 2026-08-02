@@ -1,5 +1,11 @@
 // Bundle the preview into a single self-contained HTML file, so it can be
 // opened straight off disk or hosted anywhere without a module server.
+//
+//   node tools/build-preview.js
+//   node tools/build-preview.js --src /path/to/old/src --out dist/preview-v1.html
+//
+// The --src form is how earlier cuts of the piece are rebuilt from git for
+// side-by-side comparison; see tools/build-archive.sh.
 import { build } from 'esbuild';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -7,10 +13,18 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
-const out = process.argv[2] || resolve(root, 'dist/preview.html');
+
+function arg(name, fallback) {
+  const i = process.argv.indexOf(`--${name}`);
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+}
+
+const src = resolve(root, arg('src', 'src'));
+const out = resolve(root, arg('out', 'dist/preview.html'));
+const banner = arg('banner', '');
 
 const result = await build({
-  entryPoints: [resolve(root, 'src/preview-main.js')],
+  entryPoints: [resolve(src, 'preview-main.js')],
   bundle: true,
   format: 'iife',
   target: 'es2020',
@@ -19,13 +33,24 @@ const result = await build({
 });
 
 const js = result.outputFiles[0].text;
-const html = readFileSync(resolve(root, 'src/preview.html'), 'utf8');
+let html = readFileSync(resolve(src, 'preview.html'), 'utf8');
 
-const inlined = html.replace(
+html = html.replace(
   '<script type="module" src="./preview-main.js"></script>',
   `<script>\n${js}\n</script>`
 );
 
+// An optional banner marks archived cuts so they cannot be mistaken for the
+// current one when several are open at once.
+if (banner) {
+  html = html.replace(
+    '<body>',
+    `<body>\n<div style="background:#3a1420;border-bottom:1px solid #6b2038;color:#ffb3cd;` +
+      `padding:9px 26px;font:600 12px/1.4 system-ui,sans-serif;letter-spacing:.06em;` +
+      `text-transform:uppercase">${banner}</div>`
+  );
+}
+
 mkdirSync(dirname(out), { recursive: true });
-writeFileSync(out, inlined);
-console.log(`wrote ${out}  (${(inlined.length / 1024).toFixed(0)} kB, self-contained)`);
+writeFileSync(out, html);
+console.log(`wrote ${out}  (${(html.length / 1024).toFixed(0)} kB, self-contained)`);
