@@ -390,10 +390,10 @@ function drawParticles(ctx, scene, t, phase) {
     // Trails run along the direction of travel — horizontal. They keep most of
     // their length through the throat, so the middle of the room still has the
     // streaking that carries the eye across it.
-    if (p.depth > 0.3) {
-      const len = base * (2.4 + 10 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
+    if (p.depth > 0.55) {
+      const len = base * (1.8 + 6.5 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
       const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
-      ctx.fillStyle = rgba(col, alpha * 0.18);
+      ctx.fillStyle = rgba(col, alpha * 0.16);
       ctx.fillRect(pos.x - len, pos.y - th / 2, len, th);
     }
 

@@ -106,8 +106,9 @@ once:
   vanishing point on the west wall. One perspective factor drives element size,
   band height and trail length together, so marks are large at the outer walls
   and converge to a small, tight throat in the middle of the room — the read
-  from the reference mockups. Horizontal motion trails carry the eye across the
-  throat even where the marks themselves are tiny. Rate is **47–93 px/s**.
+  from the reference mockups. Horizontal motion trails, carried by roughly the
+  nearest quarter of marks, draw the eye across the throat even where the marks
+  themselves are tiny. Rate is **47–93 px/s**.
 - **Arrows travel on their own axis**, up and to the right at **67.93°**,
   leaving through the top of the frame at **30–91 px/s**. They sit in the same
   perspective as the field, so they too are large at the walls and small through

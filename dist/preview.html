@@ -631,10 +631,10 @@
       const base = CANVAS_H * (8e-3 + 0.062 * Math.pow(p.depth, 2.1)) * p.sizeVar;
       const size = base * pos.persp;
       if (size < 0.6) continue;
-      if (p.depth > 0.3) {
-        const len = base * (2.4 + 10 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
+      if (p.depth > 0.55) {
+        const len = base * (1.8 + 6.5 * p.trail * p.laps) * lerp(1, pos.persp, 0.45);
         const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
-        ctx2.fillStyle = rgba(col, alpha * 0.18);
+        ctx2.fillStyle = rgba(col, alpha * 0.16);
         ctx2.fillRect(pos.x - len, pos.y - th / 2, len, th);
       }
       ctx2.fillStyle = rgba(col, alpha);
