@@ -12,9 +12,9 @@ gradient.
 ## Preview it in a browser
 
 Open **`dist/preview.html`** — it is fully self-contained, so it works straight
-off disk with no server. Controls include a scrub bar, phase jump buttons, a
-venue overlay showing every projector region, a loop-seam test, and a preview
-resolution selector.
+off disk with no server. Controls include a scrub track, a venue overlay
+showing every projector region, a loop-seam test, and a preview resolution
+selector.
 
 To rebuild it after changing the scene:
 
@@ -73,9 +73,9 @@ Other physical constraints carried in the same file:
 - Template marks everything below y = 538 as “background graphics only, no
   text”.
 
-The composition is a continuous field, so it survives the corner wraps. Hero
-elements are steered away from the grills, and the Vector icon resolves on the
-west wall — centred in the viewer's eye-line and clear of every obstruction.
+The composition is a continuous field with no fixed focal point, so it survives
+the corner wraps and the cube line without anything important being cut in half
+or lost behind a grill.
 
 ## The piece
 
