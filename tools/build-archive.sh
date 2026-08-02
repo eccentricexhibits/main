@@ -25,4 +25,5 @@ done
 node "$ROOT/tools/build-preview.js" \
   --src "$TMP/src" \
   --out "$ROOT/dist/preview-$NAME.html" \
-  --banner "$BANNER"
+  --banner "$BANNER" \
+  --title "Vector — Convergence $NAME (archived)"

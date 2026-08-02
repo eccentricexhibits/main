@@ -22,6 +22,7 @@ function arg(name, fallback) {
 const src = resolve(root, arg('src', 'src'));
 const out = resolve(root, arg('out', 'dist/preview.html'));
 const banner = arg('banner', '');
+const title = arg('title', '');
 
 const result = await build({
   entryPoints: [resolve(src, 'preview-main.js')],
@@ -39,6 +40,12 @@ html = html.replace(
   '<script type="module" src="./preview-main.js"></script>',
   `<script>\n${js}\n</script>`
 );
+
+// Archived cuts need their own <title>, or several open tabs are
+// indistinguishable from each other and from the current version.
+if (title) {
+  html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`);
+}
 
 // An optional banner marks archived cuts so they cannot be mistaken for the
 // current one when several are open at once.
