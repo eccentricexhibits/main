@@ -79,27 +79,34 @@ west wall — centred in the viewer's eye-line and clear of every obstruction.
 
 ## The piece
 
-| Time | Phase | What happens |
-| --- | --- | --- |
-| 0:00 – 0:30 | Distant | Sparse magenta and cobalt clusters hold the outer walls; the west wall is dark. |
-| 0:30 – 1:05 | Advance | Both fields stream inward with horizontal motion trails. |
-| 1:05 – 1:40 | Converge | The fields meet on the west wall and bloom violet. |
-| 1:40 – 2:12 | Ascend | The merged field surges upward; the Vector icon resolves, then dissolves. |
-| 2:12 – 3:00 | Disperse | The field retreats to its opening state for a seamless loop. |
+A single sustained field rather than a sequence of movements. Brand marks drift
+up and to the right along the arrow axis at **67.93°**, carrying motion trails,
+and leave through the top of the frame. Nothing about the look changes over the
+three minutes — density, palette and rate hold steady, so the room never
+"cuts" to a different design.
+
+Rate is deliberately slow for the scale of the projection: whole laps per loop
+give **30 px/s** for the far field up to **91 px/s** for the nearest marks. A
+mark takes between 13 and 38 seconds to cross the height of the frame.
+
+Depth drives everything together — near marks are larger, brighter and faster;
+far marks are small, dim and slow — which is what keeps the field readable
+rather than flat.
 
 ## Brand compliance
 
 - Colour is sampled exclusively from the primary magenta → cobalt gradient
-  (`GRADIENT` in `src/brand.js`), with brighter “glow” partners for emissive
+  (`GRADIENT` in `src/brand.js`), with brighter "glow" partners for emissive
   marks matched to the supplied reference frames.
-- **Arrows are never rotated.** Both official arrow paths are used verbatim;
-  only position, scale, opacity and gradient fill vary.
-- Pixels and pluses use the official geometry — a 74.97 grid square and a plus
-  whose bar is 20.6 % of its width. Rotation is applied to a minority of marks
-  only, and stays subtle.
-- The logo **icon** is used without the wordmark, which the guidelines permit
-  and which respects the template's no-text rule. It is given elliptical clear
-  space that pushes the field back while it is on screen.
+- **Nothing is rotated.** Both official arrow paths are used verbatim, and
+  pixels and pluses are drawn axis-aligned exactly as the official patterns are
+  constructed. Only position, scale, opacity and gradient fill vary.
+- The complete **plus and pixel cluster patterns** drift through the field as
+  whole units alongside individual marks, so the real pattern stays
+  recognisable and not just its constituent marks. Cluster geometry is lifted
+  verbatim from the supplied symbol artwork (`PLUS_CLUSTER`, `PIXEL_CLUSTER`).
+- Individual marks keep official proportions — a plain grid square for the
+  pixel, and a plus whose bar is 20.6 % of its width.
 
 ## Layout
 
@@ -115,3 +122,8 @@ tools/still.js      single-frame renders for quick checks
 
 `src/scene.js` drives both the preview and the final render, so what is
 approved in the browser is exactly what gets encoded.
+
+The Vector logo is not currently in the piece: a logo reveal is by definition a
+change of design, which the single-sustained-field direction rules out. The
+icon geometry is still available as `LOGO_ICON` in `src/brand.js` if it should
+come back.

@@ -5,10 +5,11 @@
 // gets encoded. Everything is a pure function of loop time `t`, which makes
 // the piece scrubbable and seamlessly loopable.
 //
-// Narrative: two fields of brand marks — magenta on the south wall, cobalt on
-// the north — advance toward each other, meet as violet on the west wall
-// directly in the viewer's eye-line, surge upward behind the Vector icon, then
-// disperse back to their starting positions.
+// The field is a single sustained state rather than a sequence of movements:
+// brand marks drift slowly up and to the right along the arrow axis, carrying
+// motion trails, and leave the frame at the top. Colour is a function of
+// horizontal position, so the room reads magenta on the south wall, violet
+// across the west wall in the viewer's eye-line, and cobalt on the north.
 
 import {
   VENUE,
@@ -17,13 +18,22 @@ import {
   WEST_CENTRE,
   ARROW_REGULAR,
   ARROW_LONG,
-  LOGO_ICON,
   PLUS_BAR_RATIO,
+  PLUS_CLUSTER,
+  PLUS_CLUSTER_MARK,
+  PIXEL_CLUSTER,
+  PIXEL_CLUSTER_MARK,
   gradientAt,
   rgba,
 } from './brand.js';
 
 export const DURATION = 180; // seconds, seamless loop
+
+// Travel direction: up and to the right along the arrow axis.
+export const FLOW_DEG = 67.93;
+const TH = (FLOW_DEG * Math.PI) / 180;
+const DIR = { x: Math.cos(TH), y: -Math.sin(TH) };
+const PERP = { x: Math.sin(TH), y: Math.cos(TH) };
 
 // ---------------------------------------------------------------------------
 // Deterministic randomness
@@ -41,180 +51,116 @@ function mulberry32(seed) {
 
 const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 const clamp01 = (v) => clamp(v, 0, 1);
-const smoothstep = (x) => {
-  const t = clamp01(x);
-  return t * t * (3 - 2 * t);
-};
 const lerp = (a, b, k) => a + (b - a) * k;
-
-// Piecewise keyframe curve with smoothstep easing between stops.
-function curve(stops) {
-  return function (t) {
-    if (t <= stops[0][0]) return stops[0][1];
-    const last = stops[stops.length - 1];
-    if (t >= last[0]) return last[1];
-    for (let i = 0; i < stops.length - 1; i++) {
-      const [ta, va] = stops[i];
-      const [tb, vb] = stops[i + 1];
-      if (t >= ta && t <= tb) {
-        return lerp(va, vb, smoothstep((t - ta) / (tb - ta)));
-      }
-    }
-    return last[1];
-  };
-}
+const frac = (v) => v - Math.floor(v);
 
 // ---------------------------------------------------------------------------
-// Timing curves — the choreography of the piece
+// Flow field geometry
+//
+// Positions are tracked in a basis aligned to the travel direction: `a` runs
+// along it, `b` across it. Wrapping `a` on a span comfortably larger than the
+// canvas means elements recycle well outside the frame, so the loop never
+// shows a seam and marks genuinely exit the top edge.
 // ---------------------------------------------------------------------------
 
-// How far each field reaches inward from its wall, as a fraction of canvas
-// width. At 0.5 the two fields touch on the west wall.
-const reachAt = curve([
-  [0, 0.13], [30, 0.16], [58, 0.33], [80, 0.52],
-  [100, 0.56], [118, 0.575], [140, 0.4], [165, 0.175], [180, 0.13],
-]);
+const MARGIN_A = 950;
+const MARGIN_B = 420;
 
-// Global density and brightness.
-const intensityAt = curve([
-  [0, 0.55], [28, 0.62], [60, 0.86], [84, 1.0],
-  [112, 1.0], [134, 0.92], [160, 0.66], [180, 0.55],
-]);
-
-// Horizontal motion-blur trails, peaking during the advance.
-const streakAt = curve([
-  [0, 0], [28, 0.12], [46, 1.0], [62, 0.62], [80, 0.12], [100, 0], [180, 0],
-]);
-
-// Upward surge behind the logo moment.
-const ascendAt = curve([
-  [0, 0], [98, 0], [116, 1.0], [132, 0.62], [152, 0.16], [180, 0],
-]);
-
-// Vector icon presence.
-const logoAt = curve([
-  [0, 0], [101, 0], [112, 1], [125, 1], [135, 0], [180, 0],
-]);
-
-// Vertical spread of the flow band.
-const spreadAt = curve([
-  [0, 0.62], [60, 0.78], [100, 0.94], [130, 0.86], [180, 0.62],
-]);
-
-// Flow rate. Integrated below so the loop closes exactly.
-const speedAt = curve([
-  [0, 0.55], [30, 0.75], [50, 1.35], [70, 1.05],
-  [100, 0.85], [120, 1.0], [150, 0.7], [180, 0.55],
-]);
-
-// Integrate the speed curve once, then normalise to [0,1] across the loop.
-// A particle assigned `k` whole laps therefore returns to its exact starting
-// position at t = DURATION, whatever the speed curve does in between.
-const FLOW_LUT = (() => {
-  const N = 3600;
-  const lut = new Float64Array(N + 1);
-  let acc = 0;
-  const dt = DURATION / N;
-  for (let i = 1; i <= N; i++) {
-    const a = speedAt((i - 1) * dt);
-    const b = speedAt(i * dt);
-    acc += ((a + b) / 2) * dt;
-    lut[i] = acc;
+const EXT = (() => {
+  let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity;
+  for (const [x, y] of [[0, 0], [CANVAS_W, 0], [0, CANVAS_H], [CANVAS_W, CANVAS_H]]) {
+    const a = x * DIR.x + y * DIR.y;
+    const b = x * PERP.x + y * PERP.y;
+    if (a < aMin) aMin = a;
+    if (a > aMax) aMax = a;
+    if (b < bMin) bMin = b;
+    if (b > bMax) bMax = b;
   }
-  const total = lut[N];
-  for (let i = 0; i <= N; i++) lut[i] /= total;
-  return lut;
+  return {
+    a0: aMin - MARGIN_A,
+    aLen: aMax - aMin + MARGIN_A * 2,
+    b0: bMin - MARGIN_B,
+    bLen: bMax - bMin + MARGIN_B * 2,
+  };
 })();
 
-function flowPhase(t) {
-  const N = FLOW_LUT.length - 1;
-  const x = clamp01(t / DURATION) * N;
-  const i = Math.min(N - 1, Math.floor(x));
-  return lerp(FLOW_LUT[i], FLOW_LUT[i + 1], x - i);
+// Whole laps per loop. With a constant rate these keep the loop exact while
+// still giving parallax: roughly 30 px/s for the far field up to 90 px/s for
+// the nearest marks — slow enough to sit calmly across a very wide projection.
+const LAPS = [1, 1, 2, 2, 3, 3];
+
+function place(el, phase, t) {
+  const a = EXT.a0 + frac(el.a0 + el.laps * phase) * EXT.aLen;
+  // A slow drift across the travel axis keeps paths from reading as rails.
+  const drift = Math.sin(el.wob + (t / DURATION) * Math.PI * 2 * el.wobRate) * el.wobAmt;
+  const b = EXT.b0 + el.b0 * EXT.bLen + drift;
+  const x = a * DIR.x + b * PERP.x;
+  const y = a * DIR.y + b * PERP.y;
+  return { x, y, xn: clamp01(x / CANVAS_W) };
 }
 
-// ---------------------------------------------------------------------------
-// Field shape
-// ---------------------------------------------------------------------------
+// Gentle vertical weighting so the field has a centre of gravity without
+// hard-edged banding — marks stay visible as they leave the top of the frame.
+function bandWeight(y) {
+  const d = (y / CANVAS_H - 0.5) / 0.52;
+  return 0.26 + 0.74 * Math.exp(-d * d * 2.1);
+}
 
-// Centreline of the flow band. Sags gently toward the west wall so the two
-// fields meet slightly below the viewer's eye-line, then lift on the ascent.
-function bandCentre(xn, t, ascend) {
+// Blend a weighting toward 1. Large shapes need the field's density
+// modulation applied gently, or they survive at full size but near-zero alpha
+// and read as grey ghosts rather than as arrows.
+const soft = (w, k) => 1 - k + k * w;
+
+// A slow swell across the width, drifting over the loop. Amplitude is small:
+// this is texture, not choreography.
+function fieldWeight(xn, t) {
   const loop = (t / DURATION) * Math.PI * 2;
-  const sag = 0.105 * Math.sin(Math.PI * xn);
-  const drift = 0.022 * Math.sin(loop + xn * 3.4) + 0.014 * Math.sin(loop * 2 + xn * 7.1);
-  return CANVAS_H * (0.47 + sag + drift - 0.1 * ascend);
-}
-
-// Half-height of the band. Wide at the outer walls, converging toward a
-// vanishing point on the west wall — the perspective read in the reference
-// frames — relaxing toward uniform as the fields converge.
-function bandSpread(xn, t, spread, converge) {
-  const edgeBias = 0.34 + 0.66 * Math.pow(Math.abs(2 * xn - 1), 1.3);
-  const shape = lerp(edgeBias, 0.92, converge * 0.75);
-  return CANVAS_H * 0.5 * spread * shape;
-}
-
-// Logo clear space. The guidelines require breathing room around the mark, so
-// while the icon is on screen the field is pushed back inside an ellipse
-// centred on it. Returns a multiplier in [0,1].
-const LOGO_CX = WEST_CENTRE;
-const LOGO_CY = CANVAS_H * 0.4;
-
-function logoClearance(x, y, logoAlpha) {
-  if (logoAlpha < 0.01) return 1;
-  const rx = CANVAS_H * 0.62;
-  const ry = CANVAS_H * 0.46;
-  const d = Math.hypot((x - LOGO_CX) / rx, (y - LOGO_CY) / ry);
-  // Floor at 0.08 rather than 0 so the field thins behind the mark instead of
-  // punching a hard hole through the gradient.
-  const clear = 0.08 + 0.92 * smoothstep((d - 0.5) / 0.55);
-  return lerp(1, clear, logoAlpha);
-}
-
-// Density envelope: how present the field is at a given x.
-function envelope(xn, reach) {
-  const falloff = (s) => {
-    if (s <= 0.6) return 1;
-    const k = (s - 0.6) / 0.9;
-    return Math.exp(-k * k * 2.6);
-  };
-  const eL = falloff(xn / reach);
-  const eR = falloff((1 - xn) / reach);
-  return Math.min(1.25, eL + eR);
+  return 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
 }
 
 // ---------------------------------------------------------------------------
 // Element construction
 // ---------------------------------------------------------------------------
 
-// Lap counts available to particles. Integer laps keep the loop seamless while
-// still giving parallax between near and far marks.
-const LAPS = [2, 3, 4, 5, 6, 8];
+function baseFields(rnd, depth) {
+  return {
+    a0: rnd(),
+    b0: rnd(),
+    depth,
+    laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+    wob: rnd() * Math.PI * 2,
+    wobRate: 1 + Math.floor(rnd() * 3),
+    wobAmt: 30 + rnd() * 90,
+    twPhase: rnd() * Math.PI * 2,
+    twRate: 1 + Math.floor(rnd() * 4),
+  };
+}
 
 function buildParticles(seed, count) {
   const rnd = mulberry32(seed);
   const out = [];
   for (let i = 0; i < count; i++) {
-    // Bias depth toward the far field so big marks stay rare and deliberate.
     const depth = Math.pow(rnd(), 1.9);
-    // Lane position within the band, clustered toward the centreline.
-    const l = rnd() + rnd() + rnd();
-    const lane = (l / 3) * 2 - 1;
     out.push({
-      u0: rnd(),
-      lane,
-      depth,
-      laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+      ...baseFields(rnd, depth),
       kind: rnd() < 0.55 ? 0 : 1, // 0 = pixel, 1 = plus
-      // Pixels in the official pattern sit on-grid; a small rotation on a
-      // minority of marks reads as motion without breaking the pattern.
-      rot: rnd() < 0.22 ? (rnd() - 0.5) * 0.5 : 0,
-      twPhase: rnd() * Math.PI * 2,
-      twRate: 1 + Math.floor(rnd() * 4),
-      twAmt: 0.15 + rnd() * 0.4,
-      jitter: rnd() * Math.PI * 2,
+      twAmt: 0.12 + rnd() * 0.34,
       sizeVar: 0.75 + rnd() * 0.55,
+      trail: 0.35 + rnd() * 0.9,
+    });
+  }
+  return out;
+}
+
+function buildClusters(seed, count, minSize, maxSize) {
+  const rnd = mulberry32(seed);
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const depth = Math.pow(rnd(), 1.5);
+    out.push({
+      ...baseFields(rnd, depth),
+      size: lerp(minSize, maxSize, clamp01(depth * 0.8 + rnd() * 0.3)),
+      alphaVar: 0.7 + rnd() * 0.5,
     });
   }
   return out;
@@ -225,20 +171,13 @@ function buildArrows(seed, count, minH, maxH, longChance) {
   const out = [];
   for (let i = 0; i < count; i++) {
     const depth = Math.pow(rnd(), 1.35);
-    const l = rnd() + rnd();
     out.push({
-      u0: rnd(),
-      lane: (l / 2) * 2 - 1,
-      depth,
-      laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+      ...baseFields(rnd, depth),
       // Size tracks depth. Decoupling them produces large, dim arrows that
       // read as flat washes rather than as objects sitting further back.
       h: lerp(minH, maxH, clamp01(depth * 0.78 + rnd() * 0.3)),
       long: rnd() < longChance,
-      twPhase: rnd() * Math.PI * 2,
-      twRate: 1 + Math.floor(rnd() * 3),
-      alphaVar: 0.6 + rnd() * 0.5,
-      jitter: rnd() * Math.PI * 2,
+      alphaVar: 0.75 + rnd() * 0.4,
     });
   }
   return out;
@@ -252,72 +191,49 @@ export function createScene() {
   const P2D = globalThis.Path2D;
   if (!P2D) throw new Error('Path2D is required (set globalThis.Path2D in Node).');
 
-  const paths = {
-    arrowRegular: new P2D(ARROW_REGULAR.d),
-    arrowLong: new P2D(ARROW_LONG.d),
-    logo: LOGO_ICON.parts.map((p) => ({ fill: p.fill, path: new P2D(p.d) })),
+  return {
+    paths: {
+      arrowRegular: new P2D(ARROW_REGULAR.d),
+      arrowLong: new P2D(ARROW_LONG.d),
+    },
+    // Counts are set against the rotated wrap region, not the canvas. Only
+    // about 18% of that region is on screen at any moment, so the totals here
+    // are far larger than the number of marks actually visible.
+    particles: buildParticles(0x5ec7, 13500),
+    plusClusters: buildClusters(0xe55a, 40, 190, 620),
+    pixelClusters: buildClusters(0xf66b, 24, 170, 520),
+    arrowsFar: buildArrows(0xa11e, 240, 0.03, 0.1, 0.0),
+    arrowsMid: buildArrows(0xb22f, 100, 0.11, 0.26, 0.1),
+    arrowsHero: buildArrows(0xc33a, 38, 0.34, 0.78, 0.3),
+    arrowsLong: buildArrows(0xd44b, 24, 0.55, 0.98, 1.0),
   };
-
-  const particles = buildParticles(0x5ec7, 4200);
-  // Arrow counts are deliberately restrained. The reference art reads as a
-  // particle field punctuated by arrows, not a field of arrows — overlapping
-  // translucent arrowheads under an additive blend turn to mush very quickly.
-  const arrowsFar = buildArrows(0xa11e, 58, 0.03, 0.1, 0.0);
-  const arrowsMid = buildArrows(0xb22f, 30, 0.11, 0.26, 0.1);
-  const arrowsHero = buildArrows(0xc33a, 10, 0.3, 0.66, 0.3);
-  const arrowsLong = buildArrows(0xd44b, 6, 0.55, 0.98, 1.0);
-
-  return { paths, particles, arrowsFar, arrowsMid, arrowsHero, arrowsLong };
-}
-
-// Position a flowing element. Elements travel up and to the right, matching
-// the fixed orientation of the official arrow.
-function place(el, phase, t, ascend, spread, converge) {
-  // Travel 1.2 canvas widths per lap so marks enter and exit off-screen.
-  let u = (el.u0 + el.laps * phase) % 1;
-  const x = (u * 1.24 - 0.12) * CANVAS_W;
-  const xn = clamp01(x / CANVAS_W);
-  const centre = bandCentre(xn, t, ascend);
-  const half = bandSpread(xn, t, spread, converge);
-  // Marks rise slightly as they travel right, echoing the arrow direction.
-  const rise = -CANVAS_H * 0.05 * (u - 0.5) * (0.5 + el.depth);
-  const wobble = Math.sin(el.jitter + t * 0.35 + u * 6.0) * CANVAS_H * 0.012;
-  return { x, xn, y: centre + el.lane * half + rise + wobble, u };
 }
 
 export function drawScene(ctx, time, scene) {
   const t = ((time % DURATION) + DURATION) % DURATION;
+  const phase = t / DURATION;
 
-  const reach = reachAt(t);
-  const intensity = intensityAt(t);
-  const streak = streakAt(t);
-  const ascend = ascendAt(t);
-  const spread = spreadAt(t);
-  const logoAlpha = logoAt(t);
-  const phase = flowPhase(t);
-  const converge = smoothstep((reach - 0.3) / 0.26);
-
-  drawBackground(ctx, t, reach, intensity, converge);
+  drawBackground(ctx, t);
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, ascend, spread, converge, reach, intensity, 0.5, logoAlpha);
-  drawParticles(ctx, scene, t, phase, ascend, spread, converge, reach, intensity, streak, logoAlpha);
-  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, ascend, spread, converge, reach, intensity, 0.6, logoAlpha);
-  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, ascend, spread, converge, reach, intensity, 0.5, logoAlpha);
-  drawArrowLayer(ctx, scene, scene.arrowsHero, t, phase, ascend, spread, converge, reach, intensity, 0.78, logoAlpha);
+  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, 0.62);
+  drawClusterLayer(ctx, scene.pixelClusters, t, phase, 0, 0.62);
+  drawParticles(ctx, scene, t, phase);
+  drawClusterLayer(ctx, scene.plusClusters, t, phase, 1, 0.75);
+  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, 0.85);
+  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, 0.72);
+  drawArrowLayer(ctx, scene, scene.arrowsHero, t, phase, 1.05);
 
   ctx.restore();
-
-  if (logoAlpha > 0.001) drawLogo(ctx, scene, logoAlpha, t);
 }
 
 // ---------------------------------------------------------------------------
 // Background
 // ---------------------------------------------------------------------------
 
-function drawBackground(ctx, t, reach, intensity, converge) {
+function drawBackground(ctx, t) {
   const g = ctx.createLinearGradient(0, 0, CANVAS_W, 0);
   g.addColorStop(0.0, '#0d0010');
   g.addColorStop(0.35, '#080011');
@@ -327,20 +243,17 @@ function drawBackground(ctx, t, reach, intensity, converge) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  // Ambient wash from each field, plus a violet bloom where they meet.
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-
   // Kept deliberately faint: the reference art sits on near-black, with light
   // coming off the marks themselves rather than from a background wash.
-  const breathe = 0.88 + 0.12 * Math.sin((t / DURATION) * Math.PI * 4);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const breathe = 0.9 + 0.1 * Math.sin((t / DURATION) * Math.PI * 2);
   const washes = [
-    { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * intensity * breathe, r: CANVAS_W * 0.17 },
-    { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * intensity * breathe, r: CANVAS_W * 0.17 },
-    { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.11 * converge * intensity, r: CANVAS_W * 0.13 },
+    { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
+    { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.07 * breathe, r: CANVAS_W * 0.12 },
+    { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
   ];
   for (const w of washes) {
-    if (w.a <= 0.002) continue;
     const rg = ctx.createRadialGradient(w.cx, CANVAS_H * 0.5, 0, w.cx, CANVAS_H * 0.5, w.r);
     rg.addColorStop(0, rgba(w.col, w.a));
     rg.addColorStop(0.55, rgba(w.col, w.a * 0.28));
@@ -352,105 +265,126 @@ function drawBackground(ctx, t, reach, intensity, converge) {
 }
 
 // ---------------------------------------------------------------------------
-// Particle field — official pixel and plus marks
+// Individual marks
+//
+// Pixels and pluses are drawn axis-aligned, exactly as the official patterns
+// are constructed — no rotation.
 // ---------------------------------------------------------------------------
 
-function drawParticles(ctx, scene, t, phase, ascend, spread, converge, reach, intensity, streak, logoAlpha) {
-  const bar = PLUS_BAR_RATIO;
-
-  for (const p of scene.particles) {
-    const pos = place(p, phase, t, ascend, spread, converge);
-    if (pos.x < -140 || pos.x > CANVAS_W + 140) continue;
-
-    const env = envelope(pos.xn, reach);
-    if (env < 0.012) continue;
-
-    const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + (t / DURATION) * Math.PI * 2 * p.twRate * 3));
-    let alpha = (0.1 + 0.62 * Math.pow(p.depth, 1.25)) * env * intensity * tw;
-    alpha *= 1 + 0.35 * ascend * p.depth;
-    alpha *= logoClearance(pos.x, pos.y, logoAlpha);
-    if (alpha < 0.006) continue;
-
-    const emissive = clamp01(0.25 + p.depth * 0.75);
-    const col = gradientAt(pos.xn, emissive);
-
-    let size = CANVAS_H * (0.0055 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
-    size *= 1 + 0.22 * ascend * p.depth;
-
-    // Trailing motion blur during the advance.
-    if (streak > 0.02 && p.depth > 0.3) {
-      const len = size * (1.5 + 16 * streak * (p.laps / 8));
-      const th = Math.max(1, size * (p.kind === 0 ? 0.3 : 0.22));
-      ctx.fillStyle = rgba(col, alpha * 0.2 * streak);
-      ctx.fillRect(pos.x - len, pos.y - th / 2, len, th);
-    }
-
-    ctx.fillStyle = rgba(col, alpha);
-
-    if (p.rot !== 0) {
-      ctx.save();
-      ctx.translate(pos.x, pos.y);
-      ctx.rotate(p.rot);
-      if (p.kind === 0) ctx.fillRect(-size / 2, -size / 2, size, size);
-      else fillPlus(ctx, 0, 0, size, bar);
-      ctx.restore();
-    } else if (p.kind === 0) {
-      ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
-    } else {
-      fillPlus(ctx, pos.x, pos.y, size, bar);
-    }
-  }
+function fillPixel(ctx, cx, cy, size) {
+  ctx.fillRect(cx - size / 2, cy - size / 2, size, size);
 }
 
-// The official plus: a square outline with a bar 20.6% of its width.
-function fillPlus(ctx, cx, cy, size, bar) {
+function fillPlus(ctx, cx, cy, size) {
   const h = size / 2;
-  const b = (size * bar) / 2;
+  const b = (size * PLUS_BAR_RATIO) / 2;
   ctx.fillRect(cx - h, cy - b, size, b * 2);
   ctx.fillRect(cx - b, cy - h, b * 2, size);
 }
 
+// Motion trail, drawn along the travel axis behind the mark.
+function drawTrail(ctx, x, y, len, thickness, style) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-TH);
+  ctx.fillStyle = style;
+  ctx.fillRect(-len, -thickness / 2, len, thickness);
+  ctx.restore();
+}
+
+function drawParticles(ctx, scene, t, phase) {
+  for (const p of scene.particles) {
+    const pos = place(p, phase, t);
+    if (pos.x < -180 || pos.x > CANVAS_W + 180 || pos.y < -180 || pos.y > CANVAS_H + 180) continue;
+
+    const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
+    const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * bandWeight(pos.y) * fieldWeight(pos.xn, t) * tw;
+    if (alpha < 0.006) continue;
+
+    const col = gradientAt(pos.xn, clamp01(0.25 + p.depth * 0.75));
+    const size = CANVAS_H * (0.0055 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
+
+    // Trails are a permanent part of the look, not a passing effect: they give
+    // the wide middle of the room something to read at walking pace.
+    if (p.depth > 0.3) {
+      const len = size * (2.2 + 9 * p.trail * (p.laps / 3));
+      const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
+      drawTrail(ctx, pos.x, pos.y, len, th, rgba(col, alpha * 0.2));
+    }
+
+    ctx.fillStyle = rgba(col, alpha);
+    if (p.kind === 0) fillPixel(ctx, pos.x, pos.y, size);
+    else fillPlus(ctx, pos.x, pos.y, size);
+  }
+}
+
 // ---------------------------------------------------------------------------
-// Arrows — never rotated, per the brand rules
+// Official cluster patterns, drawn whole
 // ---------------------------------------------------------------------------
 
-function drawArrowLayer(ctx, scene, arrows, t, phase, ascend, spread, converge, reach, intensity, weight, logoAlpha) {
+function drawClusterLayer(ctx, clusters, t, phase, kind, weight) {
+  const pattern = kind === 1 ? PLUS_CLUSTER : PIXEL_CLUSTER;
+  const markRatio = kind === 1 ? PLUS_CLUSTER_MARK : PIXEL_CLUSTER_MARK;
+
+  for (const c of clusters) {
+    const pos = place(c, phase, t);
+    const r = c.size * 0.75;
+    if (pos.x < -r || pos.x > CANVAS_W + r || pos.y < -r || pos.y > CANVAS_H + r) continue;
+
+    const tw = 0.75 + 0.25 * Math.sin(c.twPhase + phase * Math.PI * 2 * c.twRate * 2);
+    const alpha = weight * (0.2 + 0.8 * c.depth) * bandWeight(pos.y) * fieldWeight(pos.xn, t) * tw * c.alphaVar;
+    if (alpha < 0.006) continue;
+
+    const mark = c.size * markRatio;
+
+    for (const [dx, dy] of pattern) {
+      const mx = pos.x + dx * c.size;
+      const my = pos.y + dy * c.size;
+      if (mx < -mark || mx > CANVAS_W + mark || my < -mark || my > CANVAS_H + mark) continue;
+      // Colour each mark by its own position so a cluster spanning the west
+      // wall still sits correctly on the gradient.
+      const col = gradientAt(clamp01(mx / CANVAS_W), clamp01(0.3 + c.depth * 0.7));
+      ctx.fillStyle = rgba(col, alpha);
+      if (kind === 1) fillPlus(ctx, mx, my, mark);
+      else fillPixel(ctx, mx, my, mark);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Arrows — never rotated, per the brand rules. They travel along the axis they
+// already point down, so they read as shooting off the top of the frame.
+// ---------------------------------------------------------------------------
+
+function drawArrowLayer(ctx, scene, arrows, t, phase, weight) {
   for (const a of arrows) {
-    const pos = place(a, phase, t, ascend, spread, converge);
+    const pos = place(a, phase, t);
     const src = a.long ? ARROW_LONG : ARROW_REGULAR;
-    const h = CANVAS_H * a.h * (1 + 0.14 * ascend * a.depth);
+    const h = CANVAS_H * a.h;
     const w = (h / src.h) * src.w;
 
     if (pos.x < -w - 80 || pos.x > CANVAS_W + w + 80) continue;
+    if (pos.y < -h - 80 || pos.y > CANVAS_H + h + 80) continue;
 
-    const env = envelope(pos.xn, reach);
-    if (env < 0.012) continue;
-
-    const tw = 0.72 + 0.28 * Math.sin(a.twPhase + (t / DURATION) * Math.PI * 2 * a.twRate * 2);
-    let alpha = weight * (0.22 + 0.78 * a.depth) * env * intensity * tw * a.alphaVar;
-    alpha *= 1 + 0.3 * ascend * a.depth;
+    const tw = 0.8 + 0.2 * Math.sin(a.twPhase + phase * Math.PI * 2 * a.twRate * 2);
+    const alpha =
+      weight * (0.22 + 0.78 * a.depth) *
+      soft(bandWeight(pos.y), 0.55) * soft(fieldWeight(pos.xn, t), 0.5) *
+      tw * a.alphaVar;
     if (alpha < 0.006) continue;
 
-    // Keep tall arrows inside the frame: the taller the arrow, the less it is
-    // allowed to stray from the centreline.
-    const centreY = bandCentre(pos.xn, t, ascend);
-    const room = Math.max(CANVAS_H * 0.05, (CANVAS_H - h) / 2);
-    const y = centreY + clamp(pos.y - centreY, -room, room);
-
-    alpha *= logoClearance(pos.x, y, logoAlpha);
-    if (alpha < 0.006) continue;
-
-    const col = gradientAt(pos.xn, clamp01(0.3 + a.depth * 0.7));
-    const tail = gradientAt(pos.xn, clamp01(0.1 + a.depth * 0.4));
+    const col = gradientAt(pos.xn, clamp01(0.45 + a.depth * 0.55));
+    const tail = gradientAt(pos.xn, clamp01(0.2 + a.depth * 0.4));
+    const capped = Math.min(alpha, 0.95);
 
     ctx.save();
-    ctx.translate(pos.x - w / 2, y - h / 2);
+    ctx.translate(pos.x - w / 2, pos.y - h / 2);
     ctx.scale(h / src.h, h / src.h);
     // Brand shapes may carry a gradient fill; running it tail-to-head gives
     // each arrow a lit leading edge, as in the reference art.
     const grad = ctx.createLinearGradient(0, src.h, src.w, 0);
-    grad.addColorStop(0, rgba(tail, Math.min(alpha, 0.95) * 0.5));
-    grad.addColorStop(1, rgba(col, Math.min(alpha, 0.95)));
+    grad.addColorStop(0, rgba(tail, capped * 0.62));
+    grad.addColorStop(1, rgba(col, capped));
     ctx.fillStyle = grad;
     ctx.fill(a.long ? scene.paths.arrowLong : scene.paths.arrowRegular);
     ctx.restore();
@@ -458,35 +392,7 @@ function drawArrowLayer(ctx, scene, arrows, t, phase, ascend, spread, converge, 
 }
 
 // ---------------------------------------------------------------------------
-// Vector icon — resolves on the west wall at the peak of the piece
-// ---------------------------------------------------------------------------
-
-function drawLogo(ctx, scene, alpha, t) {
-  const src = LOGO_ICON;
-  const iw = src.x1 - src.x0;
-  const ih = src.y1 - src.y0;
-  const h = CANVAS_H * 0.54;
-  const s = h / ih;
-  const cx = LOGO_CX;
-  const cy = LOGO_CY;
-
-  // Settles into place as it fades up.
-  const settle = 1 + 0.06 * (1 - alpha);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.scale(s * settle, s * settle);
-  ctx.translate(-src.x0 - iw / 2, -src.y0 - ih / 2);
-  ctx.globalAlpha = alpha;
-  for (const part of scene.paths.logo) {
-    ctx.fillStyle = part.fill;
-    ctx.fill(part.path);
-  }
-  ctx.restore();
-}
-
-// ---------------------------------------------------------------------------
-// Bloom — cheap two-tap downscale blur composited additively
+// Bloom — cheap downscale blur composited additively
 // ---------------------------------------------------------------------------
 
 export function applyBloom(ctx, makeCanvas, cache, strength = 0.55) {
@@ -539,8 +445,6 @@ export function applyBloom(ctx, makeCanvas, cache, strength = 0.55) {
 export function drawVenueOverlay(ctx) {
   ctx.save();
   ctx.lineWidth = 3;
-  ctx.font = '600 30px system-ui, sans-serif';
-  ctx.textBaseline = 'top';
 
   for (const c of VENUE.corners) {
     ctx.fillStyle = 'rgba(255,255,255,0.10)';

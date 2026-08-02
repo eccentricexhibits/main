@@ -103,31 +103,30 @@
   .clock span { color: var(--dimmer); font-weight: 400; }
   .transport .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
 
-  /* ---------- phase timeline (doubles as the scrubber) ---------- */
-  .timeline {
-    margin: 12px 26px 0; position: relative;
-    display: flex; gap: 2px; cursor: pointer; user-select: none;
-    border-radius: 3px;
-  }
-  .timeline .phase {
-    position: relative; padding: 9px 10px 10px;
+  /* ---------- scrub track ---------- */
+  .track {
+    margin: 12px 26px 0; position: relative; height: 40px;
     background: var(--panel-2); border: 1px solid var(--hairline);
-    border-left-width: 0; border-right-width: 0;
-    overflow: hidden;
+    border-radius: 3px; cursor: pointer; user-select: none; overflow: hidden;
   }
-  .timeline .phase:first-child { border-left-width: 1px; border-radius: 3px 0 0 3px; }
-  .timeline .phase:last-child { border-right-width: 1px; border-radius: 0 3px 3px 0; }
-  .timeline .phase i {
-    display: block; height: 2px; margin-bottom: 8px; border-radius: 2px;
-    background: var(--tint); opacity: .85;
+  .track .fill {
+    position: absolute; inset: 0 auto 0 0;
+    background: linear-gradient(90deg, rgba(235,8,138,.30), rgba(138,37,201,.30) 52%, rgba(49,60,255,.30));
+    pointer-events: none;
   }
-  .timeline .phase b { display: block; font-size: 12.5px; font-weight: 600; }
-  .timeline .phase span { display: block; font-size: var(--step); color: var(--dim); }
-  .timeline .phase.on { background: #181820; }
-  .timeline .phase.on b { color: var(--tint); }
+  .track .tick {
+    position: absolute; top: 0; bottom: 0; width: 1px;
+    background: var(--hairline); pointer-events: none;
+  }
+  .track .tick.major { background: #34343f; }
+  .track .tick b {
+    position: absolute; top: 5px; left: 6px; font-weight: 600;
+    font-size: var(--step); color: var(--dimmer);
+    font-variant-numeric: tabular-nums;
+  }
   #head {
-    position: absolute; top: -2px; bottom: -2px; width: 2px;
-    background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 0 12px rgba(255,255,255,.5);
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.55);
     pointer-events: none;
   }
 
@@ -166,6 +165,7 @@
   <div class="specs">
     <div><span class="lbl">Canvas</span><b class="num">6878 × 1080</b></div>
     <div><span class="lbl">Duration</span><b class="num">3:00 · seamless</b></div>
+    <div><span class="lbl">Flow</span><b class="num">67.93° · 30–91 px/s</b></div>
     <div><span class="lbl">Surfaces</span><b>3 walls + 4 corners</b></div>
     <div><span class="lbl">Palette</span><b>Magenta → violet → cobalt</b></div>
   </div>
@@ -194,8 +194,9 @@
   </div>
 </div>
 
-<div class="timeline" id="timeline" role="slider" tabindex="0"
+<div class="track" id="timeline" role="slider" tabindex="0"
      aria-label="Playback position" aria-valuemin="0" aria-valuemax="180" aria-valuenow="0">
+  <div class="fill" id="fill"></div>
   <div id="head"></div>
 </div>
 
@@ -235,7 +236,8 @@
   <section>
     <span class="lbl">Notes</span>
     <div class="notes">
-      <p>Arrows are never rotated — only position, scale, opacity and gradient fill vary. Pixels and pluses keep the official geometry, with subtle rotation on a minority of marks.</p>
+      <p>A single sustained field — no phase changes. Everything drifts up and right along the arrow axis at <b>67.93°</b> and leaves through the top of the frame.</p>
+      <p>Nothing rotates: arrows, pixels and pluses are all drawn at their official orientation. The complete plus and pixel cluster patterns drift through the field alongside individual marks.</p>
       <p><b>Space</b> play/pause · <b>← →</b> step 1 s · <b>⇧← ⇧→</b> step 10 s</p>
     </div>
   </section>
@@ -331,26 +333,67 @@
     h: 1080,
     d: "M463.33,0l-168.9,73.89-29.33,69.19,133.39-53.47L0,1079.82l62.23.18L448.81,109.21l59.1,131.81,29.33-69.78L463.33,0Z"
   };
-  var LOGO_ICON = {
-    x0: 721.58,
-    y0: 48.16,
-    x1: 2369.3,
-    y1: 1893.09,
-    parts: [
-      {
-        fill: "#ffffff",
-        d: "M1649.64,1408.87 L1232.78,314.36 L1440.01,314.36 L1440.01,177.41 L721.58,177.41 L721.58,314.36 L929.23,314.36 L1472.62,1737.49 L1538.97,1893.09 L1685.91,1499.05 Z"
-      },
-      {
-        fill: "#ed2c8a",
-        d: "M2194.88,48.16 L1796.37,222.5 L1724.81,389.53 L2041.77,258.1 L1829.8,780.97 L1827.78,786.02 L1898.29,962.38 L2160.95,305.76 L2298.75,619.65 L2369.3,455.1 Z"
-      }
-    ]
-  };
   var PLUS_BAR_RATIO = 14.99 / 72.85;
+  var PLUS_CLUSTER = [
+    [-0.22296, -0.3221],
+    [-0.46627, -0.26571],
+    [0.46627, -0.2167],
+    [-0.34143, -0.19826],
+    [-794e-5, -0.15883],
+    [0.23622, -0.10344],
+    [-0.3176, -0.03868],
+    [0.11288, -0.03599],
+    [-0.17161, 0.03146],
+    [-0.28572, 0.11805],
+    [-0.05794, 0.19658],
+    [0.05583, 0.28149],
+    [-0.15158, 0.3221]
+  ];
+  var PLUS_CLUSTER_MARK = 0.06745;
+  var PIXEL_CLUSTER = [
+    [-0.24316, -0.38434],
+    [-0.17375, -0.38434],
+    [0.17333, -0.38434],
+    [-0.46529, -0.36141],
+    [-0.10434, -0.31492],
+    [0.10391, -0.31492],
+    [0.24275, -0.31492],
+    [-0.39588, -0.292],
+    [-0.03492, -0.2455],
+    [0.17333, -0.2455],
+    [0.24275, -0.2455],
+    [-0.46529, -0.22258],
+    [-0.03492, -0.17609],
+    [0.0345, -0.17609],
+    [0.17333, -0.17609],
+    [-0.39588, -0.15316],
+    [-0.03492, -0.10667],
+    [0.10391, -0.10667],
+    [0.32646, -0.10158],
+    [0.39587, -0.03216],
+    [0.03542, 0.03725],
+    [0.17425, 0.03725],
+    [0.24367, 0.03725],
+    [0.46529, 0.03725],
+    [0.10484, 0.10667],
+    [0.17425, 0.10667],
+    [0.31309, 0.10667],
+    [-0.034, 0.17609],
+    [0.17425, 0.17609],
+    [0.24367, 0.17609],
+    [0.03542, 0.2455],
+    [0.31309, 0.2455],
+    [-0.034, 0.31492],
+    [0.03542, 0.38434]
+  ];
+  var PIXEL_CLUSTER_MARK = 0.06942;
 
   // src/scene.js
   var DURATION = 180;
+  var FLOW_DEG = 67.93;
+  var TH = FLOW_DEG * Math.PI / 180;
+  var DIR = { x: Math.cos(TH), y: -Math.sin(TH) };
+  var PERP = { x: Math.sin(TH), y: Math.cos(TH) };
   function mulberry32(seed) {
     let a = seed >>> 0;
     return function() {
@@ -362,164 +405,83 @@
   }
   var clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
   var clamp012 = (v) => clamp(v, 0, 1);
-  var smoothstep = (x) => {
-    const t2 = clamp012(x);
-    return t2 * t2 * (3 - 2 * t2);
-  };
   var lerp = (a, b, k) => a + (b - a) * k;
-  function curve(stops) {
-    return function(t2) {
-      if (t2 <= stops[0][0]) return stops[0][1];
-      const last2 = stops[stops.length - 1];
-      if (t2 >= last2[0]) return last2[1];
-      for (let i = 0; i < stops.length - 1; i++) {
-        const [ta, va] = stops[i];
-        const [tb, vb] = stops[i + 1];
-        if (t2 >= ta && t2 <= tb) {
-          return lerp(va, vb, smoothstep((t2 - ta) / (tb - ta)));
-        }
-      }
-      return last2[1];
-    };
-  }
-  var reachAt = curve([
-    [0, 0.13],
-    [30, 0.16],
-    [58, 0.33],
-    [80, 0.52],
-    [100, 0.56],
-    [118, 0.575],
-    [140, 0.4],
-    [165, 0.175],
-    [180, 0.13]
-  ]);
-  var intensityAt = curve([
-    [0, 0.55],
-    [28, 0.62],
-    [60, 0.86],
-    [84, 1],
-    [112, 1],
-    [134, 0.92],
-    [160, 0.66],
-    [180, 0.55]
-  ]);
-  var streakAt = curve([
-    [0, 0],
-    [28, 0.12],
-    [46, 1],
-    [62, 0.62],
-    [80, 0.12],
-    [100, 0],
-    [180, 0]
-  ]);
-  var ascendAt = curve([
-    [0, 0],
-    [98, 0],
-    [116, 1],
-    [132, 0.62],
-    [152, 0.16],
-    [180, 0]
-  ]);
-  var logoAt = curve([
-    [0, 0],
-    [101, 0],
-    [112, 1],
-    [125, 1],
-    [135, 0],
-    [180, 0]
-  ]);
-  var spreadAt = curve([
-    [0, 0.62],
-    [60, 0.78],
-    [100, 0.94],
-    [130, 0.86],
-    [180, 0.62]
-  ]);
-  var speedAt = curve([
-    [0, 0.55],
-    [30, 0.75],
-    [50, 1.35],
-    [70, 1.05],
-    [100, 0.85],
-    [120, 1],
-    [150, 0.7],
-    [180, 0.55]
-  ]);
-  var FLOW_LUT = (() => {
-    const N = 3600;
-    const lut = new Float64Array(N + 1);
-    let acc = 0;
-    const dt = DURATION / N;
-    for (let i = 1; i <= N; i++) {
-      const a = speedAt((i - 1) * dt);
-      const b = speedAt(i * dt);
-      acc += (a + b) / 2 * dt;
-      lut[i] = acc;
+  var frac = (v) => v - Math.floor(v);
+  var MARGIN_A = 950;
+  var MARGIN_B = 420;
+  var EXT = (() => {
+    let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity;
+    for (const [x, y] of [[0, 0], [CANVAS_W, 0], [0, CANVAS_H], [CANVAS_W, CANVAS_H]]) {
+      const a = x * DIR.x + y * DIR.y;
+      const b = x * PERP.x + y * PERP.y;
+      if (a < aMin) aMin = a;
+      if (a > aMax) aMax = a;
+      if (b < bMin) bMin = b;
+      if (b > bMax) bMax = b;
     }
-    const total = lut[N];
-    for (let i = 0; i <= N; i++) lut[i] /= total;
-    return lut;
-  })();
-  function flowPhase(t2) {
-    const N = FLOW_LUT.length - 1;
-    const x = clamp012(t2 / DURATION) * N;
-    const i = Math.min(N - 1, Math.floor(x));
-    return lerp(FLOW_LUT[i], FLOW_LUT[i + 1], x - i);
-  }
-  function bandCentre(xn, t2, ascend) {
-    const loop = t2 / DURATION * Math.PI * 2;
-    const sag = 0.105 * Math.sin(Math.PI * xn);
-    const drift = 0.022 * Math.sin(loop + xn * 3.4) + 0.014 * Math.sin(loop * 2 + xn * 7.1);
-    return CANVAS_H * (0.47 + sag + drift - 0.1 * ascend);
-  }
-  function bandSpread(xn, t2, spread, converge) {
-    const edgeBias = 0.34 + 0.66 * Math.pow(Math.abs(2 * xn - 1), 1.3);
-    const shape = lerp(edgeBias, 0.92, converge * 0.75);
-    return CANVAS_H * 0.5 * spread * shape;
-  }
-  var LOGO_CX = WEST_CENTRE;
-  var LOGO_CY = CANVAS_H * 0.4;
-  function logoClearance(x, y, logoAlpha) {
-    if (logoAlpha < 0.01) return 1;
-    const rx = CANVAS_H * 0.62;
-    const ry = CANVAS_H * 0.46;
-    const d = Math.hypot((x - LOGO_CX) / rx, (y - LOGO_CY) / ry);
-    const clear = 0.08 + 0.92 * smoothstep((d - 0.5) / 0.55);
-    return lerp(1, clear, logoAlpha);
-  }
-  function envelope(xn, reach) {
-    const falloff = (s) => {
-      if (s <= 0.6) return 1;
-      const k = (s - 0.6) / 0.9;
-      return Math.exp(-k * k * 2.6);
+    return {
+      a0: aMin - MARGIN_A,
+      aLen: aMax - aMin + MARGIN_A * 2,
+      b0: bMin - MARGIN_B,
+      bLen: bMax - bMin + MARGIN_B * 2
     };
-    const eL = falloff(xn / reach);
-    const eR = falloff((1 - xn) / reach);
-    return Math.min(1.25, eL + eR);
+  })();
+  var LAPS = [1, 1, 2, 2, 3, 3];
+  function place(el, phase, t2) {
+    const a = EXT.a0 + frac(el.a0 + el.laps * phase) * EXT.aLen;
+    const drift = Math.sin(el.wob + t2 / DURATION * Math.PI * 2 * el.wobRate) * el.wobAmt;
+    const b = EXT.b0 + el.b0 * EXT.bLen + drift;
+    const x = a * DIR.x + b * PERP.x;
+    const y = a * DIR.y + b * PERP.y;
+    return { x, y, xn: clamp012(x / CANVAS_W) };
   }
-  var LAPS = [2, 3, 4, 5, 6, 8];
+  function bandWeight(y) {
+    const d = (y / CANVAS_H - 0.5) / 0.52;
+    return 0.26 + 0.74 * Math.exp(-d * d * 2.1);
+  }
+  var soft = (w, k) => 1 - k + k * w;
+  function fieldWeight(xn, t2) {
+    const loop = t2 / DURATION * Math.PI * 2;
+    return 0.86 + 0.14 * Math.sin(xn * Math.PI * 1.6 + loop) + 0.08 * Math.sin(xn * Math.PI * 3.1 - loop * 2);
+  }
+  function baseFields(rnd, depth) {
+    return {
+      a0: rnd(),
+      b0: rnd(),
+      depth,
+      laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+      wob: rnd() * Math.PI * 2,
+      wobRate: 1 + Math.floor(rnd() * 3),
+      wobAmt: 30 + rnd() * 90,
+      twPhase: rnd() * Math.PI * 2,
+      twRate: 1 + Math.floor(rnd() * 4)
+    };
+  }
   function buildParticles(seed, count) {
     const rnd = mulberry32(seed);
     const out = [];
     for (let i = 0; i < count; i++) {
       const depth = Math.pow(rnd(), 1.9);
-      const l = rnd() + rnd() + rnd();
-      const lane = l / 3 * 2 - 1;
       out.push({
-        u0: rnd(),
-        lane,
-        depth,
-        laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+        ...baseFields(rnd, depth),
         kind: rnd() < 0.55 ? 0 : 1,
         // 0 = pixel, 1 = plus
-        // Pixels in the official pattern sit on-grid; a small rotation on a
-        // minority of marks reads as motion without breaking the pattern.
-        rot: rnd() < 0.22 ? (rnd() - 0.5) * 0.5 : 0,
-        twPhase: rnd() * Math.PI * 2,
-        twRate: 1 + Math.floor(rnd() * 4),
-        twAmt: 0.15 + rnd() * 0.4,
-        jitter: rnd() * Math.PI * 2,
-        sizeVar: 0.75 + rnd() * 0.55
+        twAmt: 0.12 + rnd() * 0.34,
+        sizeVar: 0.75 + rnd() * 0.55,
+        trail: 0.35 + rnd() * 0.9
+      });
+    }
+    return out;
+  }
+  function buildClusters(seed, count, minSize, maxSize) {
+    const rnd = mulberry32(seed);
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const depth = Math.pow(rnd(), 1.5);
+      out.push({
+        ...baseFields(rnd, depth),
+        size: lerp(minSize, maxSize, clamp012(depth * 0.8 + rnd() * 0.3)),
+        alphaVar: 0.7 + rnd() * 0.5
       });
     }
     return out;
@@ -529,20 +491,13 @@
     const out = [];
     for (let i = 0; i < count; i++) {
       const depth = Math.pow(rnd(), 1.35);
-      const l = rnd() + rnd();
       out.push({
-        u0: rnd(),
-        lane: l / 2 * 2 - 1,
-        depth,
-        laps: LAPS[Math.min(LAPS.length - 1, Math.floor(depth * LAPS.length + rnd() * 0.9))],
+        ...baseFields(rnd, depth),
         // Size tracks depth. Decoupling them produces large, dim arrows that
         // read as flat washes rather than as objects sitting further back.
         h: lerp(minH, maxH, clamp012(depth * 0.78 + rnd() * 0.3)),
         long: rnd() < longChance,
-        twPhase: rnd() * Math.PI * 2,
-        twRate: 1 + Math.floor(rnd() * 3),
-        alphaVar: 0.6 + rnd() * 0.5,
-        jitter: rnd() * Math.PI * 2
+        alphaVar: 0.75 + rnd() * 0.4
       });
     }
     return out;
@@ -550,50 +505,39 @@
   function createScene() {
     const P2D = globalThis.Path2D;
     if (!P2D) throw new Error("Path2D is required (set globalThis.Path2D in Node).");
-    const paths = {
-      arrowRegular: new P2D(ARROW_REGULAR.d),
-      arrowLong: new P2D(ARROW_LONG.d),
-      logo: LOGO_ICON.parts.map((p) => ({ fill: p.fill, path: new P2D(p.d) }))
+    return {
+      paths: {
+        arrowRegular: new P2D(ARROW_REGULAR.d),
+        arrowLong: new P2D(ARROW_LONG.d)
+      },
+      // Counts are set against the rotated wrap region, not the canvas. Only
+      // about 18% of that region is on screen at any moment, so the totals here
+      // are far larger than the number of marks actually visible.
+      particles: buildParticles(24263, 13500),
+      plusClusters: buildClusters(58714, 40, 190, 620),
+      pixelClusters: buildClusters(63083, 24, 170, 520),
+      arrowsFar: buildArrows(41246, 240, 0.03, 0.1, 0),
+      arrowsMid: buildArrows(45615, 100, 0.11, 0.26, 0.1),
+      arrowsHero: buildArrows(49978, 38, 0.34, 0.78, 0.3),
+      arrowsLong: buildArrows(54347, 24, 0.55, 0.98, 1)
     };
-    const particles = buildParticles(24263, 4200);
-    const arrowsFar = buildArrows(41246, 58, 0.03, 0.1, 0);
-    const arrowsMid = buildArrows(45615, 30, 0.11, 0.26, 0.1);
-    const arrowsHero = buildArrows(49978, 10, 0.3, 0.66, 0.3);
-    const arrowsLong = buildArrows(54347, 6, 0.55, 0.98, 1);
-    return { paths, particles, arrowsFar, arrowsMid, arrowsHero, arrowsLong };
-  }
-  function place(el, phase, t2, ascend, spread, converge) {
-    let u = (el.u0 + el.laps * phase) % 1;
-    const x = (u * 1.24 - 0.12) * CANVAS_W;
-    const xn = clamp012(x / CANVAS_W);
-    const centre = bandCentre(xn, t2, ascend);
-    const half = bandSpread(xn, t2, spread, converge);
-    const rise = -CANVAS_H * 0.05 * (u - 0.5) * (0.5 + el.depth);
-    const wobble = Math.sin(el.jitter + t2 * 0.35 + u * 6) * CANVAS_H * 0.012;
-    return { x, xn, y: centre + el.lane * half + rise + wobble, u };
   }
   function drawScene(ctx2, time, scene2) {
     const t2 = (time % DURATION + DURATION) % DURATION;
-    const reach = reachAt(t2);
-    const intensity = intensityAt(t2);
-    const streak = streakAt(t2);
-    const ascend = ascendAt(t2);
-    const spread = spreadAt(t2);
-    const logoAlpha = logoAt(t2);
-    const phase = flowPhase(t2);
-    const converge = smoothstep((reach - 0.3) / 0.26);
-    drawBackground(ctx2, t2, reach, intensity, converge);
+    const phase = t2 / DURATION;
+    drawBackground(ctx2, t2);
     ctx2.save();
     ctx2.globalCompositeOperation = "lighter";
-    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, ascend, spread, converge, reach, intensity, 0.5, logoAlpha);
-    drawParticles(ctx2, scene2, t2, phase, ascend, spread, converge, reach, intensity, streak, logoAlpha);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, ascend, spread, converge, reach, intensity, 0.6, logoAlpha);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, ascend, spread, converge, reach, intensity, 0.5, logoAlpha);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsHero, t2, phase, ascend, spread, converge, reach, intensity, 0.78, logoAlpha);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, 0.62);
+    drawClusterLayer(ctx2, scene2.pixelClusters, t2, phase, 0, 0.62);
+    drawParticles(ctx2, scene2, t2, phase);
+    drawClusterLayer(ctx2, scene2.plusClusters, t2, phase, 1, 0.75);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, 0.85);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, 0.72);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsHero, t2, phase, 1.05);
     ctx2.restore();
-    if (logoAlpha > 1e-3) drawLogo(ctx2, scene2, logoAlpha, t2);
   }
-  function drawBackground(ctx2, t2, reach, intensity, converge) {
+  function drawBackground(ctx2, t2) {
     const g = ctx2.createLinearGradient(0, 0, CANVAS_W, 0);
     g.addColorStop(0, "#0d0010");
     g.addColorStop(0.35, "#080011");
@@ -604,14 +548,13 @@
     ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
     ctx2.save();
     ctx2.globalCompositeOperation = "lighter";
-    const breathe = 0.88 + 0.12 * Math.sin(t2 / DURATION * Math.PI * 4);
+    const breathe = 0.9 + 0.1 * Math.sin(t2 / DURATION * Math.PI * 2);
     const washes = [
-      { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * intensity * breathe, r: CANVAS_W * 0.17 },
-      { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * intensity * breathe, r: CANVAS_W * 0.17 },
-      { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.11 * converge * intensity, r: CANVAS_W * 0.13 }
+      { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
+      { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.07 * breathe, r: CANVAS_W * 0.12 },
+      { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 }
     ];
     for (const w of washes) {
-      if (w.a <= 2e-3) continue;
       const rg = ctx2.createRadialGradient(w.cx, CANVAS_H * 0.5, 0, w.cx, CANVAS_H * 0.5, w.r);
       rg.addColorStop(0, rgba(w.col, w.a));
       rg.addColorStop(0.55, rgba(w.col, w.a * 0.28));
@@ -621,99 +564,88 @@
     }
     ctx2.restore();
   }
-  function drawParticles(ctx2, scene2, t2, phase, ascend, spread, converge, reach, intensity, streak, logoAlpha) {
-    const bar = PLUS_BAR_RATIO;
-    for (const p of scene2.particles) {
-      const pos = place(p, phase, t2, ascend, spread, converge);
-      if (pos.x < -140 || pos.x > CANVAS_W + 140) continue;
-      const env = envelope(pos.xn, reach);
-      if (env < 0.012) continue;
-      const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + t2 / DURATION * Math.PI * 2 * p.twRate * 3));
-      let alpha = (0.1 + 0.62 * Math.pow(p.depth, 1.25)) * env * intensity * tw;
-      alpha *= 1 + 0.35 * ascend * p.depth;
-      alpha *= logoClearance(pos.x, pos.y, logoAlpha);
-      if (alpha < 6e-3) continue;
-      const emissive = clamp012(0.25 + p.depth * 0.75);
-      const col = gradientAt(pos.xn, emissive);
-      let size = CANVAS_H * (55e-4 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
-      size *= 1 + 0.22 * ascend * p.depth;
-      if (streak > 0.02 && p.depth > 0.3) {
-        const len = size * (1.5 + 16 * streak * (p.laps / 8));
-        const th = Math.max(1, size * (p.kind === 0 ? 0.3 : 0.22));
-        ctx2.fillStyle = rgba(col, alpha * 0.2 * streak);
-        ctx2.fillRect(pos.x - len, pos.y - th / 2, len, th);
-      }
-      ctx2.fillStyle = rgba(col, alpha);
-      if (p.rot !== 0) {
-        ctx2.save();
-        ctx2.translate(pos.x, pos.y);
-        ctx2.rotate(p.rot);
-        if (p.kind === 0) ctx2.fillRect(-size / 2, -size / 2, size, size);
-        else fillPlus(ctx2, 0, 0, size, bar);
-        ctx2.restore();
-      } else if (p.kind === 0) {
-        ctx2.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
-      } else {
-        fillPlus(ctx2, pos.x, pos.y, size, bar);
-      }
-    }
+  function fillPixel(ctx2, cx, cy, size) {
+    ctx2.fillRect(cx - size / 2, cy - size / 2, size, size);
   }
-  function fillPlus(ctx2, cx, cy, size, bar) {
+  function fillPlus(ctx2, cx, cy, size) {
     const h = size / 2;
-    const b = size * bar / 2;
+    const b = size * PLUS_BAR_RATIO / 2;
     ctx2.fillRect(cx - h, cy - b, size, b * 2);
     ctx2.fillRect(cx - b, cy - h, b * 2, size);
   }
-  function drawArrowLayer(ctx2, scene2, arrows, t2, phase, ascend, spread, converge, reach, intensity, weight, logoAlpha) {
+  function drawTrail(ctx2, x, y, len, thickness, style) {
+    ctx2.save();
+    ctx2.translate(x, y);
+    ctx2.rotate(-TH);
+    ctx2.fillStyle = style;
+    ctx2.fillRect(-len, -thickness / 2, len, thickness);
+    ctx2.restore();
+  }
+  function drawParticles(ctx2, scene2, t2, phase) {
+    for (const p of scene2.particles) {
+      const pos = place(p, phase, t2);
+      if (pos.x < -180 || pos.x > CANVAS_W + 180 || pos.y < -180 || pos.y > CANVAS_H + 180) continue;
+      const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
+      const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * bandWeight(pos.y) * fieldWeight(pos.xn, t2) * tw;
+      if (alpha < 6e-3) continue;
+      const col = gradientAt(pos.xn, clamp012(0.25 + p.depth * 0.75));
+      const size = CANVAS_H * (55e-4 + 0.05 * Math.pow(p.depth, 2.1)) * p.sizeVar;
+      if (p.depth > 0.3) {
+        const len = size * (2.2 + 9 * p.trail * (p.laps / 3));
+        const th = Math.max(1, size * (p.kind === 0 ? 0.26 : 0.2));
+        drawTrail(ctx2, pos.x, pos.y, len, th, rgba(col, alpha * 0.2));
+      }
+      ctx2.fillStyle = rgba(col, alpha);
+      if (p.kind === 0) fillPixel(ctx2, pos.x, pos.y, size);
+      else fillPlus(ctx2, pos.x, pos.y, size);
+    }
+  }
+  function drawClusterLayer(ctx2, clusters, t2, phase, kind, weight) {
+    const pattern = kind === 1 ? PLUS_CLUSTER : PIXEL_CLUSTER;
+    const markRatio = kind === 1 ? PLUS_CLUSTER_MARK : PIXEL_CLUSTER_MARK;
+    for (const c of clusters) {
+      const pos = place(c, phase, t2);
+      const r = c.size * 0.75;
+      if (pos.x < -r || pos.x > CANVAS_W + r || pos.y < -r || pos.y > CANVAS_H + r) continue;
+      const tw = 0.75 + 0.25 * Math.sin(c.twPhase + phase * Math.PI * 2 * c.twRate * 2);
+      const alpha = weight * (0.2 + 0.8 * c.depth) * bandWeight(pos.y) * fieldWeight(pos.xn, t2) * tw * c.alphaVar;
+      if (alpha < 6e-3) continue;
+      const mark = c.size * markRatio;
+      for (const [dx, dy] of pattern) {
+        const mx = pos.x + dx * c.size;
+        const my = pos.y + dy * c.size;
+        if (mx < -mark || mx > CANVAS_W + mark || my < -mark || my > CANVAS_H + mark) continue;
+        const col = gradientAt(clamp012(mx / CANVAS_W), clamp012(0.3 + c.depth * 0.7));
+        ctx2.fillStyle = rgba(col, alpha);
+        if (kind === 1) fillPlus(ctx2, mx, my, mark);
+        else fillPixel(ctx2, mx, my, mark);
+      }
+    }
+  }
+  function drawArrowLayer(ctx2, scene2, arrows, t2, phase, weight) {
     for (const a of arrows) {
-      const pos = place(a, phase, t2, ascend, spread, converge);
+      const pos = place(a, phase, t2);
       const src = a.long ? ARROW_LONG : ARROW_REGULAR;
-      const h = CANVAS_H * a.h * (1 + 0.14 * ascend * a.depth);
+      const h = CANVAS_H * a.h;
       const w = h / src.h * src.w;
       if (pos.x < -w - 80 || pos.x > CANVAS_W + w + 80) continue;
-      const env = envelope(pos.xn, reach);
-      if (env < 0.012) continue;
-      const tw = 0.72 + 0.28 * Math.sin(a.twPhase + t2 / DURATION * Math.PI * 2 * a.twRate * 2);
-      let alpha = weight * (0.22 + 0.78 * a.depth) * env * intensity * tw * a.alphaVar;
-      alpha *= 1 + 0.3 * ascend * a.depth;
+      if (pos.y < -h - 80 || pos.y > CANVAS_H + h + 80) continue;
+      const tw = 0.8 + 0.2 * Math.sin(a.twPhase + phase * Math.PI * 2 * a.twRate * 2);
+      const alpha = weight * (0.22 + 0.78 * a.depth) * soft(bandWeight(pos.y), 0.55) * soft(fieldWeight(pos.xn, t2), 0.5) * tw * a.alphaVar;
       if (alpha < 6e-3) continue;
-      const centreY = bandCentre(pos.xn, t2, ascend);
-      const room = Math.max(CANVAS_H * 0.05, (CANVAS_H - h) / 2);
-      const y = centreY + clamp(pos.y - centreY, -room, room);
-      alpha *= logoClearance(pos.x, y, logoAlpha);
-      if (alpha < 6e-3) continue;
-      const col = gradientAt(pos.xn, clamp012(0.3 + a.depth * 0.7));
-      const tail = gradientAt(pos.xn, clamp012(0.1 + a.depth * 0.4));
+      const col = gradientAt(pos.xn, clamp012(0.45 + a.depth * 0.55));
+      const tail = gradientAt(pos.xn, clamp012(0.2 + a.depth * 0.4));
+      const capped = Math.min(alpha, 0.95);
       ctx2.save();
-      ctx2.translate(pos.x - w / 2, y - h / 2);
+      ctx2.translate(pos.x - w / 2, pos.y - h / 2);
       ctx2.scale(h / src.h, h / src.h);
       const grad = ctx2.createLinearGradient(0, src.h, src.w, 0);
-      grad.addColorStop(0, rgba(tail, Math.min(alpha, 0.95) * 0.5));
-      grad.addColorStop(1, rgba(col, Math.min(alpha, 0.95)));
+      grad.addColorStop(0, rgba(tail, capped * 0.62));
+      grad.addColorStop(1, rgba(col, capped));
       ctx2.fillStyle = grad;
       ctx2.fill(a.long ? scene2.paths.arrowLong : scene2.paths.arrowRegular);
       ctx2.restore();
     }
-  }
-  function drawLogo(ctx2, scene2, alpha, t2) {
-    const src = LOGO_ICON;
-    const iw = src.x1 - src.x0;
-    const ih = src.y1 - src.y0;
-    const h = CANVAS_H * 0.54;
-    const s = h / ih;
-    const cx = LOGO_CX;
-    const cy = LOGO_CY;
-    const settle = 1 + 0.06 * (1 - alpha);
-    ctx2.save();
-    ctx2.translate(cx, cy);
-    ctx2.scale(s * settle, s * settle);
-    ctx2.translate(-src.x0 - iw / 2, -src.y0 - ih / 2);
-    ctx2.globalAlpha = alpha;
-    for (const part of scene2.paths.logo) {
-      ctx2.fillStyle = part.fill;
-      ctx2.fill(part.path);
-    }
-    ctx2.restore();
   }
   function applyBloom(ctx2, makeCanvas2, cache, strength = 0.55) {
     const src = ctx2.canvas;
@@ -747,8 +679,6 @@
   function drawVenueOverlay(ctx2) {
     ctx2.save();
     ctx2.lineWidth = 3;
-    ctx2.font = "600 30px system-ui, sans-serif";
-    ctx2.textBaseline = "top";
     for (const c of VENUE.corners) {
       ctx2.fillStyle = "rgba(255,255,255,0.10)";
       ctx2.fillRect(c.x0, 0, c.x1 - c.x0, CANVAS_H);
@@ -809,31 +739,20 @@
     d.textContent = `${w.label} \xB7 ${w.x1 - w.x0}\xD7${CANVAS_H}`;
     wallsEl.appendChild(d);
   }
-  var PHASES = [
-    { t0: 0, t1: 30, name: "Distant", note: "Fields hold the outer walls", tint: "#eb088a" },
-    { t0: 30, t1: 65, name: "Advance", note: "Streaming inward, motion trails", tint: "#d81b9e" },
-    { t0: 65, t1: 100, name: "Converge", note: "Meeting on the west wall", tint: "#8a25c9" },
-    { t0: 100, t1: 132, name: "Ascend", note: "Surge upward \xB7 Vector icon", tint: "#5a34e8" },
-    { t0: 132, t1: 180, name: "Disperse", note: "Retreat, back to the top", tint: "#313cff" }
-  ];
   var timeline = document.getElementById("timeline");
   var head = document.getElementById("head");
-  function fmtShort(s) {
-    return `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
-  }
+  var fill = document.getElementById("fill");
   function fmt(s) {
     const m = Math.floor(s / 60);
     return `${m}:${(s - m * 60).toFixed(1).padStart(4, "0")}`;
   }
-  var phaseEls = PHASES.map((p) => {
-    const el = document.createElement("div");
-    el.className = "phase";
-    el.style.flex = String(p.t1 - p.t0);
-    el.style.setProperty("--tint", p.tint);
-    el.innerHTML = `<i></i><b>${p.name}</b><span>${fmtShort(p.t0)} \u2013 ${fmtShort(p.t1)} \xB7 ${p.note}</span>`;
-    timeline.appendChild(el);
-    return el;
-  });
+  for (let s = 15; s < DURATION; s += 15) {
+    const tick = document.createElement("div");
+    tick.className = s % 60 === 0 ? "tick major" : "tick";
+    tick.style.left = `${s / DURATION * 100}%`;
+    if (s % 60 === 0) tick.innerHTML = `<b>${s / 60}:00</b>`;
+    timeline.appendChild(tick);
+  }
   var t = 0;
   var playing = true;
   var last = performance.now();
@@ -908,22 +827,18 @@
       if (!playing) render();
     }
   });
-  function currentPhase() {
-    return PHASES.find((p) => t >= p.t0 && t < p.t1) || PHASES[PHASES.length - 1];
-  }
   function render() {
     ctx.setTransform(quality, 0, 0, quality, 0, 0);
     drawScene(ctx, t, scene);
     if (bloomEl.checked) applyBloom(ctx, makeCanvas, bloomCache);
     ctx.setTransform(quality, 0, 0, quality, 0, 0);
     if (overlayEl.checked) drawVenueOverlay(ctx);
+    const pct = t / DURATION * 100;
     timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(DURATION)}</span>`;
-    head.style.left = `${t / DURATION * 100}%`;
+    head.style.left = `${pct}%`;
+    fill.style.width = `${pct}%`;
     timeline.setAttribute("aria-valuenow", t.toFixed(1));
-    timeline.setAttribute("aria-valuetext", `${fmt(t)}, ${currentPhase().name}`);
-    for (let i = 0; i < PHASES.length; i++) {
-      phaseEls[i].classList.toggle("on", t >= PHASES[i].t0 && t < PHASES[i].t1);
-    }
+    timeline.setAttribute("aria-valuetext", fmt(t));
   }
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1e3);

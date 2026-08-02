@@ -103,31 +103,30 @@
   .clock span { color: var(--dimmer); font-weight: 400; }
   .transport .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
 
-  /* ---------- phase timeline (doubles as the scrubber) ---------- */
-  .timeline {
-    margin: 12px 26px 0; position: relative;
-    display: flex; gap: 2px; cursor: pointer; user-select: none;
-    border-radius: 3px;
-  }
-  .timeline .phase {
-    position: relative; padding: 9px 10px 10px;
+  /* ---------- scrub track ---------- */
+  .track {
+    margin: 12px 26px 0; position: relative; height: 40px;
     background: var(--panel-2); border: 1px solid var(--hairline);
-    border-left-width: 0; border-right-width: 0;
-    overflow: hidden;
+    border-radius: 3px; cursor: pointer; user-select: none; overflow: hidden;
   }
-  .timeline .phase:first-child { border-left-width: 1px; border-radius: 3px 0 0 3px; }
-  .timeline .phase:last-child { border-right-width: 1px; border-radius: 0 3px 3px 0; }
-  .timeline .phase i {
-    display: block; height: 2px; margin-bottom: 8px; border-radius: 2px;
-    background: var(--tint); opacity: .85;
+  .track .fill {
+    position: absolute; inset: 0 auto 0 0;
+    background: linear-gradient(90deg, rgba(235,8,138,.30), rgba(138,37,201,.30) 52%, rgba(49,60,255,.30));
+    pointer-events: none;
   }
-  .timeline .phase b { display: block; font-size: 12.5px; font-weight: 600; }
-  .timeline .phase span { display: block; font-size: var(--step); color: var(--dim); }
-  .timeline .phase.on { background: #181820; }
-  .timeline .phase.on b { color: var(--tint); }
+  .track .tick {
+    position: absolute; top: 0; bottom: 0; width: 1px;
+    background: var(--hairline); pointer-events: none;
+  }
+  .track .tick.major { background: #34343f; }
+  .track .tick b {
+    position: absolute; top: 5px; left: 6px; font-weight: 600;
+    font-size: var(--step); color: var(--dimmer);
+    font-variant-numeric: tabular-nums;
+  }
   #head {
-    position: absolute; top: -2px; bottom: -2px; width: 2px;
-    background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 0 12px rgba(255,255,255,.5);
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.55);
     pointer-events: none;
   }
 
@@ -166,6 +165,7 @@
   <div class="specs">
     <div><span class="lbl">Canvas</span><b class="num">6878 × 1080</b></div>
     <div><span class="lbl">Duration</span><b class="num">3:00 · seamless</b></div>
+    <div><span class="lbl">Flow</span><b class="num">67.93° · 30–91 px/s</b></div>
     <div><span class="lbl">Surfaces</span><b>3 walls + 4 corners</b></div>
     <div><span class="lbl">Palette</span><b>Magenta → violet → cobalt</b></div>
   </div>
@@ -194,8 +194,9 @@
   </div>
 </div>
 
-<div class="timeline" id="timeline" role="slider" tabindex="0"
+<div class="track" id="timeline" role="slider" tabindex="0"
      aria-label="Playback position" aria-valuemin="0" aria-valuemax="180" aria-valuenow="0">
+  <div class="fill" id="fill"></div>
   <div id="head"></div>
 </div>
 
@@ -235,7 +236,8 @@
   <section>
     <span class="lbl">Notes</span>
     <div class="notes">
-      <p>Arrows are never rotated — only position, scale, opacity and gradient fill vary. Pixels and pluses keep the official geometry, with subtle rotation on a minority of marks.</p>
+      <p>A single sustained field — no phase changes. Everything drifts up and right along the arrow axis at <b>67.93°</b> and leaves through the top of the frame.</p>
+      <p>Nothing rotates: arrows, pixels and pluses are all drawn at their official orientation. The complete plus and pixel cluster patterns drift through the field alongside individual marks.</p>
       <p><b>Space</b> play/pause · <b>← →</b> step 1 s · <b>⇧← ⇧→</b> step 10 s</p>
     </div>
   </section>

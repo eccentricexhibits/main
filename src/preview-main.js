@@ -37,38 +37,26 @@ for (const w of VENUE.walls) {
 }
 
 // ---------------------------------------------------------------------------
-// Phase timeline — the structure of the piece, and the scrubber
+// Scrub track
 // ---------------------------------------------------------------------------
-
-const PHASES = [
-  { t0: 0, t1: 30, name: 'Distant', note: 'Fields hold the outer walls', tint: '#eb088a' },
-  { t0: 30, t1: 65, name: 'Advance', note: 'Streaming inward, motion trails', tint: '#d81b9e' },
-  { t0: 65, t1: 100, name: 'Converge', note: 'Meeting on the west wall', tint: '#8a25c9' },
-  { t0: 100, t1: 132, name: 'Ascend', note: 'Surge upward · Vector icon', tint: '#5a34e8' },
-  { t0: 132, t1: 180, name: 'Disperse', note: 'Retreat, back to the top', tint: '#313cff' },
-];
 
 const timeline = document.getElementById('timeline');
 const head = document.getElementById('head');
+const fill = document.getElementById('fill');
 
-function fmtShort(s) {
-  return `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
-}
 function fmt(s) {
   const m = Math.floor(s / 60);
   return `${m}:${(s - m * 60).toFixed(1).padStart(4, '0')}`;
 }
 
-const phaseEls = PHASES.map((p) => {
-  const el = document.createElement('div');
-  el.className = 'phase';
-  el.style.flex = String(p.t1 - p.t0);
-  el.style.setProperty('--tint', p.tint);
-  el.innerHTML =
-    `<i></i><b>${p.name}</b><span>${fmtShort(p.t0)} – ${fmtShort(p.t1)} · ${p.note}</span>`;
-  timeline.appendChild(el);
-  return el;
-});
+// A tick every 15 s, labelled on the minute.
+for (let s = 15; s < DURATION; s += 15) {
+  const tick = document.createElement('div');
+  tick.className = s % 60 === 0 ? 'tick major' : 'tick';
+  tick.style.left = `${(s / DURATION) * 100}%`;
+  if (s % 60 === 0) tick.innerHTML = `<b>${s / 60}:00</b>`;
+  timeline.appendChild(tick);
+}
 
 // ---------------------------------------------------------------------------
 // Playback
@@ -159,10 +147,6 @@ window.addEventListener('keydown', (e) => {
 // Frame loop
 // ---------------------------------------------------------------------------
 
-function currentPhase() {
-  return PHASES.find((p) => t >= p.t0 && t < p.t1) || PHASES[PHASES.length - 1];
-}
-
 function render() {
   ctx.setTransform(quality, 0, 0, quality, 0, 0);
   drawScene(ctx, t, scene);
@@ -170,13 +154,12 @@ function render() {
   ctx.setTransform(quality, 0, 0, quality, 0, 0);
   if (overlayEl.checked) drawVenueOverlay(ctx);
 
+  const pct = (t / DURATION) * 100;
   timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(DURATION)}</span>`;
-  head.style.left = `${(t / DURATION) * 100}%`;
+  head.style.left = `${pct}%`;
+  fill.style.width = `${pct}%`;
   timeline.setAttribute('aria-valuenow', t.toFixed(1));
-  timeline.setAttribute('aria-valuetext', `${fmt(t)}, ${currentPhase().name}`);
-  for (let i = 0; i < PHASES.length; i++) {
-    phaseEls[i].classList.toggle('on', t >= PHASES[i].t0 && t < PHASES[i].t1);
-  }
+  timeline.setAttribute('aria-valuetext', fmt(t));
 }
 
 function frame(now) {

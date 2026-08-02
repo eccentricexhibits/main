@@ -174,14 +174,32 @@ export const PLUS_BAR_RATIO = 14.99 / 72.85;
 // on a 74.97 grid pitch, i.e. a unit cell with no gap.
 export const PIXEL_CELL = 1.0;
 
-// The official pixel cluster, as a normalised offset grid. Used to seed
-// particle clusters so the field keeps the silhouette of the real pattern.
-// Each entry is [column, row] on the 74.97 grid of the source artwork.
-export const PIXEL_CLUSTER = [
-  [7.2, 11.1], [6.2, 10.1], [11.2, 9.1], [10.2, 8.1], [9.2, 8.1], [7.2, 9.1],
-  [6.2, 8.1], [13.4, 6.1], [11.2, 7.1], [10.2, 6.1], [9.2, 7.1], [9.2, 6.1],
-  [8.2, 7.1], [7.2, 6.1], [12.4, 5.1], [11.4, 4.1], [8.2, 4.0], [6.2, 4.0],
-  [9.2, 3.0], [9.2, 2.0], [7.2, 3.0], [6.2, 2.0], [6.2, 3.0], [1.0, 3.3],
-  [0.0, 2.3], [10.2, 1.0], [9.2, 0.0], [8.2, 1.0], [5.2, 1.0], [4.2, 0.0],
-  [3.2, 0.0], [1.0, 1.3], [0.0, 0.3], [10.2, 2.0],
+// The official cluster patterns, taken verbatim from the supplied symbol
+// artwork. Coordinates are mark centres, normalised so the cluster is one unit
+// wide with its origin at the cluster centre; MARK is the size of a single
+// mark in the same units. Drawing these as a unit keeps the real pattern
+// recognisable rather than only its individual marks.
+export const PLUS_CLUSTER = [
+  [-0.22296, -0.32210], [-0.46627, -0.26571], [0.46627, -0.21670],
+  [-0.34143, -0.19826], [-0.00794, -0.15883], [0.23622, -0.10344],
+  [-0.31760, -0.03868], [0.11288, -0.03599], [-0.17161, 0.03146],
+  [-0.28572, 0.11805], [-0.05794, 0.19658], [0.05583, 0.28149],
+  [-0.15158, 0.32210],
 ];
+export const PLUS_CLUSTER_MARK = 0.06745;
+
+export const PIXEL_CLUSTER = [
+  [-0.24316, -0.38434], [-0.17375, -0.38434], [0.17333, -0.38434],
+  [-0.46529, -0.36141], [-0.10434, -0.31492], [0.10391, -0.31492],
+  [0.24275, -0.31492], [-0.39588, -0.29200], [-0.03492, -0.24550],
+  [0.17333, -0.24550], [0.24275, -0.24550], [-0.46529, -0.22258],
+  [-0.03492, -0.17609], [0.03450, -0.17609], [0.17333, -0.17609],
+  [-0.39588, -0.15316], [-0.03492, -0.10667], [0.10391, -0.10667],
+  [0.32646, -0.10158], [0.39587, -0.03216], [0.03542, 0.03725],
+  [0.17425, 0.03725], [0.24367, 0.03725], [0.46529, 0.03725],
+  [0.10484, 0.10667], [0.17425, 0.10667], [0.31309, 0.10667],
+  [-0.03400, 0.17609], [0.17425, 0.17609], [0.24367, 0.17609],
+  [0.03542, 0.24550], [0.31309, 0.24550], [-0.03400, 0.31492],
+  [0.03542, 0.38434],
+];
+export const PIXEL_CLUSTER_MARK = 0.06942;
