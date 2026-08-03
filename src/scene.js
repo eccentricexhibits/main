@@ -489,14 +489,19 @@ export function applyBloom(ctx, makeCanvas, cache, strength = 0.55) {
   const W = src.width;
   const H = src.height;
 
-  if (!cache.a || cache.w !== W) {
+  if (!cache.a) {
     // A tight tap for the halo that hugs each mark, and a wide one for the
     // faint room glow. Keeping the tight tap dominant preserves the crisp
-    // shape edges the reference art has. Taps are sized off the real backing
-    // store so the bloom radius stays proportional at any preview resolution.
-    cache.a = makeCanvas(Math.max(1, Math.round(W / 5)), Math.max(1, Math.round(H / 5)));
-    cache.b = makeCanvas(Math.max(1, Math.round(W / 22)), Math.max(1, Math.round(H / 22)));
-    cache.w = W;
+    // shape edges the reference art has.
+    //
+    // Tap sizes are fixed in SCENE units, never off the backing store. Sizing
+    // them off the backing store makes the blur a constant number of *device*
+    // pixels, which is a different fraction of the artwork at every render
+    // resolution — a quarter-size preview then gets four times the bloom
+    // radius of the full-resolution master, and the master loses the glow and
+    // shimmer the preview was approved on.
+    cache.a = makeCanvas(Math.round(CANVAS_W / 20), Math.round(CANVAS_H / 20));
+    cache.b = makeCanvas(Math.round(CANVAS_W / 88), Math.round(CANVAS_H / 88));
   }
   const a = cache.a;
   const b = cache.b;

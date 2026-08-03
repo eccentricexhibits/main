@@ -82,6 +82,19 @@ scale=in_range=full:in_color_matrix=bt709:out_range=tv:out_color_matrix=bt709
 plus `-color_range tv` so the tags match the data. Canvas gives full-range RGB;
 video convention is limited-range YUV.
 
+### Bloom is sized in scene units
+
+The bloom taps are a fixed fraction of the 6878x1080 **scene**, never of the
+backing store. Sizing them off the backing store makes the blur a constant
+number of *device* pixels — which is a different fraction of the artwork at
+every render resolution. A quarter-size preview then carries four times the
+bloom radius of the full-resolution master, so the master arrives with visibly
+less glow, softer trails and less shimmer than the preview it was approved on.
+
+This is the one place where "the preview is exactly what gets encoded" can
+quietly stop being true, because nothing else in the scene is expressed in
+device pixels.
+
 ### Pixel format
 
 Measured on 24 representative frames against the raw render, with the colour

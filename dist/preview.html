@@ -695,10 +695,9 @@
     const src = ctx2.canvas;
     const W = src.width;
     const H = src.height;
-    if (!cache.a || cache.w !== W) {
-      cache.a = makeCanvas2(Math.max(1, Math.round(W / 5)), Math.max(1, Math.round(H / 5)));
-      cache.b = makeCanvas2(Math.max(1, Math.round(W / 22)), Math.max(1, Math.round(H / 22)));
-      cache.w = W;
+    if (!cache.a) {
+      cache.a = makeCanvas2(Math.round(CANVAS_W / 20), Math.round(CANVAS_H / 20));
+      cache.b = makeCanvas2(Math.round(CANVAS_W / 88), Math.round(CANVAS_H / 88));
     }
     const a = cache.a;
     const b = cache.b;
