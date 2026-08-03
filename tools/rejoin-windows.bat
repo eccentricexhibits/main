@@ -9,7 +9,7 @@ echo ============================================================
 echo.
 
 set "OUT=vectorconvergence6878x1080.mp4"
-set "EXPECTED=95885cee00b868d618ee7714ea6a950bf630c95bc40145d09a1c1bb3da09ba03"
+set "EXPECTED=613151514baed68129d278ee19dac50b4fdc6dd64ee0bb2343909eae52a8415f"
 
 if exist "%OUT%" del "%OUT%"
 
@@ -24,7 +24,7 @@ for /f "delims=" %%F in ('dir /b /a-d /on "*.part*" 2^>nul') do (
 )
 
 echo.
-echo   Found !COUNT! part files.
+echo   Found !COUNT! part files ^(expecting 17^).
 echo.
 
 if !COUNT! EQU 0 (
@@ -35,7 +35,7 @@ if !COUNT! EQU 0 (
     exit /b 1
 )
 
-if not !COUNT! EQU 16 (
+if not !COUNT! EQU 17 (
     echo   NOTE: expected 16 parts, found !COUNT!.
     echo   Carrying on - the check below will tell you if it worked.
     echo.

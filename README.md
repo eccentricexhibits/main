@@ -63,7 +63,8 @@ Options: `--fps --crf --gop --duration --workers --out --walls`.
 Frames are rendered at full resolution across worker processes, piped as raw
 RGBA into per-segment ffmpeg encoders, then concatenated with a stream copy so
 nothing is re-encoded. On four cores a full 180 s / 30 fps master takes about
-26 minutes and lands at **554 MB** (24.6 Mbps).
+25–35 minutes. The delivered master (yuv444p, CRF 16) is **475 MB** at
+21.1 Mbps and measures **42.1 dB** against the raw render.
 
 ### Colour conversion
 
