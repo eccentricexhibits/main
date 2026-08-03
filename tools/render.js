@@ -5,6 +5,7 @@
 // concatenated with a stream copy so nothing is re-encoded.
 //
 //   node tools/render.js                       # 6878x1080, 30 fps, H.264
+//   node tools/render.js --pix-fmt yuv444p     # better and smaller, sw playback
 //   node tools/render.js --fps 60 --crf 14
 //   node tools/render.js --walls               # also cut per-projector files
 //   node tools/render.js --duration 10         # short test render
@@ -41,6 +42,10 @@ const CRF = Number(arg('crf', 16));
 const DUR = Number(arg('duration', DURATION));
 const GOP = Number(arg('gop', Math.round(Number(arg('fps', 30)))));
 const WORKERS = Number(arg('workers', 4));
+// yuv420p is the compatible default. yuv444p measures better *and* smaller on
+// this content — saturated brand colour on near-black is the worst case for
+// chroma subsampling — but needs software playback. See the README.
+const PIX = arg('pix-fmt', 'yuv420p');
 const OUT = resolve(root, arg('out', 'out/vector-convergence-6878x1080.mp4'));
 const TMP = resolve(root, 'out/.segments');
 
@@ -66,7 +71,7 @@ if (process.env.RENDER_WORKER) {
     '-i', 'pipe:0',
     '-an',
     '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF),
-    '-pix_fmt', 'yuv420p',
+    '-pix_fmt', PIX,
     // Short, fixed GOP with scene-cut detection off: keeps seeking and loop
     // restarts snappy on venue playback hardware, and guarantees every segment
     // opens on a keyframe so the concat below is a clean stream copy.
@@ -103,7 +108,7 @@ if (process.env.RENDER_WORKER) {
 
 console.log(
   `Rendering ${TOTAL_FRAMES} frames · ${CANVAS_W}x${CANVAS_H} · ${FPS} fps · ` +
-  `${DUR}s · CRF ${CRF} · ${WORKERS} workers`
+  `${DUR}s · CRF ${CRF} · ${PIX} · ${WORKERS} workers`
 );
 
 rmSync(TMP, { recursive: true, force: true });
@@ -182,7 +187,7 @@ if (has('walls')) {
     await run([
       '-y', '-loglevel', 'error', '-i', OUT,
       '-vf', `crop=${width}:${CANVAS_H}:${w.x0}:0`,
-      '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF), '-pix_fmt', 'yuv420p',
+      '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF), '-pix_fmt', PIX,
       '-an', dest,
     ]);
     console.log(`    ${dest}`);

@@ -62,8 +62,38 @@ Options: `--fps --crf --gop --duration --workers --out --walls`.
 
 Frames are rendered at full resolution across worker processes, piped as raw
 RGBA into per-segment ffmpeg encoders, then concatenated with a stream copy so
-nothing is re-encoded. On four cores a full 180 s / 30 fps master takes roughly
-20 minutes and lands around 190 MB.
+nothing is re-encoded. On four cores a full 180 s / 30 fps master takes about
+26 minutes and lands at **554 MB** (24.6 Mbps).
+
+### Pixel format
+
+Measured on 24 representative frames, encoding the same source four ways and
+comparing against the raw render:
+
+| Encode | PSNR | Size (3 min) |
+| --- | --- | --- |
+| yuv420p CRF 16 | 37.3 dB | 538 MB |
+| yuv420p CRF 12 | 37.8 dB | 885 MB |
+| **yuv444p CRF 16** | **42.1 dB** | **454 MB** |
+| yuv420p10le CRF 16 | 38.1 dB | 502 MB |
+
+The error is dominated by **chroma subsampling, not bitrate** — dropping CRF
+from 16 to 12 buys 0.5 dB for 64 % more file. Saturated, hard-edged brand colour
+on near-black is the worst case for 4:2:0, and the encoder spends bits on the
+resulting residual.
+
+`yuv444p` is therefore both higher quality *and* smaller here. It is not the
+default only because H.264 High 4:4:4 Predictive decodes in software (VLC,
+Resolume, ffmpeg-based media servers) but not on every hardware decoder. Choose
+by what the venue plays back on:
+
+```bash
+node tools/render.js --pix-fmt yuv444p    # better and smaller, software playback
+node tools/render.js                      # yuv420p, universally compatible
+```
+
+At 1:1 the yuv420p master shows no visible banding or blocking; the difference
+is measurable rather than obvious.
 
 ---
 
