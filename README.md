@@ -65,35 +65,50 @@ RGBA into per-segment ffmpeg encoders, then concatenated with a stream copy so
 nothing is re-encoded. On four cores a full 180 s / 30 fps master takes about
 26 minutes and lands at **554 MB** (24.6 Mbps).
 
+### Colour conversion
+
+`-colorspace bt709` only *labels* the stream — ffmpeg's automatic RGB→YUV
+conversion still uses BT.601. Tagging alone therefore produces a file converted
+with one matrix and played back with another: a systematic colour shift, worth
+about 4.8 dB of error against the source, and most visible on exactly the
+saturated magenta and cobalt this piece is built from.
+
+The renderer converts explicitly instead:
+
+```
+scale=in_range=full:in_color_matrix=bt709:out_range=tv:out_color_matrix=bt709
+```
+
+plus `-color_range tv` so the tags match the data. Canvas gives full-range RGB;
+video convention is limited-range YUV.
+
 ### Pixel format
 
-Measured on 24 representative frames, encoding the same source four ways and
-comparing against the raw render:
+Measured on 24 representative frames against the raw render, with the colour
+conversion correct in both cases:
 
 | Encode | PSNR | Size (3 min) |
 | --- | --- | --- |
-| yuv420p CRF 16 | 37.3 dB | 538 MB |
-| yuv420p CRF 12 | 37.8 dB | 885 MB |
-| **yuv444p CRF 16** | **42.1 dB** | **454 MB** |
-| yuv420p10le CRF 16 | 38.1 dB | 502 MB |
+| yuv420p CRF 16 | 36.6 dB | ~520 MB |
+| **yuv444p CRF 16** | **41.7 dB** | **~428 MB** |
 
-The error is dominated by **chroma subsampling, not bitrate** — dropping CRF
-from 16 to 12 buys 0.5 dB for 64 % more file. Saturated, hard-edged brand colour
-on near-black is the worst case for 4:2:0, and the encoder spends bits on the
-resulting residual.
+Saturated, hard-edged brand colour on near-black is the worst case for 4:2:0,
+and the encoder spends bits on the resulting residual — so 4:4:4 is both higher
+quality *and* smaller here.
 
-`yuv444p` is therefore both higher quality *and* smaller here. It is not the
-default only because H.264 High 4:4:4 Predictive decodes in software (VLC,
-Resolume, ffmpeg-based media servers) but not on every hardware decoder. Choose
-by what the venue plays back on:
+It is not the default only because H.264 High 4:4:4 Predictive decodes in
+software (VLC, Resolume, ffmpeg-based media servers) but not on every hardware
+decoder. Choose by what the venue plays back on:
 
 ```bash
 node tools/render.js --pix-fmt yuv444p    # better and smaller, software playback
 node tools/render.js                      # yuv420p, universally compatible
 ```
 
-At 1:1 the yuv420p master shows no visible banding or blocking; the difference
-is measurable rather than obvious.
+An earlier measurement in this repo claimed 4:4:4 gained 4.8 dB over 4:2:0.
+That was wrong: the test encode was self-consistent while the real render was
+mis-tagged, so a colour-matrix error was misattributed to chroma subsampling.
+The figures above are like-for-like.
 
 ---
 

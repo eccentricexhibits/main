@@ -70,6 +70,13 @@ if (process.env.RENDER_WORKER) {
     '-s', `${CANVAS_W}x${CANVAS_H}`, '-r', String(FPS),
     '-i', 'pipe:0',
     '-an',
+    // Convert RGB->YUV explicitly with BT.709. ffmpeg's automatic conversion
+    // uses BT.601 regardless of the colour tags below, so tagging alone
+    // produces a file that is converted with one matrix and played back with
+    // another — a systematic colour shift, and a ~4.8 dB error against the
+    // source. The input from canvas is full-range RGB; video convention is
+    // limited-range YUV, which is what the tags declare.
+    '-vf', 'scale=in_range=full:in_color_matrix=bt709:out_range=tv:out_color_matrix=bt709',
     '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF),
     '-pix_fmt', PIX,
     // Short, fixed GOP with scene-cut detection off: keeps seeking and loop
@@ -77,6 +84,7 @@ if (process.env.RENDER_WORKER) {
     // opens on a keyframe so the concat below is a clean stream copy.
     '-x264-params', `keyint=${GOP}:min-keyint=${GOP}:scenecut=0`,
     '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709',
+    '-color_range', 'tv',
     segPath,
   ], { stdio: ['pipe', 'inherit', 'inherit'] });
 
@@ -188,7 +196,8 @@ if (has('walls')) {
       '-y', '-loglevel', 'error', '-i', OUT,
       '-vf', `crop=${width}:${CANVAS_H}:${w.x0}:0`,
       '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF), '-pix_fmt', PIX,
-      '-an', dest,
+      '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709',
+      '-color_range', 'tv', '-an', dest,
     ]);
     console.log(`    ${dest}`);
   }
