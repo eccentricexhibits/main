@@ -75,20 +75,27 @@ PROG_LINES = [
 # ---------------------------------------------------------------------------
 
 LOGO_XY = (SX0, 56.0)
-LOGO_SIZE = (150.0, 29.0)
+LOGO_SIZE = (165.0, 32.0)
 
-WEDGE_L = 170.0           # wedge lower edge, at the left edge of the bleed
-WEDGE_R = 200.0           # ...and at the right edge
+# The wedge is pulled up to buy vertical room for the name. At 27 pt the name
+# was using only 73% of the safe width — it was never width-constrained, the
+# cap was. On width alone "Yastrzhemabsky" fits at 36.75 pt, so the whole lower
+# block is re-spaced around a name a third larger, read at arm's length or
+# across a room rather than in the hand.
+WEDGE_L = 148.0           # wedge lower edge, at the left edge of the bleed
+WEDGE_R = 174.0           # ...and at the right edge
 
-NAME_MAX = 27.0
-NAME_Y = [230.0, 260.0]
-BODY = 10.2
-ORG_Y = [290.0, 304.0]
-PROG_Y = [326.0, 340.0, 354.0]
+NAME_MAX = 36.0
+NAME_Y = [206.0, 244.0]
+BODY = 13.0
+ORG_Y = [276.0, 293.0]
+PROG_Y = [316.0, 333.0, 350.0]
 
-CHIP_TOP = 366.0
-CHIP_H = 25.0
-CHIP_PAD = 11.0
+CHIP_TOP = 360.0
+CHIP_H = 28.0
+CHIP_PAD = 12.0
+CHIP_RADIUS = 4.5
+CHIP_SIZE = 13.0
 
 FLOW_DEG = 67.93          # the venue's travel axis, kept so the two pieces agree
 
@@ -414,7 +421,7 @@ def marks_svg(seed, near, far, in_wedge):
 def chip_svg(near, width):
     y = CHIP_TOP
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <rect x="{SX0}" y="{y:.2f}" width="{width:.2f}" height="{CHIP_H}" fill="{near}"/>
+  <rect x="{SX0}" y="{y:.2f}" width="{width:.2f}" height="{CHIP_H}" rx="{CHIP_RADIUS}" fill="{near}"/>
 </svg>'''
 
 
@@ -469,7 +476,8 @@ def build(cat, outdir, tmpdir):
     svg_layer(page, logo_svg(lw, lh), t("logo"), oc["logo"], rect=fitz.Rect(lx, ly, lx + lw, ly + lh))
 
     f_semi = fitz.Font(fontfile=semi)
-    chip_w = f_semi.text_length(label.upper(), fontsize=11) + 2.6 * 11 * 0.06 * len(label) + CHIP_PAD * 2
+    chip_w = (f_semi.text_length(label.upper(), fontsize=CHIP_SIZE)
+              + CHIP_SIZE * 0.06 * len(label) + CHIP_PAD * 2)
     chip_w = min(chip_w, SAFE_W)
     svg_layer(page, chip_svg(near, chip_w), t("chip"), oc["chip"])
 
@@ -490,7 +498,7 @@ def build(cat, outdir, tmpdir):
                        fontsize=fit(f_semi, line, BODY, SAFE_W))
 
     # chip label: uppercase, letter-spaced by hand since TextWriter has no tracking
-    cs = 11.0
+    cs = CHIP_SIZE
     cx = SX0 + CHIP_PAD
     cy = CHIP_TOP + CHIP_H / 2 + cs * 0.34
     track = cs * 0.06

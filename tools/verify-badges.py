@@ -33,11 +33,11 @@ CATEGORIES = ["student", "employer", "partner", "staff"]
 # is 0.0014, not 0.03. Getting that wrong reports a passing chip as a failure.
 AREAS = [
     # label,     y0,    y1,     ink luminance, x0,    x1
-    ("logo",     56.0,  85.0,  0.0,  22.5, 172.5),
-    ("name",    208.0, 264.0,  1.0,  22.5, 270.5),
-    ("org",     280.0, 308.0,  1.0,  22.5, 270.5),
-    ("title",   314.0, 358.0,  1.0,  22.5, 270.5),
-    ("chip",    370.0, 386.0,  0.0014, 26.0,  68.0),   # ink is rgb(.03,.01,.06)
+    ("logo",     56.0,  88.0,  0.0,  22.5, 187.5),
+    ("name",    178.0, 252.0,  1.0,  22.5, 270.5),
+    ("org",     264.0, 298.0,  1.0,  22.5, 270.5),
+    ("title",   304.0, 356.0,  1.0,  22.5, 270.5),
+    ("chip",    366.0, 384.0,  0.0014, 27.0,  70.0),   # ink is rgb(.03,.01,.06)
 ]
 TARGET = 4.5  # WCAG AA for small text; the logo is graphics and only needs 3:1
 

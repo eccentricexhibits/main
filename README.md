@@ -224,6 +224,12 @@ the lockup and back to full well clear of it. The far corner of the travel axis
 empties out on some seeds, so a light scatter of small marks keeps it alive
 without lifting density anywhere else.
 
+Type is set for reading across a room, so it is sized against the safe width
+rather than to a preset scale: the name runs at up to **36 pt** (a 14-character
+surname still only fills 73 % of the 248 pt safe width), body lines at 13 pt and
+the category chip at 13 pt. The wedge sits high enough — its lower edge crosses
+from y 148 to y 174 — to clear the name block at that size.
+
 Eight layers as real PDF optional content groups, vector artwork throughout,
 live Karbon text. The supplied print template sits on the top layer.
 
