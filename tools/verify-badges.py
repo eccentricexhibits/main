@@ -25,15 +25,19 @@ import numpy as np
 import pikepdf
 import pypdfium2 as pdfium
 
-W_PT, H_PT = 274.5, 396.0
+W_PT, H_PT = 292.5, 414.0   # bleed page, per the supplied print template
 CATEGORIES = ["student", "employer", "partner", "staff"]
 
-# Ink areas to measure: label, y range in points, ink luminance (0 black, 1 white)
+# Ink areas: label, y range, ink RELATIVE luminance, x range.
+# Note the ink value is relative luminance, not an RGB component — rgb(.03,.01,.06)
+# is 0.0014, not 0.03. Getting that wrong reports a passing chip as a failure.
 AREAS = [
-    ("logo",     65.0, 101.0, 0.0),
-    ("org",     240.0, 270.0, 1.0),
-    ("title",   288.0, 334.0, 1.0),
-    ("category", 352.0, 366.0, 1.0),
+    # label,     y0,    y1,     ink luminance, x0,    x1
+    ("logo",     56.0,  85.0,  0.0,  22.5, 172.5),
+    ("name",    208.0, 264.0,  1.0,  22.5, 270.5),
+    ("org",     280.0, 308.0,  1.0,  22.5, 270.5),
+    ("title",   314.0, 358.0,  1.0,  22.5, 270.5),
+    ("chip",    370.0, 386.0,  0.0014, 26.0,  68.0),   # ink is rgb(.03,.01,.06)
 ]
 TARGET = 4.5  # WCAG AA for small text; the logo is graphics and only needs 3:1
 
@@ -77,11 +81,10 @@ def main():
         tmp = os.path.join(tmpdir, "t.pdf")
 
         # Background only: the ink itself must not skew its own measurement.
-        bare = render(src, ["REFERENCE", "Vector logo", "Text fields"], tmp)
+        bare = render(src, ["template", "Vector logo", "Text fields"], tmp)
         row = []
-        for label, y0, y1, ink in AREAS:
-            x = (46.0, 231.0) if label == "logo" else (40.0, 234.0)
-            c = contrast(luminance(bare, y0, y1, *x), ink)
+        for label, y0, y1, ink, x0, x1 in AREAS:
+            c = contrast(luminance(bare, y0, y1, x0, x1), ink)
             row.append(c)
             floor = 3.0 if label == "logo" else TARGET
             if c < floor:
@@ -90,7 +93,7 @@ def main():
 
         # Layers must actually gate content.
         full = render(src, [], tmp)
-        for probe in ("REFERENCE", "Brand pattern", "Background gradient"):
+        for probe in ("template", "Category wedge", "Ground"):
             if np.array_equal(full, render(src, [probe], tmp)):
                 failures.append(f"{cid}: layer '{probe}' does not gate any content")
 

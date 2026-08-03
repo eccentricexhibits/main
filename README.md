@@ -197,17 +197,28 @@ than flat.
 
 ## Name badges
 
-Four category badges carrying the same design onto a 274.5 x 396 pt
-(3.813 x 5.5 in) card:
+Four category badges, built to the supplied print template:
 
 ```bash
 python3 tools/badges.py            # -> out/badges/vector-badge-*.pdf
 python3 tools/verify-badges.py     # contrast + layer checks
 ```
 
-Each PDF has eight layers as real PDF optional content groups, vector artwork
-throughout, and live Karbon text. The supplied reference badge sits on the top
-layer for alignment and is meant to be deleted.
+| | |
+| --- | --- |
+| Bleed (page) | 4.0625 x 5.75 in — 292.5 x 414 pt |
+| Trim (tag edge) | 3.8125 x 5.5 in, 18 pt corner radius |
+| Safe area | 3.4375 x 4.75 in |
+| Slots | dual, 45 x 11.25 pt |
+
+Design is a slice of the venue piece: the room's near-black ground, a wedge of
+the category's gradient driving up and right, and the official arrow, pixel and
+plus marks streaming out of it on the same 67.93 degree axis. Marks are drawn
+twice — in the ground colour inside the wedge and in category colour outside it
+— so the field reads as continuous across the wedge edge.
+
+Eight layers as real PDF optional content groups, vector artwork throughout,
+live Karbon text. The supplied print template sits on the top layer.
 
 Categories use the four official gradient pairings (guidelines p7): Student
 Magenta/Cobalt, Employer Turquoise/Violet, Partner Lime/Cobalt, Staff
@@ -215,14 +226,13 @@ Tangerine/Violet.
 
 ### The logo is set in black
 
-Measured against each category's top colour, the white knockout logo runs
-1.22:1 on Lime, about 2.1:1 on Turquoise and Tangerine, and 4.26:1 on Magenta —
-failing three of four. Black runs 4.93:1 to 17.25:1. Both are official variants,
-and black lets the category colour stay full strength at the top of the card
-instead of needing a dark band to rescue the logo. `LOGO_INK` in
-`tools/badges.py` switches it.
+It sits on the wedge, i.e. on the category's own colour. Measured against the
+four, white runs 1.22:1 on Lime and about 2.1:1 on Turquoise and Tangerine —
+failing three of four — while black runs 4.93:1 to 17.25:1. Both are official
+variants. `LOGO_INK` switches it. The wedge gradient holds the category colour
+through its first half so the whole lockup sits on one flat colour.
 
-### Two traps, both hit once
+### Three traps, all hit once
 
 **PyMuPDF's rasteriser ignores optional-content state.** It renders every layer
 regardless of what is switched off, so it will report that layers "work" on a
@@ -231,8 +241,11 @@ asserts that switching a layer off actually changes the pixels.
 
 **Contrast needs sRGB to linear conversion first.** Skipping it understates
 contrast on saturated darks by roughly two times — plain Cobalt reads 0.28
-naively against a true 0.11 — which is enough to send you redesigning a page
-that was already passing.
+naively against a true 0.11.
+
+**The ink value in a contrast check is relative luminance, not an RGB
+component.** rgb(.03,.01,.06) is 0.0014, not 0.03; using the latter reported a
+passing chip as a failure.
 
 ## Layout
 

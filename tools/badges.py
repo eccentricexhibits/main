@@ -1,50 +1,46 @@
 #!/usr/bin/env python3
 """
-Vector Institute — event name badges.
+Vector Institute — event name badges, "Trajectory".
 
-Carries the "Convergence" venue design onto the badge: the same official
-arrow, pixel and plus marks, travelling on the same 67.93 degree axis, over
-the brand's category gradient.
+A slice of the Convergence venue piece rather than a tinted card: the room's
+near-black ground, a luminous wedge of the category's gradient driving up and
+right on the same 67.93 degree axis, and the official arrow, pixel and plus
+marks streaming out of it.
+
+Built to the supplied print template — 4.0625 x 5.75 in bleed, 3.8125 x 5.5 in
+trim, 3.4375 x 4.75 in safe area, dual slot punches.
 
 Output is one layered PDF per category. Layers are real PDF optional content
-groups, artwork is vector, and every text field is live text in Karbon — so the
-whole thing stays editable in Illustrator. The supplied reference badge is
-placed on the top layer for alignment and can simply be deleted.
+groups, artwork is vector, and every text field is live Karbon text.
 
     python3 tools/badges.py [outdir]
 """
 import math
 import os
-import re
 import sys
 
 import cairosvg
 import fitz
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE = "Name Badge Template - 3.8125 x 5.5 - Dual Slot Template (3).pdf"
 
 # ---------------------------------------------------------------------------
-# Badge geometry — measured from the supplied reference badges
-# 549 x 792 px at 144 dpi = 3.8127 x 5.5003 in = 274.5 x 396 pt
+# Print geometry — measured from the supplied template, in points
 # ---------------------------------------------------------------------------
 
-W, H = 274.5, 396.0
-CORNER = 14.5
+W, H = 292.50, 414.00                 # bleed = page size
+TRIM = (9.0, 9.0, 283.5, 405.0)       # 3.8125 x 5.5 in
+SAFE = (22.5, 49.5, 270.5, 391.5)     # 3.4375 x 4.75 in
+CORNER = 18.0                         # tag-edge corner radius
+SLOTS = [(24.75, 22.5, 69.75, 33.75), (223.25, 22.5, 268.25, 33.75)]
 
-# Lanyard slots. Nothing load-bearing goes above them.
-SLOTS = [(16.5, 14.0, 59.5, 24.0), (215.0, 14.0, 258.5, 24.0)]
-
-LOGO_BAND = (46.5, 65.0, 231.0, 101.0)      # x0, y0, x1, y1
-NAME_PANEL = (20.5, 130.5, 254.0, 216.0)
-ORG_Y = [250.0, 266.0]                       # baselines
-PROG_Y = [298.5, 315.0, 331.0]
-CAT_Y = 363.0
+SX0, SY0, SX1, SY1 = SAFE
+SAFE_W = SX1 - SX0
 
 # ---------------------------------------------------------------------------
-# Palette — exact values from the brand guidelines (p6)
-# Each category maps onto one of the four official gradient pairings (p7).
-# The lighter colour always sits at the top, so body text lands on the darker
-# end and stays legible.
+# Palette — exact values from the brand guidelines (p6). Each category is one
+# of the four official gradient pairings (p7).
 # ---------------------------------------------------------------------------
 
 MAGENTA = "#EB088A"
@@ -54,28 +50,15 @@ TURQUOISE = "#48C0D9"
 TANGERINE = "#FF9E00"
 LIME = "#CFF933"
 
-# The venue piece sits on a near-black ground; the badges inherit it at the top.
-GROUND = "#0B0413"
+GROUND = "#080310"        # the venue's near-black ground
+GROUND_HI = "#150A24"     # a touch of lift so the card is not flat black
 
-# The logo sits on the light end of every gradient. Measured against the four
-# top colours, white runs 1.2:1 (Lime) to 4.3:1 (Magenta) — failing on three of
-# four — while black runs 4.9:1 to 17.3:1. Black is an official variant, so the
-# category colour can stay pure and full-strength at the top of the badge.
-LOGO_INK = "#000000"
-
-# Top band that carries the logo: solid to HEADER_SOLID, gone by HEADER_FADE.
-HEADER_SOLID = 100.0
-HEADER_FADE = 138.0
-
-# `hold` is how far the dark ground is held before easing into the category
-# colour. Tuned per category against a measured contrast target for the white
-# logo — the lighter the top colour, the longer the ground has to hold.
 CATEGORIES = [
-    # id,          label,                    top,        bottom,   hold
-    ("student",  "Student",                 MAGENTA,    COBALT,   0.26),
-    ("employer", "Employer",                TURQUOISE,  VIOLET,   0.26),
-    ("partner",  "Partner",                 LIME,       COBALT,   0.26),
-    ("staff",    "Vector Institute Staff",  TANGERINE,  VIOLET,   0.26),
+    # id,          label,                     near colour, far colour
+    ("student",  "Student",                  MAGENTA,   COBALT),
+    ("employer", "Employer",                 TURQUOISE, VIOLET),
+    ("partner",  "Partner",                  LIME,      COBALT),
+    ("staff",    "Vector Institute Staff",   TANGERINE, VIOLET),
 ]
 
 # Placeholder copy, verbatim from the reference badges.
@@ -87,17 +70,54 @@ PROG_LINES = [
     "Line Number 3",
 ]
 
-NAME_SIZE = 25.0
-BODY_SIZE = 12.5
+# ---------------------------------------------------------------------------
+# Layout — left aligned, name dominant, category on a chip at the foot
+# ---------------------------------------------------------------------------
 
-# Which supplied badge goes on the reference layer of which category.
-REFERENCE = {
-    "student":  "Name Badge Example 4.png",
-    "employer": "Name Badge Example 2.png",
-    "partner":  "Name Badge Example 3.png",
-    "staff":    "Name Badge Example 1.png",
-}
+LOGO_XY = (SX0, 56.0)
+LOGO_SIZE = (150.0, 29.0)
+
+WEDGE_L = 170.0           # wedge lower edge, at the left edge of the bleed
+WEDGE_R = 200.0           # ...and at the right edge
+
+NAME_MAX = 27.0
+NAME_Y = [230.0, 260.0]
+BODY = 10.2
+ORG_Y = [290.0, 304.0]
+PROG_Y = [326.0, 340.0, 354.0]
+
+CHIP_TOP = 366.0
+CHIP_H = 25.0
+CHIP_PAD = 11.0
+
+FLOW_DEG = 67.93          # the venue's travel axis, kept so the two pieces agree
+
+# Ink colours
+INK_NAME = (1.0, 1.0, 1.0)
+INK_BODY = (0.86, 0.85, 0.90)
+# The logo sits on the wedge, i.e. on the category's own colour. Measured
+# against the four: white runs 1.22:1 on Lime and about 2.1:1 on Turquoise and
+# Tangerine, failing three of four; black runs 4.93:1 to 17.25:1. Both are
+# official variants.
+LOGO_INK = "#000000"
+
 SEEDS = {"student": 0x51D, "employer": 0xE99, "partner": 0x9A7, "staff": 0x3C4}
+
+
+def rng(seed):
+    state = seed & 0xFFFFFFFF
+
+    def nxt():
+        nonlocal state
+        state = (state + 0x6D2B79F5) & 0xFFFFFFFF
+        x = state
+        x = ((x ^ (x >> 15)) * (1 | x)) & 0xFFFFFFFF
+        x = (x + (((x ^ (x >> 7)) * (61 | x)) & 0xFFFFFFFF)) & 0xFFFFFFFF
+        x ^= x >> 14
+        return (x & 0xFFFFFFFF) / 4294967296.0
+
+    return nxt
+
 
 # ---------------------------------------------------------------------------
 # Official shape geometry (verbatim from the supplied SVGs)
@@ -218,208 +238,160 @@ def logo_svg(width_pt, height_pt):
 </svg>'''
 
 
-# ---------------------------------------------------------------------------
-# Background — the category gradient
-# ---------------------------------------------------------------------------
 
 
-def background_svg(top, bottom, hold):
-    """Category gradient, top-left to bottom-right, as the reference badges run."""
+# ---------------------------------------------------------------------------
+# Artwork
+# ---------------------------------------------------------------------------
+
+TH = math.radians(FLOW_DEG)
+DIRX, DIRY = math.cos(TH), -math.sin(TH)          # travel axis, up and right
+PERPX, PERPY = math.sin(TH), math.cos(TH)
+
+
+def _axis(dx, dy):
+    """Endpoints of a gradient axis in user space, spanning the whole card."""
+    ts = [x * dx + y * dy for x in (0, W) for y in (0, H)]
+    lo, hi = min(ts), max(ts)
+    return (lo * dx, lo * dy, hi * dx, hi * dy)
+
+
+def wedge_points():
+    """The wedge: full bleed width, slanted lower edge falling to the right so
+    it runs across the travel axis rather than square to the card."""
+    return f"0,0 {W},0 {W},{WEDGE_R} 0,{WEDGE_L}"
+
+
+def ground_svg():
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
   <defs>
-    <linearGradient id="g" x1="0.22" y1="0" x2="0.46" y2="1">
-      <stop offset="0" stop-color="{top}"/>
-      <stop offset="{hold:.3f}" stop-color="{top}"/>
-      <stop offset="0.52" stop-color="{bottom}"/>
-      <stop offset="1" stop-color="{bottom}"/>
+    <linearGradient id="gr" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="{GROUND_HI}"/>
+      <stop offset="1" stop-color="{GROUND}"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="{CORNER}" fill="url(#g)"/>
+  <rect x="0" y="0" width="{W}" height="{H}" fill="url(#gr)"/>
 </svg>'''
 
 
-def header_svg():
-    """The venue's near-black ground, held across the top and faded out.
-
-    Two jobs. It is the most direct quotation of the room — that piece lives on
-    near-black — and it is what makes the white logo legible on every category.
-    Run straight onto the category colour the way the reference badges do, the
-    logo sits at 1.3:1 on Lime and about 1.5:1 on Turquoise and Tangerine.
-    """
+def wedge_svg(near, far):
+    # Diagonal across the wedge rather than along the travel axis: it keeps the
+    # category's own colour dominant at the top, where the badge is read from
+    # across a room, with the paired colour arriving at the far corner.
+    x1, y1, x2, y2 = 0.0, 0.0, W * 0.92, WEDGE_R * 1.15
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
   <defs>
-    <linearGradient id="h" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0.00" stop-color="{GROUND}" stop-opacity="0.93"/>
-      <stop offset="{HEADER_SOLID/H:.3f}" stop-color="{GROUND}" stop-opacity="0.88"/>
-      <stop offset="{HEADER_FADE/H:.3f}" stop-color="{GROUND}" stop-opacity="0"/>
-      <stop offset="1.00" stop-color="{GROUND}" stop-opacity="0"/>
+    <linearGradient id="cg" gradientUnits="userSpaceOnUse"
+                    x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}">
+      <stop offset="0" stop-color="{near}"/>
+      <stop offset="0.50" stop-color="{near}"/>
+      <stop offset="1" stop-color="{far}"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="{CORNER}" fill="url(#h)"/>
+  <polygon points="{wedge_points()}" fill="url(#cg)"/>
 </svg>'''
 
 
-# ---------------------------------------------------------------------------
-# Pattern — the venue's vocabulary, composed for a portrait badge
-# ---------------------------------------------------------------------------
+def marks_svg(seed, near, far, in_wedge):
+    """Official marks streaming on the travel axis.
 
-
-def pattern_svg(seed):
-    """The venue vocabulary, recomposed for a portrait badge.
-
-    Same organising idea as the room: everything travels up and to the right on
-    the 67.93 degree axis, and a single perspective factor drives size, opacity
-    and trail length together so the field funnels rather than just scattering.
-    Here the funnel runs from a dense, large bottom-left to a fine, distant
-    top-right, which leaves the upper area calm enough for the logo.
+    Drawn twice: once inside the wedge in the ground colour, knocking holes in
+    the colour, and once outside it in the category colours, so the field reads
+    as continuous across the wedge edge the way the room's does.
     """
     r = rng(seed)
-    th = math.radians(FLOW_DEG)
     parts = []
+    ink = GROUND if in_wedge else near
 
     def depth_at(x, y):
-        # 1 at the near (bottom-left) end, 0 at the far (top-right) end.
-        u = (x / W) * 0.45 + (1.0 - y / H) * 0.55
+        u = (x / W) * 0.4 + (1 - y / H) * 0.6
         return max(0.0, min(1.0, 1.0 - u))
 
-    def arrow(x, y, h, opacity, long=False):
-        src = ARROW_LONG if long else ARROW_REGULAR
-        s = h / src["h"]
-        parts.append(
-            f'<g transform="translate({x:.2f} {y:.2f}) scale({s:.5f})" '
-            f'opacity="{opacity:.3f}"><path d="{src["d"]}" fill="#ffffff"/></g>'
-        )
+    def arrow(x, y, h, op, long=False):
+        s = ARROW_LONG if long else ARROW_REGULAR
+        k = h / s["h"]
+        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) scale({k:.5f})" '
+                     f'opacity="{op:.3f}"><path d="{s["d"]}" fill="{ink}"/></g>')
 
-    def pixel(x, y, s, opacity):
+    def pixel(x, y, s, op):
         parts.append(f'<rect x="{x-s/2:.2f}" y="{y-s/2:.2f}" width="{s:.2f}" '
-                     f'height="{s:.2f}" fill="#ffffff" opacity="{opacity:.3f}"/>')
+                     f'height="{s:.2f}" fill="{ink}" opacity="{op:.3f}"/>')
 
-    def plus(x, y, s, opacity):
+    def plus(x, y, s, op):
         b = s * PLUS_BAR / 2
-        parts.append(
-            f'<g opacity="{opacity:.3f}" fill="#ffffff">'
-            f'<rect x="{x-s/2:.2f}" y="{y-b:.2f}" width="{s:.2f}" height="{b*2:.2f}"/>'
-            f'<rect x="{x-b:.2f}" y="{y-s/2:.2f}" width="{b*2:.2f}" height="{s:.2f}"/></g>'
-        )
+        parts.append(f'<g opacity="{op:.3f}" fill="{ink}">'
+                     f'<rect x="{x-s/2:.2f}" y="{y-b:.2f}" width="{s:.2f}" height="{b*2:.2f}"/>'
+                     f'<rect x="{x-b:.2f}" y="{y-s/2:.2f}" width="{b*2:.2f}" height="{s:.2f}"/></g>')
 
-    # --- structural arrows: large, soft, anchored low-left and mid-right ----
-    for ax, ay, hf, lg in ((-0.10, 1.02, 0.62, False), (0.30, 1.12, 0.78, True),
-                           (0.74, 0.86, 0.50, False), (0.98, 1.06, 0.66, True),
-                           (0.14, 0.60, 0.34, False), (0.60, 0.42, 0.26, False),
-                           (0.90, 0.30, 0.20, False)):
-        x, y = ax * W, ay * H
-        h = hf * H
-        arrow(x - h * 0.18, y - h, h, 0.035 + 0.045 * depth_at(x, y), long=lg)
+    ymax = WEDGE_R + 40 if in_wedge else H
+    base_op = 0.46 if in_wedge else 0.26
 
-    # --- mid arrows riding the axis ----------------------------------------
-    for _ in range(18):
-        x = r() * W * 1.12 - W * 0.06
-        y = r() * H * 1.05
+    # hero arrows breaking the wedge edge
+    for ax, ay, hf, lg in ((0.06, 1.30, 0.72, True), (0.44, 1.05, 0.52, False),
+                           (0.78, 1.34, 0.66, True), (0.96, 0.92, 0.44, False)):
+        x, y = ax * W, ay * (WEDGE_R + 60)
+        h = hf * H * 0.62
+        arrow(x - h * 0.18, y - h, h, base_op * (0.22 + 0.20 * depth_at(x, y)), long=lg)
+
+    for _ in range(14 if in_wedge else 7):
+        x, y = r() * W, r() * ymax
         d = depth_at(x, y)
-        if r() > 0.30 + 0.70 * d:
+        if r() > 0.25 + 0.75 * d:
             continue
-        h = (0.06 + 0.20 * d) * H * (0.7 + 0.6 * r())
-        arrow(x - h * 0.18, y - h / 2, h, 0.06 + 0.09 * d)
+        h = (0.06 + 0.18 * d) * H * (0.7 + 0.6 * r())
+        arrow(x - h * 0.18, y - h / 2, h, base_op * (0.30 + 0.40 * d))
 
-    # --- official cluster patterns, drawn whole -----------------------------
-    for kind, count in ((1, 3), (0, 3)):
-        pattern = PLUS_CLUSTER if kind else PIXEL_CLUSTER
-        markr = PLUS_CLUSTER_MARK if kind else PIXEL_CLUSTER_MARK
+    for kind, count in ((1, 3), (0, 2)):
+        pat = PLUS_CLUSTER if kind else PIXEL_CLUSTER
+        mk = PLUS_CLUSTER_MARK if kind else PIXEL_CLUSTER_MARK
         for _ in range(count):
-            cx, cy = r() * W, H * (0.25 + 0.8 * r())
+            cx, cy = r() * W, r() * ymax
             d = depth_at(cx, cy)
-            size = (0.24 + 0.34 * d) * W * (0.7 + 0.5 * r())
-            op = 0.08 + 0.11 * d
-            for ox, oy in pattern:
+            size = (0.22 + 0.30 * d) * W * (0.7 + 0.5 * r())
+            op = base_op * (0.40 + 0.45 * d)
+            for ox, oy in pat:
                 mx, my = cx + ox * size, cy + oy * size
                 if -20 < mx < W + 20 and -20 < my < H + 20:
-                    (plus if kind else pixel)(mx, my, size * markr, op)
+                    (plus if kind else pixel)(mx, my, size * mk, op)
 
-    # --- loose marks, denser and larger toward the near end -----------------
-    for _ in range(230):
-        x, y = r() * W, r() * H
+    for _ in range(200 if in_wedge else 120):
+        x, y = r() * W, r() * ymax
         d = depth_at(x, y)
-        if r() > 0.10 + 0.62 * d:
+        if r() > 0.10 + 0.80 * d:
             continue
-        s = (1.8 + 15.0 * d ** 1.7) * (0.55 + 0.9 * r())
-        op = 0.05 + 0.13 * d * (0.45 + 0.55 * r())
-        (pixel if r() < 0.55 else plus)(x, y, s, op)
+        s = (1.8 + 13.0 * d ** 1.7) * (0.55 + 0.9 * r())
+        (pixel if r() < 0.55 else plus)(x, y, s, base_op * (0.35 + 0.55 * d * r()))
 
-    # --- a few crisp near marks for sparkle --------------------------------
-    for _ in range(9):
-        x, y = r() * W, H * (0.45 + 0.6 * r())
-        d = depth_at(x, y)
-        s = (5 + 12 * d) * (0.6 + 0.7 * r())
-        (pixel if r() < 0.6 else plus)(x, y, s, 0.18 + 0.12 * r())
-
-    # --- motion trails along the travel axis --------------------------------
-    for _ in range(34):
-        x, y = r() * W, r() * H
+    for _ in range(24 if in_wedge else 12):
+        x, y = r() * W, r() * ymax
         d = depth_at(x, y)
         if r() > 0.2 + 0.8 * d:
             continue
-        ln = (16 + 78 * d) * (0.5 + r())
-        tw = 0.5 + 1.8 * d
-        parts.append(
-            f'<g transform="translate({x:.2f} {y:.2f}) rotate({-FLOW_DEG:.3f})">'
-            f'<rect x="{-ln:.2f}" y="{-tw/2:.2f}" width="{ln:.2f}" height="{tw:.2f}" '
-            f'fill="#ffffff" opacity="{0.04 + 0.08*d:.3f}"/></g>'
-        )
+        ln = (16 + 70 * d) * (0.5 + r())
+        tw = 0.5 + 1.7 * d
+        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) rotate({-FLOW_DEG:.3f})">'
+                     f'<rect x="{-ln:.2f}" y="{-tw/2:.2f}" width="{ln:.2f}" height="{tw:.2f}" '
+                     f'fill="{ink}" opacity="{base_op*(0.30+0.40*d):.3f}"/></g>')
 
+    clip = (f'<clipPath id="c"><polygon points="{wedge_points()}"/></clipPath>' if in_wedge
+            else f'<clipPath id="c"><path d="M0,0 H{W} V{H} H0 Z M0,{WEDGE_L} L{W},{WEDGE_R} '
+                 f'L{W},0 L0,0 Z" clip-rule="evenodd"/></clipPath>')
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <defs><clipPath id="badge"><rect x="0" y="0" width="{W}" height="{H}" rx="{CORNER}"/></clipPath></defs>
-  <g clip-path="url(#badge)">{''.join(parts)}</g>
+  <defs>{clip}</defs>
+  <g clip-path="url(#c)">{''.join(parts)}</g>
 </svg>'''
 
 
-def dieline_svg():
-    """Cut outline and lanyard slot punches, on their own layer.
-
-    The supplied reference badges show the slots as filled shapes; for a print
-    file they belong as an unfilled die-line so artwork can bleed underneath.
-    """
-    slots = "".join(
-        f'<rect x="{x0}" y="{y0}" width="{x1-x0}" height="{y1-y0}" rx="{(y1-y0)/2}" '
-        f'fill="none" stroke="#EB088A" stroke-width="0.5"/>'
-        for x0, y0, x1, y1 in SLOTS
-    )
+def chip_svg(near, width):
+    y = CHIP_TOP
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <rect x="0.25" y="0.25" width="{W-0.5}" height="{H-0.5}" rx="{CORNER}"
-        fill="none" stroke="#EB088A" stroke-width="0.5"/>
-  {slots}
-</svg>'''
-
-
-def scrim_svg():
-    # A soft darkening over the lower half only. Keeps white body copy off the
-    # lighter end of every gradient without muddying the brand colour up top.
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <defs>
-    <linearGradient id="s" x1="0" y1="0.50" x2="0" y2="0.95">
-      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0.26"/>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="{CORNER}" fill="url(#s)"/>
-</svg>'''
-
-
-def panel_svg():
-    x0, y0, x1, y1 = NAME_PANEL
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <rect x="{x0}" y="{y0}" width="{x1-x0}" height="{y1-y0}" rx="7" fill="#ffffff"/>
+  <rect x="{SX0}" y="{y:.2f}" width="{width:.2f}" height="{CHIP_H}" fill="{near}"/>
 </svg>'''
 
 
 # ---------------------------------------------------------------------------
 # Composition
 # ---------------------------------------------------------------------------
-
-
-def svg_to_pdf(svg, path):
-    open(path + ".svg", "w").write(svg)
-    cairosvg.svg2pdf(url=path + ".svg", write_to=path)
-    return fitz.open(path)
 
 
 def svg_layer(page, svg, path, oc, rect=None):
@@ -430,62 +402,81 @@ def svg_layer(page, svg, path, oc, rect=None):
     src.close()
 
 
+def fit(font, text, size, maxw):
+    """Shrink until the line fits the safe width — names vary a lot."""
+    while size > 8 and font.text_length(text, fontsize=size) > maxw:
+        size -= 0.25
+    return size
+
+
 def build(cat, outdir, tmpdir):
-    cid, label, top, bottom, top_stop = cat
-    reg = os.path.join(ROOT, "Karbon-Regular.otf")
+    cid, label, near, far = cat
     semi = os.path.join(ROOT, "Karbon-Semibold.otf")
-    if not (os.path.exists(reg) and os.path.exists(semi)):
-        raise SystemExit("Karbon fonts not found next to this script")
+    reg = os.path.join(ROOT, "Karbon-Regular.otf")
+    if not (os.path.exists(semi) and os.path.exists(reg)):
+        raise SystemExit("Karbon fonts not found in the repository root")
 
     doc = fitz.open()
     page = doc.new_page(width=W, height=H)
-
-    oc = {
-        "bg":    doc.add_ocg("1 Background gradient", on=True),
-        "pat":   doc.add_ocg("2 Brand pattern", on=True),
-        "scrim": doc.add_ocg("3 Legibility scrim", on=True),
-        "logo":  doc.add_ocg("4 Vector logo", on=True),
-        "panel": doc.add_ocg("5 Name panel", on=True),
-        "text":  doc.add_ocg("6 Text fields", on=True),
-        "die":   doc.add_ocg("7 Die-line (cut + slot punches)", on=True),
-        "ref":   doc.add_ocg("8 REFERENCE TEMPLATE - delete", on=True),
-    }
+    oc = {k: doc.add_ocg(n, on=True) for k, n in (
+        ("ground", "1 Ground"),
+        ("marks_o", "2 Brand marks (ground)"),
+        ("wedge", "3 Category wedge"),
+        ("marks_w", "4 Brand marks (wedge)"),
+        ("logo", "5 Vector logo"),
+        ("chip", "6 Category chip"),
+        ("text", "7 Text fields"),
+        ("tmpl", "8 Print template (trim / safe / slots)"),
+    )}
     t = lambda n: os.path.join(tmpdir, f"{cid}_{n}.pdf")
 
-    svg_layer(page, background_svg(top, bottom, top_stop), t("bg"), oc["bg"])
-    svg_layer(page, pattern_svg(SEEDS[cid]), t("pat"), oc["pat"])
-    svg_layer(page, scrim_svg(), t("scrim"), oc["scrim"])
-    lx0, ly0, lx1, ly1 = LOGO_BAND
-    svg_layer(page, logo_svg(lx1 - lx0, ly1 - ly0), t("logo"), oc["logo"],
-              rect=fitz.Rect(lx0, ly0, lx1, ly1))
-    svg_layer(page, panel_svg(), t("panel"), oc["panel"])
+    svg_layer(page, ground_svg(), t("ground"), oc["ground"])
+    svg_layer(page, marks_svg(SEEDS[cid], near, far, False), t("mo"), oc["marks_o"])
+    svg_layer(page, wedge_svg(near, far), t("wedge"), oc["wedge"])
+    svg_layer(page, marks_svg(SEEDS[cid] ^ 0x1234, near, far, True), t("mw"), oc["marks_w"])
 
-    # ---- text: real Karbon glyphs, centred using true font metrics --------
+    lx, ly = LOGO_XY
+    lw, lh = LOGO_SIZE
+    svg_layer(page, logo_svg(lw, lh), t("logo"), oc["logo"], rect=fitz.Rect(lx, ly, lx + lw, ly + lh))
+
     f_semi = fitz.Font(fontfile=semi)
-    dark = fitz.TextWriter(page.rect)
-    light = fitz.TextWriter(page.rect)
+    chip_w = f_semi.text_length(label.upper(), fontsize=11) + 2.6 * 11 * 0.06 * len(label) + CHIP_PAD * 2
+    chip_w = min(chip_w, SAFE_W)
+    svg_layer(page, chip_svg(near, chip_w), t("chip"), oc["chip"])
 
-    def put(writer, text, y, size):
-        w = f_semi.text_length(text, fontsize=size)
-        writer.append(((W - w) / 2, y), text, font=f_semi, fontsize=size)
+    # ---- text -------------------------------------------------------------
+    tw_name = fitz.TextWriter(page.rect)
+    tw_body = fitz.TextWriter(page.rect)
+    tw_chip = fitz.TextWriter(page.rect)
 
-    x0, y0, x1, y1 = NAME_PANEL
-    put(dark, NAME_LINES[0], y0 + 36.0, NAME_SIZE)
-    put(dark, NAME_LINES[1], y0 + 69.0, NAME_SIZE)
+    size = min(fit(f_semi, NAME_LINES[0], NAME_MAX, SAFE_W),
+               fit(f_semi, NAME_LINES[1], NAME_MAX, SAFE_W))
+    for i, line in enumerate(NAME_LINES):
+        tw_name.append((SX0, NAME_Y[i]), line, font=f_semi, fontsize=size)
     for i, line in enumerate(ORG_LINES):
-        put(light, line, ORG_Y[i], BODY_SIZE)
+        tw_body.append((SX0, ORG_Y[i]), line, font=f_semi,
+                       fontsize=fit(f_semi, line, BODY, SAFE_W))
     for i, line in enumerate(PROG_LINES):
-        put(light, line, PROG_Y[i], BODY_SIZE)
-    put(light, label, CAT_Y, BODY_SIZE)
+        tw_body.append((SX0, PROG_Y[i]), line, font=f_semi,
+                       fontsize=fit(f_semi, line, BODY, SAFE_W))
 
-    dark.write_text(page, color=(0.07, 0.07, 0.09), oc=oc["text"])
-    light.write_text(page, color=(1, 1, 1), oc=oc["text"])
+    # chip label: uppercase, letter-spaced by hand since TextWriter has no tracking
+    cs = 11.0
+    cx = SX0 + CHIP_PAD
+    cy = CHIP_TOP + CHIP_H / 2 + cs * 0.34
+    track = cs * 0.06
+    for ch in label.upper():
+        tw_chip.append((cx, cy), ch, font=f_semi, fontsize=cs)
+        cx += f_semi.text_length(ch, fontsize=cs) + track
 
-    svg_layer(page, dieline_svg(), t("die"), oc["die"])
+    tw_name.write_text(page, color=INK_NAME, oc=oc["text"])
+    tw_body.write_text(page, color=INK_BODY, oc=oc["text"])
+    tw_chip.write_text(page, color=(0.03, 0.01, 0.06), oc=oc["text"])
 
-    # ---- supplied reference badge on the top layer, for alignment ---------
-    page.insert_image(page.rect, filename=os.path.join(ROOT, REFERENCE[cid]),
-                      oc=oc["ref"], overlay=True)
+    # ---- supplied print template, on top ----------------------------------
+    tmpl = fitz.open(os.path.join(ROOT, TEMPLATE))
+    page.show_pdf_page(page.rect, tmpl, 0, oc=oc["tmpl"])
+    tmpl.close()
 
     out = os.path.join(outdir, f"vector-badge-{cid}.pdf")
     doc.save(out, garbage=3, deflate=True)
