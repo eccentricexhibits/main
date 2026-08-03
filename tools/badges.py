@@ -292,6 +292,20 @@ def wedge_svg(near, far):
 </svg>'''
 
 
+def logo_clear(x, y):
+    """Fade marks sitting behind the lockup.
+
+    The wedge marks are the same white-ish shapes as the logo, so anything
+    dense behind it competes directly with the letterforms. Returns a
+    multiplier: near zero under the lockup, 1 well clear of it.
+    """
+    lx, ly = LOGO_XY
+    lw, lh = LOGO_SIZE
+    cx, cy = lx + lw / 2, ly + lh / 2
+    d = math.hypot((x - cx) / (lw * 0.82), (y - cy) / (lh * 2.6))
+    return min(1.0, max(0.10, (d - 0.55) / 0.60))
+
+
 def marks_svg(seed, near, far, in_wedge):
     """Official marks streaming on the travel axis.
 
@@ -307,24 +321,29 @@ def marks_svg(seed, near, far, in_wedge):
         u = (x / W) * 0.4 + (1 - y / H) * 0.6
         return max(0.0, min(1.0, 1.0 - u))
 
+    fade = logo_clear if in_wedge else (lambda x, y: 1.0)
+
     def arrow(x, y, h, op, long=False):
         s = ARROW_LONG if long else ARROW_REGULAR
+        op *= fade(x, y + h * 0.5)
         k = h / s["h"]
         parts.append(f'<g transform="translate({x:.2f} {y:.2f}) scale({k:.5f})" '
                      f'opacity="{op:.3f}"><path d="{s["d"]}" fill="{ink}"/></g>')
 
     def pixel(x, y, s, op):
+        op *= fade(x, y)
         parts.append(f'<rect x="{x-s/2:.2f}" y="{y-s/2:.2f}" width="{s:.2f}" '
                      f'height="{s:.2f}" fill="{ink}" opacity="{op:.3f}"/>')
 
     def plus(x, y, s, op):
+        op *= fade(x, y)
         b = s * PLUS_BAR / 2
         parts.append(f'<g opacity="{op:.3f}" fill="{ink}">'
                      f'<rect x="{x-s/2:.2f}" y="{y-b:.2f}" width="{s:.2f}" height="{b*2:.2f}"/>'
                      f'<rect x="{x-b:.2f}" y="{y-s/2:.2f}" width="{b*2:.2f}" height="{s:.2f}"/></g>')
 
     ymax = WEDGE_R + 40 if in_wedge else H
-    base_op = 0.46 if in_wedge else 0.26
+    base_op = 0.22 if in_wedge else 0.26
 
     # hero arrows breaking the wedge edge
     for ax, ay, hf, lg in ((0.06, 1.30, 0.72, True), (0.44, 1.05, 0.52, False),
@@ -371,7 +390,17 @@ def marks_svg(seed, near, far, in_wedge):
         tw = 0.5 + 1.7 * d
         parts.append(f'<g transform="translate({x:.2f} {y:.2f}) rotate({-FLOW_DEG:.3f})">'
                      f'<rect x="{-ln:.2f}" y="{-tw/2:.2f}" width="{ln:.2f}" height="{tw:.2f}" '
-                     f'fill="{ink}" opacity="{base_op*(0.30+0.40*d):.3f}"/></g>')
+                     f'fill="{ink}" opacity="{base_op*(0.30+0.40*d)*fade(x, y):.3f}"/></g>')
+
+    # The travel axis thins toward the top right, and on some seeds that corner
+    # empties out completely. A light scatter of far-field marks keeps it alive
+    # without touching the density anywhere else.
+    if in_wedge:
+        for _ in range(22):
+            x = W * (0.52 + 0.50 * r())
+            y = WEDGE_L * (0.06 + 0.52 * r())
+            sz = (1.6 + 3.4 * r()) * (0.7 + 0.6 * r())
+            (pixel if r() < 0.5 else plus)(x, y, sz, base_op * (0.30 + 0.35 * r()))
 
     clip = (f'<clipPath id="c"><polygon points="{wedge_points()}"/></clipPath>' if in_wedge
             else f'<clipPath id="c"><path d="M0,0 H{W} V{H} H0 Z M0,{WEDGE_L} L{W},{WEDGE_R} '

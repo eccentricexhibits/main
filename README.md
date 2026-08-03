@@ -217,6 +217,13 @@ plus marks streaming out of it on the same 67.93 degree axis. Marks are drawn
 twice — in the ground colour inside the wedge and in category colour outside it
 — so the field reads as continuous across the wedge edge.
 
+Marks inside the wedge are held well back — they are the same pale shapes as
+the logo, so anything dense behind the lockup competes directly with the
+letterforms. A clear-space falloff fades them to a tenth of their opacity under
+the lockup and back to full well clear of it. The far corner of the travel axis
+empties out on some seeds, so a light scatter of small marks keeps it alive
+without lifting density anywhere else.
+
 Eight layers as real PDF optional content groups, vector artwork throughout,
 live Karbon text. The supplied print template sits on the top layer.
 
