@@ -195,6 +195,45 @@ than flat.
 - Individual marks keep official proportions — a plain grid square for the
   pixel, and a plus whose bar is 20.6 % of its width.
 
+## Name badges
+
+Four category badges carrying the same design onto a 274.5 x 396 pt
+(3.813 x 5.5 in) card:
+
+```bash
+python3 tools/badges.py            # -> out/badges/vector-badge-*.pdf
+python3 tools/verify-badges.py     # contrast + layer checks
+```
+
+Each PDF has eight layers as real PDF optional content groups, vector artwork
+throughout, and live Karbon text. The supplied reference badge sits on the top
+layer for alignment and is meant to be deleted.
+
+Categories use the four official gradient pairings (guidelines p7): Student
+Magenta/Cobalt, Employer Turquoise/Violet, Partner Lime/Cobalt, Staff
+Tangerine/Violet.
+
+### The logo is set in black
+
+Measured against each category's top colour, the white knockout logo runs
+1.22:1 on Lime, about 2.1:1 on Turquoise and Tangerine, and 4.26:1 on Magenta —
+failing three of four. Black runs 4.93:1 to 17.25:1. Both are official variants,
+and black lets the category colour stay full strength at the top of the card
+instead of needing a dark band to rescue the logo. `LOGO_INK` in
+`tools/badges.py` switches it.
+
+### Two traps, both hit once
+
+**PyMuPDF's rasteriser ignores optional-content state.** It renders every layer
+regardless of what is switched off, so it will report that layers "work" on a
+file that has none. `tools/verify-badges.py` renders through PDFium instead and
+asserts that switching a layer off actually changes the pixels.
+
+**Contrast needs sRGB to linear conversion first.** Skipping it understates
+contrast on saturated darks by roughly two times — plain Cobalt reads 0.28
+naively against a true 0.11 — which is enough to send you redesigning a page
+that was already passing.
+
 ## Layout
 
 ```
@@ -206,6 +245,8 @@ tools/build-preview.js  bundles the preview into one self-contained file
 tools/build-archive.sh  rebuilds an earlier version from git into dist/
 tools/render.js     parallel full-resolution render and encode
 tools/still.js      single-frame renders for quick checks
+tools/badges.py     layered name badge PDFs
+tools/verify-badges.py  badge contrast and layer checks
 ```
 
 `src/scene.js` drives both the preview and the final render, so what is
