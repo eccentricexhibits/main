@@ -301,28 +301,40 @@ The layout is the one that came out of the Concept C review — category gradien
 across the top on a slant, lower two thirds in near-black, name set large on the
 black — carrying the confirmed colour system and the Concept A finish.
 
-The mark field runs across the whole card at low opacity. It is drawn twice
-against the *same* geometry — once in the ground colour clipped to the colour
-panel, once in the category gradient clipped to everything below it — so a mark
-straddling the panel edge reads as one continuous shape that changes ink where
-the ground changes, rather than as two marks that happen to meet.
+The mark field is arrows, and only arrows. It runs across the whole card at low
+opacity, drawn twice against the *same* geometry — once in the ground colour
+clipped to the colour panel, once in the panel's own colour clipped to everything
+below it — so a mark straddling the panel edge reads as one continuous shape that
+changes ink where the ground changes, rather than as two marks that happen to
+meet.
 
-The arrows are a **lattice**, not a scatter: one pitch, half-dropped rows, and
-jitter small enough that the repeat still reads. Only opacity and a few skipped
-cells break it up. That is what lets the arrow count come down without the card
-looking sparse — a scatter at this density reads as leftovers, a tile reads as a
-pattern.
+They are a **lattice**, not a scatter: one pitch, half-dropped rows, and jitter
+small enough that the repeat still reads. Only opacity and a few skipped cells
+break it up. A second lattice at roughly half scale, offset from the first,
+carries the depth the pixel and plus marks used to.
 
-Two things hold the field back where it would cost something. A clear-space
-falloff fades marks to a twelfth of their opacity under the lockup, which is the
-one element with no fallback if it goes soft. The band the name and body copy
-occupy runs at a third of the field's opacity, easing back to full over 26 pt
-either side.
+### Opacity is solved, not set
 
-Marks below the panel are lifted most of the way toward white before they are
-used. Straight pairing colours arrive with wildly different weight at badge scale
-— Lime sits at 0.86 relative luminance and Cobalt at 0.11 — so one category's
-field would shout and another's disappear.
+Every arrow sits at the same *contrast* against whatever is behind it, found by
+bisection per mark rather than fixed in advance. That is what makes the crossing
+read as seamless. A fixed opacity gives a mark on Lime nearly three times the
+contrast of the same mark on Cobalt, and the step at the panel edge is then
+whatever those two happen to differ by — which is exactly how an earlier cut of
+this ended up with strong chevrons above the edge and almost nothing below.
+
+The targets are worked back from the version this was signed off against, from
+its own ink rather than from a render: near-black at about 8 % over the panel
+colour, and the panel colour at about 15 % over the near-black, i.e. roughly
+1.13:1 on the panel and 1.23:1 on the black. The two being **close to each
+other** is what made the crossing seamless, and it matters more than either
+absolute value. The current figures sit a little above the old ones — 1.22:1 and
+1.30:1 — because the field is arrows alone now, with none of the small marks that
+used to carry the density.
+
+Two clear-space rules hold the field off what it would cost. A falloff fades
+marks to a twelfth of their contrast under the lockup, the one element with no
+fallback if it goes soft. The band the name and body copy occupy runs at a third,
+easing back to full over 26 pt either side.
 
 The panel's light also falls off into the black over about forty points, and that
 spill carries the panel's own gradient rather than a single colour: violet under

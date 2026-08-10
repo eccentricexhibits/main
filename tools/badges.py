@@ -341,42 +341,94 @@ def panel_svg(a, b):
 
 
 # ---------------------------------------------------------------------------
-# The mark field
+# The mark field — arrows only
 #
-# The official arrow, pixel and plus marks running across the whole card at low
-# opacity. Drawn twice against the same geometry — once in the ground colour
-# clipped to the colour panel, once in the category gradient clipped to
-# everything below it — so a mark straddling the panel edge reads as one
-# continuous shape that simply changes ink where the ground changes.
+# The official arrow, tiled across the whole card at low opacity and drawn twice
+# against the *same* geometry: once in the ground colour clipped to the colour
+# panel, once in the panel's own colour clipped to everything below it. A mark
+# straddling the edge is one continuous shape that changes ink where the ground
+# changes.
 #
-# The arrows are a *lattice*, not a scatter: one pitch, half-dropped rows, jitter
-# small enough that the repeat still reads. Only opacity and a few skipped cells
-# break it up. That is what keeps a much lower arrow count from looking sparse —
-# a scatter at this density reads as leftovers, a tile reads as a pattern.
+# It is a *lattice*, not a scatter — one pitch, half-dropped rows, jitter small
+# enough that the repeat still reads, broken up only by opacity and a few
+# skipped cells. A second lattice at roughly half scale, offset from the first,
+# carries the depth that the pixel and plus marks used to.
+#
+# Opacity is solved per mark rather than set, so every arrow sits at the same
+# contrast against whatever is behind it. That is what makes the crossing read
+# as seamless: a fixed opacity gives a mark on Lime nearly three times the
+# contrast of the same mark on Cobalt, and the step at the panel edge is
+# whatever those two happen to differ by.
 # ---------------------------------------------------------------------------
 
-ARROW_TILE_X = 82.0
-ARROW_TILE_Y = 108.0
-ARROW_TILE_H = 58.0
-ARROW_JITTER = 5.0
-ARROW_SKIP = 0.18       # fraction of lattice cells left empty
+# Worked back from the version this was signed off against, from its own ink
+# rather than from a render: near-black at about 8% over the panel colour, and
+# the panel colour at about 15% over the near-black. That comes out at roughly
+# 1.13:1 on the panel and 1.23:1 on the black.
+#
+# The two being *close to each other* is what made the crossing read as
+# seamless, and it matters more than either absolute value — a mark that is
+# strong above the edge and faint below reads as two marks meeting, however
+# subtle each half is on its own. These sit a little above the old figures
+# because the field is arrows alone now, with none of the small marks that used
+# to carry the density.
+CONTRAST_PANEL = 1.22
+CONTRAST_GROUND = 1.30
+CONTRAST_SPREAD = 0.42   # how far individual marks vary from that
 
-MARK_OP_PANEL = 0.20    # ground-colour ink knocking into the category colour
-MARK_OP_GROUND = 0.42   # category-colour ink on the near-black
+LATTICE = [
+    # pitch x, pitch y, arrow height, jitter, skip chance, weight
+    (82.0, 108.0, 58.0, 5.0, 0.18, 1.00),
+    (82.0, 108.0, 31.0, 7.0, 0.30, 0.62),
+]
+LATTICE_OFFSET = (41.0, 54.0)   # the second lattice, half a cell off the first
 
 
-def lighten(hex_colour, k):
-    """Mix a colour toward white.
+def _hex_rgb(h):
+    return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
 
-    The marks on the near-black take the pairing's own colours, and at badge
-    scale those arrive with wildly different weight: Lime sits at 0.86
-    luminance and Cobalt at 0.11, so one pairing's field shouts and another's
-    disappears. Lifting every stop most of the way to white evens them out and
-    matches how the marks read in the room, where they are emissive rather than
-    printed.
+
+def _rgb_lum(rgb):
+    return sum(w * _srgb_to_linear(v / 255.0)
+               for w, v in zip((0.2126, 0.7152, 0.0722), rgb))
+
+
+def _mix(bg, ink, op):
+    """Alpha compositing happens in gamma space, which is where PDF does it."""
+    return tuple(b + (i - b) * op for b, i in zip(bg, ink))
+
+
+def solve_opacity(bg, ink, target, lo=0.0, hi=1.0):
+    """The opacity at which `ink` over `bg` hits `target` contrast against `bg`.
+
+    Bisection rather than algebra: contrast is monotonic in opacity here but the
+    sRGB transfer curve makes the closed form ugly, and this is called a few
+    hundred times per badge.
     """
-    r, g, b = (int(hex_colour[i:i + 2], 16) for i in (1, 3, 5))
-    return "#%02X%02X%02X" % tuple(round(v + (255 - v) * k) for v in (r, g, b))
+    bl = _rgb_lum(bg)
+    for _ in range(24):
+        mid = (lo + hi) / 2
+        if contrast(_rgb_lum(_mix(bg, ink, mid)), bl) < target:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+# The panel gradient, evaluated in Python so the marks can be coloured by what
+# is actually behind them.
+_PANEL_AXIS = (W, PANEL_R * 1.30)
+
+
+def panel_colour_at(x, y):
+    dx, dy = _PANEL_AXIS
+    t = (x * dx + y * dy) / (dx * dx + dy * dy)
+    t = min(1.0, max(0.0, t))
+    a, b = panel_colour_at.stops
+    if t <= 0.34:
+        return a
+    k = (t - 0.34) / 0.66
+    return tuple(av + (bv - av) * k for av, bv in zip(a, b))
 
 
 def logo_clear(x, y):
@@ -396,9 +448,10 @@ def logo_clear(x, y):
 def name_clear(y):
     """Hold the field back off the name block.
 
-    The name is the whole job of the badge. Marks are already faint, but a plus
-    landing inside a counter still costs legibility at the distance this is read
-    from, so the band the type occupies runs at a third of the field's opacity.
+    The name is the whole job of the badge. Marks are already faint, but an
+    arrow edge landing inside a counter still costs legibility at the distance
+    this is read from, so the band the type occupies runs at a third of the
+    field's contrast.
     """
     top, bottom = NAME_Y[0] - NAME_MAX, PROG_Y[-1] + 6
     if top <= y <= bottom:
@@ -412,96 +465,56 @@ def name_clear(y):
 
 
 def marks_svg(seed, a, b, in_panel):
+    panel_colour_at.stops = (_hex_rgb(a), _hex_rgb(b))
+    ground = _hex_rgb(GROUND)
     r = rng(seed)
     parts = []
-    ink = GROUND if in_panel else "url(#mg)"
 
-    def fade(x, y):
-        f = name_clear(y)
-        return f * logo_clear(x, y) if in_panel else f
+    def arrow(x, y, h, k):
+        """One arrow at `k` times the field's nominal contrast."""
+        cy = y + h * 0.5
+        k *= name_clear(cy)
+        if in_panel:
+            k *= logo_clear(x, cy)
+        if k < 0.06:
+            return
 
-    def arrow(x, y, h, op):
+        if in_panel:
+            bg, ink, target = panel_colour_at(x, cy), ground, CONTRAST_PANEL
+        else:
+            # Below the panel the mark takes the colour the panel has directly
+            # above it, so the two halves sit on one gradient.
+            bg, ink, target = ground, panel_colour_at(x, PANEL_L), CONTRAST_GROUND
+
+        op = solve_opacity(bg, ink, 1 + (target - 1) * k)
+        if op < 0.004:
+            return
         s = ARROW_REGULAR
-        k = h / s["h"]
-        op *= fade(x, y + h * 0.5)
-        if op < 0.004:
-            return
-        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) scale({k:.5f})" '
-                     f'opacity="{op:.3f}"><path d="{s["d"]}" fill="{ink}"/></g>')
+        parts.append(
+            f'<g transform="translate({x:.2f} {y:.2f}) scale({h / s["h"]:.5f})" '
+            f'opacity="{op:.4f}"><path d="{s["d"]}" fill="rgb({ink[0]:.0f},{ink[1]:.0f},{ink[2]:.0f})"/></g>')
 
-    def pixel(x, y, s, op):
-        op *= fade(x, y)
-        if op < 0.004:
-            return
-        parts.append(f'<rect x="{x-s/2:.2f}" y="{y-s/2:.2f}" width="{s:.2f}" '
-                     f'height="{s:.2f}" fill="{ink}" opacity="{op:.3f}"/>')
-
-    def plus(x, y, s, op):
-        op *= fade(x, y)
-        if op < 0.004:
-            return
-        bar = s * PLUS_BAR / 2
-        parts.append(f'<g opacity="{op:.3f}" fill="{ink}">'
-                     f'<rect x="{x-s/2:.2f}" y="{y-bar:.2f}" width="{s:.2f}" height="{bar*2:.2f}"/>'
-                     f'<rect x="{x-bar:.2f}" y="{y-s/2:.2f}" width="{bar*2:.2f}" height="{s:.2f}"/></g>')
-
-    base = MARK_OP_PANEL if in_panel else MARK_OP_GROUND
-
-    # ---- the arrow lattice ------------------------------------------------
-    cols = int(W / ARROW_TILE_X) + 2
-    rows = int(H / ARROW_TILE_Y) + 2
-    for row in range(-1, rows):
-        for col in range(-1, cols):
-            if r() < ARROW_SKIP:
-                continue
-            x = col * ARROW_TILE_X + (ARROW_TILE_X / 2 if row % 2 else 0)
-            y = row * ARROW_TILE_Y
-            x += (r() * 2 - 1) * ARROW_JITTER
-            y += (r() * 2 - 1) * ARROW_JITTER
-            h = ARROW_TILE_H * (0.88 + 0.24 * r())
-            arrow(x, y, h, base * (0.42 + 0.75 * r()))
-
-    # ---- pixels and pluses ------------------------------------------------
-    # The official cluster patterns, drawn whole so the real pattern stays
-    # recognisable rather than only its constituent marks.
-    for kind, count in ((1, 2), (0, 2)):
-        pat = PLUS_CLUSTER if kind else PIXEL_CLUSTER
-        mk = PLUS_CLUSTER_MARK if kind else PIXEL_CLUSTER_MARK
-        for _ in range(count):
-            cx, cy = r() * W, r() * H
-            size = (0.30 + 0.34 * r()) * W
-            op = base * (0.5 + 0.5 * r())
-            for ox, oy in pat:
-                mx, my = cx + ox * size, cy + oy * size
-                if -20 < mx < W + 20 and -20 < my < H + 20:
-                    (plus if kind else pixel)(mx, my, size * mk, op)
-
-    # A loose scatter over the top, at a wide spread of sizes and opacities, so
-    # the field has some grain in it and does not read as one flat screen.
-    for _ in range(120):
-        x, y = r() * W, r() * H
-        s = 2.0 + 9.0 * r() ** 2.2
-        (pixel if r() < 0.55 else plus)(x, y, s, base * (0.30 + 0.85 * r()))
+    for li, (tx, ty, ah, jitter, skip, weight) in enumerate(LATTICE):
+        ox, oy = (0.0, 0.0) if li == 0 else LATTICE_OFFSET
+        for row in range(-1, int(H / ty) + 1):
+            for col in range(-1, int(W / tx) + 2):
+                if r() < skip:
+                    continue
+                x = ox + col * tx + (tx / 2 if row % 2 else 0) + (r() * 2 - 1) * jitter
+                y = oy + row * ty + (r() * 2 - 1) * jitter
+                h = ah * (0.88 + 0.24 * r())
+                arrow(x, y, h, weight * (1 - CONTRAST_SPREAD + 2 * CONTRAST_SPREAD * r()))
 
     if in_panel:
         clip = f'<clipPath id="c"><polygon points="{panel_points()}"/></clipPath>'
-        grad = ""
     else:
         clip = (f'<clipPath id="c"><path d="M0,0 H{W} V{H} H0 Z '
                 f'M0,{PANEL_L} L{W},{PANEL_R} L{W},0 L0,0 Z" clip-rule="evenodd"/></clipPath>')
-        # Marks below the panel take the colour of the panel above them, so the
-        # two halves of the card sit on one gradient rather than two.
-        la, lb = lighten(a, 0.55), lighten(b, 0.30)
-        grad = (f'<linearGradient id="mg" gradientUnits="userSpaceOnUse" '
-                f'x1="0" y1="0" x2="{W:.2f}" y2="{PANEL_R * 1.30:.2f}">'
-                f'<stop offset="0" stop-color="{la}"/>'
-                f'<stop offset="0.34" stop-color="{la}"/>'
-                f'<stop offset="1" stop-color="{lb}"/></linearGradient>')
 
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <defs>{clip}{grad}</defs>
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
+  <defs>{clip}</defs>
   <g clip-path="url(#c)">{''.join(parts)}</g>
-</svg>'''
+</svg>"""
 
 
 def chip_svg(fill, width):
