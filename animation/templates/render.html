@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Official Arrow Field — 6878 × 1080 render surface</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage {
+    position: relative;
+    width: 6878px;
+    height: 1080px;
+    overflow: hidden;
+    background: #8A25C9;
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+/* __ENGINE__ */
+/* ?layer=N isolates a single layer at full opacity — used for angle checks. */
+var only = new URLSearchParams(location.search).get('layer');
+var config = CONFIG;
+if (only) {
+  config = Object.assign({}, CONFIG, {
+    layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
+  });
+}
+window.metrics = mountArrowField(document.getElementById('stage'), config);
+/* Frame-accurate seeking for offline capture: window.seek(seconds) */
+window.seek = function (t) {
+  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) {
+    a.pause();
+    a.currentTime = t * 1000;
+  });
+};
+window.play = function () {
+  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) { a.play(); });
+};
+</script>
+</body>
+</html>

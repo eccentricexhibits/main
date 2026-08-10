@@ -1,0 +1,805 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Official Arrow — Diagonal Travel Loop</title>
+<style>
+  /* Brand faces, inlined at build time from Karbon-Regular.otf / Karbon-Semibold.otf */
+  @font-face {
+    font-family: 'Karbon';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url('__KARBON_REGULAR__') format('opentype');
+  }
+  @font-face {
+    font-family: 'Karbon';
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url('__KARBON_SEMIBOLD__') format('opentype');
+  }
+
+  /*
+   * Deliberately single-theme. This page exists to judge a saturated purple
+   * under stage conditions, so the surround stays a fixed near-black; a light
+   * ground would shift how #8A25C9 reads and defeat the point of the review.
+   * Every colour is therefore painted explicitly, never inherited.
+   */
+  :root {
+    --ground: #14101a;
+    --trough: #0b0810;
+    --panel: #1b1425;
+    --panel-2: #221a2e;
+    --line: #2f2439;
+    --line-soft: #241c30;
+    --ink: #f1ebf7;
+    --muted: #9c8bae;
+    --dim: #6f6180;
+    --cyan: #48c0d9;
+    --lilac: #b659f0;
+    --brand-purple: #8a25c9;
+
+    --step-0: 0.8125rem;
+    --step-1: 0.9375rem;
+    --step-2: 1.25rem;
+    --step-3: 1.75rem;
+    --step-4: 2.5rem;
+
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: 'Karbon', 'Segoe UI', system-ui, sans-serif;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------------------------------------------------------------- header */
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px 20px;
+    padding: 28px 0 20px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--step-3);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .meta {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chip {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--muted);
+    font-size: var(--step-0);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .chip::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lilac);
+  }
+
+  /* ---------------------------------------------------------------- viewer */
+
+  .viewer {
+    background: var(--trough);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    padding: 20px 0 0;
+  }
+
+  .viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  .frame {
+    position: relative;
+    margin: 0 auto;
+    width: max-content;
+    outline: 1px solid var(--line);
+    outline-offset: 0;
+  }
+
+  .stage-scaler {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6878px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--brand-purple);
+  }
+
+  .rulers {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 2px 0;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ------------------------------------------------------------- transport */
+
+  .transport {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 14px 0 20px;
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 7px 14px 6px;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+
+  button:hover { background: var(--panel-2); border-color: #3d3049; }
+  button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  button[aria-pressed='true'] { color: var(--cyan); border-color: var(--cyan); background: #10222a; }
+
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .seg button {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 7px 11px 6px;
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    font-weight: 400;
+  }
+
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed='true'] { background: #10222a; }
+
+  .seg-label {
+    color: var(--dim);
+    font-size: var(--step-0);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .scrub {
+    flex: 1 1 240px;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input[type='range'] {
+    flex: 1;
+    appearance: none;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--cyan) var(--pct, 0%), var(--line) var(--pct, 0%));
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 0;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--cyan);
+  }
+
+  input[type='range']:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+
+  .timecode {
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .timecode b { color: var(--ink); font-weight: 400; }
+
+  /* ------------------------------------------------------------ spec sheet */
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 44px;
+    padding: 40px 0 8px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .spec {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .spec dt,
+  .spec dd {
+    margin: 0;
+    padding: 9px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .spec dt { color: var(--muted); }
+
+  .spec dd {
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.7;
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+
+  .grad-bar {
+    display: block;
+    height: 8px;
+    max-width: 230px;
+    border-radius: 2px;
+    margin: 8px 0 2px;
+    background: linear-gradient(68deg, var(--lilac), var(--cyan));
+  }
+
+  .angle {
+    margin-top: 30px;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    padding: 18px 22px;
+    background: var(--panel);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+  }
+
+  .angle svg { flex: none; }
+
+  .angle p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+
+  .angle strong { color: var(--ink); font-weight: 600; }
+
+  /* ----------------------------------------------------------- layer table */
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  caption {
+    caption-side: bottom;
+    padding-top: 12px;
+    text-align: left;
+    color: var(--dim);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+
+  th, td {
+    text-align: right;
+    padding: 9px 10px;
+    border-top: 1px solid var(--line-soft);
+    white-space: nowrap;
+  }
+
+  thead th {
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--dim);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  th:first-child, td:first-child { text-align: left; padding-left: 0; }
+  td:last-child, th:last-child { padding-right: 0; }
+
+  tbody td {
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    color: var(--muted);
+  }
+
+  tbody td.depth {
+    font-family: 'Karbon', sans-serif;
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 9px;
+    background: var(--cyan);
+    vertical-align: -1px;
+  }
+
+  .bar {
+    display: inline-block;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--lilac);
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  tfoot td {
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: var(--step-0);
+  }
+
+  /* ---------------------------------------------------------------- footer */
+
+  footer {
+    border-top: 1px solid var(--line-soft);
+    margin-top: 34px;
+    padding: 24px 0 56px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+  }
+
+  footer h3 {
+    margin: 0 0 6px;
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  footer p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    max-width: 62ch;
+  }
+
+  footer code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  .note {
+    color: var(--dim);
+    font-size: var(--step-0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button, input[type='range'] { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Official arrow — diagonal travel loop</h1>
+      <p class="meta">6878 × 1080 px · 3:00 seamless · 67.93° travel</p>
+    </div>
+    <span class="chip">Web mock-up — not exported</span>
+  </header>
+</div>
+
+<section class="viewer">
+  <div class="wrap">
+    <div class="viewport" id="viewport">
+      <div class="frame">
+        <div class="stage-scaler" id="scaler"><div id="stage"></div></div>
+      </div>
+    </div>
+    <div class="rulers"><span id="zoomLabel">FIT</span><span>6878 × 1080</span></div>
+    <div class="transport">
+        <button id="playBtn" type="button">Pause</button>
+        <button id="restartBtn" type="button">Restart</button>
+        <button id="seamBtn" type="button" title="Jump to 2:58 and play through the loop point">Check loop point</button>
+
+        <div class="scrub">
+          <input id="scrub" type="range" min="0" max="180000" step="50" value="0" aria-label="Timeline position">
+          <span class="timecode"><b id="tc">0:00.0</b> / 3:00.0</span>
+        </div>
+
+        <span class="seg-label">Review speed</span>
+        <div class="seg" id="rates" role="group" aria-label="Review speed">
+          <button type="button" data-rate="1" aria-pressed="true">1×</button>
+          <button type="button" data-rate="4" aria-pressed="false">4×</button>
+          <button type="button" data-rate="12" aria-pressed="false">12×</button>
+        </div>
+
+        <span class="seg-label">Zoom</span>
+        <div class="seg" id="zooms" role="group" aria-label="Zoom">
+          <button type="button" data-zoom="fit" aria-pressed="true">Fit</button>
+          <button type="button" data-zoom="0.5" aria-pressed="false">50%</button>
+          <button type="button" data-zoom="1" aria-pressed="false">100%</button>
+        </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <main>
+    <section>
+      <h2>Specification</h2>
+      <dl class="spec">
+        <dt>Canvas</dt>
+        <dd>6878 × 1080 px</dd>
+
+        <dt>Duration</dt>
+        <dd>180.000 s — loops on the frame, no crossfade</dd>
+
+        <dt>Frame rate</dt>
+        <dd>Set at export — 180 s divides evenly at 24, 25, 30 or 60</dd>
+
+        <dt>Ground</dt>
+        <dd><span class="swatch" style="background: #8a25c9"></span>#8A25C9</dd>
+
+        <dt>Arrow fill</dt>
+        <dd>
+          <span class="swatch" style="background: #b659f0"></span>#B659F0 lower-left<br>
+          <span class="swatch" style="background: #48c0d9"></span>#48C0D9 upper-right
+          <span class="grad-bar"></span>
+        </dd>
+
+        <dt>Gradient axis</dt>
+        <dd>Parallel to travel, per arrow</dd>
+
+        <dt>Travel</dt>
+        <dd>+2.4667 slope · 67.93° · run 15 : rise 37</dd>
+
+        <dt>Speed</dt>
+        <dd id="specSpeed">—</dd>
+
+        <dt>Field</dt>
+        <dd id="specField">—</dd>
+
+        <dt>Artwork</dt>
+        <dd>Vector Official — Arrow Regular.svg</dd>
+      </dl>
+
+    </section>
+
+    <section>
+      <h2>Depth layers</h2>
+      <div class="table-scroll">
+        <table>
+          <caption id="tableCaption">
+            Layer 1 sits furthest back; layer 6 carries the fully opaque arrows. Each layer's
+            tile is 15 : 37, so one loop moves it by exactly one tile along the travel axis and
+            the pattern lands back on itself.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Depth</th>
+              <th scope="col">Arrow</th>
+              <th scope="col">Opacity</th>
+              <th scope="col">On screen</th>
+              <th scope="col">Speed</th>
+              <th scope="col">Loop travel</th>
+              <th scope="col">Tile</th>
+            </tr>
+          </thead>
+          <tbody id="layerRows"></tbody>
+          <tfoot>
+            <tr>
+              <td>Composite</td>
+              <td id="sizeRange">—</td>
+              <td id="opacityRange">—</td>
+              <td id="totalArrows">—</td>
+              <td id="speedRange">—</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="angle">
+        <svg width="168" height="138" viewBox="0 0 168 138" aria-hidden="true">
+          <path d="M14 118 H136" stroke="#2f2439" stroke-width="1"></path>
+          <path d="M14 118 L59 118 L59 7 Z" fill="#b659f0" fill-opacity="0.09"></path>
+          <path d="M59 118 V7" stroke="#3d3049" stroke-width="1" stroke-dasharray="3 4"></path>
+          <path d="M14 118 L59 7" stroke="#48c0d9" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M51.5 22 L59 7 L67 20.5" fill="none" stroke="#48c0d9" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M46 118 A32 32 0 0 0 26 88.3" fill="none" stroke="#6f6180" stroke-width="1"></path>
+          <text x="70" y="113" fill="#9c8bae" font-size="11"
+                font-family="ui-monospace, monospace">67.93°</text>
+          <text x="36" y="133" fill="#6f6180" font-size="11" text-anchor="middle"
+                font-family="ui-monospace, monospace">15</text>
+          <text x="68" y="66" fill="#6f6180" font-size="11"
+                font-family="ui-monospace, monospace">37</text>
+        </svg>
+        <p>
+          The arrow is placed <strong>unrotated</strong>. Its own shaft already runs at 67.93°,
+          so the artwork's axis and the direction of travel are one line — the field slides
+          along the arrow rather than across it.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      <h3>Status</h3>
+      <p>
+        Browser mock-up, held here for approval. Nothing has been encoded to video yet —
+        say the word and this same surface renders out frame-by-frame at 6878 × 1080.
+      </p>
+    </div>
+    <div>
+      <h3>On approval</h3>
+      <p>
+        <code>animation/arrow-animation-render.html</code> is the bare 6878 × 1080 surface with a
+        <code>seek(seconds)</code> hook, so an export walks it frame by frame at whatever rate you
+        specify — no screen capture, no dropped frames, and the last frame is identical to the first.
+        Tell me the frame rate and codec and it goes out.
+      </p>
+    </div>
+    <div>
+      <h3>Judging speed</h3>
+      <p class="note">
+        Review speed is a preview convenience for checking the loop quickly. The export runs at
+        1×, where the fastest arrows cross about a fifth of the wall per minute.
+      </p>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* __ENGINE__ */
+
+(function () {
+  var stage = document.getElementById('stage');
+  var metrics = mountArrowField(stage);
+  var DURATION_MS = CONFIG.duration * 1000;
+
+  /* ------------------------------------------------------------- spec fill */
+
+  var speeds = metrics.map(function (m) { return m.speed; });
+  var total = metrics.reduce(function (n, m) { return n + m.onScreen; }, 0);
+  var lo = Math.min.apply(null, speeds);
+  var hi = Math.max.apply(null, speeds);
+
+  document.getElementById('specSpeed').textContent =
+    lo.toFixed(1) + '–' + hi.toFixed(1) + ' px/s across ' + metrics.length + ' layers';
+  document.getElementById('specField').textContent = '~' + total + ' arrows on screen';
+  document.getElementById('totalArrows').textContent = '~' + total;
+  document.getElementById('speedRange').textContent = lo.toFixed(1) + '–' + hi.toFixed(1) + ' px/s';
+
+  var heights = metrics.map(function (m) { return m.arrow; });
+  var opacities = metrics.map(function (m) { return m.opacity; });
+  document.getElementById('sizeRange').textContent =
+    Math.round(Math.min.apply(null, heights) * CONFIG.sizeJitter[0]) + '–' +
+    Math.round(Math.max.apply(null, heights) * CONFIG.sizeJitter[1]) + ' px';
+  document.getElementById('opacityRange').textContent =
+    (Math.min.apply(null, opacities) * CONFIG.opacityJitter[0]).toFixed(2) + '–' +
+    Math.max.apply(null, opacities).toFixed(2);
+
+  var rows = document.getElementById('layerRows');
+  metrics.forEach(function (m) {
+    var tr = document.createElement('tr');
+    var barWidth = Math.round((m.speed / hi) * 46) + 4;
+    tr.innerHTML =
+      '<td class="depth"><span class="dot" style="opacity:' + Math.max(m.opacity, 0.14) + '"></span>' +
+        m.index + '</td>' +
+      '<td>' + m.arrow + ' px</td>' +
+      '<td>' + m.opacity.toFixed(2) + '</td>' +
+      '<td>' + m.onScreen + '</td>' +
+      '<td><span class="bar" style="width:' + barWidth + 'px"></span>' + m.speed.toFixed(1) + '</td>' +
+      '<td>' + Math.round(m.travel).toLocaleString() + ' px</td>' +
+      '<td>' + m.tileW + ' × ' + m.tileH + '</td>';
+    rows.appendChild(tr);
+  });
+
+  /* ------------------------------------------------------------- transport */
+
+  var playBtn = document.getElementById('playBtn');
+  var scrub = document.getElementById('scrub');
+  var tc = document.getElementById('tc');
+  var rate = 1;
+  var playing = true;
+
+  function anims() { return stage.getAnimations({ subtree: true }); }
+
+  function setTime(ms) {
+    anims().forEach(function (a) { a.currentTime = ms; });
+    paint(ms);
+  }
+
+  function setPlaying(on) {
+    playing = on;
+    anims().forEach(function (a) { on ? a.play() : a.pause(); });
+    playBtn.textContent = on ? 'Pause' : 'Play';
+  }
+
+  function setRate(r) {
+    rate = r;
+    anims().forEach(function (a) { a.playbackRate = r; });
+    document.querySelectorAll('#rates button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.rate) === r));
+    });
+  }
+
+  function format(ms) {
+    var s = ms / 1000;
+    var m = Math.floor(s / 60);
+    var rem = s - m * 60;
+    return m + ':' + (rem < 10 ? '0' : '') + rem.toFixed(1);
+  }
+
+  function paint(ms) {
+    scrub.value = String(Math.round(ms));
+    scrub.style.setProperty('--pct', (ms / DURATION_MS) * 100 + '%');
+    tc.textContent = format(ms);
+  }
+
+  playBtn.addEventListener('click', function () { setPlaying(!playing); });
+
+  document.getElementById('restartBtn').addEventListener('click', function () {
+    setTime(0);
+    setPlaying(true);
+  });
+
+  document.getElementById('seamBtn').addEventListener('click', function () {
+    setTime(DURATION_MS - 2000);
+    setRate(1);
+    setPlaying(true);
+  });
+
+  scrub.addEventListener('input', function () {
+    setPlaying(false);
+    setTime(Number(scrub.value));
+  });
+
+  document.getElementById('rates').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (btn) setRate(Number(btn.dataset.rate));
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target.matches('input, button')) return;
+    if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+  });
+
+  (function tick() {
+    var a = anims()[0];
+    if (a && playing) paint(Number(a.currentTime) % DURATION_MS);
+    requestAnimationFrame(tick);
+  })();
+
+  /* ------------------------------------------------------------------ zoom */
+
+  var scaler = document.getElementById('scaler');
+  var viewport = document.getElementById('viewport');
+  var zoomLabel = document.getElementById('zoomLabel');
+  var zoomMode = 'fit';
+
+  function applyZoom() {
+    var k = zoomMode === 'fit' ? Math.floor(viewport.clientWidth) / CONFIG.width : Number(zoomMode);
+    stage.style.transform = 'scale(' + k + ')';
+    scaler.style.width = Math.floor(CONFIG.width * k) + 'px';
+    scaler.style.height = Math.ceil(CONFIG.height * k) + 'px';
+    zoomLabel.textContent = zoomMode === 'fit' ? 'FIT · ' + (k * 100).toFixed(1) + '%'
+                                               : (k * 100).toFixed(0) + '%';
+  }
+
+  document.getElementById('zooms').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    zoomMode = btn.dataset.zoom;
+    document.querySelectorAll('#zooms button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b === btn));
+    });
+    applyZoom();
+    if (zoomMode !== 'fit') viewport.scrollLeft = (viewport.scrollWidth - viewport.clientWidth) / 2;
+  });
+
+  window.addEventListener('resize', function () { if (zoomMode === 'fit') applyZoom(); });
+  applyZoom();
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setPlaying(false);
+    setTime(0);
+  }
+})();
+</script>

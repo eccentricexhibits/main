@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Official Arrow Field — 6878 × 1080 render surface</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage {
+    position: relative;
+    width: 6878px;
+    height: 1080px;
+    overflow: hidden;
+    background: #8A25C9;
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+/*
+ * Arrow field — generative tiling animation engine.
+ *
+ * Builds a seamlessly looping field of the official arrow travelling along its
+ * own axis (slope +37/15 = 2.4667, i.e. 67.93 deg above horizontal).
+ *
+ * How the seamless loop works
+ * ---------------------------
+ * Each layer is one element carrying a repeating background tile of TW x TH px.
+ * TH / TW is fixed at 37/15, so the vector (TW, -TH) points exactly along the
+ * travel direction AND is a lattice vector of the tiling. Translating a layer by
+ * (TW, -TH) therefore lands the pattern back on itself: the last frame of the
+ * loop is pixel-identical to the first. Loop distance per layer is fixed at
+ * |(TW, -TH)| = 2.6617 * TW, so tile width alone sets that layer's speed.
+ */
+
+const ARROW = {
+  // "Vector Official - Arrow Regular.svg", untouched.
+  points:
+    '308.51,0 46.97,114.42 0,224.04 208.02,137.79 68.91,480.94 67.58,484.26 ' +
+    '113.86,600 286.24,169.06 376.67,375.07 422.98,267.08',
+  w: 422.98,
+  h: 600,
+};
+
+// Travel direction. 37/15 is the slope of the arrow's own shaft edge
+// (208.02,137.79) -> (68.91,480.94), which is what the 2.467 spec describes.
+const RISE = 37;
+const RUN = 15;
+
+const CONFIG = {
+  width: 6878,
+  height: 1080,
+  duration: 180, // seconds, one full loop
+  background: '#8A25C9',
+  gradientFrom: '#b659f0', // lower-left end of each arrow
+  gradientTo: '#48C0D9', // upper-right end of each arrow
+  seed: 20260810,
+  overscan: 16,
+  // tileW must be a multiple of RUN so tileH = tileW / RUN * RISE stays integral
+  // (fractional tile sizes produce visible seams in the repeated background).
+  layers: [
+    { tileW: 525, arrow: 48, opacity: 0.1, count: 10 },
+    { tileW: 645, arrow: 68, opacity: 0.16, count: 12 },
+    { tileW: 750, arrow: 92, opacity: 0.25, count: 12 },
+    { tileW: 990, arrow: 130, opacity: 0.42, count: 14 },
+    { tileW: 1200, arrow: 175, opacity: 0.68, count: 14 },
+    { tileW: 1350, arrow: 235, opacity: 1.0, count: 12 },
+  ],
+  sizeJitter: [0.7, 1.35], // per-arrow multiplier on the layer's arrow height
+  opacityJitter: [0.72, 1.0], // per-arrow multiplier on the layer's opacity
+};
+
+/* ---------------------------------------------------------------- utilities */
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Gradient endpoints, in objectBoundingBox units, that make the colour bands run
+ * perpendicular to the travel direction once the unit box is stretched back to
+ * the arrow's 422.98 x 600 bbox. Solved so the gradient starts at the box corner
+ * furthest down-left along the axis and ends at the corner furthest up-right.
+ */
+function gradientEndpoints() {
+  const dx = RUN;
+  const dy = -RISE;
+  // Band normal in bbox units must satisfy (gx / ARROW.w) : (gy / ARROW.h) = dx : dy.
+  const k = (ARROW.h / ARROW.w) * (dy / dx); // gy = k * gx
+  // Corner projections onto (1, k), with gx factored out.
+  const proj = [0, 1, k, 1 + k];
+  const lo = Math.min(...proj);
+  const hi = Math.max(...proj);
+  // |g|^2 must equal the projection span so the gradient maps [lo, hi] onto [0, 1].
+  const gx = (hi - lo) / (1 + k * k);
+  const g = [gx, k * gx];
+  const gLen2 = g[0] * g[0] + g[1] * g[1];
+  const t = (lo * gx) / gLen2; // start point = t * g
+  return { x1: t * g[0], y1: t * g[1], x2: t * g[0] + g[0], y2: t * g[1] + g[1] };
+}
+
+/** Blue-noise-ish sample of `n` points on a w x h torus, so tiles butt cleanly. */
+function poissonTorus(w, h, n, rng) {
+  const pts = [];
+  let radius = 0.75 * Math.sqrt((w * h) / n);
+  const far = (p, x, y) => {
+    let ddx = Math.abs(p.x - x);
+    let ddy = Math.abs(p.y - y);
+    if (ddx > w / 2) ddx = w - ddx;
+    if (ddy > h / 2) ddy = h - ddy;
+    return ddx * ddx + ddy * ddy >= radius * radius;
+  };
+  while (pts.length < n) {
+    let placed = false;
+    for (let attempt = 0; attempt < 150; attempt++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      if (pts.every((p) => far(p, x, y))) {
+        pts.push({ x, y });
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) radius *= 0.92;
+  }
+  return pts;
+}
+
+/* ------------------------------------------------------------- tile builder */
+
+function buildTile(layer, index, cfg) {
+  const tileH = (layer.tileW / RUN) * RISE;
+  const rng = mulberry32(cfg.seed + index * 7919);
+  const grad = gradientEndpoints();
+  const [sMin, sMax] = cfg.sizeJitter;
+  const [oMin, oMax] = cfg.opacityJitter;
+
+  const parts = [];
+  for (const p of poissonTorus(layer.tileW, tileH, layer.count, rng)) {
+    const scale = (layer.arrow * (sMin + rng() * (sMax - sMin))) / ARROW.h;
+    const alpha = oMin + rng() * (oMax - oMin);
+    const w = ARROW.w * scale;
+    const h = ARROW.h * scale;
+    const x0 = p.x - w / 2;
+    const y0 = p.y - h / 2;
+    // Repeat across tile edges so an arrow straddling a seam is drawn on both sides.
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        const x = x0 + i * layer.tileW;
+        const y = y0 + j * tileH;
+        if (x > layer.tileW || x + w < 0 || y > tileH || y + h < 0) continue;
+        parts.push(
+          `<use href="#a" transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) ` +
+            `scale(${scale.toFixed(5)})" opacity="${alpha.toFixed(3)}"/>`
+        );
+      }
+    }
+  }
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${layer.tileW}" height="${tileH}" ` +
+    `viewBox="0 0 ${layer.tileW} ${tileH}">` +
+    '<defs>' +
+    `<linearGradient id="g" x1="${grad.x1.toFixed(5)}" y1="${grad.y1.toFixed(5)}" ` +
+    `x2="${grad.x2.toFixed(5)}" y2="${grad.y2.toFixed(5)}">` +
+    `<stop offset="0" stop-color="${cfg.gradientFrom}"/>` +
+    `<stop offset="1" stop-color="${cfg.gradientTo}"/>` +
+    '</linearGradient>' +
+    `<polygon id="a" points="${ARROW.points}" fill="url(#g)"/>` +
+    '</defs>' +
+    parts.join('') +
+    '</svg>';
+
+  return { svg, tileH };
+}
+
+/* ------------------------------------------------------------------- mount */
+
+/**
+ * Fills `stage` with the animated layers and returns the layer metrics.
+ * `stage` is expected to be exactly cfg.width x cfg.height with overflow hidden.
+ */
+function mountArrowField(stage, cfg = CONFIG) {
+  const doc = stage.ownerDocument;
+  const style = doc.createElement('style');
+  const rules = [];
+  const metrics = [];
+
+  stage.style.background = cfg.background;
+
+  cfg.layers.forEach((layer, index) => {
+    const { svg, tileH } = buildTile(layer, index, cfg);
+    const travel = Math.hypot(layer.tileW, tileH);
+    const el = doc.createElement('div');
+    el.className = 'af-layer';
+    el.dataset.layer = String(index + 1);
+    Object.assign(el.style, {
+      position: 'absolute',
+      left: `${-layer.tileW - cfg.overscan}px`,
+      top: `${-cfg.overscan}px`,
+      width: `${cfg.width + layer.tileW + cfg.overscan * 2}px`,
+      height: `${cfg.height + tileH + cfg.overscan * 2}px`,
+      backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}")`,
+      backgroundRepeat: 'repeat',
+      backgroundSize: `${layer.tileW}px ${tileH}px`,
+      opacity: String(layer.opacity),
+      animation: `af-drift-${index} ${cfg.duration}s linear infinite`,
+      willChange: 'transform',
+    });
+    rules.push(
+      `@keyframes af-drift-${index}{` +
+        'from{transform:translate3d(0,0,0)}' +
+        `to{transform:translate3d(${layer.tileW}px,${-tileH}px,0)}}`
+    );
+    stage.appendChild(el);
+
+    metrics.push({
+      index: index + 1,
+      tileW: layer.tileW,
+      tileH,
+      arrow: layer.arrow,
+      opacity: layer.opacity,
+      count: layer.count,
+      onScreen: Math.round((layer.count * cfg.width * cfg.height) / (layer.tileW * tileH)),
+      travel,
+      speed: travel / cfg.duration,
+    });
+  });
+
+  style.textContent = rules.join('');
+  doc.head.appendChild(style);
+  return metrics;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { CONFIG, ARROW, RISE, RUN, mulberry32, gradientEndpoints, buildTile, mountArrowField };
+}
+
+/* ?layer=N isolates a single layer at full opacity — used for angle checks. */
+var only = new URLSearchParams(location.search).get('layer');
+var config = CONFIG;
+if (only) {
+  config = Object.assign({}, CONFIG, {
+    layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
+  });
+}
+window.metrics = mountArrowField(document.getElementById('stage'), config);
+/* Frame-accurate seeking for offline capture: window.seek(seconds) */
+window.seek = function (t) {
+  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) {
+    a.pause();
+    a.currentTime = t * 1000;
+  });
+};
+window.play = function () {
+  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) { a.play(); });
+};
+</script>
+</body>
+</html>
