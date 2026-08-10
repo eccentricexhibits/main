@@ -10,7 +10,7 @@
     width: 6878px;
     height: 1080px;
     overflow: hidden;
-    background: #8A25C9;
+    background: linear-gradient(180deg, #13071A 0%, #3B1056 100%);
   }
 </style>
 </head>
@@ -18,10 +18,17 @@
 <div id="stage"></div>
 <script>
 /* __ENGINE__ */
-/* ?layer=N isolates a single layer at full opacity — used for angle checks. */
-var only = new URLSearchParams(location.search).get('layer');
+/*
+ * ?layer=N isolates a single layer at full opacity — used for angle checks.
+ * ?bare=1  mounts the background and grain with no arrows — the plate that
+ *          analyze.py measures ink coverage against.
+ */
+var params = new URLSearchParams(location.search);
+var only = params.get('layer');
 var config = CONFIG;
-if (only) {
+if (params.get('bare')) {
+  config = Object.assign({}, CONFIG, { layers: [] });
+} else if (only) {
   config = Object.assign({}, CONFIG, {
     layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
   });

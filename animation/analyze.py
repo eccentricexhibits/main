@@ -15,7 +15,6 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FRAMES = os.path.join(HERE, ".verify")
-BG = np.array([0x8A, 0x25, 0xC9])
 FFMPEG = os.environ.get("FFMPEG")
 
 if not FFMPEG:
@@ -41,8 +40,8 @@ def load(png):
     return np.frombuffer(raw, dtype=np.uint8).reshape(h, w, 3).astype(int)
 
 
-def coverage(img):
-    d = np.abs(img - BG).sum(axis=2)
+def coverage(img, plate):
+    d = np.abs(img - plate).sum(axis=2)
     return {t: float((d > t).mean()) for t in (12, 25, 40, 60)}
 
 
@@ -69,40 +68,52 @@ def best_shift(a, b):
 
 def main():
     frames = {}
+    plate = None
     for name in sorted(os.listdir(FRAMES)):
-        if name.endswith(".png"):
-            frames[name[:-4]] = load(os.path.join(FRAMES, name))
+        if not name.endswith(".png"):
+            continue
+        img = load(os.path.join(FRAMES, name))
+        if name == "plate.png":
+            plate = img
+        else:
+            frames[name[:-4]] = img
     if not frames:
         sys.exit("no frames — run `node animation/verify.js` first")
 
-    scale = next(iter(frames.values())).shape[1] / 6878.0
-    print(f"frames at {next(iter(frames.values())).shape[1]}x{next(iter(frames.values())).shape[0]} "
-          f"({scale:.3f} of full size)\n")
+    first = next(iter(frames.values()))
+    scale = first.shape[1] / 6878.0
+    print(f"frames at {first.shape[1]}x{first.shape[0]} ({scale:.3f} of full size)\n")
 
-    print("ink coverage (fraction of pixels differing from the purple ground)")
-    print("  frame     >12    >25    >40    >60")
-    for name, img in frames.items():
-        c = coverage(img)
-        print(f"  {name:<8}" + "  ".join(f"{c[t]:.3f}" for t in (12, 25, 40, 60)))
-    print("  reference  0.145  0.119  0.102  0.075")
+    if plate is None:
+        print("no plate.png — skipping ink coverage (re-run verify.js to capture one)\n")
+    else:
+        print("ink coverage (fraction of pixels the arrows touch, vs the bare background)")
+        print("  frame     >12    >25    >40    >60")
+        for name in sorted(frames, key=lambda n: int(n[1:])):
+            c = coverage(frames[name], plate)
+            print(f"  {name:<8}" + "  ".join(f"{c[t]:.3f}" for t in (12, 25, 40, 60)))
+        print("  the client's reference clip sits at 0.145 / 0.119 / 0.102 / 0.075,")
+        print("  but measured against a flat purple ground — indicative only now.")
 
-    if "t0" in frames and "t180" in frames:
-        diff = np.abs(frames["t0"] - frames["t180"])
-        print(f"\nloop seam  t=180 vs t=0: max channel diff {diff.max()}, mean {diff.mean():.4f}")
+    times = sorted(int(n[1:]) for n in frames)
+    if len(times) > 1 and times[0] == 0:
+        last = f"t{times[-1]}"
+        diff = np.abs(frames["t0"] - frames[last])
+        print(f"\nloop seam  {last} vs t=0: max channel diff {diff.max()}, mean {diff.mean():.4f}")
         print("  " + ("SEAMLESS" if diff.max() <= 2 else "MISMATCH — the loop will jump"))
         if scale < 0.999:
             print("  (only meaningful at VERIFY_SCALE=1 — a scaled screenshot lands layers "
                   "on half-pixels and shows anti-aliasing noise)")
 
-    if "t0" in frames and "t10" in frames:
-        peak, dx, dy = best_shift(frames["t0"], frames["t10"])
+    if "t0" in frames and "t60" in frames:
+        peak, dx, dy = best_shift(frames["t0"], frames["t60"])
         if dx:
             full_dx, full_dy = dx / scale, dy / scale
             slope = -full_dy / full_dx
-            speed = (full_dx**2 + full_dy**2) ** 0.5 / 10
-            print(f"\ntravel  over 10 s: ({dx}, {dy}) px at {scale:.3f} scale "
+            speed = (full_dx**2 + full_dy**2) ** 0.5 / 60
+            print(f"\ntravel  over 60 s: ({dx}, {dy}) px at {scale:.3f} scale "
                   f"-> ({full_dx:.0f}, {full_dy:.0f}) px full size")
-            print(f"  slope {slope:.3f} (spec 2.467)   dominant-layer speed {speed:.1f} px/s "
+            print(f"  slope {slope:.3f} (spec 2.467)   dominant-layer speed {speed:.2f} px/s "
                   f"  correlation peak {peak:.3f}")
             print("  (a multi-speed field has no single slope in the composite; run "
                   "`node animation/verify.js --layer N` to measure one layer)")

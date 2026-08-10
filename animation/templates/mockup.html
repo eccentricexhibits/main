@@ -36,6 +36,8 @@
     --cyan: #48c0d9;
     --lilac: #b659f0;
     --brand-purple: #8a25c9;
+    --stage-top: #13071a;
+    --stage-bottom: #3b1056;
 
     --step-0: 0.8125rem;
     --step-1: 0.9375rem;
@@ -151,7 +153,7 @@
     height: 1080px;
     overflow: hidden;
     transform-origin: 0 0;
-    background: var(--brand-purple);
+    background: linear-gradient(180deg, var(--stage-top) 0%, var(--stage-bottom) 100%);
   }
 
   .rulers {
@@ -318,6 +320,23 @@
     border-radius: 2px;
     margin-right: 6px;
     vertical-align: baseline;
+    /* a hairline keeps the near-black ground swatch legible on a near-black panel */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  }
+
+  .ground {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .grad-col {
+    flex: none;
+    width: 22px;
+    height: 42px;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, var(--stage-top), var(--stage-bottom));
   }
 
   .grad-bar {
@@ -326,7 +345,7 @@
     max-width: 230px;
     border-radius: 2px;
     margin: 8px 0 2px;
-    background: linear-gradient(68deg, var(--lilac), var(--cyan));
+    background: linear-gradient(68deg, var(--brand-purple), var(--cyan));
   }
 
   .angle {
@@ -476,7 +495,7 @@
   <header>
     <div>
       <h1>Official arrow — diagonal travel loop</h1>
-      <p class="meta">6878 × 1080 px · 3:00 seamless · 67.93° travel</p>
+      <p class="meta" id="headerMeta">6878 × 1080 px · 67.93° travel</p>
     </div>
     <span class="chip">Web mock-up — not exported</span>
   </header>
@@ -493,11 +512,11 @@
     <div class="transport">
         <button id="playBtn" type="button">Pause</button>
         <button id="restartBtn" type="button">Restart</button>
-        <button id="seamBtn" type="button" title="Jump to 2:58 and play through the loop point">Check loop point</button>
+        <button id="seamBtn" type="button" title="Jump to just before the loop point and play through it">Check loop point</button>
 
         <div class="scrub">
-          <input id="scrub" type="range" min="0" max="180000" step="50" value="0" aria-label="Timeline position">
-          <span class="timecode"><b id="tc">0:00.0</b> / 3:00.0</span>
+          <input id="scrub" type="range" min="0" max="360000" step="50" value="0" aria-label="Timeline position">
+          <span class="timecode"><b id="tc">0:00.0</b> / <span id="tcTotal">6:00.0</span></span>
         </div>
 
         <span class="seg-label">Review speed</span>
@@ -526,23 +545,32 @@
         <dd>6878 × 1080 px</dd>
 
         <dt>Duration</dt>
-        <dd>180.000 s — loops on the frame, no crossfade</dd>
+        <dd id="specDuration">—</dd>
 
         <dt>Frame rate</dt>
-        <dd>Set at export — 180 s divides evenly at 24, 25, 30 or 60</dd>
+        <dd id="specFps">—</dd>
 
         <dt>Ground</dt>
-        <dd><span class="swatch" style="background: #8a25c9"></span>#8A25C9</dd>
+        <dd class="ground">
+          <span class="grad-col"></span>
+          <span>#13071A top<br>#3B1056 bottom</span>
+        </dd>
 
         <dt>Arrow fill</dt>
         <dd>
-          <span class="swatch" style="background: #b659f0"></span>#B659F0 lower-left<br>
+          <span class="swatch" style="background: #8a25c9"></span>#8A25C9 lower-left<br>
           <span class="swatch" style="background: #48c0d9"></span>#48C0D9 upper-right
           <span class="grad-bar"></span>
         </dd>
 
         <dt>Gradient axis</dt>
         <dd>Parallel to travel, per arrow</dd>
+
+        <dt>Glow &amp; trail</dt>
+        <dd id="specGlow">—</dd>
+
+        <dt>Grain</dt>
+        <dd id="specGrain">—</dd>
 
         <dt>Travel</dt>
         <dd>+2.4667 slope · 67.93° · run 15 : rise 37</dd>
@@ -660,6 +688,32 @@
   var lo = Math.min.apply(null, speeds);
   var hi = Math.max.apply(null, speeds);
 
+  function clock(seconds) {
+    var m = Math.floor(seconds / 60);
+    var rem = seconds - m * 60;
+    return m + ':' + (rem < 10 ? '0' : '') + rem.toFixed(1);
+  }
+
+  var evenRates = [24, 25, 30, 60].filter(function (fps) {
+    return Number.isInteger(CONFIG.duration * fps);
+  });
+
+  document.getElementById('headerMeta').textContent =
+    CONFIG.width + ' × ' + CONFIG.height + ' px · ' + clock(CONFIG.duration).replace('.0', '') +
+    ' seamless · 67.93° travel';
+  document.getElementById('tcTotal').textContent = clock(CONFIG.duration);
+  document.getElementById('specDuration').textContent =
+    CONFIG.duration.toFixed(3) + ' s — loops on the frame, no crossfade';
+  document.getElementById('specFps').textContent =
+    'Set at export — ' + CONFIG.duration + ' s divides evenly at ' +
+    evenRates.slice(0, -1).join(', ') + ' or ' + evenRates[evenRates.length - 1];
+  document.getElementById('specGlow').textContent =
+    'Halo ' + CONFIG.glow.blur.toFixed(3) + '× arrow height, trail ' +
+    CONFIG.trail.length.toFixed(2) + '× behind at ' + CONFIG.trail.opacity.toFixed(2) + ' alpha';
+  document.getElementById('specGrain').textContent = CONFIG.dither > 0
+    ? (CONFIG.dither * 100).toFixed(0) + '% overlay — dithers the ground ramp'
+    : 'off';
+
   document.getElementById('specSpeed').textContent =
     lo.toFixed(1) + '–' + hi.toFixed(1) + ' px/s across ' + metrics.length + ' layers';
   document.getElementById('specField').textContent = '~' + total + ' arrows on screen';
@@ -698,6 +752,7 @@
   var tc = document.getElementById('tc');
   var rate = 1;
   var playing = true;
+  scrub.max = String(DURATION_MS);
 
   function anims() { return stage.getAnimations({ subtree: true }); }
 
@@ -720,17 +775,10 @@
     });
   }
 
-  function format(ms) {
-    var s = ms / 1000;
-    var m = Math.floor(s / 60);
-    var rem = s - m * 60;
-    return m + ':' + (rem < 10 ? '0' : '') + rem.toFixed(1);
-  }
-
   function paint(ms) {
     scrub.value = String(Math.round(ms));
     scrub.style.setProperty('--pct', (ms / DURATION_MS) * 100 + '%');
-    tc.textContent = format(ms);
+    tc.textContent = clock(ms / 1000);
   }
 
   playBtn.addEventListener('click', function () { setPlaying(!playing); });

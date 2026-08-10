@@ -68,6 +68,14 @@ const FRAMES = times.length ? times : [0, 10, 90, 180];
     await page.screenshot({ path: path.join(OUT, `t${t}.png`), clip: { x: 0, y: 0, width: W, height: H } });
   }
 
+  // Background-only plate, so ink coverage is measured against the actual ground
+  // (a vertical gradient plus grain) rather than a single flat colour.
+  if (!LAYER) {
+    await page.goto(`${FILE}?bare=1`);
+    await page.addStyleTag({ content: `#stage{transform:scale(${SCALE});transform-origin:0 0}` });
+    await page.screenshot({ path: path.join(OUT, 'plate.png'), clip: { x: 0, y: 0, width: W, height: H } });
+  }
+
   await browser.close();
   console.log(`\n${FRAMES.length} frames at ${W}x${H} -> ${OUT}`);
 })();

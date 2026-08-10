@@ -1,18 +1,18 @@
 # Official arrow — diagonal travel loop
 
 A 6878 × 1080 field of the official arrow travelling up and to the right along its own
-axis, as a seamless three-minute loop. Currently a **web mock-up**, held for approval
+axis, as a seamless six-minute loop. Currently a **web mock-up**, held for approval
 before anything is encoded to video.
 
 | | |
 | --- | --- |
 | Canvas | 6878 × 1080 px |
-| Duration | 180.000 s, seamless (last frame is pixel-identical to the first) |
-| Ground | `#8A25C9` |
-| Arrow fill | linear gradient `#B659F0` (lower left) → `#48C0D9` (upper right), axis parallel to travel, applied per arrow |
+| Duration | 360.000 s, seamless (last frame is pixel-identical to the first) |
+| Ground | vertical gradient, `#13071A` top → `#3B1056` bottom, with 3% grain to dither the ramp |
+| Arrow fill | linear gradient `#8A25C9` (lower left) → `#48C0D9` (upper right), axis parallel to travel, applied per arrow |
 | Travel | slope +2.4667 (run 15 : rise 37), 67.93° above horizontal |
-| Speed | 7.8 – 20.0 px/s across six depth layers |
-| Field | ~352 arrows on screen, ~14% ink coverage |
+| Speed | 3.9 – 10.0 px/s across six depth layers |
+| Field | ~352 arrows on screen, each with a soft halo and a light trail |
 | Artwork | `Vector Official - Arrow Regular.svg`, unmodified and unrotated |
 
 ## Files
@@ -43,12 +43,14 @@ Every layer is one element carrying a repeating background tile of `TW × TH` px
 2. a lattice vector of the tiling.
 
 So translating a layer by `(TW, −TH)` lands the pattern back on itself — the frame at
-t = 180 s is the frame at t = 0 s, with nothing to cross-fade. Tile widths are multiples
+t = 360 s is the frame at t = 0 s, with nothing to cross-fade. Tile widths are multiples
 of 15 so `TH` stays a whole number; fractional tile sizes produce visible seams.
 
 One consequence worth knowing: loop distance is `|(TW, −TH)| = 2.6617 × TW`, so **tile
-width alone sets a layer's speed**. Wider tile → faster layer and more unique pattern
-before it repeats. The six layers use mutually non-commensurate widths, so the composite
+width and duration together set a layer's speed** — `2.6617 × TW / duration`. Wider tile
+→ faster layer and more unique pattern before it repeats; a longer loop slows everything
+proportionally without touching the pattern (which is exactly how the six-minute version
+halved the speed of the three-minute one). The six layers use mutually non-commensurate widths, so the composite
 has no repeat period the eye can find across 6878 px even though each layer repeats.
 
 Arrows are placed by blue-noise sampling on the tile's torus, and any arrow straddling a
@@ -58,12 +60,14 @@ tile edge is drawn again on the opposite side, so tiles butt cleanly.
 
 ```sh
 node animation/build.js
-VERIFY_SCALE=1 node animation/verify.js 0 10 90 180
+VERIFY_SCALE=1 node animation/verify.js 0 60 180 360
 python3 animation/analyze.py
 ```
 
-`analyze.py` reports ink coverage per frame, confirms t = 180 matches t = 0, and
-recovers the travel vector by matching frames.
+`analyze.py` reports ink coverage per frame, confirms the last frame matches t = 0, and
+recovers the travel vector by matching frames. Coverage is measured against `plate.png`,
+a render of the background and grain with no arrows, so the vertical ground gradient does
+not count as ink.
 
 **Check the seam at `VERIFY_SCALE=1` only.** A scaled screenshot lands layers on half
 pixels and reports anti-aliasing noise as a mismatch. At 1:1 the difference across all
@@ -73,11 +77,12 @@ pixels and reports anti-aliasing noise as a mismatch. At 1:1 the difference acro
 independently of the other five:
 
 ```sh
-VERIFY_SCALE=1 node animation/verify.js --layer 6 0 5
+VERIFY_SCALE=1 node animation/verify.js --layer 6 0 10
 ```
 
-Layer 6 moves (38, −92) px over 5 s against a predicted (37.5, −92.5) — inside the
-one-pixel quantisation of an integer match.
+Layer 6 moves (37.5, −92.5) px per 10 s at the six-minute duration. Phase correlation is
+unreliable on a periodic field — it finds many equal peaks — so measure with direct block
+matching over a short interval.
 
 ## Exporting (after approval)
 
@@ -87,12 +92,25 @@ ffmpeg -framerate 30 -i /tmp/frames/f_%05d.png -c:v prores_ks -profile:v 3 arrow
 ```
 
 Frames are seeked explicitly rather than screen-captured, so none are dropped or
-duplicated. 180 s divides evenly at 24, 25, 30 and 60 fps.
+duplicated. 360 s divides evenly at 24, 25, 30 and 60 fps — 10,800 frames at 30.
 
 ## Tuning
 
-Everything adjustable lives in `CONFIG` at the top of `arrow-field.js`: per-layer tile
-width (speed), arrow height, opacity, and arrows per tile, plus the global size and
-opacity jitter ranges. Density was matched to the client's reference clip by ink
-coverage — the reference sits at 0.145 / 0.119 / 0.102 / 0.075 at difference thresholds
-12 / 25 / 40 / 60, and this field sits at 0.143 / 0.122 / 0.103 / 0.084.
+Everything adjustable lives in `CONFIG` at the top of `arrow-field.js`: duration,
+background gradient, arrow gradient, per-layer tile width (speed), arrow height, opacity
+and arrows per tile, the global size and opacity jitter ranges, and the glow, trail and
+grain settings.
+
+Density was originally matched to the client's reference clip by ink coverage. That
+comparison is now only indicative — the reference was measured against a flat purple
+ground, and this piece sits on a dark gradient, so the same arrows register far more
+contrast.
+
+Setting `glow.opacity` or `trail.opacity` to 0 drops those elements from the tile
+entirely rather than drawing them invisibly, and `dither: 0` removes the grain layer.
+
+**Effects are declared in the arrow's own coordinates**, inside the reused `<g id="s">`,
+so each `<use>`'s scale carries the blur with it and a 48 px arrow gets proportionally
+the same halo as a 235 px one. Note that the trail reaches well outside the arrow's
+bounding box, so tile culling and edge duplication work off `spriteBox()` — the union of
+arrow, trail and blur bleed. Using the arrow's own bbox there would clip glow at seams.
