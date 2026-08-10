@@ -233,8 +233,17 @@ export function drawMoment(ctx, time, moment, opts = {}) {
   const solid = smooth((t - T_FORMED) / (T_SOLID - T_FORMED));
   const word = smooth((t - T_SOLID) / (T_WORD - T_SOLID));
 
+  // Deliberately NOT additive, unlike the main loop's field.
+  //
+  // Additive marks on a violet ground clip the blue channel first — the ground
+  // pre-loads it — and once blue pins at 255 every further addition only moves
+  // red and green, so the hue walks off violet and lands on magenta. At the
+  // loop's mark sizes that never gets far enough to see; at Arrival's, where
+  // the arrows are the whole piece, the south wall went pink. Compositing
+  // normally keeps every arrow the colour it was sampled as, and the bloom pass
+  // still supplies the glow. It is also the layered-transparency read the
+  // concept was approved on.
   ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
 
   for (const a of moment.arrows) {
     const flow = flowPosition(a, t);
@@ -251,22 +260,22 @@ export function drawMoment(ctx, time, moment, opts = {}) {
     if (y < -h - 80 || y > CANVAS_H + h + 80) continue;
 
     // As an arrow arrives it takes the colour of the part of the mark it lands
-    // in, and the swarm dims as the solid lockup comes up underneath it.
+    // in. That handover is held back until the last 40% of the flight: the
+    // arrows bound for the logo's own arrow turn magenta, and starting the
+    // blend at the top of the gather scatters pink arrows across a room that is
+    // meant to have none in it.
     const flown = gradientAt(clamp01(x / CANVAS_W), clamp01(0.45 + a.depth * 0.55));
-    const col = g > 0.001
+    const cm = smooth((g - 0.6) / 0.4);
+    const col = cm > 0.001
       ? [
-        Math.round(lerp(flown[0], a.target.accent ? 237 : 255, g)),
-        Math.round(lerp(flown[1], a.target.accent ? 44 : 255, g)),
-        Math.round(lerp(flown[2], a.target.accent ? 138 : 255, g)),
+        Math.round(lerp(flown[0], a.target.accent ? 237 : 255, cm)),
+        Math.round(lerp(flown[1], a.target.accent ? 44 : 255, cm)),
+        Math.round(lerp(flown[2], a.target.accent ? 138 : 255, cm)),
       ]
       : flown;
 
-    // Held below the main loop's level on purpose: 620 arrows overlapping
-    // additively drive violet up its red channel first, and a saturated
-    // violet stack reads pink — the one colour that is meant to stay out of
-    // the room.
-    const alpha = (0.22 + 0.78 * a.depth) * a.alphaVar * 0.84 *
-      lerp(1, 0.55, g) * (1 - solid) * k.marks;
+    const alpha = (0.30 + 0.70 * a.depth) * a.alphaVar * 0.9 *
+      lerp(1, 0.62, g) * (1 - solid) * k.marks;
     if (alpha < 0.006) continue;
 
     ctx.save();

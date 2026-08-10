@@ -1057,7 +1057,6 @@
     const solid = smooth((t2 - T_FORMED) / (T_SOLID - T_FORMED));
     const word = smooth((t2 - T_SOLID) / (T_WORD - T_SOLID));
     ctx2.save();
-    ctx2.globalCompositeOperation = "lighter";
     for (const a of moment2.arrows) {
       const flow = flowPosition(a, t2);
       const span = T_FORMED - T_GATHER;
@@ -1070,12 +1069,13 @@
       if (x < -w - 80 || x > CANVAS_W + w + 80) continue;
       if (y < -h - 80 || y > CANVAS_H + h + 80) continue;
       const flown = gradientAt(clamp013(x / CANVAS_W), clamp013(0.45 + a.depth * 0.55));
-      const col = g > 1e-3 ? [
-        Math.round(lerp2(flown[0], a.target.accent ? 237 : 255, g)),
-        Math.round(lerp2(flown[1], a.target.accent ? 44 : 255, g)),
-        Math.round(lerp2(flown[2], a.target.accent ? 138 : 255, g))
+      const cm = smooth((g - 0.6) / 0.4);
+      const col = cm > 1e-3 ? [
+        Math.round(lerp2(flown[0], a.target.accent ? 237 : 255, cm)),
+        Math.round(lerp2(flown[1], a.target.accent ? 44 : 255, cm)),
+        Math.round(lerp2(flown[2], a.target.accent ? 138 : 255, cm))
       ] : flown;
-      const alpha = (0.22 + 0.78 * a.depth) * a.alphaVar * 0.84 * lerp2(1, 0.55, g) * (1 - solid) * k.marks;
+      const alpha = (0.3 + 0.7 * a.depth) * a.alphaVar * 0.9 * lerp2(1, 0.62, g) * (1 - solid) * k.marks;
       if (alpha < 6e-3) continue;
       ctx2.save();
       ctx2.translate(x - w / 2, y - h / 2);
