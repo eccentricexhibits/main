@@ -25,6 +25,7 @@ import {
   PLUS_CLUSTER_MARK,
   PIXEL_CLUSTER,
   PIXEL_CLUSTER_MARK,
+  ROOM,
   gradientAt,
   rgba,
 } from './brand.js';
@@ -288,54 +289,98 @@ export function createScene() {
   };
 }
 
-export function drawScene(ctx, time, scene) {
+// ---------------------------------------------------------------------------
+// Show state vs dark state
+//
+// The room has to do two jobs. During the reception it is the piece; while a
+// speaker is presenting it has to get out of the way — the walls recede so they
+// are not competing with what is on the screen behind the stage.
+//
+// This is one continuous control rather than two edits of the same scene, so
+// the room can be cross-faded live from the desk mid-session and the geometry
+// never moves. Everything the two states differ by is a multiplier.
+// ---------------------------------------------------------------------------
+
+const SHOW = { marks: 1.0, violet: 1.0, bloom: 0.55 };
+const DARK = { marks: 0.24, violet: 0.3, bloom: 0.26 };
+
+export function stateFactors(dark = 0) {
+  const d = clamp01(dark);
+  return {
+    marks: lerp(SHOW.marks, DARK.marks, d),
+    violet: lerp(SHOW.violet, DARK.violet, d),
+    bloom: lerp(SHOW.bloom, DARK.bloom, d),
+  };
+}
+
+export function drawScene(ctx, time, scene, opts = {}) {
   const t = ((time % DURATION) + DURATION) % DURATION;
   const phase = t / DURATION;
+  const k = stateFactors(opts.dark ?? 0);
 
-  drawBackground(ctx, t);
+  drawBackground(ctx, t, k);
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, 0.7);
-  drawClusterLayer(ctx, scene.pixelClusters, t, phase, 0, 0.62);
-  drawParticles(ctx, scene, t, phase);
-  drawClusterLayer(ctx, scene.plusClusters, t, phase, 1, 0.75);
-  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, 0.92);
-  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, 0.8);
-  drawArrowLayer(ctx, scene, scene.arrowsHero, t, phase, 1.05);
+  drawArrowLayer(ctx, scene, scene.arrowsFar, t, phase, 0.7 * k.marks);
+  drawClusterLayer(ctx, scene.pixelClusters, t, phase, 0, 0.62 * k.marks);
+  drawParticles(ctx, scene, t, phase, k.marks);
+  drawClusterLayer(ctx, scene.plusClusters, t, phase, 1, 0.75 * k.marks);
+  drawArrowLayer(ctx, scene, scene.arrowsMid, t, phase, 0.92 * k.marks);
+  drawArrowLayer(ctx, scene, scene.arrowsLong, t, phase, 0.8 * k.marks);
+  drawArrowLayer(ctx, scene, scene.arrowsHero, t, phase, 1.05 * k.marks);
 
   ctx.restore();
+
+  if (opts.speaker) drawSpeaker(ctx, opts.speaker, k);
 }
 
 // ---------------------------------------------------------------------------
 // Background
 // ---------------------------------------------------------------------------
 
-function drawBackground(ctx, t) {
-  const g = ctx.createLinearGradient(0, 0, CANVAS_W, 0);
-  g.addColorStop(0.0, '#0d0010');
-  g.addColorStop(0.35, '#080011');
-  g.addColorStop(0.5, '#070113');
-  g.addColorStop(0.72, '#040314');
-  g.addColorStop(1.0, '#030616');
-  ctx.fillStyle = g;
+export function drawBackground(ctx, t, k) {
+  // Deep violet at the foot of the frame, falling away to almost black at the
+  // top. Two passes, because a canvas gradient is one-dimensional and this
+  // needs to fall off both vertically and horizontally.
+  const [br, bg, bb] = ROOM.black;
+  const [vr, vg, vb] = ROOM.violet;
+  const lift = k.violet;
+
+  const v = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
+  v.addColorStop(0.0, `rgb(${br},${bg},${bb})`);
+  v.addColorStop(0.42, `rgb(${Math.round(br + (vr - br) * 0.18 * lift)},` +
+    `${Math.round(bg + (vg - bg) * 0.18 * lift)},${Math.round(bb + (vb - bb) * 0.18 * lift)})`);
+  v.addColorStop(1.0, `rgb(${Math.round(br + (vr - br) * lift)},` +
+    `${Math.round(bg + (vg - bg) * lift)},${Math.round(bb + (vb - bb) * lift)})`);
+  ctx.fillStyle = v;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  // Kept deliberately faint: the reference art sits on near-black, with light
-  // coming off the marks themselves rather than from a background wash.
+  // Pull the middle of the room back toward black. The speaker, the podium and
+  // the domino screen are all on the west wall, and the brief is that the walls
+  // recede rather than compete with what is on stage.
+  const h = ctx.createLinearGradient(0, 0, CANVAS_W, 0);
+  h.addColorStop(0.0, rgba(ROOM.black, 0));
+  h.addColorStop(0.5, rgba(ROOM.black, ROOM.centreFade));
+  h.addColorStop(1.0, rgba(ROOM.black, 0));
+  ctx.fillStyle = h;
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  // Kept deliberately faint: the light in the piece comes off the marks
+  // themselves, not from a background wash.
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   const breathe = 0.9 + 0.1 * Math.sin((t / DURATION) * Math.PI * 2);
   const washes = [
     { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
-    { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.07 * breathe, r: CANVAS_W * 0.12 },
+    { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.045 * breathe, r: CANVAS_W * 0.12 },
     { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
   ];
   for (const w of washes) {
     const rg = ctx.createRadialGradient(w.cx, CANVAS_H * 0.5, 0, w.cx, CANVAS_H * 0.5, w.r);
-    rg.addColorStop(0, rgba(w.col, w.a));
-    rg.addColorStop(0.55, rgba(w.col, w.a * 0.28));
+    rg.addColorStop(0, rgba(w.col, w.a * k.marks));
+    rg.addColorStop(0.55, rgba(w.col, w.a * 0.28 * k.marks));
     rg.addColorStop(1, rgba(w.col, 0));
     ctx.fillStyle = rg;
     ctx.fillRect(w.cx - w.r, 0, w.r * 2, CANVAS_H);
@@ -371,13 +416,13 @@ function drawTrail(ctx, x, y, len, thickness, style) {
   ctx.restore();
 }
 
-function drawParticles(ctx, scene, t, phase) {
+function drawParticles(ctx, scene, t, phase, weight = 1) {
   for (const p of scene.particles) {
     const pos = placeField(p, phase, t);
     if (pos.x < -180 || pos.x > CANVAS_W + 180) continue;
 
     const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
-    const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t) * tw;
+    const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t) * tw * weight;
     if (alpha < 0.006) continue;
 
     const col = gradientAt(pos.xn, clamp01(0.25 + p.depth * 0.75));
@@ -478,6 +523,68 @@ function drawArrowLayer(ctx, scene, arrows, t, phase, weight) {
     ctx.fill(a.long ? scene.paths.arrowLong : scene.paths.arrowRegular);
     ctx.restore();
   }
+}
+
+// ---------------------------------------------------------------------------
+// Speaker names
+//
+// Both side walls carry the name of whoever is up next, so the room itself
+// introduces them. Placement is dictated by the template, not by taste: the
+// speaker grills sit at x 430-1376 and x 5481-6426, and everything below
+// y = 538 is marked "background graphics only, no text". That leaves one clear
+// block on each side wall, and both happen to fall on the stage side — so the
+// names read close to the eye-line rather than out at the far corners.
+//
+// The role line takes the local room colour: violet on the south wall,
+// turquoise on the north. The reference mockup set it in magenta, which is now
+// the wayfinding colour and stays out of the room.
+// ---------------------------------------------------------------------------
+
+const SPEAKER_SLOTS = [1452, 4742]; // clear of both grills, on the stage side
+const SPEAKER_NAME_PX = 68;
+const SPEAKER_ROLE_PX = 36;
+const SPEAKER_BASE = 412;
+const SPEAKER_LEAD = 44;
+export const SPEAKER_FONT = 'Karbon, "Open Sans", sans-serif';
+
+function drawSpeaker(ctx, spec, k) {
+  const lines = spec.lines || [];
+  // Names are information, so they hold up better in the dark state than the
+  // field does — but they still come down with it.
+  const a = 0.4 + 0.6 * k.marks;
+  const blockH = SPEAKER_LEAD * lines.length + SPEAKER_NAME_PX + 40;
+
+  ctx.save();
+  ctx.textBaseline = 'alphabetic';
+  for (const x of SPEAKER_SLOTS) {
+    const col = gradientAt(clamp01(x / CANVAS_W), 0.55);
+
+    // The field is dense everywhere by design, so the names need their own
+    // ground rather than a spot that happens to be quiet — a mark drifting
+    // through would otherwise take a word with it. A soft elliptical scrim
+    // costs nothing at this alpha and holds the type at any frame.
+    ctx.save();
+    const cx = x + 320;
+    const cy = SPEAKER_BASE - SPEAKER_NAME_PX * 0.35 + blockH * 0.3;
+    const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 620);
+    rg.addColorStop(0, 'rgba(4,2,10,0.82)');
+    rg.addColorStop(0.55, 'rgba(4,2,10,0.55)');
+    rg.addColorStop(1, 'rgba(4,2,10,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(cx - 620, cy - 420, 1240, 840);
+    ctx.restore();
+
+    ctx.font = `600 ${SPEAKER_NAME_PX}px ${SPEAKER_FONT}`;
+    ctx.fillStyle = `rgba(255,255,255,${(0.97 * a).toFixed(3)})`;
+    ctx.fillText(spec.name, x, SPEAKER_BASE);
+
+    ctx.font = `600 ${SPEAKER_ROLE_PX}px ${SPEAKER_FONT}`;
+    ctx.fillStyle = rgba(col, 0.95 * a);
+    lines.forEach((line, i) => {
+      ctx.fillText(line, x, SPEAKER_BASE + SPEAKER_LEAD * (i + 1) + 10);
+    });
+  }
+  ctx.restore();
 }
 
 // ---------------------------------------------------------------------------

@@ -1,11 +1,44 @@
-# Vector Institute — “Convergence”
+# Vector Institute — AI Summit 2026
 
-A three-minute generative animation for the DX Trading Floor immersive room,
-built from the official Vector brand assets.
+Immersive wall content and print for the DX Trading Floor, built from the
+official Vector brand assets.
 
-**Canvas:** 6878 × 1080 · **Duration:** 180 s · **Loop:** seamless (verified
-pixel-identical at the seam) · **Palette:** primary magenta → violet → cobalt
-gradient.
+**Canvas:** 6878 × 1080 · **Palette:** secondary violet → turquoise on deep
+violet · **Deliverables:**
+
+| Piece | Length | What it is |
+| --- | --- | --- |
+| **Convergence** | 3:00, seamless | the sustained room loop |
+| **Convergence (dark)** | 3:00, seamless | the same loop with the walls receded, for use under a presentation |
+| **Arrival** | 0:12, one shot | arrows gathering into the Vector logo, for the cue before a keynote |
+| Name badges | — | four categories, layered PDF |
+
+## What changed after the concept review
+
+Concept B was chosen as the foundation, with a revised colour direction. The
+nine items from the feedback and where each one lives:
+
+| # | Item | Where |
+| --- | --- | --- |
+| 1 | Background to deep violet flowing into almost black | `ROOM` in `src/brand.js`, `drawBackground` in `src/scene.js` |
+| 2 | Arrows on a violet → turquoise gradient | `GRADIENT_ENV` in `src/brand.js` |
+| 3 | Arrows-into-logo motion piece | `src/logo-moment.js` |
+| 4 | Speaker names on the walls | `drawSpeaker` in `src/scene.js` |
+| 5 | Magenta is wayfinding only, not the room | `GRADIENT_WAYFINDING`, unused by the scene |
+| 6 | Dark state for presentations | `stateFactors` in `src/scene.js` |
+| 7 | Badge colour system | `CATEGORIES` in `tools/badges.py` |
+| 8 | Badges smooth, large format textured | `tools/badges.py` — the mark field is gone from the badge |
+| 9 | Concept C badge layout on the confirmed colours | `tools/badges.py` |
+
+Two notes on the brief, neither of which changes the work:
+
+- The rationale given for the arrow gradient reads *violet = Academia,
+  turquoise = Industry*. The guidelines (p13) assign them the other way round:
+  Industry `#8A25C9`, Academic Institutions `#48C0D9`. The pairing and its
+  direction across the room are unaffected.
+- Magenta is out of the room's palette, but the Vector mark itself keeps its
+  magenta arrow in the **Arrival** piece. The mark is the mark; repainting it
+  would be the brand error, not the restraint.
 
 ---
 
@@ -37,7 +70,8 @@ the current one:
 
 | File | Version |
 | --- | --- |
-| `dist/preview.html` | Current — funnelled left-to-right field, arrows on the 67.93° axis |
+| `dist/preview.html` | Current — violet → turquoise, dark state, Arrival piece |
+| `dist/preview-v3.html` | v3 — magenta → cobalt palette, pre-feedback |
 | `dist/preview-v2.html` | v2 — everything on the 67.93° axis, no funnel |
 | `dist/preview-v1.html` | v1 — five-phase arc, horizontal flow, logo reveal |
 
@@ -47,24 +81,31 @@ To rebuild any earlier version from git:
 tools/build-archive.sh <commit> <name> "<banner text>"
 tools/build-archive.sh 84271cc v1 "Version 1 — phase arc, horizontal flow"
 tools/build-archive.sh 061d85b v2 "Version 2 — all-diagonal flow, no funnel"
+tools/build-archive.sh f1c2656 v3 "Version 3 — magenta/cobalt, pre-feedback"
 ```
 
 ## Render the final file
 
 ```bash
-node tools/render.js                      # 6878x1080, 30 fps, H.264 CRF 16
+node tools/render.js                      # Convergence, 6878x1080, 30 fps, CRF 16
+node tools/render.js --dark               # the presentation state
+node tools/render.js --moment             # Arrival, the arrows-into-logo piece
+node tools/render.js --speaker "Glenda Crisp|President & CEO,|Vector Institute"
 node tools/render.js --fps 60 --crf 14    # higher frame rate / quality
 node tools/render.js --walls              # also cut one file per projector
 node tools/render.js --duration 10        # short test render
 ```
 
-Options: `--fps --crf --gop --duration --workers --out --walls`.
+Options: `--fps --crf --gop --duration --workers --out --walls --pix-fmt --dark
+--moment --speaker`. Output names itself from the mode, so the three masters do
+not overwrite each other.
 
 Frames are rendered at full resolution across worker processes, piped as raw
 RGBA into per-segment ffmpeg encoders, then concatenated with a stream copy so
 nothing is re-encoded. On four cores a full 180 s / 30 fps master takes about
-25–35 minutes. The delivered master (yuv444p, CRF 16) is **475 MB** at
-21.1 Mbps and measures **42.1 dB** against the raw render.
+25–35 minutes. The master delivered before the concept review (yuv444p, CRF 16)
+was **475 MB** at 21.1 Mbps and measured **42.1 dB** against the raw render; the
+revised piece is darker overall, so expect a smaller file at the same CRF.
 
 ### Colour conversion
 
@@ -72,7 +113,7 @@ nothing is re-encoded. On four cores a full 180 s / 30 fps master takes about
 conversion still uses BT.601. Tagging alone therefore produces a file converted
 with one matrix and played back with another: a systematic colour shift, worth
 about 4.8 dB of error against the source, and most visible on exactly the
-saturated magenta and cobalt this piece is built from.
+saturated violet and turquoise this piece is built from.
 
 The renderer converts explicitly instead:
 
@@ -156,6 +197,19 @@ The composition is a continuous field with no fixed focal point, so it survives
 the corner wraps and the cube line without anything important being cut in half
 or lost behind a grill.
 
+Two things in the room *are* placed against that geometry rather than floating
+in the field:
+
+- **Speaker names** sit at x 1452 and x 4742. The grills rule out x 430–1376 and
+  x 5481–6426, and the template forbids text below y 538; those are the two
+  clear blocks left, and both happen to fall on the stage side of their wall.
+  The field is dense everywhere by design, so each name carries a soft scrim —
+  waiting for a quiet patch would mean a mark drifting through and taking a word
+  with it.
+- **The Arrival lockup** is centred on the domino screen (x 2633–4243,
+  y 0–628), the brightest and flattest surface in the room and the one the
+  audience is already facing.
+
 ## The piece
 
 A single sustained field rather than a sequence of movements. Two flows run at
@@ -173,8 +227,35 @@ once:
   perspective as the field, so they too are large at the walls and small through
   the middle.
 
+Colour runs violet on the south wall to turquoise on the north, meeting across
+the west wall — the same place the perspective funnel converges, so the two
+audiences the pairing stands for come together in the middle of the room. The
+ground is deep violet at the foot of the frame falling away to almost black at
+the top and through the centre, which is what keeps the walls off the speaker
+and off the domino screen.
+
 Nothing about the look changes over the three minutes — density, palette and
 rate hold steady, so the room never "cuts" to a different design.
+
+### The dark state
+
+The room has two jobs: it is the piece during the reception, and it has to get
+out of the way while someone is presenting. That is one continuous control
+(`--dark`, or the slider in the preview), not a second edit of the scene — mark
+alpha, the violet in the ground and the bloom strength all come down together
+while the geometry stays put, so the room can be cross-faded live from the desk
+and nothing moves when it changes.
+
+### Arrival
+
+Twelve seconds, one shot, for the cue before a keynote. It opens on the same
+field, same axis, same speeds as the loop, so it can be cut to live without the
+room appearing to change. Then the arrows leave the travel axis and assemble the
+mark: each one is given a target sampled from *inside* the icon's own outline —
+by rasterising the official paths and reading back the covered pixels, so the
+notch between the V and the arrow is real and nothing drifts if the artwork is
+updated — and the solid lockup resolves on top once the shape has closed. It
+ends on a hold rather than a loop.
 
 Depth drives everything together: near marks are larger, brighter and faster;
 far marks are small, dim and slow. That is what keeps the field readable rather
@@ -182,9 +263,12 @@ than flat.
 
 ## Brand compliance
 
-- Colour is sampled exclusively from the primary magenta → cobalt gradient
-  (`GRADIENT` in `src/brand.js`), with brighter "glow" partners for emissive
-  marks matched to the supplied reference frames.
+- Colour is sampled exclusively from the secondary violet → turquoise gradient
+  (`GRADIENT_ENV` in `src/brand.js`), with brighter "glow" partners for emissive
+  marks matched to the supplied reference frames. The violet glow is kept on the
+  blue side of the hue deliberately: brightening violet the obvious way takes it
+  toward pink, and once the additive bloom stacks a few marks the south wall
+  reads magenta — the one colour that is meant to stay outside the room.
 - **Nothing is rotated.** Both official arrow paths are used verbatim, and
   pixels and pluses are drawn axis-aligned exactly as the official patterns are
   constructed. Only position, scale, opacity and gradient fill vary.
@@ -197,60 +281,79 @@ than flat.
 
 ## Name badges
 
-Four category badges, built to the supplied print template:
+Four category badges, built on the artboard from the updated working file
+(`Concept_3_badges_fixed_2.pdf`):
 
 ```bash
-python3 tools/badges.py            # -> out/badges/vector-badge-*.pdf
+python3 tools/badges.py            # -> out/badges/vector-badge-*.pdf + -all.pdf
 python3 tools/verify-badges.py     # contrast + layer checks
 ```
 
 | | |
 | --- | --- |
-| Bleed (page) | 4.0625 x 5.75 in — 292.5 x 414 pt |
+| Page (artboard) | 5.8125 x 7.5 in — 418.5 x 540 pt |
+| Bleed | 4.0625 x 5.75 in, placed at (63, 63) |
 | Trim (tag edge) | 3.8125 x 5.5 in, 18 pt corner radius |
 | Safe area | 3.4375 x 4.75 in |
 | Slots | dual, 45 x 11.25 pt |
 
-Design is a slice of the venue piece: the room's near-black ground, a wedge of
-the category's gradient driving up and right, and the official arrow, pixel and
-plus marks streaming out of it on the same 67.93 degree axis. Marks are drawn
-twice — in the ground colour inside the wedge and in category colour outside it
-— so the field reads as continuous across the wedge edge.
+The layout is the one that came out of the Concept C review — category gradient
+across the top on a slant, lower two thirds in near-black, name set large on the
+black — carrying the confirmed colour system and the Concept A finish.
 
-Marks inside the wedge are held well back — they are the same pale shapes as
-the logo, so anything dense behind the lockup competes directly with the
-letterforms. A clear-space falloff fades them to a tenth of their opacity under
-the lockup and back to full well clear of it. The far corner of the travel axis
-empties out on some seeds, so a light scatter of small marks keeps it alive
-without lifting density anywhere else.
+The finish is the change that matters. Textured gradient is reserved for posters
+and environmental signage, so the mark field that used to stream across the card
+is gone and the top panel is a single clean sweep of the pairing. At badge scale
+that is also the better read: the texture was competing with the name at exactly
+the distance a badge is used. The panel's light falls off into the black over
+about forty points — still a smooth gradient, no texture — so the two halves read
+as one card lit from above rather than as two stacked blocks.
 
-Type is set for reading across a room, so it is sized against the safe width
-rather than to a preset scale: the name runs at up to **36 pt** (a 14-character
-surname still only fills 73 % of the 248 pt safe width), body lines at 13 pt and
-the category chip at 13 pt. The wedge sits high enough — its lower edge crosses
-from y 148 to y 174 — to clear the name block at that size.
+| Category | Gradient | Chip | Chip ink |
+| --- | --- | --- | --- |
+| Student | Violet → Turquoise | Turquoise | black, 9.8:1 |
+| Employer | Violet → Tangerine | Tangerine | black, 10.1:1 |
+| Partner | Cobalt → Lime | Lime | black, 17.3:1 |
+| Vector Institute Staff | Magenta → Cobalt | Cobalt | white, 6.5:1 |
 
-Eight layers as real PDF optional content groups, vector artwork throughout,
-live Karbon text. The supplied print template sits on the top layer.
+Type is sized against the safe width rather than to a preset scale: the name runs
+at up to **36 pt** (a 14-character surname still only fills 73 % of the 248 pt
+safe line), body lines at 13 pt, chip label at 13 pt.
 
-Categories use the four official gradient pairings (guidelines p7): Student
-Magenta/Cobalt, Employer Turquoise/Violet, Partner Lime/Cobalt, Staff
-Tangerine/Violet.
+Six layers as real PDF optional content groups, vector artwork throughout, live
+Karbon text, with the die-line on the top layer for reference.
 
-### The logo is set in black
+### The logo is set in white
 
-It sits on the wedge, i.e. on the category's own colour. Measured against the
-four, white runs 1.22:1 on Lime and about 2.1:1 on Turquoise and Tangerine —
-failing three of four — while black runs 4.93:1 to 17.25:1. Both are official
-variants. `LOGO_INK` switches it. The wedge gradient holds the category colour
-through its first half so the whole lockup sits on one flat colour.
+Every confirmed pairing now *leads* with a dark colour, which retires the black
+lockup the previous colour system needed. White clears the 3:1 graphics floor on
+all four lead colours — 6.6:1 on Violet, 6.5:1 on Cobalt, 4.3:1 on Magenta — so
+the set stays consistent. Straight max-contrast would flip Magenta to black
+(4.9:1 against white's 4.3:1), and one black lockup in a set of four reads as a
+mistake at a lanyard's distance; `reverse_or_black` prefers white and only drops
+to black if it actually fails. Chip label ink is picked the same way, by
+measurement.
 
-### Three traps, all hit once
+### Five traps, all hit once
 
 **PyMuPDF's rasteriser ignores optional-content state.** It renders every layer
 regardless of what is switched off, so it will report that layers "work" on a
 file that has none. `tools/verify-badges.py` renders through PDFium instead and
 asserts that switching a layer off actually changes the pixels.
+
+**PDFium caches by filename.** The verifier reused one scratch path, so every
+layer comparison was quietly comparing a file with itself and passing. Each
+render now writes a fresh path.
+
+**Switching a layer off in a source PDF does nothing once you place it.**
+Illustrator writes layers as marked-content sections in the page stream
+(`/OC /MC0 BDC … EMC`), and `show_pdf_page` copies the stream verbatim — the
+optional-content state belongs to the source document, not to the operators. The
+first attempt at carrying the die-line across brought the *old badge artwork*
+with it, on top, hiding three layers underneath. `guides_pdf` now cuts the guides
+section out of the stream instead. This is the second time a top layer has hidden
+a whole badge design; probing only a couple of layers is how it survives, so the
+verifier now probes every one.
 
 **Contrast needs sRGB to linear conversion first.** Skipping it understates
 contrast on saturated darks by roughly two times — plain Cobalt reads 0.28
@@ -263,22 +366,25 @@ passing chip as a failure.
 ## Layout
 
 ```
-src/brand.js        palette, venue geometry, official shape paths
-src/scene.js        the renderer — one deterministic function of loop time
-src/preview.html    browser preview shell
-src/preview-main.js preview controls
+src/brand.js          palette, venue geometry, official shape and logo paths
+src/scene.js          Convergence — one deterministic function of loop time
+src/logo-moment.js    Arrival — the arrows-into-logo piece
+src/preview.html      browser preview shell
+src/preview-main.js   preview controls
 tools/build-preview.js  bundles the preview into one self-contained file
 tools/build-archive.sh  rebuilds an earlier version from git into dist/
-tools/render.js     parallel full-resolution render and encode
-tools/still.js      single-frame renders for quick checks
-tools/badges.py     layered name badge PDFs
+tools/render.js       parallel full-resolution render and encode
+tools/still.js        single-frame renders for quick checks
+tools/moment-still.js frames from Arrival
+tools/badges.py       layered name badge PDFs
 tools/verify-badges.py  badge contrast and layer checks
 ```
 
-`src/scene.js` drives both the preview and the final render, so what is
-approved in the browser is exactly what gets encoded.
+`src/scene.js` drives both the preview and the final render, so what is approved
+in the browser is exactly what gets encoded. `src/logo-moment.js` reuses its
+background, palette, axis and state control, so the two pieces cannot drift
+apart.
 
-The Vector logo is not currently in the piece: a logo reveal is by definition a
-change of design, which the single-sustained-field direction rules out. The
-icon geometry is still available as `LOGO_ICON` in `src/brand.js` if it should
-come back.
+The Vector logo does not appear in the sustained loop — a logo reveal is by
+definition a change of design, which the single-sustained-field direction rules
+out. It has its own piece instead.

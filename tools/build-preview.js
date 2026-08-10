@@ -41,6 +41,24 @@ html = html.replace(
   `<script>\n${js}\n</script>`
 );
 
+// Karbon, inlined. The speaker names are canvas text, so without the real face
+// the preview silently falls back to Open Sans and the letterforms shown are
+// not the ones that get projected. ~77 kB as a data URI is a fair price for the
+// file staying self-contained.
+try {
+  const otf = readFileSync(resolve(root, 'Karbon-Semibold.otf')).toString('base64');
+  html = html.replace(
+    '</style>',
+    `  @font-face {\n` +
+      `    font-family: "Karbon";\n` +
+      `    font-weight: 600;\n` +
+      `    src: url(data:font/otf;base64,${otf}) format("opentype");\n` +
+      `  }\n</style>`
+  );
+} catch {
+  console.warn('  Karbon-Semibold.otf not found — speaker names will fall back');
+}
+
 // Archived cuts need their own <title>, or several open tabs are
 // indistinguishable from each other and from the current version.
 if (title) {

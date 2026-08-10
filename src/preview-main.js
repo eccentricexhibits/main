@@ -1,5 +1,8 @@
 import { CANVAS_W, CANVAS_H, VENUE } from './brand.js';
-import { createScene, drawScene, applyBloom, drawVenueOverlay, DURATION } from './scene.js';
+import {
+  createScene, drawScene, applyBloom, drawVenueOverlay, stateFactors, DURATION,
+} from './scene.js';
+import { createMoment, drawMoment, MOMENT_DURATION } from './logo-moment.js';
 
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -14,14 +17,25 @@ function resize() {
 }
 resize();
 
-const scene = createScene();
-const bloomCache = {};
 const makeCanvas = (w, h) => {
   const el = document.createElement('canvas');
   el.width = w;
   el.height = h;
   return el;
 };
+
+const scene = createScene();
+const moment = createMoment(makeCanvas);
+const bloomCache = {};
+
+// Which piece is on the timeline. The two share a background, a palette and an
+// axis, so switching is only a change of what drives the clock.
+const PIECES = {
+  loop: { dur: DURATION, tick: 15 },
+  moment: { dur: MOMENT_DURATION, tick: 1 },
+};
+let piece = 'loop';
+const duration = () => PIECES[piece].dur;
 
 // ---------------------------------------------------------------------------
 // Wall labels — DOM text so they stay legible at any zoom
@@ -49,14 +63,21 @@ function fmt(s) {
   return `${m}:${(s - m * 60).toFixed(1).padStart(4, '0')}`;
 }
 
-// A tick every 15 s, labelled on the minute.
-for (let s = 15; s < DURATION; s += 15) {
-  const tick = document.createElement('div');
-  tick.className = s % 60 === 0 ? 'tick major' : 'tick';
-  tick.style.left = `${(s / DURATION) * 100}%`;
-  if (s % 60 === 0) tick.innerHTML = `<b>${s / 60}:00</b>`;
-  timeline.appendChild(tick);
+function buildTicks() {
+  for (const el of [...timeline.querySelectorAll('.tick')]) el.remove();
+  const { dur, tick: step } = PIECES[piece];
+  const major = piece === 'loop' ? 60 : 5;
+  for (let s = step; s < dur; s += step) {
+    const tick = document.createElement('div');
+    const isMajor = s % major === 0;
+    tick.className = isMajor ? 'tick major' : 'tick';
+    tick.style.left = `${(s / dur) * 100}%`;
+    if (isMajor) tick.innerHTML = `<b>${fmt(s)}</b>`;
+    timeline.appendChild(tick);
+  }
+  timeline.setAttribute('aria-valuemax', String(dur));
 }
+buildTicks();
 
 // ---------------------------------------------------------------------------
 // Playback
@@ -76,6 +97,12 @@ const overlayEl = document.getElementById('overlay');
 const labelsEl = document.getElementById('labels');
 const bloomEl = document.getElementById('bloom');
 const loopmarkEl = document.getElementById('loopmark');
+const pieceEl = document.getElementById('piece');
+const darkEl = document.getElementById('dark');
+const darkValEl = document.getElementById('darkval');
+const speakerEl = document.getElementById('speaker');
+const speakerNameEl = document.getElementById('speakername');
+const speakerRoleEl = document.getElementById('speakerrole');
 
 // Viewers who have asked for reduced motion get the opening frame, paused,
 // rather than three minutes of movement they did not ask for.
@@ -95,6 +122,37 @@ loopmarkEl.onchange = () => {
   if (seam) t = DURATION - 0.5;
 };
 
+pieceEl.onchange = () => {
+  piece = pieceEl.value;
+  // The seam test is meaningless on a one-shot piece.
+  if (piece !== 'loop') { seam = false; loopmarkEl.checked = false; }
+  loopmarkEl.disabled = piece !== 'loop';
+  t = 0;
+  buildTicks();
+  document.getElementById('specdur').textContent =
+    piece === 'loop' ? '3:00 · seamless' : '0:12 · one shot';
+  if (!playing) render();
+};
+
+const onDark = () => {
+  darkValEl.textContent = `${darkEl.value}%`;
+  if (!playing) render();
+};
+darkEl.oninput = onDark;
+for (const el of [speakerEl, speakerNameEl, speakerRoleEl]) {
+  el.oninput = () => { if (!playing) render(); };
+  el.onchange = () => { if (!playing) render(); };
+}
+
+function speakerSpec() {
+  if (!speakerEl.checked) return null;
+  return {
+    name: speakerNameEl.value,
+    lines: speakerRoleEl.value.split(',').map((s) => s.trim()).filter(Boolean)
+      .map((s, i, all) => (i < all.length - 1 ? `${s},` : s)),
+  };
+}
+
 document.getElementById('quality').onchange = (e) => {
   quality = Number(e.target.value);
   resize();
@@ -107,7 +165,7 @@ document.getElementById('quality').onchange = (e) => {
 function seekFromEvent(e) {
   const r = timeline.getBoundingClientRect();
   const k = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-  t = k * DURATION;
+  t = k * duration();
   if (!playing) render();
 }
 let dragging = false;
@@ -121,10 +179,10 @@ timeline.addEventListener('pointerup', () => { dragging = false; });
 
 timeline.addEventListener('keydown', (e) => {
   const step = e.shiftKey ? 10 : 1;
-  if (e.key === 'ArrowRight') t = (t + step) % DURATION;
-  else if (e.key === 'ArrowLeft') t = (t - step + DURATION) % DURATION;
+  if (e.key === 'ArrowRight') t = (t + step) % duration();
+  else if (e.key === 'ArrowLeft') t = (t - step + duration()) % duration();
   else if (e.key === 'Home') t = 0;
-  else if (e.key === 'End') t = DURATION - 0.05;
+  else if (e.key === 'End') t = duration() - 0.05;
   else return;
   e.preventDefault();
   if (!playing) render();
@@ -138,7 +196,7 @@ window.addEventListener('keydown', (e) => {
   } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     e.preventDefault();
     const step = (e.shiftKey ? 10 : 1) * (e.key === 'ArrowRight' ? 1 : -1);
-    t = (t + step + DURATION) % DURATION;
+    t = (t + step + duration()) % duration();
     if (!playing) render();
   }
 });
@@ -148,14 +206,16 @@ window.addEventListener('keydown', (e) => {
 // ---------------------------------------------------------------------------
 
 function render() {
+  const dark = Number(darkEl.value) / 100;
   ctx.setTransform(quality, 0, 0, quality, 0, 0);
-  drawScene(ctx, t, scene);
-  if (bloomEl.checked) applyBloom(ctx, makeCanvas, bloomCache);
+  if (piece === 'moment') drawMoment(ctx, t, moment, { dark });
+  else drawScene(ctx, t, scene, { dark, speaker: speakerSpec() });
+  if (bloomEl.checked) applyBloom(ctx, makeCanvas, bloomCache, stateFactors(dark).bloom);
   ctx.setTransform(quality, 0, 0, quality, 0, 0);
   if (overlayEl.checked) drawVenueOverlay(ctx);
 
-  const pct = (t / DURATION) * 100;
-  timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(DURATION)}</span>`;
+  const pct = (t / duration()) * 100;
+  timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(duration())}</span>`;
   head.style.left = `${pct}%`;
   fill.style.width = `${pct}%`;
   timeline.setAttribute('aria-valuenow', t.toFixed(1));
@@ -171,6 +231,9 @@ function frame(now) {
     if (seam) {
       // Ping-pong across the loop point so the seam can be judged directly.
       if (t > DURATION + 0.5) t = DURATION - 0.5;
+    } else if (piece === 'moment') {
+      // A one-shot piece: hold on the last frame rather than snapping back.
+      if (t >= duration()) { t = duration(); setPlaying(false); }
     } else if (t >= DURATION) {
       t -= DURATION;
     }

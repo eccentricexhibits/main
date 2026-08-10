@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vector — Convergence · 3-wall preview</title>
+<title>Vector — Convergence v3 (archived)</title>
 <style>
   /* Committed to a single dark ground on purpose: this is a projection piece
      for a darkened room, and it cannot be judged honestly on a light page. */
@@ -15,9 +15,9 @@
     --text: #edebef;
     --dim: #8a8796;
     --dimmer: #5d5b68;
+    --magenta: #eb088a;
+    --cobalt: #313cff;
     --violet: #8a25c9;
-    --turquoise: #48c0d9;
-    --accent: #8a25c9;
 
     --step: clamp(11px, .78vw, 12px);
     --body: clamp(12.5px, .95vw, 14px);
@@ -54,7 +54,7 @@
   }
   header h1 em {
     font-style: normal;
-    background: linear-gradient(95deg, var(--violet), #6f6ae0 52%, var(--turquoise));
+    background: linear-gradient(95deg, var(--magenta), var(--violet) 52%, var(--cobalt));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .specs { display: flex; gap: 26px; flex-wrap: wrap; }
@@ -92,13 +92,13 @@
   }
   button:hover { border-color: #3c3c4a; background: #191922; }
   button:focus-visible, [role=slider]:focus-visible, select:focus-visible, input:focus-visible {
-    outline: 2px solid var(--turquoise); outline-offset: 2px;
+    outline: 2px solid var(--magenta); outline-offset: 2px;
   }
   #play {
-    background: var(--violet); border-color: var(--violet); color: #fff;
+    background: var(--magenta); border-color: var(--magenta); color: #fff;
     font-weight: 600; min-width: 92px;
   }
-  #play:hover { background: #a233ea; border-color: #a233ea; }
+  #play:hover { background: #ff1c9c; border-color: #ff1c9c; }
   .clock { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
   .clock span { color: var(--dimmer); font-weight: 400; }
   .transport .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
@@ -111,7 +111,7 @@
   }
   .track .fill {
     position: absolute; inset: 0 auto 0 0;
-    background: linear-gradient(90deg, rgba(138,37,201,.32), rgba(105,114,209,.32) 52%, rgba(72,192,217,.32));
+    background: linear-gradient(90deg, rgba(235,8,138,.30), rgba(138,37,201,.30) 52%, rgba(49,60,255,.30));
     pointer-events: none;
   }
   .track .tick {
@@ -140,7 +140,7 @@
   .panels section { display: grid; gap: 9px; }
   label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); cursor: pointer; }
   label:hover { color: var(--text); }
-  input[type=checkbox] { accent-color: var(--violet); width: 14px; height: 14px; }
+  input[type=checkbox] { accent-color: var(--magenta); width: 14px; height: 14px; }
   select {
     font: inherit; font-size: 12.5px; color: var(--text);
     background: var(--panel); border: 1px solid var(--hairline);
@@ -164,16 +164,17 @@
 </style>
 </head>
 <body>
+<div style="background:#3a1420;border-bottom:1px solid #6b2038;color:#ffb3cd;padding:9px 26px;font:600 12px/1.4 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase">Version 3 — magenta→cobalt palette, pre-feedback (superseded)</div>
 
 <header>
   <h1>Vector Institute — <em>Convergence</em></h1>
   <div class="specs">
     <div><span class="lbl">Canvas</span><b class="num">6878 × 1080</b></div>
-    <div><span class="lbl">Duration</span><b class="num" id="specdur">3:00 · seamless</b></div>
+    <div><span class="lbl">Duration</span><b class="num">3:00 · seamless</b></div>
     <div><span class="lbl">Field</span><b class="num">L → R · 47–93 px/s</b></div>
     <div><span class="lbl">Arrows</span><b class="num">67.93° · 30–91 px/s</b></div>
     <div><span class="lbl">Surfaces</span><b>3 walls + 4 corners</b></div>
-    <div><span class="lbl">Palette</span><b>Violet → turquoise on deep violet</b></div>
+    <div><span class="lbl">Palette</span><b>Magenta → violet → cobalt</b></div>
   </div>
 </header>
 
@@ -187,12 +188,6 @@
 <div class="transport">
   <button id="play">Pause</button>
   <span class="clock num" id="time">0:00.0 <span>/ 3:00.0</span></span>
-  <label>Piece
-    <select id="piece">
-      <option value="loop" selected>Convergence — 3:00 loop</option>
-      <option value="moment">Arrival — arrows into logo, 0:12</option>
-    </select>
-  </label>
   <div class="right">
     <span class="lbl num" id="fps"></span>
     <label>Resolution
@@ -213,19 +208,6 @@
 </div>
 
 <div class="panels">
-  <section>
-    <span class="lbl">Room state</span>
-    <label style="display:grid;gap:6px;align-items:start">
-      <span>Show <span id="darkval" class="num">0%</span> dark — walls recede under a presentation</span>
-      <input type="range" id="dark" min="0" max="100" value="0" style="width:100%;accent-color:var(--violet)">
-    </label>
-    <label><input type="checkbox" id="speaker"> Speaker names on the side walls</label>
-    <input type="text" id="speakername" value="Glenda Crisp"
-           style="font:inherit;font-size:12.5px;color:var(--text);background:var(--panel);border:1px solid var(--hairline);padding:5px 8px;border-radius:3px">
-    <input type="text" id="speakerrole" value="President &amp; CEO, Vector Institute"
-           style="font:inherit;font-size:12.5px;color:var(--text);background:var(--panel);border:1px solid var(--hairline);padding:5px 8px;border-radius:3px">
-  </section>
-
   <section>
     <span class="lbl">Review tools</span>
     <label><input type="checkbox" id="overlay"> Venue overlay</label>
@@ -263,7 +245,6 @@
     <div class="notes">
       <p>A single sustained field — no phase changes. The mark field travels <b>left to right</b> along a band that funnels toward a vanishing point on the west wall: large at the outer walls, small and tight through the middle.</p>
       <p>Arrows run on their own axis, travelling up and right at <b>67.93°</b> and leaving through the top of the frame.</p>
-      <p>Colour is the secondary <b>violet → turquoise</b> pairing: violet enters on the south wall, turquoise on the north, and the two meet across the west wall. The ground is deep violet falling away to almost black at the top of the frame and through the middle of the room. <b>Magenta is not in the room</b> — it is the wayfinding colour.</p>
       <p>Nothing rotates: arrows, pixels and pluses are all drawn at their official orientation. The complete plus and pixel cluster patterns drift through the field alongside individual marks.</p>
       <p><b>Space</b> play/pause · <b>← →</b> step 1 s · <b>⇧← ⇧→</b> step 10 s</p>
     </div>
@@ -272,34 +253,28 @@
 
 <script>
 (() => {
-  // src/brand.js
-  var GRADIENT_ENV = [
-    { t: 0, base: [138, 37, 201], glow: [124, 64, 252] },
-    // violet
-    { t: 0.3, base: [138, 37, 201], glow: [124, 64, 252] },
-    // violet hold
-    { t: 0.5, base: [105, 114, 209], glow: [128, 150, 255] },
-    // convergence
-    { t: 0.7, base: [72, 192, 217], glow: [96, 226, 255] },
-    // turquoise
-    { t: 1, base: [72, 192, 217], glow: [96, 226, 255] }
-    // turquoise hold
+  // ../../../tmp/tmp.7L8aMiDae4/src/brand.js
+  var GRADIENT = [
+    { t: 0, base: [235, 8, 138], glow: [253, 9, 124] },
+    // magenta
+    { t: 0.42, base: [235, 8, 138], glow: [254, 6, 135] },
+    // magenta hold
+    { t: 0.5, base: [138, 37, 201], glow: [164, 40, 242] },
+    // violet transition
+    { t: 0.58, base: [49, 60, 255], glow: [24, 58, 251] },
+    // cobalt
+    { t: 1, base: [49, 60, 255], glow: [0, 112, 255] }
+    // cobalt hold
   ];
-  var ROOM = {
-    black: [5, 3, 11],
-    violet: [46, 12, 96],
-    centreFade: 0.78
-    // how far the middle of the room is pulled back to black
-  };
   var clamp01 = (v) => v < 0 ? 0 : v > 1 ? 1 : v;
-  function sample(stops, u, emissive) {
+  function gradientAt(u, emissive = 0) {
     const t2 = clamp01(u);
-    let a = stops[0];
-    let b = stops[stops.length - 1];
-    for (let i = 0; i < stops.length - 1; i++) {
-      if (t2 >= stops[i].t && t2 <= stops[i + 1].t) {
-        a = stops[i];
-        b = stops[i + 1];
+    let a = GRADIENT[0];
+    let b = GRADIENT[GRADIENT.length - 1];
+    for (let i = 0; i < GRADIENT.length - 1; i++) {
+      if (t2 >= GRADIENT[i].t && t2 <= GRADIENT[i + 1].t) {
+        a = GRADIENT[i];
+        b = GRADIENT[i + 1];
         break;
       }
     }
@@ -313,7 +288,6 @@
     }
     return out;
   }
-  var gradientAt = (u, emissive = 0) => sample(GRADIENT_ENV, u, emissive);
   function rgba([r, g, b], alpha) {
     return `rgba(${r},${g},${b},${alpha.toFixed(4)})`;
   }
@@ -366,63 +340,6 @@
     w: 537.23,
     h: 1080,
     d: "M463.33,0l-168.9,73.89-29.33,69.19,133.39-53.47L0,1079.82l62.23.18L448.81,109.21l59.1,131.81,29.33-69.78L463.33,0Z"
-  };
-  var LOGO_ICON = {
-    x0: 721.58,
-    y0: 48.16,
-    x1: 2369.3,
-    y1: 1893.09,
-    parts: [
-      {
-        fill: "#ffffff",
-        d: "M1649.64,1408.87 L1232.78,314.36 L1440.01,314.36 L1440.01,177.41 L721.58,177.41 L721.58,314.36 L929.23,314.36 L1472.62,1737.49 L1538.97,1893.09 L1685.91,1499.05 Z"
-      },
-      {
-        fill: "#ed2c8a",
-        d: "M2194.88,48.16 L1796.37,222.5 L1724.81,389.53 L2041.77,258.1 L1829.8,780.97 L1827.78,786.02 L1898.29,962.38 L2160.95,305.76 L2298.75,619.65 L2369.3,455.1 Z"
-      }
-    ]
-  };
-  var LOGO_WORDMARK = {
-    x0: 47.75,
-    y0: 2183,
-    x1: 2948,
-    y1: 2652,
-    parts: [
-      { fill: "#ffffff", d: "M117.6,2370.85 L47.75,2187.3 L82.07,2187.3 L137.08,2339.02 L191.77,2187.3 L225.47,2187.3 L155.62,2370.85 L117.6,2370.85 Z" },
-      { fill: "#ffffff", d: "M370.09,2343.03 L370.09,2370.86 L256.04,2370.86 L256.04,2187.27 L368.22,2187.27 L368.22,2215.11 L287.25,2215.11 L287.25,2264.55 L362.35,2264.55 L362.35,2291.76 L287.25,2291.76 L287.25,2343.03 L370.09,2343.03 Z" },
-      { fill: "#ffffff", d: "M548.09,2231.79c-12.67-12.05-30.28-19.16-50.69-19.16-36.15,0-62.12,26.55-62.12,66.43s27.21,66.47,63.05,66.47c20.72,0,37.39-6.18,51.93-18.85v33.66c-16.09,9.56-34.01,13.61-52.87,13.61-56.56,0-94.58-38.91-94.58-94.89s39.88-94.89,94.58-94.89c18.85,0,35.88,4.04,50.69,12.98v34.63Z" },
-      { fill: "#ffffff", d: "M662.74,2370.85 L631.21,2370.85 L631.21,2215.09 L573.1,2215.09 L573.1,2187.3 L720.54,2187.3 L720.54,2215.09 L662.74,2215.09 L662.74,2370.85 Z" },
-      { fill: "#ffffff", d: "M838.58,2212.64c-35.26,0-62.74,26.24-62.74,66.43s27.48,66.43,62.74,66.43,62.74-26.24,62.74-66.43-27.52-66.43-62.74-66.43M838.58,2184.19c52.86,0,95.2,38.64,95.2,94.89s-42.33,94.89-95.2,94.89-95.2-38.64-95.2-94.89,42.02-94.89,95.2-94.89" },
-      { fill: "#ffffff", d: "M1006.38,2279.7h15.47c24.99,0,41.09-10.81,41.09-34.64,0-20.99-14.54-33.35-42.33-33.35-3.69,0-10.85.31-14.23.62v67.36ZM1006.38,2370.85h-31.53v-183.28c11.12-1.83,30.9-3.38,45.75-3.38,48.2,0,74.48,21.3,74.48,59.94,0,26.9-15.16,46.37-36.46,54.42l55.31,72.3h-38.02l-48.82-65.19h-20.72v65.19Z" },
-      { fill: "#ffffff", d: "M56.26,2465.16 L87.16,2465.16 L87.16,2648.75 L56.26,2648.75 Z" },
-      { fill: "#ffffff", d: "M260.08,2600.84 L260.08,2465.17 L290.09,2465.17 L290.09,2648.73 L260.39,2648.73 L168.03,2514.31 L168.03,2648.73 L138.02,2648.73 L138.02,2465.17 L169.55,2465.17 L260.08,2600.84 Z" },
-      { fill: "#ffffff", d: "M330.64,2606.09c13.91,10.81,28.45,18.85,47.54,18.85,17.88,0,33.31-7.11,33.31-25.66,0-16.99-13.02-23.48-33-29.66-34.52-11.12-50.26-25.03-50.26-55.98,0-33.35,26.36-51.58,57.22-51.58,19.4,0,33.94,5.56,46.02,13.92v31.49c-14.23-11.7-27.83-18.5-45.09-18.5s-27.87,9.56-27.87,23.79,10.3,21.03,33,28.45c35.14,10.81,50.26,25.93,50.26,57.14,0,36.81-28.45,53.49-63.28,53.49-19.71,0-36.34-5.56-47.85-13.6v-32.15Z" },
-      { fill: "#ffffff", d: "M550.8,2648.73 L519.9,2648.73 L519.9,2492.98 L462.95,2492.98 L462.95,2465.14 L607.44,2465.14 L607.44,2492.98 L550.8,2492.98 L550.8,2648.73 Z" },
-      { fill: "#ffffff", d: "M640.42,2465.16 L671.3199999999999,2465.16 L671.3199999999999,2648.75 L640.42,2648.75 Z" },
-      { fill: "#ffffff", d: "M792.17,2648.73 L761.26,2648.73 L761.26,2492.98 L704.32,2492.98 L704.32,2465.14 L848.8,2465.14 L848.8,2492.98 L792.17,2492.98 L792.17,2648.73 Z" },
-      { fill: "#ffffff", d: "M878.47,2465.16h30.9v115.29c0,35.22,18.15,44.51,44.82,44.51,13.92,0,24.84-1.24,35.41-3.11v-156.69h30.9v178.34c-16.64,4.63-44.82,8.32-66.31,8.32-40.89,0-75.72-14.81-75.72-65.81v-120.85Z" },
-      { fill: "#ffffff", d: "M1141.34,2648.73 L1110.43,2648.73 L1110.43,2492.98 L1053.48,2492.98 L1053.48,2465.14 L1197.97,2465.14 L1197.97,2492.98 L1141.34,2492.98 L1141.34,2648.73 Z" },
-      { fill: "#ffffff", d: "M1342.72,2620.92 L1342.72,2648.75 L1230.97,2648.75 L1230.97,2465.16 L1340.93,2465.16 L1340.93,2492.99 L1261.56,2492.99 L1261.56,2542.44 L1335.14,2542.44 L1335.14,2569.61 L1261.56,2569.61 L1261.56,2620.92 L1342.72,2620.92 Z" },
-      { fill: "#ffffff", d: "M1735.83,2184.27 L1766.6899999999998,2184.27 L1766.6899999999998,2367.86 L1735.83,2367.86 Z" },
-      { fill: "#ffffff", d: "M1939.62,2319.95 L1939.62,2184.29 L1969.59,2184.29 L1969.59,2367.88 L1939.93,2367.88 L1847.58,2233.43 L1847.58,2367.88 L1817.61,2367.88 L1817.61,2184.29 L1849.05,2184.29 L1939.62,2319.95 Z" },
-      { fill: "#ffffff", d: "M2010.18,2325.21c13.91,10.85,28.45,18.85,47.54,18.85,17.88,0,33.31-7.11,33.31-25.66,0-16.99-13.02-23.48-33-29.66-34.52-11.12-50.26-25.03-50.26-55.94,0-33.39,26.36-51.62,57.22-51.62,19.36,0,33.94,5.56,46.02,13.92v31.53c-14.23-11.74-27.83-18.54-45.09-18.54s-27.87,9.56-27.87,23.79,10.3,21.03,33,28.45c35.14,10.81,50.3,25.97,50.3,57.18,0,36.73-28.49,53.45-63.32,53.45-19.67,0-36.34-5.56-47.85-13.6v-32.15Z" },
-      { fill: "#ffffff", d: "M2230.35,2367.87 L2199.45,2367.87 L2199.45,2212.11 L2142.54,2212.11 L2142.54,2184.28 L2286.99,2184.28 L2286.99,2212.11 L2230.35,2212.11 L2230.35,2367.87 Z" },
-      { fill: "#ffffff", d: "M2319.99,2184.27 L2350.89,2184.27 L2350.89,2367.86 L2319.99,2367.86 Z" },
-      { fill: "#ffffff", d: "M2471.72,2367.87 L2440.81,2367.87 L2440.81,2212.11 L2383.87,2212.11 L2383.87,2184.28 L2528.35,2184.28 L2528.35,2212.11 L2471.72,2212.11 L2471.72,2367.87 Z" },
-      { fill: "#ffffff", d: "M2558.01,2184.29h30.9v115.29c0,35.22,18.15,44.47,44.82,44.47,13.92,0,24.84-1.24,35.41-3.07v-156.69h30.9v178.3c-16.64,4.66-44.82,8.36-66.31,8.36-40.89,0-75.72-14.81-75.72-65.81v-120.85Z" },
-      { fill: "#ffffff", d: "M2820.89,2367.87 L2789.99,2367.87 L2789.99,2212.11 L2733.04,2212.11 L2733.04,2184.28 L2877.52,2184.28 L2877.52,2212.11 L2820.89,2212.11 L2820.89,2367.87 Z" },
-      { fill: "#ffffff", d: "M1798.56,2645.74 L1727.35,2462.19 L1762.33,2462.19 L1818.43,2613.9 L1874.21,2462.19 L1908.57,2462.19 L1837.36,2645.74 L1798.56,2645.74 Z" },
-      { fill: "#ffffff", d: "M2056.1,2617.94 L2056.1,2645.77 L1939.79,2645.77 L1939.79,2462.18 L2054.19,2462.18 L2054.19,2489.97 L1971.63,2489.97 L1971.63,2539.42 L2048.2,2539.42 L2048.2,2566.63 L1971.63,2566.63 L1971.63,2617.94 L2056.1,2617.94 Z" },
-      { fill: "#ffffff", d: "M2237.63,2506.68c-12.94-12.05-30.9-19.16-51.7-19.16-36.85,0-63.36,26.55-63.36,66.43s27.76,66.47,64.29,66.47c21.15,0,38.17-6.18,52.98-18.85v33.66c-16.36,9.6-34.67,13.61-53.91,13.61-57.65,0-96.44-38.95-96.44-94.89s40.7-94.89,96.44-94.89c19.24,0,36.58,4.04,51.7,12.98v34.63Z" },
-      { fill: "#ffffff", d: "M2354.58,2645.74 L2322.43,2645.74 L2322.43,2489.98 L2263.15,2489.98 L2263.15,2462.19 L2413.51,2462.19 L2413.51,2489.98 L2354.58,2489.98 L2354.58,2645.74 Z" },
-      { fill: "#ffffff", d: "M2564.18,2617.94 L2564.18,2645.77 L2447.88,2645.77 L2447.88,2462.18 L2562.31,2462.18 L2562.31,2489.97 L2479.71,2489.97 L2479.71,2539.42 L2556.33,2539.42 L2556.33,2566.63 L2479.71,2566.63 L2479.71,2617.94 L2564.18,2617.94 Z" },
-      { fill: "#ffffff", d: "M2605.17,2462.17h32.15v115.26c0,35.26,18.93,44.51,46.65,44.51,14.5,0,25.81-1.24,36.89-3.07v-156.69h32.15v178.3c-17.34,4.66-46.65,8.36-69.04,8.36-42.56,0-78.79-14.81-78.79-65.85v-120.81Z" },
-      { fill: "#ffffff", d: "M2838.09,2554.58h15.74c25.54,0,41.94-10.81,41.94-34.64,0-20.99-14.81-33.35-43.19-33.35-3.77,0-11.04.31-14.5.62v67.36ZM2838.09,2645.74h-32.15v-183.28c11.35-1.83,31.53-3.38,46.65-3.38,49.17,0,75.96,21.3,75.96,59.94,0,26.9-15.43,46.37-37.2,54.42l56.4,72.3h-38.76l-49.79-65.19h-21.11v65.19Z" },
-      { fill: "#ffffff", d: "M1540.81,2183.61 L1550.06,2183.61 L1550.06,2646.61 L1540.81,2646.61 Z" },
-      { fill: "#ffffff", d: "M2944.2,2635.13 L2944.2,2645.97 L2933.36,2645.97 L2933.36,2647.3 L2945.53,2647.3 L2945.53,2635.13 L2944.2,2635.13 Z" },
-      { fill: "#ffffff", d: "M1658.45,1855.17c0-26.51,19.57-47.09,46.35-47.09s46.59,20.57,46.59,47.09-19.59,46.83-46.59,46.83-46.35-20.56-46.35-46.83ZM1741.73,1855.17c0-21.56-15.11-38.41-36.93-38.41s-36.68,16.85-36.68,38.41,15.11,38.17,36.68,38.17,36.93-17.1,36.93-38.17ZM1699.59,1877.23h-10.9v-45.1c3.71-.75,9.67-1.49,14.37-1.49,11.16,0,19.57,5.21,19.57,16.36,0,6.19-3.47,11.15-8.17,13.38l12.15,16.85h-12.65l-9.91-14.37h-4.46v14.37ZM1699.59,1853.44h3.47c4.96,0,8.17-1.74,8.17-6.44s-3.47-6.45-7.93-6.45c-.75,0-2.72,0-3.71.24v12.64Z" }
-    ]
   };
   var PLUS_BAR_RATIO = 14.99 / 72.85;
   var PLUS_CLUSTER = [
@@ -479,7 +396,7 @@
   ];
   var PIXEL_CLUSTER_MARK = 0.06942;
 
-  // src/scene.js
+  // ../../../tmp/tmp.7L8aMiDae4/src/scene.js
   var DURATION = 180;
   var FLOW_DEG = 67.93;
   var TH = FLOW_DEG * Math.PI / 180;
@@ -658,61 +575,42 @@
       arrowsLong: buildArrows(54347, 16, 0.55, 0.98, 1)
     };
   }
-  var SHOW = { marks: 1, violet: 1, bloom: 0.55 };
-  var DARK = { marks: 0.24, violet: 0.3, bloom: 0.26 };
-  function stateFactors(dark = 0) {
-    const d = clamp012(dark);
-    return {
-      marks: lerp(SHOW.marks, DARK.marks, d),
-      violet: lerp(SHOW.violet, DARK.violet, d),
-      bloom: lerp(SHOW.bloom, DARK.bloom, d)
-    };
-  }
-  function drawScene(ctx2, time, scene2, opts = {}) {
+  function drawScene(ctx2, time, scene2) {
     const t2 = (time % DURATION + DURATION) % DURATION;
     const phase = t2 / DURATION;
-    const k = stateFactors(opts.dark ?? 0);
-    drawBackground(ctx2, t2, k);
+    drawBackground(ctx2, t2);
     ctx2.save();
     ctx2.globalCompositeOperation = "lighter";
-    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, 0.7 * k.marks);
-    drawClusterLayer(ctx2, scene2.pixelClusters, t2, phase, 0, 0.62 * k.marks);
-    drawParticles(ctx2, scene2, t2, phase, k.marks);
-    drawClusterLayer(ctx2, scene2.plusClusters, t2, phase, 1, 0.75 * k.marks);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, 0.92 * k.marks);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, 0.8 * k.marks);
-    drawArrowLayer(ctx2, scene2, scene2.arrowsHero, t2, phase, 1.05 * k.marks);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsFar, t2, phase, 0.7);
+    drawClusterLayer(ctx2, scene2.pixelClusters, t2, phase, 0, 0.62);
+    drawParticles(ctx2, scene2, t2, phase);
+    drawClusterLayer(ctx2, scene2.plusClusters, t2, phase, 1, 0.75);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsMid, t2, phase, 0.92);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsLong, t2, phase, 0.8);
+    drawArrowLayer(ctx2, scene2, scene2.arrowsHero, t2, phase, 1.05);
     ctx2.restore();
-    if (opts.speaker) drawSpeaker(ctx2, opts.speaker, k);
   }
-  function drawBackground(ctx2, t2, k) {
-    const [br, bg, bb] = ROOM.black;
-    const [vr, vg, vb] = ROOM.violet;
-    const lift = k.violet;
-    const v = ctx2.createLinearGradient(0, 0, 0, CANVAS_H);
-    v.addColorStop(0, `rgb(${br},${bg},${bb})`);
-    v.addColorStop(0.42, `rgb(${Math.round(br + (vr - br) * 0.18 * lift)},${Math.round(bg + (vg - bg) * 0.18 * lift)},${Math.round(bb + (vb - bb) * 0.18 * lift)})`);
-    v.addColorStop(1, `rgb(${Math.round(br + (vr - br) * lift)},${Math.round(bg + (vg - bg) * lift)},${Math.round(bb + (vb - bb) * lift)})`);
-    ctx2.fillStyle = v;
-    ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
-    const h = ctx2.createLinearGradient(0, 0, CANVAS_W, 0);
-    h.addColorStop(0, rgba(ROOM.black, 0));
-    h.addColorStop(0.5, rgba(ROOM.black, ROOM.centreFade));
-    h.addColorStop(1, rgba(ROOM.black, 0));
-    ctx2.fillStyle = h;
+  function drawBackground(ctx2, t2) {
+    const g = ctx2.createLinearGradient(0, 0, CANVAS_W, 0);
+    g.addColorStop(0, "#0d0010");
+    g.addColorStop(0.35, "#080011");
+    g.addColorStop(0.5, "#070113");
+    g.addColorStop(0.72, "#040314");
+    g.addColorStop(1, "#030616");
+    ctx2.fillStyle = g;
     ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
     ctx2.save();
     ctx2.globalCompositeOperation = "lighter";
     const breathe = 0.9 + 0.1 * Math.sin(t2 / DURATION * Math.PI * 2);
     const washes = [
       { cx: CANVAS_W * 0.06, col: gradientAt(0.02, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 },
-      { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.045 * breathe, r: CANVAS_W * 0.12 },
+      { cx: WEST_CENTRE, col: gradientAt(0.5, 0.8), a: 0.07 * breathe, r: CANVAS_W * 0.12 },
       { cx: CANVAS_W * 0.95, col: gradientAt(0.98, 0.6), a: 0.085 * breathe, r: CANVAS_W * 0.17 }
     ];
     for (const w of washes) {
       const rg = ctx2.createRadialGradient(w.cx, CANVAS_H * 0.5, 0, w.cx, CANVAS_H * 0.5, w.r);
-      rg.addColorStop(0, rgba(w.col, w.a * k.marks));
-      rg.addColorStop(0.55, rgba(w.col, w.a * 0.28 * k.marks));
+      rg.addColorStop(0, rgba(w.col, w.a));
+      rg.addColorStop(0.55, rgba(w.col, w.a * 0.28));
       rg.addColorStop(1, rgba(w.col, 0));
       ctx2.fillStyle = rg;
       ctx2.fillRect(w.cx - w.r, 0, w.r * 2, CANVAS_H);
@@ -728,12 +626,12 @@
     ctx2.fillRect(cx - h, cy - b, size, b * 2);
     ctx2.fillRect(cx - b, cy - h, b * 2, size);
   }
-  function drawParticles(ctx2, scene2, t2, phase, weight = 1) {
+  function drawParticles(ctx2, scene2, t2, phase) {
     for (const p of scene2.particles) {
       const pos = placeField(p, phase, t2);
       if (pos.x < -180 || pos.x > CANVAS_W + 180) continue;
       const tw = 1 - p.twAmt + p.twAmt * (0.5 + 0.5 * Math.sin(p.twPhase + phase * Math.PI * 2 * p.twRate * 3));
-      const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t2) * tw * weight;
+      const alpha = (0.14 + 0.72 * Math.pow(p.depth, 1.2)) * fieldWeight(pos.xn, t2) * tw;
       if (alpha < 6e-3) continue;
       const col = gradientAt(pos.xn, clamp012(0.25 + p.depth * 0.75));
       const base = CANVAS_H * (8e-3 + 0.062 * Math.pow(p.depth, 2.1)) * p.sizeVar;
@@ -798,41 +696,6 @@
       ctx2.fill(a.long ? scene2.paths.arrowLong : scene2.paths.arrowRegular);
       ctx2.restore();
     }
-  }
-  var SPEAKER_SLOTS = [1452, 4742];
-  var SPEAKER_NAME_PX = 68;
-  var SPEAKER_ROLE_PX = 36;
-  var SPEAKER_BASE = 412;
-  var SPEAKER_LEAD = 44;
-  var SPEAKER_FONT = 'Karbon, "Open Sans", sans-serif';
-  function drawSpeaker(ctx2, spec, k) {
-    const lines = spec.lines || [];
-    const a = 0.4 + 0.6 * k.marks;
-    const blockH = SPEAKER_LEAD * lines.length + SPEAKER_NAME_PX + 40;
-    ctx2.save();
-    ctx2.textBaseline = "alphabetic";
-    for (const x of SPEAKER_SLOTS) {
-      const col = gradientAt(clamp012(x / CANVAS_W), 0.55);
-      ctx2.save();
-      const cx = x + 320;
-      const cy = SPEAKER_BASE - SPEAKER_NAME_PX * 0.35 + blockH * 0.3;
-      const rg = ctx2.createRadialGradient(cx, cy, 0, cx, cy, 620);
-      rg.addColorStop(0, "rgba(4,2,10,0.82)");
-      rg.addColorStop(0.55, "rgba(4,2,10,0.55)");
-      rg.addColorStop(1, "rgba(4,2,10,0)");
-      ctx2.fillStyle = rg;
-      ctx2.fillRect(cx - 620, cy - 420, 1240, 840);
-      ctx2.restore();
-      ctx2.font = `600 ${SPEAKER_NAME_PX}px ${SPEAKER_FONT}`;
-      ctx2.fillStyle = `rgba(255,255,255,${(0.97 * a).toFixed(3)})`;
-      ctx2.fillText(spec.name, x, SPEAKER_BASE);
-      ctx2.font = `600 ${SPEAKER_ROLE_PX}px ${SPEAKER_FONT}`;
-      ctx2.fillStyle = rgba(col, 0.95 * a);
-      lines.forEach((line, i) => {
-        ctx2.fillText(line, x, SPEAKER_BASE + SPEAKER_LEAD * (i + 1) + 10);
-      });
-    }
-    ctx2.restore();
   }
   function applyBloom(ctx2, makeCanvas2, cache, strength = 0.55) {
     const src = ctx2.canvas;
@@ -900,215 +763,7 @@
     ctx2.restore();
   }
 
-  // src/logo-moment.js
-  var MOMENT_DURATION = 12;
-  var TH2 = FLOW_DEG * Math.PI / 180;
-  var DIR2 = { x: Math.cos(TH2), y: -Math.sin(TH2) };
-  var PERP2 = { x: Math.sin(TH2), y: Math.cos(TH2) };
-  var clamp013 = (v) => v < 0 ? 0 : v > 1 ? 1 : v;
-  var lerp2 = (a, b, k) => a + (b - a) * k;
-  var smooth = (k) => {
-    const t2 = clamp013(k);
-    return t2 * t2 * (3 - 2 * t2);
-  };
-  function mulberry322(seed) {
-    let a = seed >>> 0;
-    return function() {
-      a = a + 1831565813 >>> 0;
-      let x = Math.imul(a ^ a >>> 15, 1 | a);
-      x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x;
-      return ((x ^ x >>> 14) >>> 0) / 4294967296;
-    };
-  }
-  var T_GATHER = 3;
-  var T_FORMED = 7.2;
-  var T_SOLID = 8.6;
-  var T_WORD = 10;
-  var DM = VENUE.domino;
-  var CX = (DM.x0 + DM.x1) / 2;
-  var CY = (DM.y0 + DM.y1) / 2;
-  var ICON_H = 384;
-  var ICON_W = ICON_H * (LOGO_ICON.x1 - LOGO_ICON.x0) / (LOGO_ICON.y1 - LOGO_ICON.y0);
-  var WORD_W = 900;
-  var WORD_H = WORD_W * (LOGO_WORDMARK.y1 - LOGO_WORDMARK.y0) / (LOGO_WORDMARK.x1 - LOGO_WORDMARK.x0);
-  var GAP = 54;
-  var BLOCK_H = ICON_H + GAP + WORD_H;
-  var ICON_TOP = CY - BLOCK_H / 2;
-  var WORD_TOP = ICON_TOP + ICON_H + GAP;
-  var ICON_BOX = {
-    x0: CX - ICON_W / 2,
-    y0: ICON_TOP,
-    x1: CX + ICON_W / 2,
-    y1: ICON_TOP + ICON_H
-  };
-  var WORD_BOX = {
-    x0: CX - WORD_W / 2,
-    y0: WORD_TOP,
-    x1: CX + WORD_W / 2,
-    y1: WORD_TOP + WORD_H
-  };
-  function sampleIcon(makeCanvas2, count) {
-    const P2D = globalThis.Path2D;
-    const N = 180;
-    const c = makeCanvas2(N, N);
-    const g = c.getContext("2d");
-    const sx = N / (LOGO_ICON.x1 - LOGO_ICON.x0);
-    const sy = N / (LOGO_ICON.y1 - LOGO_ICON.y0);
-    g.save();
-    g.scale(sx, sy);
-    g.translate(-LOGO_ICON.x0, -LOGO_ICON.y0);
-    for (const part of LOGO_ICON.parts) {
-      g.fillStyle = part.fill;
-      g.fill(new P2D(part.d));
-    }
-    g.restore();
-    const data = g.getImageData(0, 0, N, N).data;
-    const inside = [];
-    for (let y = 0; y < N; y++) {
-      for (let x = 0; x < N; x++) {
-        const i = (y * N + x) * 4;
-        if (data[i + 3] > 140) {
-          inside.push([x / N, y / N, data[i] > 200 && data[i + 1] < 120 ? 1 : 0]);
-        }
-      }
-    }
-    const rnd = mulberry322(4288);
-    const out = [];
-    for (let i = 0; i < count; i++) {
-      const [u, v, accent] = inside[Math.floor(rnd() * inside.length)];
-      out.push({
-        x: ICON_BOX.x0 + u * ICON_W,
-        y: ICON_BOX.y0 + v * ICON_H,
-        accent
-      });
-    }
-    return out;
-  }
-  var MARGIN_A2 = 950;
-  var MARGIN_B2 = 420;
-  var EXT2 = (() => {
-    let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity;
-    for (const [x, y] of [[0, 0], [CANVAS_W, 0], [0, CANVAS_H], [CANVAS_W, CANVAS_H]]) {
-      const a = x * DIR2.x + y * DIR2.y;
-      const b = x * PERP2.x + y * PERP2.y;
-      aMin = Math.min(aMin, a);
-      aMax = Math.max(aMax, a);
-      bMin = Math.min(bMin, b);
-      bMax = Math.max(bMax, b);
-    }
-    return {
-      a0: aMin - MARGIN_A2,
-      aLen: aMax - aMin + MARGIN_A2 * 2,
-      b0: bMin - MARGIN_B2,
-      bLen: bMax - bMin + MARGIN_B2 * 2
-    };
-  })();
-  function createMoment(makeCanvas2) {
-    const P2D = globalThis.Path2D;
-    if (!P2D) throw new Error("Path2D is required (set globalThis.Path2D in Node).");
-    const rnd = mulberry322(41599);
-    const COUNT = 620;
-    const targets = sampleIcon(makeCanvas2, COUNT);
-    const arrows = [];
-    for (let i = 0; i < COUNT; i++) {
-      const depth = Math.pow(rnd(), 1.35);
-      arrows.push({
-        u0: rnd(),
-        lane: rnd(),
-        laps: 1 + Math.floor(rnd() * 3),
-        wob: rnd() * Math.PI * 2,
-        wobAmt: 30 + rnd() * 90,
-        depth,
-        // Weighted small: 620 arrows at the main loop's hero sizes fills the
-        // room with a wall of chevrons instead of a field with depth in it.
-        h: lerp2(0.022, 0.4, Math.pow(clamp013(depth * 0.8 + rnd() * 0.25), 1.7)),
-        long: rnd() < 0.16,
-        // Staggering the gather is what makes it read as a swarm converging
-        // rather than a single rigid transform of the whole field.
-        delay: rnd() * 0.42,
-        landed: lerp2(15, 27, rnd()),
-        target: targets[i],
-        alphaVar: 0.75 + rnd() * 0.4
-      });
-    }
-    return {
-      arrows,
-      paths: {
-        arrowRegular: new P2D(ARROW_REGULAR.d),
-        arrowLong: new P2D(ARROW_LONG.d),
-        icon: LOGO_ICON.parts.map((p) => ({ fill: p.fill, path: new P2D(p.d) })),
-        word: LOGO_WORDMARK.parts.map((p) => ({ fill: p.fill, path: new P2D(p.d) }))
-      }
-    };
-  }
-  function flowPosition(a, t2) {
-    const u = (a.u0 + a.laps * t2 / 26) % 1;
-    const along = EXT2.a0 + u * EXT2.aLen;
-    const across = EXT2.b0 + a.lane * EXT2.bLen + Math.sin(a.wob + t2 * 0.4) * a.wobAmt;
-    return {
-      x: along * DIR2.x + across * PERP2.x,
-      y: along * DIR2.y + across * PERP2.y
-    };
-  }
-  function drawMoment(ctx2, time, moment2, opts = {}) {
-    const t2 = Math.min(Math.max(time, 0), MOMENT_DURATION);
-    const k = stateFactors(opts.dark ?? 0);
-    drawBackground(ctx2, t2, k);
-    const solid = smooth((t2 - T_FORMED) / (T_SOLID - T_FORMED));
-    const word = smooth((t2 - T_SOLID) / (T_WORD - T_SOLID));
-    ctx2.save();
-    ctx2.globalCompositeOperation = "lighter";
-    for (const a of moment2.arrows) {
-      const flow = flowPosition(a, t2);
-      const span = T_FORMED - T_GATHER;
-      const g = smooth(((t2 - T_GATHER) / span - a.delay) / (1 - a.delay));
-      const x = lerp2(flow.x, a.target.x, g);
-      const y = lerp2(flow.y, a.target.y, g);
-      const src = a.long ? ARROW_LONG : ARROW_REGULAR;
-      const h = lerp2(CANVAS_H * a.h, a.landed, g);
-      const w = h / src.h * src.w;
-      if (x < -w - 80 || x > CANVAS_W + w + 80) continue;
-      if (y < -h - 80 || y > CANVAS_H + h + 80) continue;
-      const flown = gradientAt(clamp013(x / CANVAS_W), clamp013(0.45 + a.depth * 0.55));
-      const col = g > 1e-3 ? [
-        Math.round(lerp2(flown[0], a.target.accent ? 237 : 255, g)),
-        Math.round(lerp2(flown[1], a.target.accent ? 44 : 255, g)),
-        Math.round(lerp2(flown[2], a.target.accent ? 138 : 255, g))
-      ] : flown;
-      const alpha = (0.22 + 0.78 * a.depth) * a.alphaVar * 0.84 * lerp2(1, 0.55, g) * (1 - solid) * k.marks;
-      if (alpha < 6e-3) continue;
-      ctx2.save();
-      ctx2.translate(x - w / 2, y - h / 2);
-      ctx2.scale(h / src.h, h / src.h);
-      ctx2.fillStyle = rgba(col, Math.min(alpha, 0.95));
-      ctx2.fill(a.long ? moment2.paths.arrowLong : moment2.paths.arrowRegular);
-      ctx2.restore();
-    }
-    ctx2.restore();
-    if (solid > 1e-3) drawLockup(ctx2, moment2, solid, word, k);
-  }
-  function drawPartsIn(ctx2, parts, box, src, alpha) {
-    const sx = (box.x1 - box.x0) / (src.x1 - src.x0);
-    const sy = (box.y1 - box.y0) / (src.y1 - src.y0);
-    ctx2.save();
-    ctx2.translate(box.x0, box.y0);
-    ctx2.scale(sx, sy);
-    ctx2.translate(-src.x0, -src.y0);
-    ctx2.globalAlpha = alpha;
-    for (const p of parts) {
-      ctx2.fillStyle = p.fill;
-      ctx2.fill(p.path);
-    }
-    ctx2.restore();
-  }
-  function drawLockup(ctx2, moment2, solid, word, k) {
-    drawPartsIn(ctx2, moment2.paths.icon, ICON_BOX, LOGO_ICON, solid * k.marks);
-    if (word > 1e-3) {
-      drawPartsIn(ctx2, moment2.paths.word, WORD_BOX, LOGO_WORDMARK, word * k.marks);
-    }
-  }
-
-  // src/preview-main.js
+  // ../../../tmp/tmp.7L8aMiDae4/src/preview-main.js
   var canvas = document.getElementById("c");
   var ctx = canvas.getContext("2d");
   var quality = 0.25;
@@ -1117,21 +772,14 @@
     canvas.height = Math.round(CANVAS_H * quality);
   }
   resize();
+  var scene = createScene();
+  var bloomCache = {};
   var makeCanvas = (w, h) => {
     const el = document.createElement("canvas");
     el.width = w;
     el.height = h;
     return el;
   };
-  var scene = createScene();
-  var moment = createMoment(makeCanvas);
-  var bloomCache = {};
-  var PIECES = {
-    loop: { dur: DURATION, tick: 15 },
-    moment: { dur: MOMENT_DURATION, tick: 1 }
-  };
-  var piece = "loop";
-  var duration = () => PIECES[piece].dur;
   var wallsEl = document.getElementById("walls");
   for (const w of VENUE.walls) {
     const d = document.createElement("div");
@@ -1147,21 +795,13 @@
     const m = Math.floor(s / 60);
     return `${m}:${(s - m * 60).toFixed(1).padStart(4, "0")}`;
   }
-  function buildTicks() {
-    for (const el of [...timeline.querySelectorAll(".tick")]) el.remove();
-    const { dur, tick: step } = PIECES[piece];
-    const major = piece === "loop" ? 60 : 5;
-    for (let s = step; s < dur; s += step) {
-      const tick = document.createElement("div");
-      const isMajor = s % major === 0;
-      tick.className = isMajor ? "tick major" : "tick";
-      tick.style.left = `${s / dur * 100}%`;
-      if (isMajor) tick.innerHTML = `<b>${fmt(s)}</b>`;
-      timeline.appendChild(tick);
-    }
-    timeline.setAttribute("aria-valuemax", String(dur));
+  for (let s = 15; s < DURATION; s += 15) {
+    const tick = document.createElement("div");
+    tick.className = s % 60 === 0 ? "tick major" : "tick";
+    tick.style.left = `${s / DURATION * 100}%`;
+    if (s % 60 === 0) tick.innerHTML = `<b>${s / 60}:00</b>`;
+    timeline.appendChild(tick);
   }
-  buildTicks();
   var t = 0;
   var playing = true;
   var last = performance.now();
@@ -1175,12 +815,6 @@
   var labelsEl = document.getElementById("labels");
   var bloomEl = document.getElementById("bloom");
   var loopmarkEl = document.getElementById("loopmark");
-  var pieceEl = document.getElementById("piece");
-  var darkEl = document.getElementById("dark");
-  var darkValEl = document.getElementById("darkval");
-  var speakerEl = document.getElementById("speaker");
-  var speakerNameEl = document.getElementById("speakername");
-  var speakerRoleEl = document.getElementById("speakerrole");
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) playing = false;
   function setPlaying(v) {
     playing = v;
@@ -1196,38 +830,6 @@
     seam = loopmarkEl.checked;
     if (seam) t = DURATION - 0.5;
   };
-  pieceEl.onchange = () => {
-    piece = pieceEl.value;
-    if (piece !== "loop") {
-      seam = false;
-      loopmarkEl.checked = false;
-    }
-    loopmarkEl.disabled = piece !== "loop";
-    t = 0;
-    buildTicks();
-    document.getElementById("specdur").textContent = piece === "loop" ? "3:00 \xB7 seamless" : "0:12 \xB7 one shot";
-    if (!playing) render();
-  };
-  var onDark = () => {
-    darkValEl.textContent = `${darkEl.value}%`;
-    if (!playing) render();
-  };
-  darkEl.oninput = onDark;
-  for (const el of [speakerEl, speakerNameEl, speakerRoleEl]) {
-    el.oninput = () => {
-      if (!playing) render();
-    };
-    el.onchange = () => {
-      if (!playing) render();
-    };
-  }
-  function speakerSpec() {
-    if (!speakerEl.checked) return null;
-    return {
-      name: speakerNameEl.value,
-      lines: speakerRoleEl.value.split(",").map((s) => s.trim()).filter(Boolean).map((s, i, all) => i < all.length - 1 ? `${s},` : s)
-    };
-  }
   document.getElementById("quality").onchange = (e) => {
     quality = Number(e.target.value);
     resize();
@@ -1237,7 +839,7 @@
   function seekFromEvent(e) {
     const r = timeline.getBoundingClientRect();
     const k = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-    t = k * duration();
+    t = k * DURATION;
     if (!playing) render();
   }
   var dragging = false;
@@ -1254,10 +856,10 @@
   });
   timeline.addEventListener("keydown", (e) => {
     const step = e.shiftKey ? 10 : 1;
-    if (e.key === "ArrowRight") t = (t + step) % duration();
-    else if (e.key === "ArrowLeft") t = (t - step + duration()) % duration();
+    if (e.key === "ArrowRight") t = (t + step) % DURATION;
+    else if (e.key === "ArrowLeft") t = (t - step + DURATION) % DURATION;
     else if (e.key === "Home") t = 0;
-    else if (e.key === "End") t = duration() - 0.05;
+    else if (e.key === "End") t = DURATION - 0.05;
     else return;
     e.preventDefault();
     if (!playing) render();
@@ -1270,20 +872,18 @@
     } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
       e.preventDefault();
       const step = (e.shiftKey ? 10 : 1) * (e.key === "ArrowRight" ? 1 : -1);
-      t = (t + step + duration()) % duration();
+      t = (t + step + DURATION) % DURATION;
       if (!playing) render();
     }
   });
   function render() {
-    const dark = Number(darkEl.value) / 100;
     ctx.setTransform(quality, 0, 0, quality, 0, 0);
-    if (piece === "moment") drawMoment(ctx, t, moment, { dark });
-    else drawScene(ctx, t, scene, { dark, speaker: speakerSpec() });
-    if (bloomEl.checked) applyBloom(ctx, makeCanvas, bloomCache, stateFactors(dark).bloom);
+    drawScene(ctx, t, scene);
+    if (bloomEl.checked) applyBloom(ctx, makeCanvas, bloomCache);
     ctx.setTransform(quality, 0, 0, quality, 0, 0);
     if (overlayEl.checked) drawVenueOverlay(ctx);
-    const pct = t / duration() * 100;
-    timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(duration())}</span>`;
+    const pct = t / DURATION * 100;
+    timeEl.innerHTML = `${fmt(t)} <span>/ ${fmt(DURATION)}</span>`;
     head.style.left = `${pct}%`;
     fill.style.width = `${pct}%`;
     timeline.setAttribute("aria-valuenow", t.toFixed(1));
@@ -1296,11 +896,6 @@
       t += dt;
       if (seam) {
         if (t > DURATION + 0.5) t = DURATION - 0.5;
-      } else if (piece === "moment") {
-        if (t >= duration()) {
-          t = duration();
-          setPlaying(false);
-        }
       } else if (t >= DURATION) {
         t -= DURATION;
       }

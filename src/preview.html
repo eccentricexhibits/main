@@ -15,9 +15,9 @@
     --text: #edebef;
     --dim: #8a8796;
     --dimmer: #5d5b68;
-    --magenta: #eb088a;
-    --cobalt: #313cff;
     --violet: #8a25c9;
+    --turquoise: #48c0d9;
+    --accent: #8a25c9;
 
     --step: clamp(11px, .78vw, 12px);
     --body: clamp(12.5px, .95vw, 14px);
@@ -54,7 +54,7 @@
   }
   header h1 em {
     font-style: normal;
-    background: linear-gradient(95deg, var(--magenta), var(--violet) 52%, var(--cobalt));
+    background: linear-gradient(95deg, var(--violet), #6f6ae0 52%, var(--turquoise));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .specs { display: flex; gap: 26px; flex-wrap: wrap; }
@@ -92,13 +92,13 @@
   }
   button:hover { border-color: #3c3c4a; background: #191922; }
   button:focus-visible, [role=slider]:focus-visible, select:focus-visible, input:focus-visible {
-    outline: 2px solid var(--magenta); outline-offset: 2px;
+    outline: 2px solid var(--turquoise); outline-offset: 2px;
   }
   #play {
-    background: var(--magenta); border-color: var(--magenta); color: #fff;
+    background: var(--violet); border-color: var(--violet); color: #fff;
     font-weight: 600; min-width: 92px;
   }
-  #play:hover { background: #ff1c9c; border-color: #ff1c9c; }
+  #play:hover { background: #a233ea; border-color: #a233ea; }
   .clock { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
   .clock span { color: var(--dimmer); font-weight: 400; }
   .transport .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
@@ -111,7 +111,7 @@
   }
   .track .fill {
     position: absolute; inset: 0 auto 0 0;
-    background: linear-gradient(90deg, rgba(235,8,138,.30), rgba(138,37,201,.30) 52%, rgba(49,60,255,.30));
+    background: linear-gradient(90deg, rgba(138,37,201,.32), rgba(105,114,209,.32) 52%, rgba(72,192,217,.32));
     pointer-events: none;
   }
   .track .tick {
@@ -140,7 +140,7 @@
   .panels section { display: grid; gap: 9px; }
   label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); cursor: pointer; }
   label:hover { color: var(--text); }
-  input[type=checkbox] { accent-color: var(--magenta); width: 14px; height: 14px; }
+  input[type=checkbox] { accent-color: var(--violet); width: 14px; height: 14px; }
   select {
     font: inherit; font-size: 12.5px; color: var(--text);
     background: var(--panel); border: 1px solid var(--hairline);
@@ -164,11 +164,11 @@
   <h1>Vector Institute — <em>Convergence</em></h1>
   <div class="specs">
     <div><span class="lbl">Canvas</span><b class="num">6878 × 1080</b></div>
-    <div><span class="lbl">Duration</span><b class="num">3:00 · seamless</b></div>
+    <div><span class="lbl">Duration</span><b class="num" id="specdur">3:00 · seamless</b></div>
     <div><span class="lbl">Field</span><b class="num">L → R · 47–93 px/s</b></div>
     <div><span class="lbl">Arrows</span><b class="num">67.93° · 30–91 px/s</b></div>
     <div><span class="lbl">Surfaces</span><b>3 walls + 4 corners</b></div>
-    <div><span class="lbl">Palette</span><b>Magenta → violet → cobalt</b></div>
+    <div><span class="lbl">Palette</span><b>Violet → turquoise on deep violet</b></div>
   </div>
 </header>
 
@@ -182,6 +182,12 @@
 <div class="transport">
   <button id="play">Pause</button>
   <span class="clock num" id="time">0:00.0 <span>/ 3:00.0</span></span>
+  <label>Piece
+    <select id="piece">
+      <option value="loop" selected>Convergence — 3:00 loop</option>
+      <option value="moment">Arrival — arrows into logo, 0:12</option>
+    </select>
+  </label>
   <div class="right">
     <span class="lbl num" id="fps"></span>
     <label>Resolution
@@ -202,6 +208,19 @@
 </div>
 
 <div class="panels">
+  <section>
+    <span class="lbl">Room state</span>
+    <label style="display:grid;gap:6px;align-items:start">
+      <span>Show <span id="darkval" class="num">0%</span> dark — walls recede under a presentation</span>
+      <input type="range" id="dark" min="0" max="100" value="0" style="width:100%;accent-color:var(--violet)">
+    </label>
+    <label><input type="checkbox" id="speaker"> Speaker names on the side walls</label>
+    <input type="text" id="speakername" value="Glenda Crisp"
+           style="font:inherit;font-size:12.5px;color:var(--text);background:var(--panel);border:1px solid var(--hairline);padding:5px 8px;border-radius:3px">
+    <input type="text" id="speakerrole" value="President &amp; CEO, Vector Institute"
+           style="font:inherit;font-size:12.5px;color:var(--text);background:var(--panel);border:1px solid var(--hairline);padding:5px 8px;border-radius:3px">
+  </section>
+
   <section>
     <span class="lbl">Review tools</span>
     <label><input type="checkbox" id="overlay"> Venue overlay</label>
@@ -239,6 +258,7 @@
     <div class="notes">
       <p>A single sustained field — no phase changes. The mark field travels <b>left to right</b> along a band that funnels toward a vanishing point on the west wall: large at the outer walls, small and tight through the middle.</p>
       <p>Arrows run on their own axis, travelling up and right at <b>67.93°</b> and leaving through the top of the frame.</p>
+      <p>Colour is the secondary <b>violet → turquoise</b> pairing: violet enters on the south wall, turquoise on the north, and the two meet across the west wall. The ground is deep violet falling away to almost black at the top of the frame and through the middle of the room. <b>Magenta is not in the room</b> — it is the wayfinding colour.</p>
       <p>Nothing rotates: arrows, pixels and pluses are all drawn at their official orientation. The complete plus and pixel cluster patterns drift through the field alongside individual marks.</p>
       <p><b>Space</b> play/pause · <b>← →</b> step 1 s · <b>⇧← ⇧→</b> step 10 s</p>
     </div>

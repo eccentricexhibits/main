@@ -6,11 +6,14 @@
 //
 //   node tools/render.js                       # 6878x1080, 30 fps, H.264
 //   node tools/render.js --pix-fmt yuv444p     # better and smaller, sw playback
+//   node tools/render.js --dark                # the presentation state
+//   node tools/render.js --moment              # the arrows-into-logo piece
+//   node tools/render.js --speaker "Glenda Crisp|President & CEO,|Vector Institute"
 //   node tools/render.js --fps 60 --crf 14
 //   node tools/render.js --walls               # also cut per-projector files
 //   node tools/render.js --duration 10         # short test render
 //
-import { createCanvas, Path2D } from '@napi-rs/canvas';
+import { createCanvas, Path2D, GlobalFonts } from '@napi-rs/canvas';
 import { spawn, fork } from 'node:child_process';
 import { mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -22,7 +25,11 @@ globalThis.Path2D = Path2D;
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 
-const { createScene, drawScene, applyBloom, DURATION } = await import('../src/scene.js');
+GlobalFonts.registerFromPath(resolve(root, 'Karbon-Semibold.otf'), 'Karbon');
+
+const { createScene, drawScene, applyBloom, stateFactors, DURATION } =
+  await import('../src/scene.js');
+const { createMoment, drawMoment, MOMENT_DURATION } = await import('../src/logo-moment.js');
 const { CANVAS_W, CANVAS_H, VENUE } = await import('../src/brand.js');
 
 // ---------------------------------------------------------------------------
@@ -37,16 +44,30 @@ function arg(name, fallback) {
 }
 const has = (name) => process.argv.includes(`--${name}`);
 
+// The presentation state and the logo moment are separate deliverables, not
+// separate scenes: same geometry, same palette, driven by the same functions.
+const MOMENT = has('moment');
+const DARK = has('dark') ? 1 : 0;
+const SPEAKER = (() => {
+  const v = arg('speaker', null);
+  if (!v) return null;
+  const [name, ...lines] = v.split('|');
+  return { name, lines };
+})();
+
 const FPS = Number(arg('fps', 30));
 const CRF = Number(arg('crf', 16));
-const DUR = Number(arg('duration', DURATION));
+const DUR = Number(arg('duration', MOMENT ? MOMENT_DURATION : DURATION));
 const GOP = Number(arg('gop', Math.round(Number(arg('fps', 30)))));
 const WORKERS = Number(arg('workers', 4));
 // yuv420p is the compatible default. yuv444p measures better *and* smaller on
 // this content — saturated brand colour on near-black is the worst case for
 // chroma subsampling — but needs software playback. See the README.
 const PIX = arg('pix-fmt', 'yuv420p');
-const OUT = resolve(root, arg('out', 'out/vector-convergence-6878x1080.mp4'));
+const DEFAULT_NAME = MOMENT
+  ? 'out/vector-arrival-6878x1080.mp4'
+  : `out/vector-convergence${DARK ? '-dark' : ''}-6878x1080.mp4`;
+const OUT = resolve(root, arg('out', DEFAULT_NAME));
 const TMP = resolve(root, 'out/.segments');
 
 const TOTAL_FRAMES = Math.round(DUR * FPS);
@@ -57,11 +78,12 @@ const TOTAL_FRAMES = Math.round(DUR * FPS);
 
 if (process.env.RENDER_WORKER) {
   const { index, start, end } = JSON.parse(process.env.RENDER_WORKER);
-  const scene = createScene();
+  const makeCanvas = (w, h) => createCanvas(w, h);
+  const scene = MOMENT ? createMoment(makeCanvas) : createScene();
   const canvas = createCanvas(CANVAS_W, CANVAS_H);
   const ctx = canvas.getContext('2d');
   const bloomCache = {};
-  const makeCanvas = (w, h) => createCanvas(w, h);
+  const bloom = stateFactors(DARK).bloom;
   const segPath = resolve(TMP, `seg${String(index).padStart(3, '0')}.mp4`);
 
   const ff = spawn(ffmpegPath, [
@@ -94,8 +116,9 @@ if (process.env.RENDER_WORKER) {
   });
 
   for (let f = start; f < end; f++) {
-    drawScene(ctx, f / FPS, scene);
-    applyBloom(ctx, makeCanvas, bloomCache);
+    if (MOMENT) drawMoment(ctx, f / FPS, scene, { dark: DARK });
+    else drawScene(ctx, f / FPS, scene, { dark: DARK, speaker: SPEAKER });
+    applyBloom(ctx, makeCanvas, bloomCache, bloom);
     const buf = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H).data;
     if (!ff.stdin.write(Buffer.from(buf.buffer, buf.byteOffset, buf.byteLength))) {
       await new Promise((r) => ff.stdin.once('drain', r));
@@ -115,7 +138,9 @@ if (process.env.RENDER_WORKER) {
 // ---------------------------------------------------------------------------
 
 console.log(
-  `Rendering ${TOTAL_FRAMES} frames · ${CANVAS_W}x${CANVAS_H} · ${FPS} fps · ` +
+  `Rendering ${MOMENT ? 'Arrival' : 'Convergence'}${DARK ? ' (dark state)' : ''}` +
+  `${SPEAKER ? ` · speaker "${SPEAKER.name}"` : ''}\n` +
+  `  ${TOTAL_FRAMES} frames · ${CANVAS_W}x${CANVAS_H} · ${FPS} fps · ` +
   `${DUR}s · CRF ${CRF} · ${PIX} · ${WORKERS} workers`
 );
 
