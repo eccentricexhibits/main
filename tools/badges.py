@@ -1,46 +1,60 @@
 #!/usr/bin/env python3
 """
-Vector Institute — event name badges, "Trajectory".
+Vector Institute — AI Summit 2026 name badges.
 
-A slice of the Convergence venue piece rather than a tinted card: the room's
-near-black ground, a luminous wedge of the category's gradient driving up and
-right on the same 67.93 degree axis, and the official arrow, pixel and plus
-marks streaming out of it.
+Layout is the one that came out of the Concept C review — the category gradient
+across the top, the lower two thirds in near-black, the name set large on the
+black — carrying the confirmed colour system and the Concept A finish.
 
-Built to the supplied print template — 4.0625 x 5.75 in bleed, 3.8125 x 5.5 in
-trim, 3.4375 x 4.75 in safe area, dual slot punches.
+The finish is the change that matters here. Marketing reserved the graphic,
+textured gradient (arrows, pixels, pluses) for posters and environmental
+signage; badges take a smooth gradient. So the mark field that used to stream
+across the card is gone, and the top panel is a single clean sweep of the
+category's official pairing. At badge scale that is also the better read: the
+texture was competing with the name at exactly the distance the badge is used.
 
-Output is one layered PDF per category. Layers are real PDF optional content
-groups, artwork is vector, and every text field is live Karbon text.
+Built on the artboard from Concept_3_badges_fixed_2.pdf — 5.8125 x 7.5 in page
+with the 3.8125 x 5.5 in tag centred in it, and the die-line carried on its own
+reference layer, so these drop straight into the working Illustrator file.
+
+Output is one layered PDF per category plus a combined four-page file. Layers
+are real PDF optional content groups, artwork is vector, and every text field is
+live Karbon text.
 
     python3 tools/badges.py [outdir]
 """
-import math
 import os
+import re
 import sys
+import tempfile
 
 import cairosvg
 import fitz
+import pikepdf
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATE = "Name Badge Template - 3.8125 x 5.5 - Dual Slot Template (3).pdf"
+ARTBOARD = "Concept_3_badges_fixed_2.pdf"
 
 # ---------------------------------------------------------------------------
-# Print geometry — measured from the supplied template, in points
+# Print geometry, in points
+#
+# The page is the imposition artboard: a 1 in margin around the tag. All the
+# artwork below is laid out in *bleed* space (0..W, 0..H) and placed at ORIGIN,
+# so the numbers stay the ones printed on the supplied template.
 # ---------------------------------------------------------------------------
 
-W, H = 292.50, 414.00                 # bleed = page size
+PAGE_W, PAGE_H = 418.50, 540.00       # 5.8125 x 7.5 in artboard
+OX, OY = 63.00, 63.00                 # bleed origin within the artboard
+
+W, H = 292.50, 414.00                 # 4.0625 x 5.75 in bleed
 TRIM = (9.0, 9.0, 283.5, 405.0)       # 3.8125 x 5.5 in
 SAFE = (22.5, 49.5, 270.5, 391.5)     # 3.4375 x 4.75 in
-CORNER = 18.0                         # tag-edge corner radius
-SLOTS = [(24.75, 22.5, 69.75, 33.75), (223.25, 22.5, 268.25, 33.75)]
 
 SX0, SY0, SX1, SY1 = SAFE
 SAFE_W = SX1 - SX0
 
 # ---------------------------------------------------------------------------
-# Palette — exact values from the brand guidelines (p6). Each category is one
-# of the four official gradient pairings (p7).
+# Palette — exact values from the brand guidelines (p6)
 # ---------------------------------------------------------------------------
 
 MAGENTA = "#EB088A"
@@ -50,15 +64,18 @@ TURQUOISE = "#48C0D9"
 TANGERINE = "#FF9E00"
 LIME = "#CFF933"
 
-GROUND = "#080310"        # the venue's near-black ground
-GROUND_HI = "#150A24"     # a touch of lift so the card is not flat black
+GROUND = "#07030E"        # the room's near-black
+GROUND_HI = "#120820"     # a touch of lift so the card is not flat black
 
+# The four official pairings (guidelines p7/p12), assigned per the confirmed
+# badge colour system. Every pairing leads with a dark colour, which is what
+# lets the reverse logo run on all four.
 CATEGORIES = [
-    # id,          label,                     near colour, far colour
-    ("student",  "Student",                  MAGENTA,   COBALT),
-    ("employer", "Employer",                 TURQUOISE, VIOLET),
-    ("partner",  "Partner",                  LIME,      COBALT),
-    ("staff",    "Vector Institute Staff",   TANGERINE, VIOLET),
+    # id,          label,                     from,    to
+    ("student",  "Student",                  VIOLET,  TURQUOISE),
+    ("employer", "Employer",                 VIOLET,  TANGERINE),
+    ("partner",  "Partner",                  COBALT,  LIME),
+    ("staff",    "Vector Institute Staff",   MAGENTA, COBALT),
 ]
 
 # Placeholder copy, verbatim from the reference badges.
@@ -77,14 +94,13 @@ PROG_LINES = [
 LOGO_XY = (SX0, 56.0)
 LOGO_SIZE = (165.0, 32.0)
 
-# The wedge is pulled up to buy vertical room for the name. At 27 pt the name
-# was using only 73% of the safe width — it was never width-constrained, the
-# cap was. On width alone "Yastrzhemabsky" fits at 36.75 pt, so the whole lower
-# block is re-spaced around a name a third larger, read at arm's length or
-# across a room rather than in the hand.
-WEDGE_L = 148.0           # wedge lower edge, at the left edge of the bleed
-WEDGE_R = 174.0           # ...and at the right edge
+# Lower edge of the colour panel, at the left and right edges of the bleed. The
+# slant runs with the venue piece's travel axis rather than square to the card.
+PANEL_L = 148.0
+PANEL_R = 174.0
 
+# Type is sized against the safe width, not to a preset scale: a 14-character
+# surname at 36 pt still uses only three quarters of the 248 pt safe line.
 NAME_MAX = 36.0
 NAME_Y = [206.0, 244.0]
 BODY = 13.0
@@ -97,112 +113,65 @@ CHIP_PAD = 12.0
 CHIP_RADIUS = 4.5
 CHIP_SIZE = 13.0
 
-FLOW_DEG = 67.93          # the venue's travel axis, kept so the two pieces agree
-
-# Ink colours
 INK_NAME = (1.0, 1.0, 1.0)
 INK_BODY = (0.86, 0.85, 0.90)
-# The logo sits on the wedge, i.e. on the category's own colour. Measured
-# against the four: white runs 1.22:1 on Lime and about 2.1:1 on Turquoise and
-# Tangerine, failing three of four; black runs 4.93:1 to 17.25:1. Both are
-# official variants.
-LOGO_INK = "#000000"
-
-SEEDS = {"student": 0x51D, "employer": 0xE99, "partner": 0x9A7, "staff": 0x3C4}
-
-
-def rng(seed):
-    state = seed & 0xFFFFFFFF
-
-    def nxt():
-        nonlocal state
-        state = (state + 0x6D2B79F5) & 0xFFFFFFFF
-        x = state
-        x = ((x ^ (x >> 15)) * (1 | x)) & 0xFFFFFFFF
-        x = (x + (((x ^ (x >> 7)) * (61 | x)) & 0xFFFFFFFF)) & 0xFFFFFFFF
-        x ^= x >> 14
-        return (x & 0xFFFFFFFF) / 4294967296.0
-
-    return nxt
 
 
 # ---------------------------------------------------------------------------
-# Official shape geometry (verbatim from the supplied SVGs)
-# ---------------------------------------------------------------------------
-
-ARROW_REGULAR = dict(
-    w=422.98, h=600.0,
-    d=("M308.51,0 L46.97,114.42 L0,224.04 L208.02,137.79 L68.91,480.94 "
-       "L67.58,484.26 L113.86,600 L286.24,169.06 L376.67,375.07 L422.98,267.08 Z"),
-)
-ARROW_LONG = dict(
-    w=537.23, h=1080.0,
-    d=("M463.33,0l-168.9,73.89-29.33,69.19,133.39-53.47L0,1079.82l62.23.18"
-       "L448.81,109.21l59.1,131.81,29.33-69.78L463.33,0Z"),
-)
-PLUS_BAR = 14.99 / 72.85
-
-PLUS_CLUSTER = [
-    (-0.22296, -0.32210), (-0.46627, -0.26571), (0.46627, -0.21670),
-    (-0.34143, -0.19826), (-0.00794, -0.15883), (0.23622, -0.10344),
-    (-0.31760, -0.03868), (0.11288, -0.03599), (-0.17161, 0.03146),
-    (-0.28572, 0.11805), (-0.05794, 0.19658), (0.05583, 0.28149),
-    (-0.15158, 0.32210),
-]
-PLUS_CLUSTER_MARK = 0.06745
-
-PIXEL_CLUSTER = [
-    (-0.24316, -0.38434), (-0.17375, -0.38434), (0.17333, -0.38434),
-    (-0.46529, -0.36141), (-0.10434, -0.31492), (0.10391, -0.31492),
-    (0.24275, -0.31492), (-0.39588, -0.29200), (-0.03492, -0.24550),
-    (0.17333, -0.24550), (0.24275, -0.24550), (-0.46529, -0.22258),
-    (-0.03492, -0.17609), (0.03450, -0.17609), (0.17333, -0.17609),
-    (-0.39588, -0.15316), (-0.03492, -0.10667), (0.10391, -0.10667),
-    (0.32646, -0.10158), (0.39587, -0.03216), (0.03542, 0.03725),
-    (0.17425, 0.03725), (0.24367, 0.03725), (0.46529, 0.03725),
-    (0.10484, 0.10667), (0.17425, 0.10667), (0.31309, 0.10667),
-    (-0.03400, 0.17609), (0.17425, 0.17609), (0.24367, 0.17609),
-    (0.03542, 0.24550), (0.31309, 0.24550), (-0.03400, 0.31492),
-    (0.03542, 0.38434),
-]
-PIXEL_CLUSTER_MARK = 0.06942
-
-FLOW_DEG = 67.93  # the venue's travel axis, kept here so the two pieces agree
-
-# ---------------------------------------------------------------------------
-# Deterministic randomness, so a rerun reproduces the same badge exactly
+# Ink choice by measured contrast
+#
+# Both the reverse (white) and black logo lockups are official. Which one to use
+# is not a taste call — it is whichever clears the 3:1 graphics floor on the
+# colour it actually sits on. Same rule picks the chip label ink.
 # ---------------------------------------------------------------------------
 
 
-def rng(seed):
-    state = seed & 0xFFFFFFFF
+def _srgb_to_linear(c):
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
-    def nxt():
-        nonlocal state
-        state = (state + 0x6D2B79F5) & 0xFFFFFFFF
-        x = state
-        x = ((x ^ (x >> 15)) * (1 | x)) & 0xFFFFFFFF
-        x = (x + (((x ^ (x >> 7)) * (61 | x)) & 0xFFFFFFFF)) & 0xFFFFFFFF
-        x ^= x >> 14
-        return (x & 0xFFFFFFFF) / 4294967296.0
 
-    return nxt
+def luminance(hex_colour):
+    r, g, b = (int(hex_colour[i:i + 2], 16) / 255.0 for i in (1, 3, 5))
+    r, g, b = (_srgb_to_linear(v) for v in (r, g, b))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def contrast(a, b):
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def ink_on(hex_colour, floor=4.5):
+    """Black or white, whichever reads better on this background."""
+    bg = luminance(hex_colour)
+    return "#000000" if contrast(bg, 0.0) >= contrast(bg, 1.0) else "#FFFFFF"
+
+
+def reverse_or_black(hex_colour, floor=3.0):
+    """Prefer the reverse (white) lockup, drop to black only if it fails.
+
+    Straight max-contrast would flip the logo to black on Magenta — 4.92:1
+    against white's 4.36:1 — and one black lockup in a set of four reads as a
+    mistake at a lanyard's distance. White clears the 3:1 graphics floor on all
+    four lead colours, so the set stays consistent without anything failing.
+    """
+    return "#FFFFFF" if contrast(luminance(hex_colour), 1.0) >= floor else "#000000"
 
 
 # ---------------------------------------------------------------------------
-# Logo — horizontal lockup, all white, built from the official SVG
+# Logo — horizontal lockup, built from the official SVG
 #
 # The supplied artwork is the vertical lockup. Icon and wordmark are separated
-# with clip paths rather than by editing the paths, so the official outlines
-# are used untouched; only their arrangement changes, which the guidelines
-# allow ("use your best judgement between horizontal and vertical").
+# with clip paths rather than by editing the paths, so the official outlines are
+# used untouched; only their arrangement changes, which the guidelines allow
+# ("use your best judgement between horizontal and vertical").
 # ---------------------------------------------------------------------------
 
 ICON_BOX = (720.0, 48.0, 2370.0, 1894.0)     # measured by rendering
 WORD_BOX = (48.0, 2183.0, 2948.0, 2652.0)
 
 
-def logo_svg(width_pt, height_pt):
+def logo_svg(width_pt, height_pt, ink):
     src = open(os.path.join(ROOT, "Official Vector Logo.svg")).read()
     body = src[src.index("<polygon"):src.rindex("</svg>")]
     gi = body.index("<g>")
@@ -213,9 +182,9 @@ def logo_svg(width_pt, height_pt):
     ww = WORD_BOX[2] - WORD_BOX[0]
     wh = WORD_BOX[3] - WORD_BOX[1]
 
-    # Icon full height; wordmark set to 70% of it, both vertically centred,
-    # with a gap of a third of the icon width. This reproduces the 5.1:1
-    # proportion of the reference lockup.
+    # Icon full height; wordmark at 70% of it, both vertically centred, with a
+    # gap of a third of the icon width. Reproduces the 5.1:1 proportion of the
+    # reference lockup.
     ih_t = height_pt
     iw_t = iw / ih * ih_t
     wh_t = height_pt * 0.70
@@ -234,7 +203,7 @@ def logo_svg(width_pt, height_pt):
   <defs>
     <clipPath id="cw"><rect x="{WORD_BOX[0]}" y="2100" width="{ww+200}" height="{wh+200}"/></clipPath>
     <clipPath id="ci"><rect x="0" y="0" width="3000" height="2100"/></clipPath>
-    <style>.st0,.st1{{fill:{LOGO_INK}}}</style>
+    <style>.st0,.st1{{fill:{ink}}}</style>
   </defs>
   <g transform="translate({x0} {(height_pt-ih_t)/2}) scale({si}) translate({-ICON_BOX[0]} {-ICON_BOX[1]})">
     <g clip-path="url(#ci)">{icon_body}{word_body}</g>
@@ -245,34 +214,22 @@ def logo_svg(width_pt, height_pt):
 </svg>'''
 
 
-
-
 # ---------------------------------------------------------------------------
-# Artwork
+# Artwork — smooth gradient only
 # ---------------------------------------------------------------------------
 
-TH = math.radians(FLOW_DEG)
-DIRX, DIRY = math.cos(TH), -math.sin(TH)          # travel axis, up and right
-PERPX, PERPY = math.sin(TH), math.cos(TH)
 
-
-def _axis(dx, dy):
-    """Endpoints of a gradient axis in user space, spanning the whole card."""
-    ts = [x * dx + y * dy for x in (0, W) for y in (0, H)]
-    lo, hi = min(ts), max(ts)
-    return (lo * dx, lo * dy, hi * dx, hi * dy)
-
-
-def wedge_points():
-    """The wedge: full bleed width, slanted lower edge falling to the right so
-    it runs across the travel axis rather than square to the card."""
-    return f"0,0 {W},0 {W},{WEDGE_R} 0,{WEDGE_L}"
+def panel_points():
+    """The colour panel: full bleed width, lower edge slanting down to the
+    right so it runs across the venue piece's travel axis."""
+    return f"0,0 {W},0 {W},{PANEL_R} 0,{PANEL_L}"
 
 
 def ground_svg():
+    """Near-black, with a slow vertical lift so the card is not flat."""
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
   <defs>
-    <linearGradient id="gr" x1="0" y1="0" x2="0.35" y2="1">
+    <linearGradient id="gr" x1="0" y1="0" x2="0.28" y2="1">
       <stop offset="0" stop-color="{GROUND_HI}"/>
       <stop offset="1" stop-color="{GROUND}"/>
     </linearGradient>
@@ -281,160 +238,111 @@ def ground_svg():
 </svg>'''
 
 
-def wedge_svg(near, far):
-    # Diagonal across the wedge rather than along the travel axis: it keeps the
-    # category's own colour dominant at the top, where the badge is read from
-    # across a room, with the paired colour arriving at the far corner.
-    x1, y1, x2, y2 = 0.0, 0.0, W * 0.92, WEDGE_R * 1.15
+def panel_svg(a, b):
+    """The category gradient.
+
+    One clean sweep corner to corner. The pairing's first colour holds through
+    the opening third so the lockup sits on flat colour rather than on the part
+    of the ramp where the hue is moving, then runs to the second colour at the
+    far edge. Below the panel, the same light falls off into the black over
+    about forty points — still a smooth gradient, no texture — so the two halves
+    read as one card lit from above rather than as two stacked blocks.
+    """
+    spill = 42.0
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
   <defs>
     <linearGradient id="cg" gradientUnits="userSpaceOnUse"
-                    x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}">
-      <stop offset="0" stop-color="{near}"/>
-      <stop offset="0.50" stop-color="{near}"/>
-      <stop offset="1" stop-color="{far}"/>
+                    x1="0" y1="0" x2="{W:.2f}" y2="{PANEL_R * 1.30:.2f}">
+      <stop offset="0" stop-color="{a}"/>
+      <stop offset="0.34" stop-color="{a}"/>
+      <stop offset="1" stop-color="{b}"/>
+    </linearGradient>
+    <linearGradient id="sp" gradientUnits="userSpaceOnUse"
+                    x1="0" y1="{PANEL_L:.2f}" x2="0" y2="{PANEL_L + spill:.2f}">
+      <stop offset="0" stop-color="{b}" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="{b}" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <polygon points="{wedge_points()}" fill="url(#cg)"/>
+  <polygon points="0,{PANEL_L} {W},{PANEL_R} {W},{PANEL_R + spill} 0,{PANEL_L + spill}" fill="url(#sp)"/>
+  <polygon points="{panel_points()}" fill="url(#cg)"/>
 </svg>'''
 
 
-def logo_clear(x, y):
-    """Fade marks sitting behind the lockup.
-
-    The wedge marks are the same white-ish shapes as the logo, so anything
-    dense behind it competes directly with the letterforms. Returns a
-    multiplier: near zero under the lockup, 1 well clear of it.
-    """
-    lx, ly = LOGO_XY
-    lw, lh = LOGO_SIZE
-    cx, cy = lx + lw / 2, ly + lh / 2
-    d = math.hypot((x - cx) / (lw * 0.82), (y - cy) / (lh * 2.6))
-    return min(1.0, max(0.10, (d - 0.55) / 0.60))
-
-
-def marks_svg(seed, near, far, in_wedge):
-    """Official marks streaming on the travel axis.
-
-    Drawn twice: once inside the wedge in the ground colour, knocking holes in
-    the colour, and once outside it in the category colours, so the field reads
-    as continuous across the wedge edge the way the room's does.
-    """
-    r = rng(seed)
-    parts = []
-    ink = GROUND if in_wedge else near
-
-    def depth_at(x, y):
-        u = (x / W) * 0.4 + (1 - y / H) * 0.6
-        return max(0.0, min(1.0, 1.0 - u))
-
-    fade = logo_clear if in_wedge else (lambda x, y: 1.0)
-
-    def arrow(x, y, h, op, long=False):
-        s = ARROW_LONG if long else ARROW_REGULAR
-        op *= fade(x, y + h * 0.5)
-        k = h / s["h"]
-        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) scale({k:.5f})" '
-                     f'opacity="{op:.3f}"><path d="{s["d"]}" fill="{ink}"/></g>')
-
-    def pixel(x, y, s, op):
-        op *= fade(x, y)
-        parts.append(f'<rect x="{x-s/2:.2f}" y="{y-s/2:.2f}" width="{s:.2f}" '
-                     f'height="{s:.2f}" fill="{ink}" opacity="{op:.3f}"/>')
-
-    def plus(x, y, s, op):
-        op *= fade(x, y)
-        b = s * PLUS_BAR / 2
-        parts.append(f'<g opacity="{op:.3f}" fill="{ink}">'
-                     f'<rect x="{x-s/2:.2f}" y="{y-b:.2f}" width="{s:.2f}" height="{b*2:.2f}"/>'
-                     f'<rect x="{x-b:.2f}" y="{y-s/2:.2f}" width="{b*2:.2f}" height="{s:.2f}"/></g>')
-
-    ymax = WEDGE_R + 40 if in_wedge else H
-    base_op = 0.22 if in_wedge else 0.26
-
-    # hero arrows breaking the wedge edge
-    for ax, ay, hf, lg in ((0.06, 1.30, 0.72, True), (0.44, 1.05, 0.52, False),
-                           (0.78, 1.34, 0.66, True), (0.96, 0.92, 0.44, False)):
-        x, y = ax * W, ay * (WEDGE_R + 60)
-        h = hf * H * 0.62
-        arrow(x - h * 0.18, y - h, h, base_op * (0.22 + 0.20 * depth_at(x, y)), long=lg)
-
-    for _ in range(14 if in_wedge else 7):
-        x, y = r() * W, r() * ymax
-        d = depth_at(x, y)
-        if r() > 0.25 + 0.75 * d:
-            continue
-        h = (0.06 + 0.18 * d) * H * (0.7 + 0.6 * r())
-        arrow(x - h * 0.18, y - h / 2, h, base_op * (0.30 + 0.40 * d))
-
-    for kind, count in ((1, 3), (0, 2)):
-        pat = PLUS_CLUSTER if kind else PIXEL_CLUSTER
-        mk = PLUS_CLUSTER_MARK if kind else PIXEL_CLUSTER_MARK
-        for _ in range(count):
-            cx, cy = r() * W, r() * ymax
-            d = depth_at(cx, cy)
-            size = (0.22 + 0.30 * d) * W * (0.7 + 0.5 * r())
-            op = base_op * (0.40 + 0.45 * d)
-            for ox, oy in pat:
-                mx, my = cx + ox * size, cy + oy * size
-                if -20 < mx < W + 20 and -20 < my < H + 20:
-                    (plus if kind else pixel)(mx, my, size * mk, op)
-
-    for _ in range(200 if in_wedge else 120):
-        x, y = r() * W, r() * ymax
-        d = depth_at(x, y)
-        if r() > 0.10 + 0.80 * d:
-            continue
-        s = (1.8 + 13.0 * d ** 1.7) * (0.55 + 0.9 * r())
-        (pixel if r() < 0.55 else plus)(x, y, s, base_op * (0.35 + 0.55 * d * r()))
-
-    for _ in range(24 if in_wedge else 12):
-        x, y = r() * W, r() * ymax
-        d = depth_at(x, y)
-        if r() > 0.2 + 0.8 * d:
-            continue
-        ln = (16 + 70 * d) * (0.5 + r())
-        tw = 0.5 + 1.7 * d
-        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) rotate({-FLOW_DEG:.3f})">'
-                     f'<rect x="{-ln:.2f}" y="{-tw/2:.2f}" width="{ln:.2f}" height="{tw:.2f}" '
-                     f'fill="{ink}" opacity="{base_op*(0.30+0.40*d)*fade(x, y):.3f}"/></g>')
-
-    # The travel axis thins toward the top right, and on some seeds that corner
-    # empties out completely. A light scatter of far-field marks keeps it alive
-    # without touching the density anywhere else.
-    if in_wedge:
-        for _ in range(22):
-            x = W * (0.52 + 0.50 * r())
-            y = WEDGE_L * (0.06 + 0.52 * r())
-            sz = (1.6 + 3.4 * r()) * (0.7 + 0.6 * r())
-            (pixel if r() < 0.5 else plus)(x, y, sz, base_op * (0.30 + 0.35 * r()))
-
-    clip = (f'<clipPath id="c"><polygon points="{wedge_points()}"/></clipPath>' if in_wedge
-            else f'<clipPath id="c"><path d="M0,0 H{W} V{H} H0 Z M0,{WEDGE_L} L{W},{WEDGE_R} '
-                 f'L{W},0 L0,0 Z" clip-rule="evenodd"/></clipPath>')
+def chip_svg(fill, width):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <defs>{clip}</defs>
-  <g clip-path="url(#c)">{''.join(parts)}</g>
+  <rect x="{SX0}" y="{CHIP_TOP:.2f}" width="{width:.2f}" height="{CHIP_H}"
+        rx="{CHIP_RADIUS}" fill="{fill}"/>
 </svg>'''
 
 
-def chip_svg(near, width):
-    y = CHIP_TOP
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
-  <rect x="{SX0}" y="{y:.2f}" width="{width:.2f}" height="{CHIP_H}" rx="{CHIP_RADIUS}" fill="{near}"/>
-</svg>'''
+# ---------------------------------------------------------------------------
+# The die-line, lifted from the supplied artboard
+#
+# Taken from the working file rather than redrawn, so the tag edge and slot
+# punches are exactly the ones the printer cuts to.
+#
+# Switching the artwork layer *off* is not enough. Illustrator writes its layers
+# as marked-content sections in the page stream (`/OC /MC0 BDC ... EMC`), and
+# placing that page copies the stream verbatim — the optional-content state is a
+# property of the source document, not of the operators. The artwork rides along
+# and lands on top of everything, which is exactly the failure that hid a whole
+# badge design behind the old mockup once already. So the guides section is cut
+# out of the stream instead, and nothing else comes with it.
+# ---------------------------------------------------------------------------
+
+GUIDES_LAYER = "Guides"
+
+
+def _marked_section(data, tag):
+    """The operators between `/OC /<tag> BDC` and its matching `EMC`."""
+    start = data.find(b"/OC /" + tag + b" BDC")
+    if start < 0:
+        raise SystemExit(f"no marked-content section /{tag.decode()} in {ARTBOARD}")
+    i = data.index(b"BDC", start) + 3
+    depth = 1
+    for m in re.finditer(rb"\b(BDC|BMC|EMC)\b", data[i:]):
+        depth += 1 if m.group(1) in (b"BDC", b"BMC") else -1
+        if depth == 0:
+            return data[i:i + m.start()]
+    raise SystemExit(f"unterminated marked-content section /{tag.decode()}")
+
+
+def guides_pdf(tmpdir):
+    out = os.path.join(tmpdir, "guides.pdf")
+    src = pikepdf.open(os.path.join(ROOT, ARTBOARD))
+    page = src.pages[0]
+
+    tag = None
+    for key, ocg in page.Resources.Properties.items():
+        if GUIDES_LAYER.lower() in str(ocg.Name).lower():
+            tag = str(key).lstrip("/").encode()
+    if tag is None:
+        raise SystemExit(f"no '{GUIDES_LAYER}' layer in {ARTBOARD}")
+
+    contents = page.Contents
+    data = b"".join(bytes(s.read_bytes()) for s in contents) \
+        if isinstance(contents, pikepdf.Array) else bytes(contents.read_bytes())
+
+    doc = pikepdf.new()
+    dest = doc.add_blank_page(page_size=(PAGE_W, PAGE_H))
+    dest.Contents = doc.make_stream(_marked_section(data, tag))
+    dest.Resources = doc.copy_foreign(src.make_indirect(page.Resources))
+    doc.save(out)
+    return out
 
 
 # ---------------------------------------------------------------------------
 # Composition
 # ---------------------------------------------------------------------------
 
+ART_RECT = fitz.Rect(OX, OY, OX + W, OY + H)
+
 
 def svg_layer(page, svg, path, oc, rect=None):
     open(path + ".svg", "w").write(svg)
     cairosvg.svg2pdf(url=path + ".svg", write_to=path)
     src = fitz.open(path)
-    page.show_pdf_page(rect or page.rect, src, 0, oc=oc)
+    page.show_pdf_page(rect or ART_RECT, src, 0, oc=oc)
     src.close()
 
 
@@ -445,88 +353,101 @@ def fit(font, text, size, maxw):
     return size
 
 
-def build(cat, outdir, tmpdir):
-    cid, label, near, far = cat
-    semi = os.path.join(ROOT, "Karbon-Semibold.otf")
-    reg = os.path.join(ROOT, "Karbon-Regular.otf")
-    if not (os.path.exists(semi) and os.path.exists(reg)):
-        raise SystemExit("Karbon fonts not found in the repository root")
-
-    doc = fitz.open()
-    page = doc.new_page(width=W, height=H)
-    oc = {k: doc.add_ocg(n, on=True) for k, n in (
+def add_ocgs(doc):
+    return {k: doc.add_ocg(n, on=True) for k, n in (
         ("ground", "1 Ground"),
-        ("marks_o", "2 Brand marks (ground)"),
-        ("wedge", "3 Category wedge"),
-        ("marks_w", "4 Brand marks (wedge)"),
-        ("logo", "5 Vector logo"),
-        ("chip", "6 Category chip"),
-        ("text", "7 Text fields"),
-        ("tmpl", "8 Print template (trim / safe / slots)"),
+        ("panel", "2 Category gradient"),
+        ("logo", "3 Vector logo"),
+        ("chip", "4 Category chip"),
+        ("text", "5 Text fields"),
+        ("guides", "6 Die-line (reference only)"),
     )}
+
+
+def compose(doc, oc, cat, tmpdir, guides):
+    cid, label, a, b = cat
+    page = doc.new_page(width=PAGE_W, height=PAGE_H)
     t = lambda n: os.path.join(tmpdir, f"{cid}_{n}.pdf")
 
     svg_layer(page, ground_svg(), t("ground"), oc["ground"])
-    svg_layer(page, marks_svg(SEEDS[cid], near, far, False), t("mo"), oc["marks_o"])
-    svg_layer(page, wedge_svg(near, far), t("wedge"), oc["wedge"])
-    svg_layer(page, marks_svg(SEEDS[cid] ^ 0x1234, near, far, True), t("mw"), oc["marks_w"])
+    svg_layer(page, panel_svg(a, b), t("panel"), oc["panel"])
 
+    # The lockup sits on the panel's opening colour, so that is what decides
+    # which official variant runs. Every pairing leads dark, so all four land on
+    # the reverse lockup — but the rule is measured, not assumed.
+    logo_ink = reverse_or_black(a)
     lx, ly = LOGO_XY
     lw, lh = LOGO_SIZE
-    svg_layer(page, logo_svg(lw, lh), t("logo"), oc["logo"], rect=fitz.Rect(lx, ly, lx + lw, ly + lh))
+    svg_layer(page, logo_svg(lw, lh, logo_ink), t("logo"), oc["logo"],
+              rect=fitz.Rect(OX + lx, OY + ly, OX + lx + lw, OY + ly + lh))
 
+    semi = os.path.join(ROOT, "Karbon-Semibold.otf")
+    if not os.path.exists(semi):
+        raise SystemExit("Karbon-Semibold.otf not found in the repository root")
     f_semi = fitz.Font(fontfile=semi)
-    chip_w = (f_semi.text_length(label.upper(), fontsize=CHIP_SIZE)
-              + CHIP_SIZE * 0.06 * len(label) + CHIP_PAD * 2)
-    chip_w = min(chip_w, SAFE_W)
-    svg_layer(page, chip_svg(near, chip_w), t("chip"), oc["chip"])
+
+    # The chip carries the pairing's second colour — the one the panel does not
+    # lead with — so the two ends of the gradient bracket the card.
+    chip_fill = b
+    chip_ink = ink_on(chip_fill)
+    track = CHIP_SIZE * 0.06
+    chip_w = min(SAFE_W, f_semi.text_length(label.upper(), fontsize=CHIP_SIZE)
+                 + track * len(label) + CHIP_PAD * 2)
+    svg_layer(page, chip_svg(chip_fill, chip_w), t("chip"), oc["chip"])
 
     # ---- text -------------------------------------------------------------
     tw_name = fitz.TextWriter(page.rect)
     tw_body = fitz.TextWriter(page.rect)
     tw_chip = fitz.TextWriter(page.rect)
 
-    size = min(fit(f_semi, NAME_LINES[0], NAME_MAX, SAFE_W),
-               fit(f_semi, NAME_LINES[1], NAME_MAX, SAFE_W))
+    size = min(fit(f_semi, line, NAME_MAX, SAFE_W) for line in NAME_LINES)
     for i, line in enumerate(NAME_LINES):
-        tw_name.append((SX0, NAME_Y[i]), line, font=f_semi, fontsize=size)
-    for i, line in enumerate(ORG_LINES):
-        tw_body.append((SX0, ORG_Y[i]), line, font=f_semi,
-                       fontsize=fit(f_semi, line, BODY, SAFE_W))
-    for i, line in enumerate(PROG_LINES):
-        tw_body.append((SX0, PROG_Y[i]), line, font=f_semi,
-                       fontsize=fit(f_semi, line, BODY, SAFE_W))
+        tw_name.append((OX + SX0, OY + NAME_Y[i]), line, font=f_semi, fontsize=size)
+    for ys, lines in ((ORG_Y, ORG_LINES), (PROG_Y, PROG_LINES)):
+        for i, line in enumerate(lines):
+            tw_body.append((OX + SX0, OY + ys[i]), line, font=f_semi,
+                           fontsize=fit(f_semi, line, BODY, SAFE_W))
 
     # chip label: uppercase, letter-spaced by hand since TextWriter has no tracking
-    cs = CHIP_SIZE
-    cx = SX0 + CHIP_PAD
-    cy = CHIP_TOP + CHIP_H / 2 + cs * 0.34
-    track = cs * 0.06
+    cx = OX + SX0 + CHIP_PAD
+    cy = OY + CHIP_TOP + CHIP_H / 2 + CHIP_SIZE * 0.34
     for ch in label.upper():
-        tw_chip.append((cx, cy), ch, font=f_semi, fontsize=cs)
-        cx += f_semi.text_length(ch, fontsize=cs) + track
+        tw_chip.append((cx, cy), ch, font=f_semi, fontsize=CHIP_SIZE)
+        cx += f_semi.text_length(ch, fontsize=CHIP_SIZE) + track
 
     tw_name.write_text(page, color=INK_NAME, oc=oc["text"])
     tw_body.write_text(page, color=INK_BODY, oc=oc["text"])
-    tw_chip.write_text(page, color=(0.03, 0.01, 0.06), oc=oc["text"])
+    ci = tuple(int(chip_ink[i:i + 2], 16) / 255.0 for i in (1, 3, 5))
+    tw_chip.write_text(page, color=ci, oc=oc["text"])
 
-    # ---- supplied print template, on top ----------------------------------
-    tmpl = fitz.open(os.path.join(ROOT, TEMPLATE))
-    page.show_pdf_page(page.rect, tmpl, 0, oc=oc["tmpl"])
-    tmpl.close()
-
-    out = os.path.join(outdir, f"vector-badge-{cid}.pdf")
-    doc.save(out, garbage=3, deflate=True)
-    doc.close()
-    return out
+    # ---- die-line, on top --------------------------------------------------
+    g = fitz.open(guides)
+    page.show_pdf_page(page.rect, g, 0, oc=oc["guides"])
+    g.close()
 
 
 def main():
     outdir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "out", "badges")
-    tmpdir = os.path.join(outdir, ".layers")
-    os.makedirs(tmpdir, exist_ok=True)
+    os.makedirs(outdir, exist_ok=True)
+    tmpdir = tempfile.mkdtemp()
+    guides = guides_pdf(tmpdir)
+
+    combined = fitz.open()
+    oc_all = add_ocgs(combined)
     for cat in CATEGORIES:
-        print("wrote", build(cat, outdir, tmpdir))
+        compose(combined, oc_all, cat, tmpdir, guides)
+
+        doc = fitz.open()
+        compose(doc, add_ocgs(doc), cat, tmpdir, guides)
+        out = os.path.join(outdir, f"vector-badge-{cat[0]}.pdf")
+        doc.save(out, garbage=3, deflate=True)
+        doc.close()
+        print("wrote", out)
+
+    out = os.path.join(outdir, "vector-badges-all.pdf")
+    combined.save(out, garbage=3, deflate=True)
+    combined.close()
+    print("wrote", out)
 
 
 if __name__ == "__main__":
