@@ -91,11 +91,34 @@ def _lin(c):
     return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
 
 
-def luminance(a, y0, y1, x0, x1):
+def _patch(a, y0, y1, x0, x1):
     h, w, _ = a.shape
     b = _lin(a[int((OY + y0) / H_PT * h):int((OY + y1) / H_PT * h),
                int((OX + x0) / W_PT * w):int((OX + x1) / W_PT * w)].astype(float))
-    return float((0.2126 * b[:, :, 0] + 0.7152 * b[:, :, 1] + 0.0722 * b[:, :, 2]).mean())
+    return 0.2126 * b[:, :, 0] + 0.7152 * b[:, :, 1] + 0.0722 * b[:, :, 2]
+
+
+def luminance(a, y0, y1, x0, x1):
+    return float(_patch(a, y0, y1, x0, x1).mean())
+
+
+def worst_luminance(a, y0, y1, x0, x1, tile_pt=5.0):
+    """Luminance of the brightest small patch in the area, not its average.
+
+    With a mark field behind the type, the mean is the wrong test: a field that
+    averages out fine can still put one bright plus under a letter, and that is
+    exactly where legibility is lost. Tiles are about the size of a stroke, so
+    a single mark under one letterform registers instead of being diluted by
+    the space around it.
+    """
+    lum = _patch(a, y0, y1, x0, x1)
+    py = max(1, int(tile_pt / H_PT * a.shape[0]))
+    px = max(1, int(tile_pt / W_PT * a.shape[1]))
+    ny, nx = lum.shape[0] // py, lum.shape[1] // px
+    if ny < 1 or nx < 1:
+        return float(lum.max())
+    tiles = lum[:ny * py, :nx * px].reshape(ny, py, nx, px).mean(axis=(1, 3))
+    return float(tiles.max())
 
 
 def main():
@@ -103,7 +126,8 @@ def main():
     tmpdir = tempfile.mkdtemp()
     failures = []
 
-    print(f'{"":10s}' + "".join(f"{a[0]:>12s}" for a in AREAS))
+    print(f'{"":10s}' + "".join(f"{a[0]:>13s}" for a in AREAS))
+    print(f'{"":10s}' + "".join(f"{'mean / worst':>13s}" for _ in AREAS))
     for cid, label, lead, second in B.CATEGORIES:
         src = os.path.join(d, f"vector-badge-{cid}.pdf")
 
@@ -120,12 +144,18 @@ def main():
         bare = render(src, ["die-line", "Vector logo", "Text fields"], tmpdir)
         row = []
         for name, y0, y1, x0, x1 in AREAS:
-            c = B.contrast(luminance(bare, y0, y1, x0, x1), ink[name])
-            row.append(c)
+            mean = B.contrast(luminance(bare, y0, y1, x0, x1), ink[name])
+            # Both ends of the range: white ink is threatened by the brightest
+            # patch, dark ink by the darkest. Take whichever is worse for it.
+            worst_bg = worst_luminance(bare, y0, y1, x0, x1)
+            worst = B.contrast(worst_bg, ink[name]) if ink[name] > worst_bg else mean
+            row.append((mean, worst))
             floor = GRAPHICS if name == "logo" else TARGET
-            if c < floor:
-                failures.append(f"{cid} {name}: {c:.2f}:1 below {floor}:1")
-        print(f"{cid:10s}" + "".join(f"{c:9.2f}:1" for c in row))
+            if worst < floor:
+                failures.append(
+                    f"{cid} {name}: worst patch {worst:.2f}:1 below {floor}:1 "
+                    f"(mean {mean:.2f}:1)")
+        print(f"{cid:10s}" + "".join(f"{m:6.1f} /{w:5.1f}" for m, w in row))
 
         # Every layer must actually gate content. Probing only a couple of them
         # is how a top layer that carries someone else's artwork with it goes
@@ -143,8 +173,8 @@ def main():
         for f in failures:
             print("  -", f)
         sys.exit(1)
-    print(f"OK — all ink above target ({TARGET}:1 text, {GRAPHICS}:1 logo), "
-          "all layers gate content")
+    print(f"OK — worst local patch above target ({TARGET}:1 text, "
+          f"{GRAPHICS}:1 logo), all layers gate content")
 
 
 if __name__ == "__main__":

@@ -301,13 +301,40 @@ The layout is the one that came out of the Concept C review — category gradien
 across the top on a slant, lower two thirds in near-black, name set large on the
 black — carrying the confirmed colour system and the Concept A finish.
 
-The finish is the change that matters. Textured gradient is reserved for posters
-and environmental signage, so the mark field that used to stream across the card
-is gone and the top panel is a single clean sweep of the pairing. At badge scale
-that is also the better read: the texture was competing with the name at exactly
-the distance a badge is used. The panel's light falls off into the black over
-about forty points — still a smooth gradient, no texture — so the two halves read
-as one card lit from above rather than as two stacked blocks.
+The mark field runs across the whole card at low opacity. It is drawn twice
+against the *same* geometry — once in the ground colour clipped to the colour
+panel, once in the category gradient clipped to everything below it — so a mark
+straddling the panel edge reads as one continuous shape that changes ink where
+the ground changes, rather than as two marks that happen to meet.
+
+The arrows are a **lattice**, not a scatter: one pitch, half-dropped rows, and
+jitter small enough that the repeat still reads. Only opacity and a few skipped
+cells break it up. That is what lets the arrow count come down without the card
+looking sparse — a scatter at this density reads as leftovers, a tile reads as a
+pattern.
+
+Two things hold the field back where it would cost something. A clear-space
+falloff fades marks to a twelfth of their opacity under the lockup, which is the
+one element with no fallback if it goes soft. The band the name and body copy
+occupy runs at a third of the field's opacity, easing back to full over 26 pt
+either side.
+
+Marks below the panel are lifted most of the way toward white before they are
+used. Straight pairing colours arrive with wildly different weight at badge scale
+— Lime sits at 0.86 relative luminance and Cobalt at 0.11 — so one category's
+field would shout and another's disappear.
+
+The panel's light also falls off into the black over about forty points, and that
+spill carries the panel's own gradient rather than a single colour: violet under
+the violet end, turquoise under the turquoise end. Its fade runs perpendicular to
+the slanted edge, not straight down — a vertical fade starts at one *y* across
+the whole width, which on a 26 pt slant means it begins 26 pt inside the panel at
+the right-hand end.
+
+Note this puts texture back on the badge, against the review's "smooth gradients
+on badges, textured for large format". It is much lighter than the version that
+note was written about, and held off the type, but it is a deliberate departure
+worth naming when these go back for sign-off.
 
 | Category | Gradient | Chip | Chip ink |
 | --- | --- | --- | --- |
@@ -320,7 +347,7 @@ Type is sized against the safe width rather than to a preset scale: the name run
 at up to **36 pt** (a 14-character surname still only fills 73 % of the 248 pt
 safe line), body lines at 13 pt, chip label at 13 pt.
 
-Six layers as real PDF optional content groups, vector artwork throughout, live
+Eight layers as real PDF optional content groups, vector artwork throughout, live
 Karbon text, with the die-line on the top layer for reference.
 
 ### The logo is set in white
@@ -333,6 +360,15 @@ the set stays consistent. Straight max-contrast would flip Magenta to black
 mistake at a lanyard's distance; `reverse_or_black` prefers white and only drops
 to black if it actually fails. Chip label ink is picked the same way, by
 measurement.
+
+### The contrast check measures the worst patch, not the average
+
+With a mark field behind the type the mean is the wrong test: a field that
+averages out fine can still put one bright plus under a letter, and that is
+exactly where legibility goes. `tools/verify-badges.py` tiles each ink area at
+about the size of a stroke and reports the worst tile alongside the mean. On the
+current set the mean runs 17–19:1 on the name and the worst tile 10.7:1 — still
+clear of the 4.5:1 floor, but a third of the headroom the average implies.
 
 ### Five traps, all hit once
 

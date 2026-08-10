@@ -23,6 +23,7 @@ live Karbon text.
 
     python3 tools/badges.py [outdir]
 """
+import math
 import os
 import re
 import sys
@@ -159,6 +160,61 @@ def reverse_or_black(hex_colour, floor=3.0):
 
 
 # ---------------------------------------------------------------------------
+# Official shape geometry (verbatim from the supplied SVGs), and the
+# deterministic randomness that places it — a rerun reproduces the same badge.
+# ---------------------------------------------------------------------------
+
+ARROW_REGULAR = dict(
+    w=422.98, h=600.0,
+    d=("M308.51,0 L46.97,114.42 L0,224.04 L208.02,137.79 L68.91,480.94 "
+       "L67.58,484.26 L113.86,600 L286.24,169.06 L376.67,375.07 L422.98,267.08 Z"),
+)
+PLUS_BAR = 14.99 / 72.85
+
+PLUS_CLUSTER = [
+    (-0.22296, -0.32210), (-0.46627, -0.26571), (0.46627, -0.21670),
+    (-0.34143, -0.19826), (-0.00794, -0.15883), (0.23622, -0.10344),
+    (-0.31760, -0.03868), (0.11288, -0.03599), (-0.17161, 0.03146),
+    (-0.28572, 0.11805), (-0.05794, 0.19658), (0.05583, 0.28149),
+    (-0.15158, 0.32210),
+]
+PLUS_CLUSTER_MARK = 0.06745
+
+PIXEL_CLUSTER = [
+    (-0.24316, -0.38434), (-0.17375, -0.38434), (0.17333, -0.38434),
+    (-0.46529, -0.36141), (-0.10434, -0.31492), (0.10391, -0.31492),
+    (0.24275, -0.31492), (-0.39588, -0.29200), (-0.03492, -0.24550),
+    (0.17333, -0.24550), (0.24275, -0.24550), (-0.46529, -0.22258),
+    (-0.03492, -0.17609), (0.03450, -0.17609), (0.17333, -0.17609),
+    (-0.39588, -0.15316), (-0.03492, -0.10667), (0.10391, -0.10667),
+    (0.32646, -0.10158), (0.39587, -0.03216), (0.03542, 0.03725),
+    (0.17425, 0.03725), (0.24367, 0.03725), (0.46529, 0.03725),
+    (0.10484, 0.10667), (0.17425, 0.10667), (0.31309, 0.10667),
+    (-0.03400, 0.17609), (0.17425, 0.17609), (0.24367, 0.17609),
+    (0.03542, 0.24550), (0.31309, 0.24550), (-0.03400, 0.31492),
+    (0.03542, 0.38434),
+]
+PIXEL_CLUSTER_MARK = 0.06942
+
+SEEDS = {"student": 0x51D, "employer": 0xE99, "partner": 0x9A7, "staff": 0x3C4}
+
+
+def rng(seed):
+    state = seed & 0xFFFFFFFF
+
+    def nxt():
+        nonlocal state
+        state = (state + 0x6D2B79F5) & 0xFFFFFFFF
+        x = state
+        x = ((x ^ (x >> 15)) * (1 | x)) & 0xFFFFFFFF
+        x = (x + (((x ^ (x >> 7)) * (61 | x)) & 0xFFFFFFFF)) & 0xFFFFFFFF
+        x ^= x >> 14
+        return (x & 0xFFFFFFFF) / 4294967296.0
+
+    return nxt
+
+
+# ---------------------------------------------------------------------------
 # Logo — horizontal lockup, built from the official SVG
 #
 # The supplied artwork is the vertical lockup. Icon and wordmark are separated
@@ -249,6 +305,17 @@ def panel_svg(a, b):
     read as one card lit from above rather than as two stacked blocks.
     """
     spill = 42.0
+    # The spill carries the panel's own gradient, so the light under the violet
+    # end of the edge is violet and under the turquoise end is turquoise — a
+    # single colour here puts turquoise haze beneath a violet edge.
+    #
+    # Its fade runs *perpendicular to the slanted edge*, not straight down. A
+    # vertical fade starts at one y for the whole width, which on a 26 pt slant
+    # means it begins 26 pt inside the panel at the right-hand end. Projecting
+    # the axis onto the edge normal makes the whole edge the zero point.
+    ex, ey = W, PANEL_R - PANEL_L
+    n = math.hypot(ex, ey)
+    nx, ny = -ey / n, ex / n
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
   <defs>
     <linearGradient id="cg" gradientUnits="userSpaceOnUse"
@@ -257,14 +324,183 @@ def panel_svg(a, b):
       <stop offset="0.34" stop-color="{a}"/>
       <stop offset="1" stop-color="{b}"/>
     </linearGradient>
-    <linearGradient id="sp" gradientUnits="userSpaceOnUse"
-                    x1="0" y1="{PANEL_L:.2f}" x2="0" y2="{PANEL_L + spill:.2f}">
-      <stop offset="0" stop-color="{b}" stop-opacity="0.30"/>
-      <stop offset="1" stop-color="{b}" stop-opacity="0"/>
+    <linearGradient id="fade" gradientUnits="userSpaceOnUse"
+                    x1="0" y1="{PANEL_L:.2f}"
+                    x2="{nx * spill:.2f}" y2="{PANEL_L + ny * spill:.2f}">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#000000"/>
     </linearGradient>
+    <mask id="sp" maskUnits="userSpaceOnUse" x="0" y="0" width="{W}" height="{H}">
+      <rect x="0" y="0" width="{W}" height="{H}" fill="url(#fade)"/>
+    </mask>
   </defs>
-  <polygon points="0,{PANEL_L} {W},{PANEL_R} {W},{PANEL_R + spill} 0,{PANEL_L + spill}" fill="url(#sp)"/>
+  <polygon points="0,{PANEL_L} {W},{PANEL_R} {W},{PANEL_R + spill} 0,{PANEL_L + spill}"
+           fill="url(#cg)" opacity="0.34" mask="url(#sp)"/>
   <polygon points="{panel_points()}" fill="url(#cg)"/>
+</svg>'''
+
+
+# ---------------------------------------------------------------------------
+# The mark field
+#
+# The official arrow, pixel and plus marks running across the whole card at low
+# opacity. Drawn twice against the same geometry — once in the ground colour
+# clipped to the colour panel, once in the category gradient clipped to
+# everything below it — so a mark straddling the panel edge reads as one
+# continuous shape that simply changes ink where the ground changes.
+#
+# The arrows are a *lattice*, not a scatter: one pitch, half-dropped rows, jitter
+# small enough that the repeat still reads. Only opacity and a few skipped cells
+# break it up. That is what keeps a much lower arrow count from looking sparse —
+# a scatter at this density reads as leftovers, a tile reads as a pattern.
+# ---------------------------------------------------------------------------
+
+ARROW_TILE_X = 82.0
+ARROW_TILE_Y = 108.0
+ARROW_TILE_H = 58.0
+ARROW_JITTER = 5.0
+ARROW_SKIP = 0.18       # fraction of lattice cells left empty
+
+MARK_OP_PANEL = 0.20    # ground-colour ink knocking into the category colour
+MARK_OP_GROUND = 0.42   # category-colour ink on the near-black
+
+
+def lighten(hex_colour, k):
+    """Mix a colour toward white.
+
+    The marks on the near-black take the pairing's own colours, and at badge
+    scale those arrive with wildly different weight: Lime sits at 0.86
+    luminance and Cobalt at 0.11, so one pairing's field shouts and another's
+    disappears. Lifting every stop most of the way to white evens them out and
+    matches how the marks read in the room, where they are emissive rather than
+    printed.
+    """
+    r, g, b = (int(hex_colour[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02X%02X%02X" % tuple(round(v + (255 - v) * k) for v in (r, g, b))
+
+
+def logo_clear(x, y):
+    """Fade marks sitting behind the lockup.
+
+    Anything dense behind the logo competes directly with the letterforms, and
+    the lockup is the one element on the card with no fallback if it goes soft.
+    Returns a multiplier: near zero under the lockup, 1 well clear of it.
+    """
+    lx, ly = LOGO_XY
+    lw, lh = LOGO_SIZE
+    cx, cy = lx + lw / 2, ly + lh / 2
+    d = math.hypot((x - cx) / (lw * 0.80), (y - cy) / (lh * 2.4))
+    return min(1.0, max(0.08, (d - 0.55) / 0.60))
+
+
+def name_clear(y):
+    """Hold the field back off the name block.
+
+    The name is the whole job of the badge. Marks are already faint, but a plus
+    landing inside a counter still costs legibility at the distance this is read
+    from, so the band the type occupies runs at a third of the field's opacity.
+    """
+    top, bottom = NAME_Y[0] - NAME_MAX, PROG_Y[-1] + 6
+    if top <= y <= bottom:
+        return 0.34
+    edge = 26.0
+    if top - edge < y < top:
+        return 0.34 + 0.66 * (top - y) / edge
+    if bottom < y < bottom + edge:
+        return 0.34 + 0.66 * (y - bottom) / edge
+    return 1.0
+
+
+def marks_svg(seed, a, b, in_panel):
+    r = rng(seed)
+    parts = []
+    ink = GROUND if in_panel else "url(#mg)"
+
+    def fade(x, y):
+        f = name_clear(y)
+        return f * logo_clear(x, y) if in_panel else f
+
+    def arrow(x, y, h, op):
+        s = ARROW_REGULAR
+        k = h / s["h"]
+        op *= fade(x, y + h * 0.5)
+        if op < 0.004:
+            return
+        parts.append(f'<g transform="translate({x:.2f} {y:.2f}) scale({k:.5f})" '
+                     f'opacity="{op:.3f}"><path d="{s["d"]}" fill="{ink}"/></g>')
+
+    def pixel(x, y, s, op):
+        op *= fade(x, y)
+        if op < 0.004:
+            return
+        parts.append(f'<rect x="{x-s/2:.2f}" y="{y-s/2:.2f}" width="{s:.2f}" '
+                     f'height="{s:.2f}" fill="{ink}" opacity="{op:.3f}"/>')
+
+    def plus(x, y, s, op):
+        op *= fade(x, y)
+        if op < 0.004:
+            return
+        bar = s * PLUS_BAR / 2
+        parts.append(f'<g opacity="{op:.3f}" fill="{ink}">'
+                     f'<rect x="{x-s/2:.2f}" y="{y-bar:.2f}" width="{s:.2f}" height="{bar*2:.2f}"/>'
+                     f'<rect x="{x-bar:.2f}" y="{y-s/2:.2f}" width="{bar*2:.2f}" height="{s:.2f}"/></g>')
+
+    base = MARK_OP_PANEL if in_panel else MARK_OP_GROUND
+
+    # ---- the arrow lattice ------------------------------------------------
+    cols = int(W / ARROW_TILE_X) + 2
+    rows = int(H / ARROW_TILE_Y) + 2
+    for row in range(-1, rows):
+        for col in range(-1, cols):
+            if r() < ARROW_SKIP:
+                continue
+            x = col * ARROW_TILE_X + (ARROW_TILE_X / 2 if row % 2 else 0)
+            y = row * ARROW_TILE_Y
+            x += (r() * 2 - 1) * ARROW_JITTER
+            y += (r() * 2 - 1) * ARROW_JITTER
+            h = ARROW_TILE_H * (0.88 + 0.24 * r())
+            arrow(x, y, h, base * (0.42 + 0.75 * r()))
+
+    # ---- pixels and pluses ------------------------------------------------
+    # The official cluster patterns, drawn whole so the real pattern stays
+    # recognisable rather than only its constituent marks.
+    for kind, count in ((1, 2), (0, 2)):
+        pat = PLUS_CLUSTER if kind else PIXEL_CLUSTER
+        mk = PLUS_CLUSTER_MARK if kind else PIXEL_CLUSTER_MARK
+        for _ in range(count):
+            cx, cy = r() * W, r() * H
+            size = (0.30 + 0.34 * r()) * W
+            op = base * (0.5 + 0.5 * r())
+            for ox, oy in pat:
+                mx, my = cx + ox * size, cy + oy * size
+                if -20 < mx < W + 20 and -20 < my < H + 20:
+                    (plus if kind else pixel)(mx, my, size * mk, op)
+
+    # A loose scatter over the top, at a wide spread of sizes and opacities, so
+    # the field has some grain in it and does not read as one flat screen.
+    for _ in range(120):
+        x, y = r() * W, r() * H
+        s = 2.0 + 9.0 * r() ** 2.2
+        (pixel if r() < 0.55 else plus)(x, y, s, base * (0.30 + 0.85 * r()))
+
+    if in_panel:
+        clip = f'<clipPath id="c"><polygon points="{panel_points()}"/></clipPath>'
+        grad = ""
+    else:
+        clip = (f'<clipPath id="c"><path d="M0,0 H{W} V{H} H0 Z '
+                f'M0,{PANEL_L} L{W},{PANEL_R} L{W},0 L0,0 Z" clip-rule="evenodd"/></clipPath>')
+        # Marks below the panel take the colour of the panel above them, so the
+        # two halves of the card sit on one gradient rather than two.
+        la, lb = lighten(a, 0.55), lighten(b, 0.30)
+        grad = (f'<linearGradient id="mg" gradientUnits="userSpaceOnUse" '
+                f'x1="0" y1="0" x2="{W:.2f}" y2="{PANEL_R * 1.30:.2f}">'
+                f'<stop offset="0" stop-color="{la}"/>'
+                f'<stop offset="0.34" stop-color="{la}"/>'
+                f'<stop offset="1" stop-color="{lb}"/></linearGradient>')
+
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}pt" height="{H}pt" viewBox="0 0 {W} {H}">
+  <defs>{clip}{grad}</defs>
+  <g clip-path="url(#c)">{''.join(parts)}</g>
 </svg>'''
 
 
@@ -356,11 +592,13 @@ def fit(font, text, size, maxw):
 def add_ocgs(doc):
     return {k: doc.add_ocg(n, on=True) for k, n in (
         ("ground", "1 Ground"),
-        ("panel", "2 Category gradient"),
-        ("logo", "3 Vector logo"),
-        ("chip", "4 Category chip"),
-        ("text", "5 Text fields"),
-        ("guides", "6 Die-line (reference only)"),
+        ("marks_g", "2 Brand marks (ground)"),
+        ("panel", "3 Category gradient"),
+        ("marks_p", "4 Brand marks (panel)"),
+        ("logo", "5 Vector logo"),
+        ("chip", "6 Category chip"),
+        ("text", "7 Text fields"),
+        ("guides", "8 Die-line (reference only)"),
     )}
 
 
@@ -369,8 +607,13 @@ def compose(doc, oc, cat, tmpdir, guides):
     page = doc.new_page(width=PAGE_W, height=PAGE_H)
     t = lambda n: os.path.join(tmpdir, f"{cid}_{n}.pdf")
 
+    seed = SEEDS[cid]
     svg_layer(page, ground_svg(), t("ground"), oc["ground"])
+    svg_layer(page, marks_svg(seed, a, b, False), t("mg"), oc["marks_g"])
     svg_layer(page, panel_svg(a, b), t("panel"), oc["panel"])
+    # Same seed on both passes: the lattice and the scatter must line up across
+    # the panel edge, or a mark straddling it turns into two different marks.
+    svg_layer(page, marks_svg(seed, a, b, True), t("mp"), oc["marks_p"])
 
     # The lockup sits on the panel's opening colour, so that is what decides
     # which official variant runs. Every pairing leads dark, so all four land on
