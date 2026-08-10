@@ -343,11 +343,17 @@ def panel_svg(a, b):
 # ---------------------------------------------------------------------------
 # The mark field — arrows only
 #
-# The official arrow, tiled across the whole card at low opacity and drawn twice
-# against the *same* geometry: once in the ground colour clipped to the colour
-# panel, once in the panel's own colour clipped to everything below it. A mark
-# straddling the edge is one continuous shape that changes ink where the ground
-# changes.
+# The official arrow, tiled across the whole card at low opacity. The panel and
+# the black each carry their own field, on their own seed, so no arrow straddles
+# the panel edge.
+#
+# That separation is the whole reason the edge reads cleanly, and it is worth
+# being explicit about because the obvious thing to do is the wrong one. Marks
+# on the panel are *darker* than their ground; marks on the black are *lighter*
+# than theirs. Run one mark across the boundary and its polarity inverts
+# half-way through — the shape appears to flip from a shadow to a highlight, and
+# the edge is the most conspicuous thing on the card. Two independent fields
+# meeting at a clean line is what looks continuous.
 #
 # It is a *lattice*, not a scatter — one pitch, half-dropped rows, jitter small
 # enough that the repeat still reads, broken up only by opacity and a few
@@ -374,13 +380,15 @@ def panel_svg(a, b):
 # to carry the density.
 CONTRAST_PANEL = 1.22
 CONTRAST_GROUND = 1.30
-CONTRAST_SPREAD = 0.42   # how far individual marks vary from that
+CONTRAST_SPREAD = 0.68   # how far individual marks vary from that
 
 LATTICE = [
     # pitch x, pitch y, arrow height, jitter, skip chance, weight
     (82.0, 108.0, 58.0, 5.0, 0.18, 1.00),
     (82.0, 108.0, 31.0, 7.0, 0.30, 0.62),
 ]
+# How far an individual arrow's height may stray from its lattice's nominal.
+SIZE_SPREAD = (0.62, 1.44)
 LATTICE_OFFSET = (41.0, 54.0)   # the second lattice, half a cell off the first
 
 
@@ -502,7 +510,8 @@ def marks_svg(seed, a, b, in_panel):
                     continue
                 x = ox + col * tx + (tx / 2 if row % 2 else 0) + (r() * 2 - 1) * jitter
                 y = oy + row * ty + (r() * 2 - 1) * jitter
-                h = ah * (0.88 + 0.24 * r())
+                lo, hi = SIZE_SPREAD
+                h = ah * (lo + (hi - lo) * r() ** 1.5)
                 arrow(x, y, h, weight * (1 - CONTRAST_SPREAD + 2 * CONTRAST_SPREAD * r()))
 
     if in_panel:
@@ -624,9 +633,10 @@ def compose(doc, oc, cat, tmpdir, guides):
     svg_layer(page, ground_svg(), t("ground"), oc["ground"])
     svg_layer(page, marks_svg(seed, a, b, False), t("mg"), oc["marks_g"])
     svg_layer(page, panel_svg(a, b), t("panel"), oc["panel"])
-    # Same seed on both passes: the lattice and the scatter must line up across
-    # the panel edge, or a mark straddling it turns into two different marks.
-    svg_layer(page, marks_svg(seed, a, b, True), t("mp"), oc["marks_p"])
+    # A different seed for the panel: the two fields must NOT line up, or an
+    # arrow straddling the edge inverts from a shadow to a highlight half-way
+    # down and the boundary becomes the loudest thing on the badge.
+    svg_layer(page, marks_svg(seed ^ 0x1234, a, b, True), t("mp"), oc["marks_p"])
 
     # The lockup sits on the panel's opening colour, so that is what decides
     # which official variant runs. Every pairing leads dark, so all four land on

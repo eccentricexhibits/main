@@ -301,16 +301,21 @@ The layout is the one that came out of the Concept C review — category gradien
 across the top on a slant, lower two thirds in near-black, name set large on the
 black — carrying the confirmed colour system and the Concept A finish.
 
-The mark field is arrows, and only arrows. It runs across the whole card at low
-opacity, drawn twice against the *same* geometry — once in the ground colour
-clipped to the colour panel, once in the panel's own colour clipped to everything
-below it — so a mark straddling the panel edge reads as one continuous shape that
-changes ink where the ground changes, rather than as two marks that happen to
-meet.
+The mark field is arrows, and only arrows. The panel and the black each carry
+their own field, on their own seed, so **no arrow straddles the panel edge**.
+
+That separation is the whole reason the edge reads cleanly, and it is worth being
+explicit about because the obvious thing to do is the wrong one. Marks on the
+panel are *darker* than their ground; marks on the black are *lighter* than
+theirs. Run one mark across the boundary and its polarity inverts half-way
+through — the shape flips from a shadow to a highlight, and the edge becomes the
+most conspicuous thing on the card. Two independent fields meeting at a clean
+line is what looks continuous. Building one field across both, which sounds more
+"seamless", is what makes the seam.
 
 They are a **lattice**, not a scatter: one pitch, half-dropped rows, and jitter
-small enough that the repeat still reads. Only opacity and a few skipped cells
-break it up. A second lattice at roughly half scale, offset from the first,
+small enough that the repeat still reads. Only size, opacity and a few skipped
+cells break it up. A second lattice at roughly half scale, offset from the first,
 carries the depth the pixel and plus marks used to.
 
 ### Opacity is solved, not set
