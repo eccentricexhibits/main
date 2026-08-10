@@ -26,6 +26,7 @@ before anything is encoded to video.
 | `build.js` | Inlines the engine (and the Karbon faces) into the two self-contained pages. |
 | `verify.js` / `analyze.py` | Render frames headlessly and check the loop, angle and density. |
 | `export-frames.js` | Frame-accurate PNG export. Not run yet. |
+| `HANDOFF.md` | Why every number is what it is — read this before changing anything, or before rebuilding elsewhere. |
 
 Rebuild after editing `arrow-field.js` or anything in `templates/`:
 
