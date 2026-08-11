@@ -46,8 +46,15 @@ function portraitDataUri() {
   return `data:image/svg+xml,${encodeURIComponent(svg.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim())}`;
 }
 
+const wipeArrowSvg = fs
+  .readFileSync(path.join(dir, 'assets', 'arrow-horizontal.svg'), 'utf8')
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/\s+/g, ' ')
+  .trim();
+
 const engine = [
   `const VECTOR_LOGO_SVG = ${JSON.stringify(logoSvg)};`,
+  `const WIPE_ARROW_SVG = ${JSON.stringify(wipeArrowSvg)};`,
   `const SPEAKER_PORTRAIT = ${JSON.stringify(portraitDataUri())};`,
   ...MODULES.map((m) => fs.readFileSync(path.join(dir, m), 'utf8')),
 ]

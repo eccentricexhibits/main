@@ -19,7 +19,7 @@ video.
 | Artwork | `Vector Official - Arrow Regular.svg`, unmodified and unrotated |
 | Venue | DX Trading Floor — 7 panels, cube band from y 674, Domino screen 1653 × 630 |
 | Transition | 4:00 → 4:32.7, once per loop; 365 arrows converge, 235 of them form the mark |
-| Speaker card | wipes in behind a magenta arrow on each wall panel, ~43% of the panel's width |
+| Speaker card | wipes in behind a horizontal `#EB088A` arrow on each wall panel, ~26% of the panel's width |
 
 ## Files
 
@@ -32,6 +32,8 @@ video.
 | `venue.js` | Panel geometry measured off the venue template. |
 | `assets/vector-logo-horizontal.svg` | The bilingual lockup, converted from the supplied EPS. |
 | `assets/mark-points.js` | The mark sampled onto a grid — generated, do not hand-edit. |
+| `assets/arrow-horizontal.svg` | The client's horizontal arrow, filled with `currentColor` so the magenta stays config-driven. |
+| `assets/speaker-portrait.jpg` | The headshot, scaled to 520 × 650 and inlined at build time. |
 | `tools/eps-to-svg.py` | Recovers the logo artwork from the Illustrator EPS. |
 | `tools/sample-mark.js` | Regenerates `mark-points.js` at a given grid spacing. |
 | `templates/` | Page shells with an `__ENGINE__` slot. |
@@ -130,18 +132,25 @@ them, so the reveal edge is always exactly where the arrow is. Covering the pane
 than the artwork is also what guarantees nothing lands on the cube band or the draped
 returns.
 
+The wiping arrow is the client's own `arrow_horizontal.svg`, stored with its fill set to
+`currentColor` so the colour still comes from `TRANSITION.magenta` rather than being baked
+into the artwork. It is drawn pointing right; the north-side one is mirrored with
+`scaleX(-1)` so it faces its direction of travel. Its proportions are read from its own
+viewBox, so swapping the artwork needs no code change.
+
 The headshot is inlined by `build.js` from `assets/speaker-portrait.{jpg,png,webp}`.
 Without one it falls back to `assets/speaker-portrait-placeholder.svg` and says so on the
-build line, rather than shipping a broken image. To prepare a real one:
+build line, rather than shipping a broken image. To prepare a replacement:
 
 ```sh
-ffmpeg -i headshot.jpg -vf "crop='min(iw,ih*0.8)':'min(ih,iw/0.8)',scale=560:700" \
-  animation/assets/speaker-portrait.jpg
+ffmpeg -i headshot.jpg -vf "crop='min(iw,ih*0.8)':'min(ih,iw/0.8)',scale=520:650" \
+  -q:v 3 animation/assets/speaker-portrait.jpg
 node animation/build.js
 ```
 
-Name and title live in `TRANSITION.speaker`. Both pages inline Karbon Semibold — the
-render surface needs it as much as the review page does, since that is what gets exported.
+Name, title and every size in the card live in `TRANSITION.speaker`. Both pages inline
+Karbon Semibold — the render surface needs it as much as the review page does, since that
+is what gets exported.
 
 `TRANSITION.finish` picks how the reveal resolves: `settle` (default) forms the mark
 large and eases it into the lockup, `inPlace` forms it at lockup size and just fades the

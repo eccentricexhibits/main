@@ -1,0 +1,5 @@
+<!-- arrow_horizontal.svg as supplied, with the fill switched to currentColor so
+     the colour stays driven by TRANSITION.magenta rather than baked in here. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 743.99 483.15">
+  <polygon fill="currentColor" points="743.99 240.29 503.62 3.44 362.68 0 548.65 190.46 110.95 188.38 106.73 188.39 0 289.98 548.65 290.04 362.24 479.73 501.09 483.15 743.99 240.29"/>
+</svg>

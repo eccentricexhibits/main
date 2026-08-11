@@ -51,8 +51,11 @@ const TRANSITION = {
   speaker: {
     wipe: 3.2, // how long the arrow takes to cross its wall
     hold: 6, // how long the cards stay up afterwards
-    fill: 0.5, // card width, as a fraction of the wall panel's width
-    arrow: 300, // height of the wiping arrow, px
+    portrait: 0.3, // portrait height, as a fraction of the wall panel's height
+    nameSize: 78, // px
+    titleSize: 54, // px
+    gap: 34, // px between portrait and type
+    arrow: 168, // height of the wiping arrow, px — scaled with the card
     fadeFrom: 0.72, // point in the crossing where the arrow starts to go
     name: 'Glenda Crisp',
     title: ['President &amp; CEO,', 'Vector Institute'],
@@ -414,7 +417,7 @@ function makeRenderer(canvas, cfg, venue, markPoints, arrow, rand) {
  * fades down for the duration of the event.
  */
 function mountTransition(stage, ambient, opts) {
-  const { config, venue, markPoints, arrow, logoSvg, portrait, duration } = opts;
+  const { config, venue, markPoints, arrow, logoSvg, wipeArrow, portrait, duration } = opts;
   const cfg = Object.assign({}, TRANSITION, config || {});
   const doc = stage.ownerDocument;
   const t = phases(cfg);
@@ -490,7 +493,12 @@ function mountTransition(stage, ambient, opts) {
       `${pct(t.end)}%,100%{opacity:1}}`,
   ];
 
-  const cards = mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules);
+  // Read the wipe arrow's proportions from its own viewBox rather than assuming
+  // them, so swapping the artwork needs no code change.
+  const wipeBox = /viewBox="([^"]+)"/.exec(wipeArrow);
+  const wipeVb = wipeBox ? wipeBox[1].split(/\s+/).map(Number) : [0, 0, 1, 1];
+  const wipeAspect = wipeVb[2] / wipeVb[3];
+  const cards = mountSpeakers(stage, cfg, venue, wipeArrow, wipeAspect, portrait, t, pct, rules);
 
   const style = doc.createElement('style');
   style.textContent = rules.join('');
@@ -526,7 +534,7 @@ function mountTransition(stage, ambient, opts) {
  * Cards are confined to the wall panels, above the cube band — nothing of the
  * portrait or the type falls onto the cube faces or the draped returns.
  */
-function mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules) {
+function mountSpeakers(stage, cfg, venue, wipeArrowSvg, wipeAspect, portrait, t, pct, rules) {
   const doc = stage.ownerDocument;
   const spec = cfg.speaker;
   const band = venue.cubeTop; // wall panels run from y 0 down to the cube band
@@ -535,15 +543,18 @@ function mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules) {
     { id: 'north', x: venue.panels.northWall.x, w: venue.panels.northWall.w, dir: -1 },
   ];
 
-  const portraitH = Math.round(band * 0.5);
+  const portraitH = Math.round(band * spec.portrait);
   rules.push(
     '.af-speaker{position:absolute;pointer-events:none;display:flex;align-items:center;' +
-      "justify-content:center;gap:56px;font-family:'Karbon',system-ui,sans-serif;font-weight:600}" +
+      `justify-content:center;gap:${spec.gap}px;` +
+      "font-family:'Karbon',system-ui,sans-serif;font-weight:600}" +
       `.af-speaker img{height:${portraitH}px;width:auto;object-fit:cover;display:block;` +
-      'border-radius:4px}' +
-      '.af-speaker-name{color:#fff;font-size:130px;line-height:1.04;letter-spacing:-0.015em}' +
-      `.af-speaker-title{color:${cfg.magenta};font-size:90px;line-height:1.14;margin-top:20px}` +
-      '.af-wipe{position:absolute;pointer-events:none}'
+      'border-radius:3px}' +
+      `.af-speaker-name{color:#fff;font-size:${spec.nameSize}px;line-height:1.04;letter-spacing:-0.015em}` +
+      `.af-speaker-title{color:${cfg.magenta};font-size:${spec.titleSize}px;line-height:1.14;` +
+      `margin-top:${Math.round(spec.titleSize * 0.22)}px}` +
+      '.af-wipe{position:absolute;pointer-events:none}' +
+      '.af-wipe svg{width:100%;height:100%;display:block}'
   );
 
   return walls.map((wall) => {
@@ -577,32 +588,37 @@ function mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules) {
     const hitNear = at(wall.dir > 0 ? rect.x : rect.x + rect.w);
     const hitFar = at(wall.dir > 0 ? rect.x + rect.w : rect.x);
 
+    /*
+     * The supplied horizontal arrow, coloured through `currentColor` so the
+     * brand magenta stays a single source of truth. It is drawn pointing right,
+     * so the north-side one is mirrored to face its direction of travel.
+     */
     const wipe = doc.createElement('div');
     wipe.className = 'af-wipe';
-    const aw = spec.arrow * (arrow.w / arrow.h);
+    const aw = spec.arrow * wipeAspect;
     Object.assign(wipe.style, {
       left: `${-aw / 2}px`,
       top: `${Math.round(band / 2 - spec.arrow / 2)}px`,
       width: `${aw}px`,
       height: `${spec.arrow}px`,
+      color: cfg.magenta,
       opacity: '0',
-      filter: `drop-shadow(0 0 34px ${cfg.magenta}80)`,
+      filter: `drop-shadow(0 0 22px ${cfg.magenta}66)`,
     });
-    wipe.innerHTML =
-      `<svg viewBox="0 0 ${arrow.w} ${arrow.h}" width="100%" height="100%">` +
-      `<polygon points="${arrow.points}" fill="${cfg.magenta}"/></svg>`;
+    wipe.innerHTML = wipeArrowSvg;
     stage.appendChild(wipe);
 
     // Between the crossing and the card's own fraction of it, keyframe times.
     const cross = (u) => t.holdEnd + (t.wipeEnd - t.holdEnd) * u;
     const key = wall.id;
 
+    const face = wall.dir > 0 ? '' : ' scaleX(-1)';
     rules.push(
       `@keyframes af-wipe-${key}{` +
-        `0%,${pct(t.holdEnd)}%{opacity:0;transform:translateX(${runFrom}px)}` +
+        `0%,${pct(t.holdEnd)}%{opacity:0;transform:translateX(${runFrom}px)${face}}` +
         `${pct(cross(0.06))}%{opacity:1}` +
         `${pct(cross(spec.fadeFrom))}%{opacity:1}` +
-        `${pct(t.wipeEnd)}%,100%{opacity:0;transform:translateX(${runTo}px)}}`,
+        `${pct(t.wipeEnd)}%,100%{opacity:0;transform:translateX(${runTo}px)${face}}}`,
       `@keyframes af-card-${key}{` +
         `0%,${pct(cross(hitNear))}%{opacity:1;clip-path:inset(0 ${wall.dir > 0 ? '100% 0 0' : '0 0 100%'})}` +
         `${pct(cross(hitFar))}%,${pct(t.speakerEnd)}%{opacity:1;clip-path:inset(0 0 0 0)}` +

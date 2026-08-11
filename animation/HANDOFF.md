@@ -375,6 +375,9 @@ Timeline, particle behaviour and the two non-obvious decisions are documented in
   `.replace(/\n\s*/g, '')`, which turned `font-family="..."\n text-anchor="..."` into
   `font-family="..."text-anchor="..."` — the data URI then failed to decode and the image
   reported `complete: true, naturalWidth: 0`. Collapse to a single space, not to nothing.
+- **The wipe arrow is the client's own horizontal artwork**, not the brand arrow rotated.
+  It is stored with `fill="currentColor"` so `TRANSITION.magenta` stays the single source
+  of the colour, and its aspect is read from its own viewBox at mount.
 - **The render page needs the font too.** The cards are set in Karbon; inlining it only in
   the review page would export type in a fallback face.
 
@@ -407,10 +410,7 @@ export seeks each frame rather than capturing in real time.
    ~219 px, too small to read as built from arrows. The default `settle` forms the mark
    large and eases it into the lockup. `TRANSITION.finish` switches to `inPlace` (literal
    reading) or `markOnly`. Put to the client, unanswered at time of writing.
-5. **The headshot is a placeholder.** The portrait came through as an inline image in the
-   conversation rather than as an attached file, so there was nothing on disk to embed.
-   Drop the real file in at `animation/assets/speaker-portrait.jpg` and rebuild.
-6. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
+5. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
    client sanctioned when asking for a more dynamic swoop. They are upright whenever they
    matter — at fade-in, and once landed in the mark.
 
