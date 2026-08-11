@@ -156,6 +156,37 @@
     background: linear-gradient(180deg, var(--stage-top) 0%, var(--stage-bottom) 100%);
   }
 
+  /* Venue panel map, drawn from VENUE and laid over the stage at the same scale. */
+  .venue-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6878px;
+    height: 1080px;
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  .venue-map div {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid rgba(72, 192, 217, 0.55);
+    color: #cfefff;
+    font-family: var(--mono);
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+    text-shadow: 0 2px 8px #000;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .venue-map div.soft { border-color: rgba(255, 255, 255, 0.2); color: #b9a9c8; }
+  .venue-map div.key { border-color: rgba(255, 15, 241, 0.8); color: #ffd7fb; }
+  /* The logo box sits inside the Domino box — anchor its label low so the two
+     captions do not land on top of each other. */
+  .venue-map div.low { display: flex; align-items: flex-end; }
+
   .rulers {
     display: flex;
     justify-content: space-between;
@@ -174,8 +205,12 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 10px 14px;
-    padding: 14px 0 20px;
+    padding: 14px 0 0;
   }
+
+  .transport + .transport { padding: 10px 0 20px; }
+
+  .transport .spacer { flex: 1 1 auto; }
 
   button {
     font: inherit;
@@ -505,26 +540,36 @@
   <div class="wrap">
     <div class="viewport" id="viewport">
       <div class="frame">
-        <div class="stage-scaler" id="scaler"><div id="stage"></div></div>
+        <div class="stage-scaler" id="scaler">
+          <div id="stage"></div>
+          <div id="venueMap" class="venue-map" hidden></div>
+        </div>
       </div>
     </div>
     <div class="rulers"><span id="zoomLabel">FIT</span><span>6878 × 1080</span></div>
     <div class="transport">
         <button id="playBtn" type="button">Pause</button>
         <button id="restartBtn" type="button">Restart</button>
+        <button id="logoBtn" type="button" title="Jump to just before the logo transition and play through it">Play transition</button>
         <button id="seamBtn" type="button" title="Jump to just before the loop point and play through it">Check loop point</button>
 
         <div class="scrub">
           <input id="scrub" type="range" min="0" max="360000" step="50" value="0" aria-label="Timeline position">
           <span class="timecode"><b id="tc">0:00.0</b> / <span id="tcTotal">6:00.0</span></span>
         </div>
+    </div>
 
+    <div class="transport">
         <span class="seg-label">Review speed</span>
         <div class="seg" id="rates" role="group" aria-label="Review speed">
           <button type="button" data-rate="1" aria-pressed="true">1×</button>
           <button type="button" data-rate="4" aria-pressed="false">4×</button>
           <button type="button" data-rate="12" aria-pressed="false">12×</button>
         </div>
+
+        <button id="mapBtn" type="button" aria-pressed="false" title="Overlay the venue panel boundaries">Venue map</button>
+
+        <span class="spacer"></span>
 
         <span class="seg-label">Zoom</span>
         <div class="seg" id="zooms" role="group" aria-label="Zoom">
@@ -571,6 +616,15 @@
 
         <dt>Grain</dt>
         <dd id="specGrain">—</dd>
+
+        <dt>Venue</dt>
+        <dd>DX Trading Floor — 7 panels, cube band from y 674</dd>
+
+        <dt>Transition</dt>
+        <dd id="specTransition">—</dd>
+
+        <dt>Logo</dt>
+        <dd id="specLogo">—</dd>
 
         <dt>Travel</dt>
         <dd>+2.4667 slope · 67.93° · run 15 : rise 37</dd>
@@ -674,6 +728,473 @@
 </div>
 
 <script>
+const VECTOR_LOGO_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 556.7062 118.0461\" width=\"556.7062\" height=\"118.0461\"><g id=\"mark\"><path fill=\"#FFFFFF\" d=\"M59.3799 87.0651L32.7077 17.0346L45.9673 17.0346L45.9673 8.2688L0.0000 8.2688L0.0000 17.0346L13.2860 17.0346L48.0530 108.0920L52.2987 118.0460L61.6980 92.8368L59.3799 87.0651Z\"/><path fill=\"#FF0FF1\" d=\"M94.2675 0.0000L68.7677 11.1578L64.1894 21.8404L84.4720 13.4337L70.9116 46.8913L70.7794 47.2081L75.2891 58.4979L92.0971 16.4806L100.9160 36.5678L105.4250 26.0385L94.2675 0.0000Z\"/></g><g id=\"wordmark\"><path fill=\"#FFFFFF\" d=\"M149.6470 34.8258L139.6030 8.4230L144.5350 8.4230L152.4510 30.2476L160.3130 8.4230L165.1610 8.4230L155.1120 34.8258L149.6470 34.8258ZM185.9630 30.8252L185.9630 34.8280L169.5610 34.8280L169.5610 8.4252L185.6930 8.4252L185.6930 12.4226L174.0500 12.4226L174.0500 19.5355L184.8480 19.5355L184.8480 23.4484L174.0500 23.4484L174.0500 30.8252L185.9630 30.8252ZM211.5620 14.8236C209.7400 13.0916 207.2060 12.0672 204.2750 12.0672C199.0730 12.0672 195.3400 15.8903 195.3400 21.6250C195.3400 27.4494 199.2480 31.1828 204.4070 31.1828C207.3850 31.1828 209.7880 30.2903 211.8740 28.4686L211.8740 33.3161C209.5660 34.6943 206.9840 35.2699 204.2750 35.2699C196.1370 35.2699 190.6720 29.6725 190.6720 21.6250C190.6720 13.5352 196.4070 7.9800 204.2750 7.9800C206.9840 7.9800 209.4290 8.5556 211.5620 9.8441L211.5620 14.8236ZM228.0530 34.8258L223.5170 34.8258L223.5170 12.4204L215.1630 12.4204L215.1630 8.4230L236.3640 8.4230L236.3640 12.4204L228.0530 12.4204L228.0530 34.8258ZM253.3460 7.9774C260.9450 7.9774 267.0330 13.5325 267.0330 21.6224C267.0330 29.7122 260.9450 35.2726 253.3460 35.2726C245.7000 35.2726 239.6540 29.7122 239.6540 21.6224C239.6540 13.5325 245.7000 7.9774 253.3460 7.9774M253.3460 12.0645C248.2770 12.0645 244.3220 15.8454 244.3220 21.6224C244.3220 27.4045 248.2770 31.1802 253.3460 31.1802C258.4100 31.1802 262.3650 27.4045 262.3650 21.6224C262.3650 15.8454 258.4100 12.0645 253.3460 12.0645M277.4780 34.8258L272.9470 34.8258L272.9470 8.4654C274.5420 8.2013 277.3880 7.9795 279.5220 7.9795C286.4600 7.9795 290.2360 11.0422 290.2360 16.6027C290.2360 20.4680 288.0600 23.2667 284.9920 24.4232L292.9500 34.8258L287.4790 34.8258L280.4560 25.4476L277.4780 25.4476L277.4780 34.8258ZM277.4780 21.7143L279.7010 21.7143C283.3030 21.7143 285.6150 20.1564 285.6150 16.7347C285.6150 13.7089 283.5240 11.9347 279.5220 11.9347C278.9940 11.9347 277.9640 11.9769 277.4780 12.0244L277.4780 21.7143ZM145.2670 74.7953L140.8260 74.7953L140.8260 48.3926L145.2670 48.3926L145.2670 74.7953ZM170.1390 67.9031L170.1390 48.3915L174.4530 48.3915L174.4530 74.7942L170.1810 74.7942L156.8950 55.4569L156.8950 74.7942L152.5860 74.7942L152.5860 48.3915L157.1170 48.3915L170.1390 67.9031ZM180.2860 68.6593C182.2930 70.2171 184.3840 71.3735 187.1250 71.3735C189.6960 71.3735 191.9190 70.3491 191.9190 67.6824C191.9190 65.2375 190.0450 64.3028 187.1670 63.4157C182.2030 61.8157 179.9380 59.8144 179.9380 55.3682C179.9380 50.5682 183.7290 47.9438 188.1700 47.9438C190.9580 47.9438 193.0500 48.7464 194.7920 49.9451L194.7920 54.4810C192.7430 52.7913 190.7840 51.8144 188.3020 51.8144C185.8200 51.8144 184.2940 53.1926 184.2940 55.2362C184.2940 57.3695 185.7730 58.2567 189.0420 59.3233C194.0950 60.8811 196.2760 63.0567 196.2760 67.5451C196.2760 72.8362 192.1780 75.2389 187.1670 75.2389C184.3370 75.2389 181.9390 74.4362 180.2860 73.2851L180.2860 68.6593ZM211.9530 74.7926L207.5120 74.7926L207.5120 52.3926L199.3220 52.3926L199.3220 48.3899L220.0960 48.3899L220.0960 52.3926L211.9530 52.3926L211.9530 74.7926ZM229.2910 74.7953L224.8500 74.7953L224.8500 48.3926L229.2910 48.3926L229.2910 74.7953ZM246.6680 74.7926L242.2270 74.7926L242.2270 52.3926L234.0370 52.3926L234.0370 48.3899L254.8160 48.3899L254.8160 52.3926L246.6680 52.3926L246.6680 74.7926ZM259.0810 48.3899L263.5220 48.3899L263.5220 64.9709C263.5220 70.0349 266.1410 71.3709 269.9700 71.3709C271.9760 71.3709 273.5450 71.1913 275.0650 70.9273L275.0650 48.3899L279.5120 48.3899L279.5120 74.0376C277.1140 74.7029 273.0640 75.2363 269.9700 75.2363C264.0920 75.2363 259.0810 73.1029 259.0810 65.7735L259.0810 48.3899ZM296.8900 74.7926L292.4490 74.7926L292.4490 52.3926L284.2590 52.3926L284.2590 48.3899L305.0330 48.3899L305.0330 52.3926L296.8900 52.3926L296.8900 74.7926ZM325.8540 70.7931L325.8540 74.7959L309.7800 74.7959L309.7800 48.3878L325.5960 48.3878L325.5960 52.3905L314.1790 52.3905L314.1790 59.5034L324.7660 59.5034L324.7660 63.4163L314.1790 63.4163L314.1790 70.7931L325.8540 70.7931ZM386.8360 34.3938L382.3950 34.3938L382.3950 7.9911L386.8360 7.9911L386.8360 34.3938ZM411.7070 27.5048L411.7070 7.9933L416.0210 7.9933L416.0210 34.3960L411.7490 34.3960L398.4630 15.0586L398.4630 34.3960L394.1540 34.3960L394.1540 7.9933L398.6800 7.9933L411.7070 27.5048ZM421.8550 28.2610C423.8610 29.8189 425.9520 30.9753 428.6930 30.9753C431.2640 30.9753 433.4880 29.9508 433.4880 27.2841C433.4880 24.8393 431.6130 23.9046 428.7350 23.0175C423.7710 21.4175 421.5060 19.4162 421.5060 14.9699C421.5060 10.1699 425.2970 7.5455 429.7380 7.5455C432.5270 7.5455 434.6180 8.3481 436.3600 9.5468L436.3600 14.0775C434.3110 12.3930 432.3520 11.4162 429.8700 11.4162C427.3880 11.4162 425.8620 12.7944 425.8620 14.8379C425.8620 16.9713 427.3410 17.8584 430.6100 18.9251C435.6630 20.4828 437.8440 22.6584 437.8440 27.1468C437.8440 32.4379 433.7460 34.8406 428.7350 34.8406C425.9050 34.8406 423.5070 34.0380 421.8550 32.8868L421.8550 28.2610ZM453.5210 34.3959L449.0810 34.3959L449.0810 11.9906L440.8900 11.9906L440.8900 7.9932L461.6690 7.9932L461.6690 11.9906L453.5210 11.9906L453.5210 34.3959ZM470.8550 34.3938L466.4140 34.3938L466.4140 7.9911L470.8550 7.9911L470.8550 34.3938ZM488.2360 34.3959L483.7960 34.3959L483.7960 11.9906L475.6050 11.9906L475.6050 7.9932L496.3840 7.9932L496.3840 11.9906L488.2360 11.9906L488.2360 34.3959ZM500.6490 7.9916L505.0900 7.9916L505.0900 24.5726C505.0900 29.6367 507.7090 30.9726 511.5380 30.9726C513.5440 30.9726 515.1130 30.7931 516.6390 30.5291L516.6390 7.9916L521.0800 7.9916L521.0800 33.6393C518.6820 34.3046 514.6320 34.8380 511.5380 34.8380C505.6600 34.8380 500.6490 32.7047 500.6490 25.3752L500.6490 7.9916ZM538.4580 34.3959L534.0170 34.3959L534.0170 11.9906L525.8270 11.9906L525.8270 7.9932L546.6010 7.9932L546.6010 11.9906L538.4580 11.9906L538.4580 34.3959ZM391.4190 74.3628L381.1740 47.9601L386.2070 47.9601L394.2750 69.7847L402.2970 47.9601L407.2390 47.9601L396.9950 74.3628L391.4190 74.3628ZM428.4580 70.3628L428.4580 74.3655L411.7290 74.3655L411.7290 47.9575L428.1880 47.9575L428.1880 51.9602L416.3070 51.9602L416.3070 59.0731L427.3220 59.0731L427.3220 62.9859L416.3070 62.9859L416.3070 70.3628L428.4580 70.3628ZM454.5690 54.3601C452.7100 52.6281 450.1280 51.6037 447.1340 51.6037C441.8320 51.6037 438.0250 55.4268 438.0250 61.1615C438.0250 66.9859 442.0120 70.7193 447.2710 70.7193C450.3080 70.7193 452.7580 69.8268 454.8860 68.0051L454.8860 72.8526C452.5310 74.2308 449.9010 74.8064 447.1340 74.8064C438.8390 74.8064 433.2620 69.2090 433.2620 61.1615C433.2620 53.0717 439.1130 47.5165 447.1340 47.5165C449.9010 47.5165 452.3940 48.0921 454.5690 49.3806L454.5690 54.3601ZM471.3890 74.3628L466.7630 74.3628L466.7630 51.9575L458.2460 51.9575L458.2460 47.9601L479.8700 47.9601L479.8700 51.9575L471.3890 51.9575L471.3890 74.3628ZM501.5370 70.3628L501.5370 74.3655L484.8080 74.3655L484.8080 47.9575L501.2680 47.9575L501.2680 51.9602L489.3860 51.9602L489.3860 59.0731L500.4070 59.0731L500.4070 62.9859L489.3860 62.9859L489.3860 70.3628L501.5370 70.3628ZM507.4320 47.9595L512.0570 47.9595L512.0570 64.5405C512.0570 69.6046 514.7770 70.9405 518.7640 70.9405C520.8490 70.9405 522.4810 70.7610 524.0700 70.4969L524.0700 47.9595L528.6910 47.9595L528.6910 73.6072C526.1990 74.2725 521.9850 74.8059 518.7640 74.8059C512.6440 74.8059 507.4320 72.6726 507.4320 65.3378L507.4320 47.9595ZM540.9330 74.3628L536.3070 74.3628L536.3070 48.0024C537.9440 47.7384 540.8430 47.5165 543.0190 47.5165C550.0900 47.5165 553.9440 50.5793 553.9440 56.1397C553.9440 60.0051 551.7210 62.8038 548.5950 63.9602L556.7060 74.3628L551.1350 74.3628L543.9690 64.9847L540.9330 64.9847L540.9330 74.3628ZM540.9330 61.2513L543.1980 61.2513C546.8740 61.2513 549.2290 59.6935 549.2290 56.2717C549.2290 53.2513 547.1010 51.4717 543.0190 51.4717C542.4750 51.4717 541.4300 51.5139 540.9330 51.5615L540.9330 61.2513ZM354.3450 74.4890L355.6760 74.4890L355.6760 7.8960L354.3450 7.8960L354.3450 74.4890ZM61.3608 114.6300L61.5805 114.6300C61.8947 114.6300 62.0979 114.5200 62.0979 114.2230C62.0979 113.9400 61.8781 113.8150 61.5958 113.8150C61.5486 113.8150 61.4234 113.8150 61.3608 113.8300L61.3608 114.6300ZM61.3608 116.1360L60.6710 116.1360L60.6710 113.2810C60.9060 113.2340 61.2829 113.1870 61.5805 113.1870C62.2869 113.1870 62.8196 113.5160 62.8196 114.2230C62.8196 114.6150 62.5999 114.9290 62.3022 115.0700L63.0713 116.1360L62.2703 116.1360L61.6431 115.2270L61.3608 115.2270L61.3608 116.1360ZM64.0280 114.7400C64.0280 113.3750 63.0713 112.3090 61.6904 112.3090C60.3248 112.3090 59.3680 113.3750 59.3680 114.7400C59.3680 116.0740 60.3248 117.1560 61.6904 117.1560C63.0713 117.1560 64.0280 116.0740 64.0280 114.7400ZM58.7561 114.7400C58.7561 113.0620 59.9952 111.7590 61.6904 111.7590C63.3996 111.7590 64.6399 113.0620 64.6399 114.7400C64.6399 116.4030 63.3996 117.7050 61.6904 117.7050C59.9952 117.7050 58.7561 116.4030 58.7561 114.7400Z\"/></g></svg>";
+/*
+ * Venue geometry — DX Trading Floor immersive surface.
+ *
+ * Measured off DX_TradingFloor_Immersive_Template-scaled_fullSize.png, which is
+ * itself exactly 6878 x 1080, by detecting the template's rule lines. Panel
+ * boundaries below are the detected rule centres, so the panels tile the full
+ * width with no gaps; they land within a pixel or two of the labelled sizes
+ * (the difference is the thickness of the rules in the template).
+ *
+ *   panel            labelled      here
+ *   south wall       2239 x 1080   0    -> 2241
+ *   west-faced nook   262 x 1080   2241 -> 2503
+ *   south-faced nook   95 x 1080   2503 -> 2598
+ *   west wall        1679 x 1080   2598 -> 4278
+ *   north-faced nook   95 x 1080   4278 -> 4373
+ *   west-faced nook   262 x 1080   4373 -> 4636
+ *   north wall       2239 x 1080   4636 -> 6878
+ *
+ * The cube band starts at y = 674 (detected) and is 406 tall, which is the
+ * labelled figure. "Above cube 2239 x 684" carries ten rows of overlap behind
+ * the cube's top edge, so artwork for the upper band should bleed to y = 684.
+ */
+
+const VENUE = {
+  width: 6878,
+  height: 1080,
+
+  // Vertical panel boundaries, left to right.
+  seams: [0, 2241, 2503, 2598, 4278, 4373, 4636, 6878],
+
+  cubeTop: 674, // cube band: y 674..1080, 406 tall
+  cubeBleed: 10, // upper-band artwork continues to y 684, hidden behind the cube
+
+  panels: {
+    southWall: { x: 0, w: 2241 },
+    southWestNook: { x: 2241, w: 262 },
+    southFacedNook: { x: 2503, w: 95 },
+    westWall: { x: 2598, w: 1680 },
+    northFacedNook: { x: 4278, w: 95 },
+    northWestNook: { x: 4373, w: 263 },
+    northWall: { x: 4636, w: 2242 },
+  },
+
+  // Draped returns either side of each cube face — live surface, but angled away.
+  cube: {
+    southDrapedA: { x: 0, w: 301 },
+    south: { x: 301, w: 1728 },
+    southDrapedB: { x: 2029, w: 209 },
+    northDrapedC: { x: 4636, w: 209 },
+    north: { x: 4845, w: 1728 },
+    northDrapedD: { x: 6573, w: 305 },
+  },
+
+  // The Domino screen sits in the top 630 of the west wall. The template draws it
+  // as a shallow trapezoid narrowing downward; this is the rectangle inscribed in
+  // it, centred in the panel, matching the labelled 1653 x 630.
+  domino: { x: 2611, y: 0, w: 1653, h: 630 },
+};
+
+/**
+ * The four bands the transition sweeps inward. Each spans from its outer edge to
+ * the west wall, so arrows run continuously across the wall and its nooks before
+ * they reach the centre — and each keeps its own vertical slice, so nothing
+ * crosses between bands on the way in.
+ */
+VENUE.bands = [
+  { id: 'southUpper', x: 0, w: 2598, y: 0, h: VENUE.cubeTop, dir: 1, gate: 2598 },
+  { id: 'southCube', x: 0, w: 2598, y: VENUE.cubeTop, h: 1080 - VENUE.cubeTop, dir: 1, gate: 2598 },
+  { id: 'northUpper', x: 4278, w: 2600, y: 0, h: VENUE.cubeTop, dir: -1, gate: 4278 },
+  { id: 'northCube', x: 4278, w: 2600, y: VENUE.cubeTop, h: 1080 - VENUE.cubeTop, dir: -1, gate: 4278 },
+];
+
+VENUE.domino.cx = VENUE.domino.x + VENUE.domino.w / 2;
+VENUE.domino.cy = VENUE.domino.y + VENUE.domino.h / 2;
+
+
+/* Generated by animation/tools/sample-mark.js — do not edit by hand. */
+/* The Vector mark on a 2.5-unit grid: 472 points (342 white, 130 magenta). */
+const MARK_POINTS = {"width":105.425,"height":118.046,"spacing":2.5,"markX":0,"markY":0,"logoViewBox":"0 0 556.7062 118.0461","points":[[91.25,1.25,1],[93.75,1.25,1],[86.25,3.75,1],[88.75,3.75,1],[91.25,3.75,1],[93.75,3.75,1],[81.25,6.25,1],[83.75,6.25,1],[86.25,6.25,1],[88.75,6.25,1],[91.25,6.25,1],[93.75,6.25,1],[96.25,6.25,1],[1.25,8.75,0],[3.75,8.75,0],[6.25,8.75,0],[8.75,8.75,0],[11.25,8.75,0],[13.75,8.75,0],[16.25,8.75,0],[18.75,8.75,0],[21.25,8.75,0],[23.75,8.75,0],[26.25,8.75,0],[28.75,8.75,0],[31.25,8.75,0],[33.75,8.75,0],[36.25,8.75,0],[38.75,8.75,0],[41.25,8.75,0],[43.75,8.75,0],[76.25,8.75,1],[78.75,8.75,1],[81.25,8.75,1],[83.75,8.75,1],[86.25,8.75,1],[88.75,8.75,1],[91.25,8.75,1],[93.75,8.75,1],[96.25,8.75,1],[1.25,11.25,0],[3.75,11.25,0],[6.25,11.25,0],[8.75,11.25,0],[11.25,11.25,0],[13.75,11.25,0],[16.25,11.25,0],[18.75,11.25,0],[21.25,11.25,0],[23.75,11.25,0],[26.25,11.25,0],[28.75,11.25,0],[31.25,11.25,0],[33.75,11.25,0],[36.25,11.25,0],[38.75,11.25,0],[41.25,11.25,0],[43.75,11.25,0],[68.75,11.25,1],[71.25,11.25,1],[73.75,11.25,1],[76.25,11.25,1],[78.75,11.25,1],[81.25,11.25,1],[83.75,11.25,1],[86.25,11.25,1],[88.75,11.25,1],[91.25,11.25,1],[93.75,11.25,1],[96.25,11.25,1],[98.75,11.25,1],[1.25,13.75,0],[3.75,13.75,0],[6.25,13.75,0],[8.75,13.75,0],[11.25,13.75,0],[13.75,13.75,0],[16.25,13.75,0],[18.75,13.75,0],[21.25,13.75,0],[23.75,13.75,0],[26.25,13.75,0],[28.75,13.75,0],[31.25,13.75,0],[33.75,13.75,0],[36.25,13.75,0],[38.75,13.75,0],[41.25,13.75,0],[43.75,13.75,0],[68.75,13.75,1],[71.25,13.75,1],[73.75,13.75,1],[76.25,13.75,1],[78.75,13.75,1],[81.25,13.75,1],[86.25,13.75,1],[88.75,13.75,1],[91.25,13.75,1],[93.75,13.75,1],[96.25,13.75,1],[98.75,13.75,1],[1.25,16.25,0],[3.75,16.25,0],[6.25,16.25,0],[8.75,16.25,0],[11.25,16.25,0],[13.75,16.25,0],[16.25,16.25,0],[18.75,16.25,0],[21.25,16.25,0],[23.75,16.25,0],[26.25,16.25,0],[28.75,16.25,0],[31.25,16.25,0],[33.75,16.25,0],[36.25,16.25,0],[38.75,16.25,0],[41.25,16.25,0],[43.75,16.25,0],[68.75,16.25,1],[71.25,16.25,1],[73.75,16.25,1],[76.25,16.25,1],[83.75,16.25,1],[86.25,16.25,1],[88.75,16.25,1],[91.25,16.25,1],[93.75,16.25,1],[96.25,16.25,1],[98.75,16.25,1],[16.25,18.75,0],[18.75,18.75,0],[21.25,18.75,0],[23.75,18.75,0],[26.25,18.75,0],[28.75,18.75,0],[31.25,18.75,0],[66.25,18.75,1],[68.75,18.75,1],[83.75,18.75,1],[86.25,18.75,1],[88.75,18.75,1],[93.75,18.75,1],[96.25,18.75,1],[98.75,18.75,1],[101.25,18.75,1],[16.25,21.25,0],[18.75,21.25,0],[21.25,21.25,0],[23.75,21.25,0],[26.25,21.25,0],[28.75,21.25,0],[31.25,21.25,0],[33.75,21.25,0],[81.25,21.25,1],[83.75,21.25,1],[86.25,21.25,1],[88.75,21.25,1],[96.25,21.25,1],[98.75,21.25,1],[101.25,21.25,1],[16.25,23.75,0],[18.75,23.75,0],[21.25,23.75,0],[23.75,23.75,0],[26.25,23.75,0],[28.75,23.75,0],[31.25,23.75,0],[33.75,23.75,0],[81.25,23.75,1],[83.75,23.75,1],[86.25,23.75,1],[88.75,23.75,1],[96.25,23.75,1],[98.75,23.75,1],[101.25,23.75,1],[103.75,23.75,1],[18.75,26.25,0],[21.25,26.25,0],[23.75,26.25,0],[26.25,26.25,0],[28.75,26.25,0],[31.25,26.25,0],[33.75,26.25,0],[81.25,26.25,1],[83.75,26.25,1],[86.25,26.25,1],[98.75,26.25,1],[101.25,26.25,1],[103.75,26.25,1],[18.75,28.75,0],[21.25,28.75,0],[23.75,28.75,0],[26.25,28.75,0],[28.75,28.75,0],[31.25,28.75,0],[33.75,28.75,0],[36.25,28.75,0],[78.75,28.75,1],[81.25,28.75,1],[83.75,28.75,1],[86.25,28.75,1],[98.75,28.75,1],[101.25,28.75,1],[103.75,28.75,1],[18.75,31.25,0],[21.25,31.25,0],[23.75,31.25,0],[26.25,31.25,0],[28.75,31.25,0],[31.25,31.25,0],[33.75,31.25,0],[36.25,31.25,0],[78.75,31.25,1],[81.25,31.25,1],[83.75,31.25,1],[98.75,31.25,1],[101.25,31.25,1],[21.25,33.75,0],[23.75,33.75,0],[26.25,33.75,0],[28.75,33.75,0],[31.25,33.75,0],[33.75,33.75,0],[36.25,33.75,0],[38.75,33.75,0],[76.25,33.75,1],[78.75,33.75,1],[81.25,33.75,1],[83.75,33.75,1],[101.25,33.75,1],[21.25,36.25,0],[23.75,36.25,0],[26.25,36.25,0],[28.75,36.25,0],[31.25,36.25,0],[33.75,36.25,0],[36.25,36.25,0],[38.75,36.25,0],[76.25,36.25,1],[78.75,36.25,1],[81.25,36.25,1],[83.75,36.25,1],[23.75,38.75,0],[26.25,38.75,0],[28.75,38.75,0],[31.25,38.75,0],[33.75,38.75,0],[36.25,38.75,0],[38.75,38.75,0],[76.25,38.75,1],[78.75,38.75,1],[81.25,38.75,1],[23.75,41.25,0],[26.25,41.25,0],[28.75,41.25,0],[31.25,41.25,0],[33.75,41.25,0],[36.25,41.25,0],[38.75,41.25,0],[41.25,41.25,0],[73.75,41.25,1],[76.25,41.25,1],[78.75,41.25,1],[81.25,41.25,1],[23.75,43.75,0],[26.25,43.75,0],[28.75,43.75,0],[31.25,43.75,0],[33.75,43.75,0],[36.25,43.75,0],[38.75,43.75,0],[41.25,43.75,0],[73.75,43.75,1],[76.25,43.75,1],[78.75,43.75,1],[26.25,46.25,0],[28.75,46.25,0],[31.25,46.25,0],[33.75,46.25,0],[36.25,46.25,0],[38.75,46.25,0],[41.25,46.25,0],[71.25,46.25,1],[73.75,46.25,1],[76.25,46.25,1],[78.75,46.25,1],[26.25,48.75,0],[28.75,48.75,0],[31.25,48.75,0],[33.75,48.75,0],[36.25,48.75,0],[38.75,48.75,0],[41.25,48.75,0],[43.75,48.75,0],[73.75,48.75,1],[76.25,48.75,1],[78.75,48.75,1],[28.75,51.25,0],[31.25,51.25,0],[33.75,51.25,0],[36.25,51.25,0],[38.75,51.25,0],[41.25,51.25,0],[43.75,51.25,0],[73.75,51.25,1],[76.25,51.25,1],[28.75,53.75,0],[31.25,53.75,0],[33.75,53.75,0],[36.25,53.75,0],[38.75,53.75,0],[41.25,53.75,0],[43.75,53.75,0],[46.25,53.75,0],[73.75,53.75,1],[76.25,53.75,1],[28.75,56.25,0],[31.25,56.25,0],[33.75,56.25,0],[36.25,56.25,0],[38.75,56.25,0],[41.25,56.25,0],[43.75,56.25,0],[46.25,56.25,0],[31.25,58.75,0],[33.75,58.75,0],[36.25,58.75,0],[38.75,58.75,0],[41.25,58.75,0],[43.75,58.75,0],[46.25,58.75,0],[31.25,61.25,0],[33.75,61.25,0],[36.25,61.25,0],[38.75,61.25,0],[41.25,61.25,0],[43.75,61.25,0],[46.25,61.25,0],[48.75,61.25,0],[31.25,63.75,0],[33.75,63.75,0],[36.25,63.75,0],[38.75,63.75,0],[41.25,63.75,0],[43.75,63.75,0],[46.25,63.75,0],[48.75,63.75,0],[33.75,66.25,0],[36.25,66.25,0],[38.75,66.25,0],[41.25,66.25,0],[43.75,66.25,0],[46.25,66.25,0],[48.75,66.25,0],[51.25,66.25,0],[33.75,68.75,0],[36.25,68.75,0],[38.75,68.75,0],[41.25,68.75,0],[43.75,68.75,0],[46.25,68.75,0],[48.75,68.75,0],[51.25,68.75,0],[36.25,71.25,0],[38.75,71.25,0],[41.25,71.25,0],[43.75,71.25,0],[46.25,71.25,0],[48.75,71.25,0],[51.25,71.25,0],[36.25,73.75,0],[38.75,73.75,0],[41.25,73.75,0],[43.75,73.75,0],[46.25,73.75,0],[48.75,73.75,0],[51.25,73.75,0],[53.75,73.75,0],[36.25,76.25,0],[38.75,76.25,0],[41.25,76.25,0],[43.75,76.25,0],[46.25,76.25,0],[48.75,76.25,0],[51.25,76.25,0],[53.75,76.25,0],[38.75,78.75,0],[41.25,78.75,0],[43.75,78.75,0],[46.25,78.75,0],[48.75,78.75,0],[51.25,78.75,0],[53.75,78.75,0],[38.75,81.25,0],[41.25,81.25,0],[43.75,81.25,0],[46.25,81.25,0],[48.75,81.25,0],[51.25,81.25,0],[53.75,81.25,0],[56.25,81.25,0],[38.75,83.75,0],[41.25,83.75,0],[43.75,83.75,0],[46.25,83.75,0],[48.75,83.75,0],[51.25,83.75,0],[53.75,83.75,0],[56.25,83.75,0],[41.25,86.25,0],[43.75,86.25,0],[46.25,86.25,0],[48.75,86.25,0],[51.25,86.25,0],[53.75,86.25,0],[56.25,86.25,0],[58.75,86.25,0],[41.25,88.75,0],[43.75,88.75,0],[46.25,88.75,0],[48.75,88.75,0],[51.25,88.75,0],[53.75,88.75,0],[56.25,88.75,0],[58.75,88.75,0],[43.75,91.25,0],[46.25,91.25,0],[48.75,91.25,0],[51.25,91.25,0],[53.75,91.25,0],[56.25,91.25,0],[58.75,91.25,0],[43.75,93.75,0],[46.25,93.75,0],[48.75,93.75,0],[51.25,93.75,0],[53.75,93.75,0],[56.25,93.75,0],[58.75,93.75,0],[43.75,96.25,0],[46.25,96.25,0],[48.75,96.25,0],[51.25,96.25,0],[53.75,96.25,0],[56.25,96.25,0],[58.75,96.25,0],[46.25,98.75,0],[48.75,98.75,0],[51.25,98.75,0],[53.75,98.75,0],[56.25,98.75,0],[58.75,98.75,0],[46.25,101.25,0],[48.75,101.25,0],[51.25,101.25,0],[53.75,101.25,0],[56.25,101.25,0],[48.75,103.75,0],[51.25,103.75,0],[53.75,103.75,0],[56.25,103.75,0],[48.75,106.25,0],[51.25,106.25,0],[53.75,106.25,0],[56.25,106.25,0],[48.75,108.75,0],[51.25,108.75,0],[53.75,108.75,0],[51.25,111.25,0],[53.75,111.25,0],[51.25,113.75,0]]};
+if (typeof module !== 'undefined' && module.exports) module.exports = { MARK_POINTS };
+
+/*
+ * Transition — the once-per-loop event where the ambient field converges and
+ * resolves into the Vector logo on the Domino screen.
+ *
+ * Sequence
+ * --------
+ *   sweep    the ambient layers fade down; arrows run *horizontally* along their
+ *            own band toward the west wall. Nothing moves vertically yet, so the
+ *            four bands stay in their own lanes right up to the centre.
+ *   gather   past the gate, each arrow eases onto a point sampled from the
+ *            Vector mark, and its colour crosses from the ambient gradient to
+ *            white or magenta. Arrows with no point to fill dissolve.
+ *   reveal   the crisp mark fades in over the arrows; the arrows fade out.
+ *   resolve  the mark eases down into its slot in the full bilingual lockup as
+ *            the wordmark fades in beside it.
+ *   hold     the finished logo sits at 70% of the Domino screen's width.
+ *   release  the logo fades out and the ambient field comes back up.
+ *
+ * Everything here is a pure function of t. No integration, no accumulated state:
+ * draw(t) at any time gives the same pixels, which is what makes the whole loop
+ * seekable and therefore exportable frame by frame.
+ */
+
+const TRANSITION = {
+  at: 240, // seconds into the loop
+  sweep: 14,
+  gather: 7,
+  reveal: 4,
+  resolve: 3,
+  hold: 7,
+  release: 10,
+
+  extras: 220, // arrows beyond those needed for the mark, which dissolve on arrival
+  // Arrows leave the wall at roughly ambient scale and shrink as they gather, so
+  // the field reads as turning and condensing rather than being swapped out for
+  // a different, much smaller set of arrows.
+  arrowStart: [34, 120],
+  arrowEnd: [8, 13],
+  gateJitter: 150, // spread the turn-in point so the bands do not form a curtain
+  feed: 0.9, // extra run laid out beyond each band, so arrows keep feeding in
+  markHeight: 0.7, // the formed mark, as a fraction of the Domino screen's height
+  logoWidth: 0.7, // the finished lockup, as a fraction of the Domino screen's width
+  /*
+   * 'settle' forms the mark large, then eases it into the lockup.
+   * 'inPlace' forms it at lockup size and just fades the lockup in over the top —
+   *   truer to the brief's wording, but the formed mark is only ~219 px wide.
+   * 'markOnly' stops at the crisp mark and never brings in the wordmark.
+   */
+  finish: 'settle',
+  seed: 90210,
+};
+
+/* ------------------------------------------------------------------- easing */
+
+const ease = {
+  inOut: (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2),
+  out: (u) => 1 - Math.pow(1 - u, 3),
+  outBack: (u) => 1 + 2.2 * Math.pow(u - 1, 3) + 1.2 * Math.pow(u - 1, 2),
+};
+
+const clamp01 = (u) => (u < 0 ? 0 : u > 1 ? 1 : u);
+const span = (t, a, b) => clamp01((t - a) / (b - a));
+const mix = (a, b, u) => a + (b - a) * u;
+
+/* ------------------------------------------------------------------ colours */
+
+function parseHex(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Cached colour lerp — particles quantise their blend so the cache stays small. */
+function makeMixer() {
+  const cache = new Map();
+  return (from, to, u) => {
+    const q = Math.round(u * 24);
+    const key = `${from}|${to}|${q}`;
+    let hit = cache.get(key);
+    if (!hit) {
+      const a = parseHex(from);
+      const b = parseHex(to);
+      const v = q / 24;
+      hit = `rgb(${Math.round(mix(a[0], b[0], v))},${Math.round(mix(a[1], b[1], v))},${Math.round(
+        mix(a[2], b[2], v)
+      )})`;
+      cache.set(key, hit);
+    }
+    return hit;
+  };
+}
+
+/* ------------------------------------------------------------------- timing */
+
+function phases(cfg) {
+  const t = { start: cfg.at };
+  t.sweepEnd = t.start + cfg.sweep;
+  t.gatherEnd = t.sweepEnd + cfg.gather;
+  t.revealEnd = t.gatherEnd + cfg.reveal;
+  t.resolveEnd = t.revealEnd + cfg.resolve;
+  t.holdEnd = t.resolveEnd + cfg.hold;
+  t.end = t.holdEnd + cfg.release;
+  return t;
+}
+
+/* ---------------------------------------------------------------- particles */
+
+/**
+ * Where the mark gets built, and where the lockup ends up. In 'settle' the mark
+ * forms large and later eases into the lockup; the two rects are what the CSS
+ * transform interpolates between.
+ */
+function layout(cfg, venue, markPoints) {
+  const dom = venue.domino;
+  const logoAspect = (() => {
+    const vb = markPoints.logoViewBox.split(/\s+/).map(Number);
+    return { w: vb[2], h: vb[3] };
+  })();
+
+  const lockupW = cfg.logoWidth * dom.w;
+  const lockupH = (lockupW / logoAspect.w) * logoAspect.h;
+  const lockup = {
+    x: dom.cx - lockupW / 2,
+    y: dom.cy - lockupH / 2,
+    w: lockupW,
+    h: lockupH,
+  };
+
+  // The mark's slot inside that lockup.
+  const k = lockupW / logoAspect.w;
+  const slot = {
+    x: lockup.x + markPoints.markX * k,
+    y: lockup.y + markPoints.markY * k,
+    w: markPoints.width * k,
+    h: markPoints.height * k,
+  };
+
+  // Where the arrows actually build it.
+  let formed = slot;
+  if (cfg.finish !== 'inPlace') {
+    const h = cfg.markHeight * dom.h;
+    const w = (h / markPoints.height) * markPoints.width;
+    formed = { x: dom.cx - w / 2, y: dom.cy - h / 2, w, h };
+  }
+
+  return { lockup, slot, formed, scale: formed.h / slot.h };
+}
+
+function buildParticles(cfg, venue, markPoints, palette, rand) {
+  const t = phases(cfg);
+  const geo = layout(cfg, venue, markPoints);
+
+  // Mark points, ordered left to right, so the two streams interleave in the
+  // middle rather than one side reaching across the other.
+  const targets = markPoints.points
+    .map(([mx, my, magenta]) => ({
+      x: geo.formed.x + (mx / markPoints.width) * geo.formed.w,
+      y: geo.formed.y + (my / markPoints.height) * geo.formed.h,
+      magenta: magenta === 1,
+    }))
+    .sort((a, b) => a.x - b.x);
+
+  const particles = [];
+  const total = targets.length + cfg.extras;
+  const bands = venue.bands;
+
+  for (let i = 0; i < total; i++) {
+    const band = bands[i % bands.length];
+    const fromSouth = band.dir > 0;
+
+    /*
+     * A conveyor, not a one-shot drain. Arrows are laid out over a run longer
+     * than the band itself and all travel at close to the same speed, so ones
+     * that begin off the outer end keep feeding in behind the leaders and the
+     * wall stays populated until near the end of the sweep. Letting every arrow
+     * simply start inside the band empties the far ends within a few seconds.
+     */
+    const run = band.w * (1 + cfg.feed);
+    const reach = rand() * run; // distance this arrow has to cover
+    const x0 = band.gate - band.dir * reach;
+    const y0 = band.y + 10 + rand() * (band.h - 20);
+
+    const speed = (run / (cfg.sweep * 0.95)) * mix(0.92, 1.08, rand());
+    const gateT = Math.min(t.start + reach / speed, t.sweepEnd);
+    // Arrows that start beyond the wall appear as they cross its outer edge.
+    const fadeIn = t.start + Math.max(0, (reach - band.w) / speed);
+    const arriveT = mix(gateT + 1.4, t.gatherEnd, 0.35 + rand() * 0.65);
+
+    particles.push({
+      x0,
+      y0,
+      dir: band.dir,
+      gate: band.gate - band.dir * rand() * cfg.gateJitter,
+      gateT,
+      arriveT,
+      size0: mix(cfg.arrowStart[0], cfg.arrowStart[1], Math.pow(rand(), 1.7)),
+      size1: mix(cfg.arrowEnd[0], cfg.arrowEnd[1], rand()),
+      tint: palette[Math.floor(rand() * palette.length)],
+      fadeIn,
+      target: null,
+      // Where a dissolving arrow drifts to as it gives up.
+      driftY: (rand() - 0.5) * 120,
+    });
+  }
+
+  // Hand the mark's points to the arrows best placed to reach them: south-side
+  // arrows take the left of the mark, north-side the right.
+  const south = particles.filter((p) => p.dir > 0);
+  const north = particles.filter((p) => p.dir < 0);
+  const shuffle = (arr) => arr.sort(() => rand() - 0.5);
+  shuffle(south);
+  shuffle(north);
+  const half = Math.round(targets.length / 2);
+  south.slice(0, half).forEach((p, i) => (p.target = targets[i]));
+  north.slice(0, targets.length - half).forEach((p, i) => (p.target = targets[half + i]));
+
+  return { particles, geo, times: t };
+}
+
+/* ------------------------------------------------------------------ drawing */
+
+function makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand) {
+  const ctx = canvas.getContext('2d');
+  const { particles, geo, times } = buildParticles(cfg, venue, markPoints, palette, rand);
+  const blend = makeMixer();
+
+  const path = new Path2D();
+  const pts = arrow.points.split(' ').map((pair) => pair.split(',').map(Number));
+  pts.forEach(([x, y], i) => (i ? path.lineTo(x, y) : path.moveTo(x, y)));
+  path.closePath();
+
+  const WHITE = '#FFFFFF';
+  const MAGENTA = '#FF0FF1';
+
+  function draw(t) {
+    ctx.clearRect(0, 0, venue.width, venue.height);
+    if (t < times.start || t > times.end) return;
+
+    for (const p of particles) {
+      let x;
+      let y;
+      let alpha;
+      let size = p.size0;
+      let colour = p.tint;
+
+      if (t < p.gateT) {
+        // Horizontal run along the band. No vertical movement whatsoever.
+        const u = span(t, p.fadeIn, p.gateT);
+        x = mix(p.x0, p.gate, u);
+        y = p.y0;
+        alpha = span(t, p.fadeIn, p.fadeIn + 0.9);
+      } else if (p.target) {
+        const u = ease.inOut(span(t, p.gateT, p.arriveT));
+        x = mix(p.gate, p.target.x, u);
+        y = mix(p.y0, p.target.y, u);
+        size = mix(p.size0, p.size1, u);
+        colour = blend(p.tint, p.target.magenta ? MAGENTA : WHITE, Math.min(1, u * 1.35));
+        // Once the crisp mark is coming up, the arrows step aside.
+        alpha = 1 - span(t, times.gatherEnd, times.revealEnd);
+      } else {
+        // No point to fill — carry on past the gate and dissolve.
+        const u = span(t, p.gateT, p.gateT + 2.2);
+        x = p.gate + p.dir * 220 * ease.out(u);
+        y = p.y0 + p.driftY * ease.out(u);
+        size = mix(p.size0, p.size0 * 0.55, u);
+        alpha = 1 - u;
+      }
+
+      if (alpha <= 0.004) continue;
+      const k = size / arrow.h;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = colour;
+      ctx.setTransform(k, 0, 0, k, x - (arrow.w * k) / 2, y - (arrow.h * k) / 2);
+      ctx.fill(path);
+    }
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+  }
+
+  return { draw, geo, times, count: particles.length };
+}
+
+/* ------------------------------------------------------------------- mount */
+
+/**
+ * Adds the canvas and the logo to an already-mounted stage, and returns a
+ * controller. `ambient` is the wrapper holding the drifting layers, which this
+ * fades down for the duration of the event.
+ */
+function mountTransition(stage, ambient, opts) {
+  const { config, venue, markPoints, arrow, logoSvg, duration } = opts;
+  const cfg = Object.assign({}, TRANSITION, config || {});
+  const doc = stage.ownerDocument;
+  const t = phases(cfg);
+
+  if (t.end >= duration) {
+    throw new Error(`transition ends at ${t.end}s but the loop is only ${duration}s`);
+  }
+
+  const rand = opts.rng;
+  const palette = opts.palette;
+
+  const canvas = doc.createElement('canvas');
+  canvas.className = 'af-particles';
+  canvas.width = venue.width;
+  canvas.height = venue.height;
+  Object.assign(canvas.style, {
+    position: 'absolute',
+    inset: '0',
+    width: `${venue.width}px`,
+    height: `${venue.height}px`,
+    pointerEvents: 'none',
+  });
+  stage.appendChild(canvas);
+
+  const renderer = makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand);
+  const geo = renderer.geo;
+
+  // The logo, positioned at its final lockup rect. Everything that moves is a
+  // transform on this element, so it stays a CSS animation and stays seekable.
+  const holder = doc.createElement('div');
+  holder.className = 'af-logo';
+  Object.assign(holder.style, {
+    position: 'absolute',
+    left: `${geo.lockup.x}px`,
+    top: `${geo.lockup.y}px`,
+    width: `${geo.lockup.w}px`,
+    height: `${geo.lockup.h}px`,
+    opacity: '0',
+    pointerEvents: 'none',
+    filter: 'drop-shadow(0 0 26px rgba(255, 15, 241, 0.28))',
+  });
+  holder.innerHTML = logoSvg;
+  const svg = holder.querySelector('svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  stage.appendChild(holder);
+
+  const markCx = geo.slot.x - geo.lockup.x + geo.slot.w / 2;
+  const markCy = geo.slot.y - geo.lockup.y + geo.slot.h / 2;
+  const dx = geo.formed.x + geo.formed.w / 2 - (geo.lockup.x + markCx);
+  const dy = geo.formed.y + geo.formed.h / 2 - (geo.lockup.y + markCy);
+  holder.style.transformOrigin = `${markCx}px ${markCy}px`;
+
+  const pct = (time) => ((time / duration) * 100).toFixed(4);
+  const big = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scale(${geo.scale.toFixed(4)})`;
+  const wordmark = holder.querySelector('#wordmark');
+  const settles = cfg.finish === 'settle';
+  const keepsWordmark = cfg.finish !== 'markOnly';
+
+  const rules = [
+    '@keyframes af-logo-in{' +
+      `0%,${pct(t.gatherEnd)}%{opacity:0;transform:${settles ? big : 'none'}}` +
+      `${pct(t.revealEnd)}%{opacity:1;transform:${settles ? big : 'none'}}` +
+      `${pct(t.resolveEnd)}%,${pct(t.holdEnd)}%{opacity:1;transform:none}` +
+      `${pct(t.end)}%,100%{opacity:0;transform:none}}`,
+    '@keyframes af-wordmark-in{' +
+      `0%,${pct(t.revealEnd)}%{opacity:0}` +
+      `${pct(t.resolveEnd)}%,${pct(t.holdEnd)}%{opacity:${keepsWordmark ? 1 : 0}}` +
+      `${pct(t.end)}%,100%{opacity:0}}`,
+    // The ambient field steps back for the event and returns afterwards.
+    '@keyframes af-ambient-out{' +
+      `0%,${pct(t.start)}%{opacity:1}` +
+      `${pct(t.start + cfg.sweep * 0.55)}%,${pct(t.holdEnd)}%{opacity:0}` +
+      `${pct(t.end)}%,100%{opacity:1}}`,
+  ];
+
+  const style = doc.createElement('style');
+  style.textContent = rules.join('');
+  doc.head.appendChild(style);
+
+  holder.style.animation = `af-logo-in ${duration}s linear infinite`;
+  if (wordmark) wordmark.style.animation = `af-wordmark-in ${duration}s linear infinite`;
+  ambient.style.animation = `af-ambient-out ${duration}s linear infinite`;
+
+  return {
+    draw: renderer.draw,
+    times: t,
+    geo,
+    particles: renderer.count,
+    markPoints: markPoints.points.length,
+  };
+}
+
+
 /*
  * Arrow field — generative tiling animation engine.
  *
@@ -950,6 +1471,7 @@ function mountArrowField(stage, cfg = CONFIG) {
 
   stage.style.background =
     `linear-gradient(180deg, ${cfg.background.top} 0%, ${cfg.background.bottom} 100%)`;
+  stage.style.position = stage.style.position || 'relative';
 
   if (cfg.dither > 0) {
     const grain = doc.createElement('div');
@@ -965,6 +1487,13 @@ function mountArrowField(stage, cfg = CONFIG) {
     });
     stage.appendChild(grain);
   }
+
+  // The drifting layers live in their own wrapper so the transition can fade the
+  // whole ambient field down as one thing without disturbing per-layer opacity.
+  const ambient = doc.createElement('div');
+  ambient.className = 'af-ambient';
+  Object.assign(ambient.style, { position: 'absolute', inset: '0' });
+  stage.appendChild(ambient);
 
   cfg.layers.forEach((layer, index) => {
     const { svg, tileH } = buildTile(layer, index, cfg);
@@ -990,7 +1519,7 @@ function mountArrowField(stage, cfg = CONFIG) {
         'from{transform:translate3d(0,0,0)}' +
         `to{transform:translate3d(${layer.tileW}px,${-tileH}px,0)}}`
     );
-    stage.appendChild(el);
+    ambient.appendChild(el);
 
     metrics.push({
       index: index + 1,
@@ -1007,28 +1536,34 @@ function mountArrowField(stage, cfg = CONFIG) {
 
   style.textContent = rules.join('');
   doc.head.appendChild(style);
-  return metrics;
+
+  // The once-per-loop logo event, if the transition module and its assets are
+  // present. Ambient-only builds simply skip it.
+  let transition = null;
+  if (typeof mountTransition === 'function' && typeof MARK_POINTS !== 'undefined' && cfg.layers.length) {
+    const shades = [cfg.gradientFrom, '#9E4FD4', '#7B7FD6', '#5FA2D8', cfg.gradientTo];
+    transition = mountTransition(stage, ambient, {
+      config: cfg.transition,
+      venue: VENUE,
+      markPoints: MARK_POINTS,
+      arrow: ARROW,
+      logoSvg: VECTOR_LOGO_SVG,
+      duration: cfg.duration,
+      palette: shades,
+      rng: mulberry32(cfg.seed ^ 0x5f3a),
+    });
+  }
+
+  return { metrics, ambient, transition };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    CONFIG,
-    ARROW,
-    RISE,
-    RUN,
-    mulberry32,
-    gradientEndpoints,
-    trailGeometry,
-    buildTile,
-    ditherTile,
-    mountArrowField,
-  };
-}
 
 
 (function () {
   var stage = document.getElementById('stage');
-  var metrics = mountArrowField(stage);
+  var field = mountArrowField(stage);
+  var metrics = field.metrics;
+  var transition = field.transition;
   var DURATION_MS = CONFIG.duration * 1000;
 
   /* ------------------------------------------------------------- spec fill */
@@ -1063,6 +1598,19 @@ if (typeof module !== 'undefined' && module.exports) {
   document.getElementById('specGrain').textContent = CONFIG.dither > 0
     ? (CONFIG.dither * 100).toFixed(0) + '% overlay — dithers the ground ramp'
     : 'off';
+
+  if (transition) {
+    var T = transition.times;
+    document.getElementById('specTransition').textContent =
+      clock(T.start) + ' → ' + clock(T.end) + ' (' + Math.round(T.end - T.start) + ' s), once per loop';
+    document.getElementById('specLogo').textContent =
+      transition.particles + ' arrows in, ' + transition.markPoints + ' form the mark';
+    document.getElementById('logoBtn').disabled = false;
+  } else {
+    document.getElementById('logoBtn').hidden = true;
+    document.getElementById('specTransition').textContent = 'off';
+    document.getElementById('specLogo').textContent = '—';
+  }
 
   document.getElementById('specSpeed').textContent =
     lo.toFixed(1) + '–' + hi.toFixed(1) + ' px/s across ' + metrics.length + ' layers';
@@ -1111,6 +1659,11 @@ if (typeof module !== 'undefined' && module.exports) {
     paint(ms);
   }
 
+  /* The particle canvas is a pure function of t, so it follows the same clock. */
+  function drawParticles(ms) {
+    if (transition) transition.draw((ms / 1000) % CONFIG.duration);
+  }
+
   function setPlaying(on) {
     playing = on;
     anims().forEach(function (a) { on ? a.play() : a.pause(); });
@@ -1129,6 +1682,7 @@ if (typeof module !== 'undefined' && module.exports) {
     scrub.value = String(Math.round(ms));
     scrub.style.setProperty('--pct', (ms / DURATION_MS) * 100 + '%');
     tc.textContent = clock(ms / 1000);
+    drawParticles(ms);
   }
 
   playBtn.addEventListener('click', function () { setPlaying(!playing); });
@@ -1165,6 +1719,64 @@ if (typeof module !== 'undefined' && module.exports) {
     requestAnimationFrame(tick);
   })();
 
+  document.getElementById('logoBtn').addEventListener('click', function () {
+    if (!transition) return;
+    setPlaying(false);
+    setTime((transition.times.start - 2) * 1000);
+    setRate(1);
+    setPlaying(true);
+  });
+
+  /* ------------------------------------------------------------- venue map */
+
+  var venueMap = document.getElementById('venueMap');
+  var mapBtn = document.getElementById('mapBtn');
+
+  (function buildMap() {
+    function box(x, y, w, h, label, cls) {
+      var d = document.createElement('div');
+      d.style.left = x + 'px';
+      d.style.top = y + 'px';
+      d.style.width = w + 'px';
+      d.style.height = h + 'px';
+      if (cls) d.className = cls;
+      d.textContent = label;
+      venueMap.appendChild(d);
+    }
+
+    var seams = VENUE.seams;
+    var names = ['South wall', 'W-faced nook', 'S-faced nook', 'West wall',
+                 'N-faced nook', 'W-faced nook', 'North wall'];
+    for (var i = 0; i < seams.length - 1; i++) {
+      var w = seams[i + 1] - seams[i];
+      box(seams[i], 0, w, VENUE.cubeTop, names[i] + '  ' + w + '×' + VENUE.cubeTop);
+    }
+
+    var c = VENUE.cube;
+    var cubeH = 1080 - VENUE.cubeTop;
+    [['Draped A', c.southDrapedA], ['South cube', c.south], ['Draped B', c.southDrapedB],
+     ['Draped C', c.northDrapedC], ['North cube', c.north], ['Draped D', c.northDrapedD]]
+      .forEach(function (pair) {
+        box(pair[1].x, VENUE.cubeTop, pair[1].w, cubeH,
+            pair[0] + '  ' + pair[1].w + '×' + cubeH, pair[0].indexOf('Draped') === 0 ? 'soft' : '');
+      });
+
+    var d = VENUE.domino;
+    box(d.x, d.y, d.w, d.h, 'Domino screen  ' + d.w + '×' + d.h, 'key');
+    if (transition) {
+      var L = transition.geo.lockup;
+      box(Math.round(L.x), Math.round(L.y), Math.round(L.w), Math.round(L.h),
+          'Logo  ' + Math.round(L.w) + '×' + Math.round(L.h) +
+          '  (' + Math.round((L.w / d.w) * 100) + '% of Domino width)', 'key low');
+    }
+  })();
+
+  mapBtn.addEventListener('click', function () {
+    var on = venueMap.hasAttribute('hidden');
+    venueMap.toggleAttribute('hidden', !on);
+    mapBtn.setAttribute('aria-pressed', String(on));
+  });
+
   /* ------------------------------------------------------------------ zoom */
 
   var scaler = document.getElementById('scaler');
@@ -1175,6 +1787,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function applyZoom() {
     var k = zoomMode === 'fit' ? Math.floor(viewport.clientWidth) / CONFIG.width : Number(zoomMode);
     stage.style.transform = 'scale(' + k + ')';
+    venueMap.style.transform = 'scale(' + k + ')';
     scaler.style.width = Math.floor(CONFIG.width * k) + 'px';
     scaler.style.height = Math.ceil(CONFIG.height * k) + 'px';
     zoomLabel.textContent = zoomMode === 'fit' ? 'FIT · ' + (k * 100).toFixed(1) + '%'

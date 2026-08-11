@@ -25,8 +25,21 @@ Revision after the first review: **duration 3 min → 6 min** (halving every spe
 arrows' lower-left gradient stop **`#B659F0` → `#8A25C9`**, the flat `#8A25C9` ground
 replaced by the vertical gradient above, and the glow and trails added.
 
+Second revision — the logo transition:
+
+> Add a flashy transition, to the venue's specifications (official template supplied).
+> Arrows move horizontally across the north/south cube and the north/south wall to the
+> centre portion. These move separately and do not cross vertically until they meet the
+> centre. The many arrows then transform into the Vector logo in the centre, positioned
+> on the Domino screen, filling about 70% of that area — tiny arrows forming the shape of
+> the Vector arrow, most white and a few magenta, since there is less magenta surface
+> area in the logo than white. Afterwards the proper Vector logo fades in over top.
+
 Reference material supplied: `Arrow_Example.mp4` (an earlier version of the same piece,
-1300 × 204 — see §3) and `Vector Official - Arrow Regular.svg`.
+1300 × 204 — see §3), `Vector Official - Arrow Regular.svg`,
+`DX_TradingFloor_Immersive_Template-scaled_fullSize.png` (the venue template),
+`Canada_Arrow.mp4` (a dotted-shape morph showing the intended particle effect), and the
+bilingual horizontal lockup as an Illustrator EPS.
 
 ---
 
@@ -83,6 +96,36 @@ colour constant.
 
 The 27% dark-pixel figure stopped being a problem with the dark ground: low-opacity
 arrows over a near-black top now read as dark silhouettes on their own.
+
+---
+
+## 3b. The venue, and the logo artwork
+
+The venue template is itself exactly **6878 × 1080** — the canvas was already right. Panel
+boundaries in `venue.js` are the template's rule centres, detected by thresholding the
+image and finding columns that are mostly white:
+
+    seams  0, 2241, 2503, 2598, 4278, 4373, 4636, 6878
+    cube band starts at y = 674 and is 406 tall
+
+The labelled "Above cube 2239 × 684" is ten rows taller than 1080 − 406, so upper-band
+artwork carries ten rows of bleed behind the cube's top edge.
+
+**The EPS parses directly.** It is an AI11 EPS whose page content is plain PostScript
+using Illustrator's short operators — `mo`/`li`/`cv`/`cp` for paths, `cmyk` for colour,
+`f` to fill. `tools/eps-to-svg.py` walks those tokens and rebuilds the artwork exactly.
+No Ghostscript in this container, and none needed. Two things to know:
+
+- Illustrator emits `1 -1 scale 0 -H translate` at the top of the page, which puts the
+  path coordinates into a y-down space with the origin top-left — already SVG's
+  convention, so the numbers transfer unchanged.
+- The first path is the white "V", the second the magenta arrow, and the rest is the
+  wordmark. That z-order is what lets the converter split `#mark` from `#wordmark`.
+
+That split also settles a question the brief left open. The mark is **white plus
+magenta** — which is exactly the "most of them white, a few magenta" the client
+described, and confirms the particles form the mark rather than the whole lockup. The
+sampled grid comes out about 27% magenta.
 
 ---
 
@@ -277,11 +320,34 @@ At the six-minute duration layer 6 moves (37.5, −92.5) px per 10 s. Phase corr
 useless here — a periodic field gives many equal peaks — so use direct block matching over
 a short interval.
 
+### The transition
+
+Timeline, particle behaviour and the two non-obvious decisions are documented in
+`README.md`. The parts that would be easy to get wrong on a rebuild:
+
+- **The sweep must be a conveyor.** Arrows laid out only *inside* their band all reach
+  the centre at once and the far ends of the wall are bare within a few seconds. Lay them
+  over a run ~1.9× the band width, at close to a single speed, and fade each one in as it
+  crosses the outer edge.
+- **Particles start at ambient scale and shrink.** The first pass ran them at 7–15 px
+  throughout; against 48–235 px ambient arrows they read as dust and the handoff looked
+  like a cross-fade to a different piece. Starting at 34–120 px and shrinking to ~10 px
+  during the gather makes the field look like it turns and condenses.
+- **Jitter the gate.** Every arrow turning in at exactly the same x draws a vertical
+  curtain down the wall. ±150 px is enough to break it.
+- **Nothing may integrate.** Every particle's position is a closed-form function of t.
+  That is what keeps `seek()` exact and the export frame-accurate — and it is why the
+  canvas can be cleared and skipped entirely outside the event, leaving t = 0 and t = 360
+  pixel-identical.
+
 ### Performance
 
-The review page measures ~5 fps in this container, which has no GPU and rasterises in
-software. That figure is identical with the effects switched off and identical on the
-pre-effects build, so it is the environment, not the design. Real-time smoothness needs
+The review page measures ~13 fps ambient and ~19 fps during the transition in this
+container, which has no GPU and rasterises in software. Earlier builds measured ~5 fps;
+wrapping the drifting layers in `.af-ambient` for the fade promoted them to a composited
+layer, which helped. Either way the figure tracks the environment, not the design — it
+was identical with the glow and trails switched off and identical on the build before
+them. Real-time smoothness needs
 checking on the actual playback machine; the exported video sidesteps it entirely, since
 export seeks each frame rather than capturing in real time.
 
@@ -292,8 +358,16 @@ export seeks each frame rather than capturing in real time.
 1. **Frame rate and codec for export.** 360 s divides evenly at 24, 25, 30, 60 — 10,800
    frames at 30. Playback hardware determines ProRes 422 HQ vs HAP vs H.264.
    `export-frames.js` is written and tested but deliberately not run.
-2. **Grain.** Added unprompted, at 3%, because the new ground gradient is a banding risk
-   on large hardware. `dither: 0` removes it if the client would rather not have it.
+2. **Grain.** Added unprompted, at 3%, because the ground gradient is a banding risk on
+   large hardware. `dither: 0` removes it if the client would rather not have it.
+3. **How the reveal resolves.** The brief asks for the logo at 70% of the Domino screen
+   *and* for arrows to form the mark; at 70% width the mark inside the lockup is only
+   ~219 px, too small to read as built from arrows. The default `settle` forms the mark
+   large and eases it into the lockup. `TRANSITION.finish` switches to `inPlace` (literal
+   reading) or `markOnly`. Put to the client, unanswered at time of writing.
+4. **Arrow orientation during the sweep.** Every arrow stays unrotated, per brand, so
+   north-side arrows travel left while pointing up-right. Mirroring or rotating them
+   would read as more directional but would modify the mark.
 
 ---
 

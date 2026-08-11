@@ -33,17 +33,37 @@ if (params.get('bare')) {
     layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
   });
 }
-window.metrics = mountArrowField(document.getElementById('stage'), config);
-/* Frame-accurate seeking for offline capture: window.seek(seconds) */
+var stage = document.getElementById('stage');
+var field = mountArrowField(stage, config);
+window.metrics = field.metrics;
+window.transition = field.transition
+  ? { times: field.transition.times, particles: field.transition.particles,
+      markPoints: field.transition.markPoints }
+  : null;
+
+/*
+ * Frame-accurate seeking for offline capture: window.seek(seconds).
+ * The CSS layers seek through the Web Animations API; the particle canvas is a
+ * pure function of t, so it just gets redrawn at the same instant.
+ */
 window.seek = function (t) {
-  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) {
+  stage.getAnimations({ subtree: true }).forEach(function (a) {
     a.pause();
     a.currentTime = t * 1000;
   });
+  if (field.transition) field.transition.draw(t % config.duration);
 };
 window.play = function () {
-  document.getElementById('stage').getAnimations({ subtree: true }).forEach(function (a) { a.play(); });
+  stage.getAnimations({ subtree: true }).forEach(function (a) { a.play(); });
+  if (field.transition) requestAnimationFrame(function tick() {
+    var a = stage.getAnimations({ subtree: true })[0];
+    if (a && a.playState === 'running') {
+      field.transition.draw((Number(a.currentTime) / 1000) % config.duration);
+      requestAnimationFrame(tick);
+    }
+  });
 };
+window.seek(0);
 </script>
 </body>
 </html>

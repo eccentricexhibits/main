@@ -10,7 +10,30 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 const dir = __dirname;
-const engine = fs.readFileSync(path.join(dir, 'arrow-field.js'), 'utf8');
+
+// Order matters only in that every module is evaluated before the page calls
+// mountArrowField; arrow-field.js reaches for VENUE, MARK_POINTS and
+// mountTransition at mount time, and skips the transition if they are absent.
+const MODULES = [
+  'venue.js',
+  'assets/mark-points.js',
+  'arrow-transition.js',
+  'arrow-field.js',
+];
+
+const logoSvg = fs
+  .readFileSync(path.join(dir, 'assets', 'vector-logo-horizontal.svg'), 'utf8')
+  .replace(/\n\s*/g, '')
+  .trim();
+
+const engine = [
+  `const VECTOR_LOGO_SVG = ${JSON.stringify(logoSvg)};`,
+  ...MODULES.map((m) => fs.readFileSync(path.join(dir, m), 'utf8')),
+]
+  // The modules end with a CommonJS export block that only exists for the Node
+  // tooling; strip it so the browser bundle stays free of `module` references.
+  .map((src) => src.replace(/\nif \(typeof module !== 'undefined'[\s\S]*?\n\}\n?$/, '\n'))
+  .join('\n');
 
 function fontDataUri(file) {
   const b64 = fs.readFileSync(path.join(root, file)).toString('base64');

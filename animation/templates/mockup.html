@@ -156,6 +156,37 @@
     background: linear-gradient(180deg, var(--stage-top) 0%, var(--stage-bottom) 100%);
   }
 
+  /* Venue panel map, drawn from VENUE and laid over the stage at the same scale. */
+  .venue-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6878px;
+    height: 1080px;
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  .venue-map div {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid rgba(72, 192, 217, 0.55);
+    color: #cfefff;
+    font-family: var(--mono);
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+    text-shadow: 0 2px 8px #000;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .venue-map div.soft { border-color: rgba(255, 255, 255, 0.2); color: #b9a9c8; }
+  .venue-map div.key { border-color: rgba(255, 15, 241, 0.8); color: #ffd7fb; }
+  /* The logo box sits inside the Domino box — anchor its label low so the two
+     captions do not land on top of each other. */
+  .venue-map div.low { display: flex; align-items: flex-end; }
+
   .rulers {
     display: flex;
     justify-content: space-between;
@@ -174,8 +205,12 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 10px 14px;
-    padding: 14px 0 20px;
+    padding: 14px 0 0;
   }
+
+  .transport + .transport { padding: 10px 0 20px; }
+
+  .transport .spacer { flex: 1 1 auto; }
 
   button {
     font: inherit;
@@ -505,26 +540,36 @@
   <div class="wrap">
     <div class="viewport" id="viewport">
       <div class="frame">
-        <div class="stage-scaler" id="scaler"><div id="stage"></div></div>
+        <div class="stage-scaler" id="scaler">
+          <div id="stage"></div>
+          <div id="venueMap" class="venue-map" hidden></div>
+        </div>
       </div>
     </div>
     <div class="rulers"><span id="zoomLabel">FIT</span><span>6878 × 1080</span></div>
     <div class="transport">
         <button id="playBtn" type="button">Pause</button>
         <button id="restartBtn" type="button">Restart</button>
+        <button id="logoBtn" type="button" title="Jump to just before the logo transition and play through it">Play transition</button>
         <button id="seamBtn" type="button" title="Jump to just before the loop point and play through it">Check loop point</button>
 
         <div class="scrub">
           <input id="scrub" type="range" min="0" max="360000" step="50" value="0" aria-label="Timeline position">
           <span class="timecode"><b id="tc">0:00.0</b> / <span id="tcTotal">6:00.0</span></span>
         </div>
+    </div>
 
+    <div class="transport">
         <span class="seg-label">Review speed</span>
         <div class="seg" id="rates" role="group" aria-label="Review speed">
           <button type="button" data-rate="1" aria-pressed="true">1×</button>
           <button type="button" data-rate="4" aria-pressed="false">4×</button>
           <button type="button" data-rate="12" aria-pressed="false">12×</button>
         </div>
+
+        <button id="mapBtn" type="button" aria-pressed="false" title="Overlay the venue panel boundaries">Venue map</button>
+
+        <span class="spacer"></span>
 
         <span class="seg-label">Zoom</span>
         <div class="seg" id="zooms" role="group" aria-label="Zoom">
@@ -571,6 +616,15 @@
 
         <dt>Grain</dt>
         <dd id="specGrain">—</dd>
+
+        <dt>Venue</dt>
+        <dd>DX Trading Floor — 7 panels, cube band from y 674</dd>
+
+        <dt>Transition</dt>
+        <dd id="specTransition">—</dd>
+
+        <dt>Logo</dt>
+        <dd id="specLogo">—</dd>
 
         <dt>Travel</dt>
         <dd>+2.4667 slope · 67.93° · run 15 : rise 37</dd>
@@ -678,7 +732,9 @@
 
 (function () {
   var stage = document.getElementById('stage');
-  var metrics = mountArrowField(stage);
+  var field = mountArrowField(stage);
+  var metrics = field.metrics;
+  var transition = field.transition;
   var DURATION_MS = CONFIG.duration * 1000;
 
   /* ------------------------------------------------------------- spec fill */
@@ -713,6 +769,19 @@
   document.getElementById('specGrain').textContent = CONFIG.dither > 0
     ? (CONFIG.dither * 100).toFixed(0) + '% overlay — dithers the ground ramp'
     : 'off';
+
+  if (transition) {
+    var T = transition.times;
+    document.getElementById('specTransition').textContent =
+      clock(T.start) + ' → ' + clock(T.end) + ' (' + Math.round(T.end - T.start) + ' s), once per loop';
+    document.getElementById('specLogo').textContent =
+      transition.particles + ' arrows in, ' + transition.markPoints + ' form the mark';
+    document.getElementById('logoBtn').disabled = false;
+  } else {
+    document.getElementById('logoBtn').hidden = true;
+    document.getElementById('specTransition').textContent = 'off';
+    document.getElementById('specLogo').textContent = '—';
+  }
 
   document.getElementById('specSpeed').textContent =
     lo.toFixed(1) + '–' + hi.toFixed(1) + ' px/s across ' + metrics.length + ' layers';
@@ -761,6 +830,11 @@
     paint(ms);
   }
 
+  /* The particle canvas is a pure function of t, so it follows the same clock. */
+  function drawParticles(ms) {
+    if (transition) transition.draw((ms / 1000) % CONFIG.duration);
+  }
+
   function setPlaying(on) {
     playing = on;
     anims().forEach(function (a) { on ? a.play() : a.pause(); });
@@ -779,6 +853,7 @@
     scrub.value = String(Math.round(ms));
     scrub.style.setProperty('--pct', (ms / DURATION_MS) * 100 + '%');
     tc.textContent = clock(ms / 1000);
+    drawParticles(ms);
   }
 
   playBtn.addEventListener('click', function () { setPlaying(!playing); });
@@ -815,6 +890,64 @@
     requestAnimationFrame(tick);
   })();
 
+  document.getElementById('logoBtn').addEventListener('click', function () {
+    if (!transition) return;
+    setPlaying(false);
+    setTime((transition.times.start - 2) * 1000);
+    setRate(1);
+    setPlaying(true);
+  });
+
+  /* ------------------------------------------------------------- venue map */
+
+  var venueMap = document.getElementById('venueMap');
+  var mapBtn = document.getElementById('mapBtn');
+
+  (function buildMap() {
+    function box(x, y, w, h, label, cls) {
+      var d = document.createElement('div');
+      d.style.left = x + 'px';
+      d.style.top = y + 'px';
+      d.style.width = w + 'px';
+      d.style.height = h + 'px';
+      if (cls) d.className = cls;
+      d.textContent = label;
+      venueMap.appendChild(d);
+    }
+
+    var seams = VENUE.seams;
+    var names = ['South wall', 'W-faced nook', 'S-faced nook', 'West wall',
+                 'N-faced nook', 'W-faced nook', 'North wall'];
+    for (var i = 0; i < seams.length - 1; i++) {
+      var w = seams[i + 1] - seams[i];
+      box(seams[i], 0, w, VENUE.cubeTop, names[i] + '  ' + w + '×' + VENUE.cubeTop);
+    }
+
+    var c = VENUE.cube;
+    var cubeH = 1080 - VENUE.cubeTop;
+    [['Draped A', c.southDrapedA], ['South cube', c.south], ['Draped B', c.southDrapedB],
+     ['Draped C', c.northDrapedC], ['North cube', c.north], ['Draped D', c.northDrapedD]]
+      .forEach(function (pair) {
+        box(pair[1].x, VENUE.cubeTop, pair[1].w, cubeH,
+            pair[0] + '  ' + pair[1].w + '×' + cubeH, pair[0].indexOf('Draped') === 0 ? 'soft' : '');
+      });
+
+    var d = VENUE.domino;
+    box(d.x, d.y, d.w, d.h, 'Domino screen  ' + d.w + '×' + d.h, 'key');
+    if (transition) {
+      var L = transition.geo.lockup;
+      box(Math.round(L.x), Math.round(L.y), Math.round(L.w), Math.round(L.h),
+          'Logo  ' + Math.round(L.w) + '×' + Math.round(L.h) +
+          '  (' + Math.round((L.w / d.w) * 100) + '% of Domino width)', 'key low');
+    }
+  })();
+
+  mapBtn.addEventListener('click', function () {
+    var on = venueMap.hasAttribute('hidden');
+    venueMap.toggleAttribute('hidden', !on);
+    mapBtn.setAttribute('aria-pressed', String(on));
+  });
+
   /* ------------------------------------------------------------------ zoom */
 
   var scaler = document.getElementById('scaler');
@@ -825,6 +958,7 @@
   function applyZoom() {
     var k = zoomMode === 'fit' ? Math.floor(viewport.clientWidth) / CONFIG.width : Number(zoomMode);
     stage.style.transform = 'scale(' + k + ')';
+    venueMap.style.transform = 'scale(' + k + ')';
     scaler.style.width = Math.floor(CONFIG.width * k) + 'px';
     scaler.style.height = Math.ceil(CONFIG.height * k) + 'px';
     zoomLabel.textContent = zoomMode === 'fit' ? 'FIT · ' + (k * 100).toFixed(1) + '%'

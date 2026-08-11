@@ -1,8 +1,10 @@
 # Official arrow — diagonal travel loop
 
 A 6878 × 1080 field of the official arrow travelling up and to the right along its own
-axis, as a seamless six-minute loop. Currently a **web mock-up**, held for approval
-before anything is encoded to video.
+axis, as a seamless six-minute loop, with a once-per-loop transition that converges the
+field into the Vector logo on the Domino screen. Built to the DX Trading Floor immersive
+template. Currently a **web mock-up**, held for approval before anything is encoded to
+video.
 
 | | |
 | --- | --- |
@@ -14,6 +16,8 @@ before anything is encoded to video.
 | Speed | 3.9 – 10.0 px/s across six depth layers |
 | Field | ~352 arrows on screen, each with a soft halo and a light trail |
 | Artwork | `Vector Official - Arrow Regular.svg`, unmodified and unrotated |
+| Venue | DX Trading Floor — 7 panels, cube band from y 674, Domino screen 1653 × 630 |
+| Transition | 4:00 → 4:45, once per loop; 692 arrows converge, 472 of them form the mark |
 
 ## Files
 
@@ -21,7 +25,13 @@ before anything is encoded to video.
 | --- | --- |
 | `arrow-animation-mockup.html` | The review page — viewer, transport, scrub, loop-point check, spec sheet. Self-contained. |
 | `arrow-animation-render.html` | Bare 6878 × 1080 surface with a `seek(seconds)` hook. The export source. |
-| `arrow-field.js` | The engine. Single source of truth for geometry, colour and layer config. |
+| `arrow-field.js` | The ambient engine. Single source of truth for geometry, colour and layer config. |
+| `arrow-transition.js` | The logo event — sweep, gather, reveal, resolve, hold, release. |
+| `venue.js` | Panel geometry measured off the venue template. |
+| `assets/vector-logo-horizontal.svg` | The bilingual lockup, converted from the supplied EPS. |
+| `assets/mark-points.js` | The mark sampled onto a grid — generated, do not hand-edit. |
+| `tools/eps-to-svg.py` | Recovers the logo artwork from the Illustrator EPS. |
+| `tools/sample-mark.js` | Regenerates `mark-points.js` at a given grid spacing. |
 | `templates/` | Page shells with an `__ENGINE__` slot. |
 | `build.js` | Inlines the engine (and the Karbon faces) into the two self-contained pages. |
 | `verify.js` / `analyze.py` | Render frames headlessly and check the loop, angle and density. |
@@ -55,6 +65,47 @@ has no repeat period the eye can find across 6878 px even though each layer repe
 
 Arrows are placed by blue-noise sampling on the tile's torus, and any arrow straddling a
 tile edge is drawn again on the opposite side, so tiles butt cleanly.
+
+## The transition
+
+Once per loop the ambient field steps aside and the wall resolves into the logo:
+
+| Phase | Length | What happens |
+| --- | --- | --- |
+| sweep | 14 s | Ambient fades down. Arrows run **horizontally** along their own band toward the west wall — the four bands stay in their own lanes, so nothing crosses vertically before the centre. |
+| gather | 7 s | Past the gate each arrow eases onto a point sampled from the Vector mark, shrinking from ambient scale to ~10 px and crossing from the arrow gradient to white or magenta. Arrows with no point to fill dissolve. |
+| reveal | 4 s | The crisp mark fades in over the arrows; the arrows fade out. |
+| resolve | 3 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
+| hold | 7 s | The finished logo sits at 70% of the Domino screen's width. |
+| release | 10 s | Logo out, ambient field back. |
+
+Two details make it work:
+
+- **The sweep is a conveyor, not a drain.** Arrows are laid out over a run 1.9× the
+  band's width and all travel at close to the same speed, so ones starting off the outer
+  end keep feeding in behind the leaders. Starting every arrow inside the band empties
+  the far ends of the wall within a few seconds.
+- **It is a pure function of t.** No integration, no accumulated state — `draw(t)` gives
+  the same pixels at any time, which is what keeps the whole loop seekable and therefore
+  exportable frame by frame. The particle canvas is cleared and inert outside the event,
+  so t = 0 and t = 360 stay pixel-identical.
+
+`TRANSITION.finish` picks how the reveal resolves: `settle` (default) forms the mark
+large and eases it into the lockup, `inPlace` forms it at lockup size and just fades the
+lockup over the top, `markOnly` stops at the crisp mark and never brings in the wordmark.
+
+## Regenerating the logo assets
+
+```sh
+python3 animation/tools/eps-to-svg.py <the-lockup>.eps animation/assets/vector-logo-horizontal.svg
+node animation/tools/sample-mark.js --spacing 2.5
+node animation/build.js
+```
+
+The EPS is an AI11 EPS whose page content is plain PostScript using Illustrator's short
+operators (`mo`/`li`/`cv`/`cp`, `cmyk`, `f`), so the artwork comes out exactly, with no
+rasterising and no Ghostscript — which is not available in this container. Smaller
+`--spacing` means more, finer arrows in the formed mark.
 
 ## Verifying
 

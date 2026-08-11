@@ -274,6 +274,7 @@ function mountArrowField(stage, cfg = CONFIG) {
 
   stage.style.background =
     `linear-gradient(180deg, ${cfg.background.top} 0%, ${cfg.background.bottom} 100%)`;
+  stage.style.position = stage.style.position || 'relative';
 
   if (cfg.dither > 0) {
     const grain = doc.createElement('div');
@@ -289,6 +290,13 @@ function mountArrowField(stage, cfg = CONFIG) {
     });
     stage.appendChild(grain);
   }
+
+  // The drifting layers live in their own wrapper so the transition can fade the
+  // whole ambient field down as one thing without disturbing per-layer opacity.
+  const ambient = doc.createElement('div');
+  ambient.className = 'af-ambient';
+  Object.assign(ambient.style, { position: 'absolute', inset: '0' });
+  stage.appendChild(ambient);
 
   cfg.layers.forEach((layer, index) => {
     const { svg, tileH } = buildTile(layer, index, cfg);
@@ -314,7 +322,7 @@ function mountArrowField(stage, cfg = CONFIG) {
         'from{transform:translate3d(0,0,0)}' +
         `to{transform:translate3d(${layer.tileW}px,${-tileH}px,0)}}`
     );
-    stage.appendChild(el);
+    ambient.appendChild(el);
 
     metrics.push({
       index: index + 1,
@@ -331,7 +339,25 @@ function mountArrowField(stage, cfg = CONFIG) {
 
   style.textContent = rules.join('');
   doc.head.appendChild(style);
-  return metrics;
+
+  // The once-per-loop logo event, if the transition module and its assets are
+  // present. Ambient-only builds simply skip it.
+  let transition = null;
+  if (typeof mountTransition === 'function' && typeof MARK_POINTS !== 'undefined' && cfg.layers.length) {
+    const shades = [cfg.gradientFrom, '#9E4FD4', '#7B7FD6', '#5FA2D8', cfg.gradientTo];
+    transition = mountTransition(stage, ambient, {
+      config: cfg.transition,
+      venue: VENUE,
+      markPoints: MARK_POINTS,
+      arrow: ARROW,
+      logoSvg: VECTOR_LOGO_SVG,
+      duration: cfg.duration,
+      palette: shades,
+      rng: mulberry32(cfg.seed ^ 0x5f3a),
+    });
+  }
+
+  return { metrics, ambient, transition };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
