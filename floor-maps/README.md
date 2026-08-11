@@ -3,18 +3,32 @@
 Guest-facing wayfinding maps for the Design Exchange (234 Bay Street, Toronto),
 built from the venue's own blueprints and set in the Vector Institute brand.
 
-Four sheets, each 24 × 36 in portrait:
+Five sheets:
 
-| Sheet | What it covers |
-| --- | --- |
-| `level-1-lobby` | Arrival, check-in, coat check, washrooms, Grand Staircase |
-| `level-2-trading-floor` | The immersive projection theatre and its three screen walls |
-| `level-3-gallery` | Exhibition hall, Gallery Boardroom (Patty Watt Room), washrooms |
-| `building-overview` | How the three levels connect — every vertical route in the building |
+| Sheet | Size | What it covers |
+| --- | --- | --- |
+| `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — flat colour-blocked spaces, numbered pins, north up |
+| `level-1-lobby` | 24 × 36 in | Arrival, check-in, coat check, washrooms, Grand Staircase |
+| `level-2-trading-floor` | 24 × 36 in | The immersive projection theatre and its three screen walls |
+| `level-3-gallery` | 24 × 36 in | Exhibition hall, Gallery Boardroom (Patty Watt Room), washrooms |
+| `building-overview` | 24 × 36 in | How the three levels connect — every vertical route in the building |
 
 Each sheet ships as `.pdf` (press-ready), `.svg` (vector, fonts embedded) and
 `.png` (2×, for slides and screens). `dist/index.html` is a single-file viewer
-with all four and download links.
+with all five and download links.
+
+## Two drawing styles
+
+The four 24 × 36 in sheets are **plan sheets**: they carry the venue's own wall
+poché with colour washed over it, and keep the blueprint's orientation. They
+are the reference drawing — good for staff, production and anyone comparing
+against DX's own documents.
+
+`gallery-event-map` is an **event map**: the poché is thrown away and the floor
+is rebuilt as flat filled shapes, one tone per category, with white gaps
+between rooms and numbered pins keyed to a panel. Geometry still comes from the
+blueprint, so the simplification stays dimensionally true — but nothing is drawn
+that a guest does not need. This is the style to extend to the other levels.
 
 ## Design decisions
 
@@ -29,6 +43,12 @@ contrast — dark glyphs on turquoise, tangerine and lime; white on the rest.
 the show is, where the washrooms are, and how to get between floors. Hence the
 standing "Getting between floors" panel on every sheet, the explicit *no
 washrooms on Level 2* warning, and the overview sheet.
+
+**North is not up on the venue's drawings.** The north arrow on every DX sheet
+points to the *right* of the page. The four plan sheets keep that orientation
+and label it; the event map rotates the plan 90° counter-clockwise so north is
+up, which also matches the orientation of the event team's own 3D gallery
+renders.
 
 **The base plan is real.** Wall geometry is extracted from the vector content
 of the venue's blueprints rather than traced, so room shapes, door swings,
@@ -46,9 +66,13 @@ python3 src/build.py            # geometry + content -> dist/
 committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
 (Chromium is used for PNG rasterising and PDF printing).
 
-- `src/mapdata.py` — all content: zones, pins, labels, callouts, palette.
-  Edit this to move a label or retitle a room; no rendering code involved.
-- `src/build.py` — SVG assembly, icon set, sheet layout, output.
+- `src/mapdata.py` — content for the four plan sheets: zones, pins, labels,
+  callouts, palette. Edit this to move a label or retitle a room.
+- `src/gallery_data.py` — content for the Gallery event map, same idea.
+- `src/build.py` — SVG assembly, icon set, sheet layout, output. Running it
+  also builds the event map and the viewer.
+- `src/build_gallery.py` — the event-map renderer, on its own if you want to
+  iterate on just that sheet.
 
 ## Sources
 
@@ -68,11 +92,18 @@ committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
   arrival zone and the escalators rather than asserting a specific street door —
   worth confirming with DX before print, along with which door your guests are
   actually routed through on the night.
-- **Screen wall names.** The tech deck names the Trading Floor surfaces
-  "South / West Domino / North", which does not line up with the blueprint's
-  north arrow. The sheets label them by position instead — the Domino screen on
-  the short far wall, projection walls down both long sides — which matches the
-  deck's own pixel dimensions (2239 / 1679 / 2239 px against 76 ft / 58 ft / 76 ft).
+- **Screen wall names — resolved.** The tech deck's "South / West Domino /
+  North" naming looked like it contradicted the blueprint, but that was an
+  artefact of assuming north was up. Read with north to the page-right, the
+  deck's compass names land exactly on the blueprint's geometry, on both the
+  Trading Floor and the Gallery. The sheets still label the Trading Floor walls
+  by position, which is unambiguous either way.
+- **Gallery vendor tables.** The event map shows the vendor rows from the event
+  team's own "Vector – Gallery – Vendor Tables" plan (Floor 3 reference images).
+  They are drawn as indicative bands of tables, not surveyed positions, and
+  should be re-checked against the final floor plan.
+- **The Gallery LED wall** (1920 × 1080) is specified in the tech deck but not
+  sited on any drawing, so the event map lists it without pinning it to a wall.
 - Back-of-house rooms (Eatertainment offices, storage, staff washrooms off the
   Level 1 east corridor) are deliberately left untinted so guests read them as
   "not for me".

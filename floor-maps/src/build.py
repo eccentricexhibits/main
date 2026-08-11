@@ -310,18 +310,20 @@ def build_floor(floor):
 
     # ---- meta strip: north arrow + scale bar, clear of the drawing
     nx, ny = MARGIN + 22, META_Y
+    # North on the DX blueprints points to the RIGHT of the page, not up, so
+    # these sheets — which keep the blueprint's own orientation — say so.
     o.append('<path d="M%d %d L%d %d L%d %d Z" fill="%s"/>'
-             % (nx, ny - 24, nx - 11, ny + 12, nx + 11, ny + 12, INK))
-    o.append(T(nx + 24, ny + 10, "N", 24, 600, INK))
+             % (nx + 26, ny, nx - 10, ny - 12, nx - 10, ny + 12, INK))
+    o.append(T(nx + 36, ny + 9, "N", 24, 600, INK))
     bar_ft = 20
     bw = bar_ft * PT_PER_FT * s
-    bxs, bys = MARGIN + 130, ny - 4
+    bxs, bys = MARGIN + 150, ny - 4
     o.append('<rect x="%.1f" y="%.1f" width="%.1f" height="10" fill="%s"/>' % (bxs, bys, bw, INK))
     o.append('<rect x="%.1f" y="%.1f" width="%.1f" height="10" fill="#FFFFFF" stroke="%s" '
              'stroke-width="1.5"/>' % (bxs, bys, bw / 2, INK))
     o.append(T(bxs, bys - 12, "0", 17, 400, INK_SOFT, "middle"))
     o.append(T(bxs + bw, bys - 12, "%d ft" % bar_ft, 17, 400, INK_SOFT, "middle"))
-    o.append(T(bxs + bw + 34, ny + 8, "Drawn from the venue's blueprints  ·  north is up",
+    o.append(T(bxs + bw + 34, ny + 8, "Drawn from the venue's blueprints  ·  north is to the right",
                19, 400, INK_SOFT))
 
     # ---- legend
@@ -523,16 +525,17 @@ def render(svg_path, key):
 
 def build_viewer(sheets):
     cards = []
-    for key, title, sub in sheets:
+    for key, title, sub, size in sheets:
         b64 = base64.b64encode(open(os.path.join(DIST, key + ".png"), "rb").read()).decode()
         cards.append(
             '<section id="%s"><header><h2>%s</h2><p>%s</p>'
-            '<nav><a href="%s.pdf" download>PDF (24×36 in)</a>'
+            '<nav><a href="%s.pdf" download>PDF (%s)</a>'
             '<a href="%s.svg" download>SVG</a>'
             '<a href="%s.png" download>PNG</a></nav></header>'
             '<img src="data:image/png;base64,%s" alt="%s"></section>'
-            % (key, esc(title), esc(sub), key, key, key, b64, esc(title)))
-    nav = "".join('<a href="#%s">%s</a>' % (k, esc(t)) for k, t, _ in sheets)
+            % (key, esc(title), esc(sub), key, esc(size), key, key, b64,
+               esc(title)))
+    nav = "".join('<a href="#%s">%s</a>' % (k, esc(t)) for k, t, _, _ in sheets)
     doc = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Floor Maps — Vector Institute at Design Exchange</title>
@@ -570,20 +573,25 @@ img{width:100%%;height:auto;display:block;border:1px solid var(--line);border-ra
 
 def main():
     os.makedirs(DIST, exist_ok=True)
-    sheets = []
+    import build_gallery
+    build_gallery.main()
+    sheets = [("gallery-event-map", "Gallery — event map",
+               "Level 3, redrawn as a guest-facing event map", "24 × 16 in")]
     for fl in FLOORS:
         svg = build_floor(fl)
         p = os.path.join(DIST, fl["key"] + ".svg")
         open(p, "w", encoding="utf-8").write(svg)
         render(p, fl["key"])
-        sheets.append((fl["key"], "Level %s — %s" % (fl["level"], fl["name"]), fl["tagline"]))
+        sheets.append((fl["key"], "Level %s — %s" % (fl["level"], fl["name"]),
+                       fl["tagline"], "24 × 36 in"))
         print("built", fl["key"])
 
     svg = build_overview()
     p = os.path.join(DIST, "building-overview.svg")
     open(p, "w", encoding="utf-8").write(svg)
     render(p, "building-overview")
-    sheets.append(("building-overview", "Getting Around", "How the three levels connect"))
+    sheets.append(("building-overview", "Getting Around",
+                   "How the three levels connect", "24 × 36 in"))
     print("built building-overview")
 
     build_viewer(sheets)

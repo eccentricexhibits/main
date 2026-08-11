@@ -10,21 +10,27 @@ DIST = os.path.join(ROOT, "dist")
 OUT = os.path.join(DIST, "artifact.html")
 
 SHEETS = [
+    ("gallery-event-map", "3", "Gallery — event map",
+     "Level 3 redrawn as a guest-facing event map: flat colour-blocked spaces "
+     "instead of blueprint linework, numbered pins keyed to a panel, north up, "
+     "and the vendor rows from the event team&rsquo;s own gallery plan.",
+     "24 &times; 16 in"),
     ("level-1-lobby", "1", "Lobby",
      "Arrival, check-in and coat check. Both the Bay Street doors and the TD "
      "Concourse escalators land here, and the Grand Staircase in the south-west "
-     "corner is the route up to the show."),
+     "corner is the route up to the show.", "24 &times; 36 in"),
     ("level-2-trading-floor", "2", "Trading Floor",
      "The immersive theatre. Three walls of projection under a 40 ft ceiling, "
      "with the Domino screen on the far wall. No washrooms on this level — the "
-     "one thing worth telling guests before they go looking."),
+     "one thing worth telling guests before they go looking.", "24 &times; 36 in"),
     ("level-3-gallery", "3", "Gallery",
      "Exhibition hall wrapping the building core in an L, plus the Gallery "
      "Boardroom (Patty Watt Room). Washrooms, stairs and elevators all sit "
-     "inside the core, reachable from either leg."),
+     "inside the core, reachable from either leg.", "24 &times; 36 in"),
     ("building-overview", "★", "Getting Around",
      "Every vertical route in the building on one sheet — which stair, "
-     "escalator or elevator serves which levels, and what each one is for."),
+     "escalator or elevator serves which levels, and what each one is for.",
+     "24 &times; 36 in"),
 ]
 
 FACTS = [
@@ -152,7 +158,7 @@ def main():
     parts.append('<header class="mast"><div class="wrap">')
     parts.append('<p class="eyebrow">Vector Institute at Design Exchange</p>')
     parts.append("<h1>Floor Maps</h1>")
-    parts.append('<p class="stand">Four wayfinding sheets for the event at 234 Bay Street, '
+    parts.append('<p class="stand">Five wayfinding sheets for the event at 234 Bay Street, '
                  'drawn from the venue&rsquo;s own blueprints. One colour key across all '
                  'three levels: magenta is the event space, cobalt is elevators, violet is '
                  'stairs, turquoise is washrooms.</p>')
@@ -162,12 +168,12 @@ def main():
     parts.append("</div></div></header>")
 
     parts.append('<nav class="rail" aria-label="Sheets"><div class="wrap"><ul>')
-    for key, lvl, name, _ in SHEETS:
+    for key, lvl, name, _, _size in SHEETS:
         parts.append('<li><a href="#%s"><span class="chip">%s</span>%s</a></li>' % (key, lvl, name))
     parts.append("</ul></div></nav>")
 
     parts.append('<main class="wrap">')
-    for key, lvl, name, blurb in SHEETS:
+    for key, lvl, name, blurb, size in SHEETS:
         png = os.path.join(DIST, key + ".png")
         pdf = os.path.join(DIST, key + ".pdf")
         svg = os.path.join(DIST, key + ".svg")
@@ -178,7 +184,7 @@ def main():
         parts.append('<a href="%s" download="%s.pdf">Download PDF</a>' % (b64(pdf, "application/pdf"), key))
         parts.append('<a href="%s" download="%s.svg">Download SVG</a>' % (b64(svg, "image/svg+xml"), key))
         parts.append('<a href="%s" download="%s.png">Download PNG</a>' % (b64(png, "image/png"), key))
-        parts.append("<span>24 &times; 36 in</span></div>")
+        parts.append("<span>%s</span></div>" % size)
         parts.append('<figure><img src="%s" alt="%s floor map sheet"></figure>'
                      % (b64(png, "image/png"), name))
         parts.append("</section>")
@@ -191,15 +197,20 @@ def main():
                  "The sheets mark the arrival zone rather than asserting one street door — "
                  "worth pinning down, along with which door your guests are routed through "
                  "on the night.</dd>")
-    parts.append("<dt>Screen walls are labelled by position.</dt><dd>The DX tech deck names the "
-                 "Trading Floor surfaces &ldquo;South / West Domino / North&rdquo;, which "
-                 "doesn&rsquo;t line up with the blueprint&rsquo;s north arrow. The sheets use "
-                 "position instead, which matches the deck&rsquo;s own pixel dimensions "
-                 "(2239 / 1679 / 2239 px against 76 ft / 58 ft / 76 ft).</dd>")
+    parts.append("<dt>The venue&rsquo;s drawings are not north-up.</dt><dd>The north arrow on "
+                 "every DX sheet points to the <em>right</em> of the page, so the blueprints sit "
+                 "90&deg; off north. The event map turns the plan back so north is up, which also "
+                 "matches the orientation of the event team&rsquo;s own 3D gallery renders. This "
+                 "resolves what looked like a contradiction in the tech deck: once the plan is "
+                 "read with north to the page-right, the deck&rsquo;s &ldquo;south wall / east "
+                 "wall&rdquo; naming lands exactly on the blueprint&rsquo;s geometry. The three "
+                 "24 &times; 36 in level sheets still carry the blueprint&rsquo;s own "
+                 "orientation and are labelled accordingly.</dd>")
     parts.append("<dt>Source and regeneration.</dt><dd>Everything lives under <code>floor-maps/</code> "
                  "on the <code>claude/design-exchange-floor-maps-0icdz3</code> branch. Labels, "
-                 "room names and pin positions are all in <code>src/mapdata.py</code> — edit "
-                 "that and re-run <code>src/build.py</code> to regenerate every format.</dd>")
+                 "room names and pin positions live in <code>src/mapdata.py</code> for the "
+                 "level sheets and <code>src/gallery_data.py</code> for the event map — edit "
+                 "those and re-run <code>src/build.py</code> to regenerate every format.</dd>")
     parts.append("</dl></div></footer>")
 
     open(OUT, "w", encoding="utf-8").write("\n".join(parts))
