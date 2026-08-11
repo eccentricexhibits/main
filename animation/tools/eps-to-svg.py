@@ -71,11 +71,18 @@ def parse(text):
 
 def main():
     src, dst = sys.argv[1], sys.argv[2]
+    # CMYK -> RGB out of an EPS is only ever an approximation; the brand's own
+    # sRGB value is what should ship. --magenta replaces every non-white fill.
+    magenta = None
+    if "--magenta" in sys.argv:
+        magenta = sys.argv[sys.argv.index("--magenta") + 1].upper()
     raw = open(src, "rb").read().decode("latin-1")
     box = re.search(r"%%HiResBoundingBox:\s*0\s+0\s+([\d.]+)\s+([\d.]+)", raw)
     w, h = float(box.group(1)), float(box.group(2))
 
     paths = parse(raw)
+    if magenta:
+        paths = [(magenta if c != "#FFFFFF" else c, d) for c, d in paths]
     if len(paths) < 3:
         sys.exit(f"expected the mark plus a wordmark, got {len(paths)} paths")
 

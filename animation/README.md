@@ -12,6 +12,7 @@ video.
 | Duration | 360.000 s, seamless (last frame is pixel-identical to the first) |
 | Ground | vertical gradient, `#13071A` top → `#3B1056` bottom, with 3% grain to dither the ramp |
 | Arrow fill | linear gradient `#8A25C9` (lower left) → `#48C0D9` (upper right), axis parallel to travel, applied per arrow |
+| Logo magenta | `#EB088A` — the brand value, which overrides the EPS's approximate CMYK→RGB conversion |
 | Travel | slope +2.4667 (run 15 : rise 37), 67.93° above horizontal |
 | Speed | 3.9 – 10.0 px/s across six depth layers |
 | Field | ~352 arrows on screen, each with a soft halo and a light trail |
@@ -72,8 +73,8 @@ Once per loop the ambient field steps aside and the wall resolves into the logo:
 
 | Phase | Length | What happens |
 | --- | --- | --- |
-| sweep | 14 s | Ambient fades down. Arrows run **horizontally** along their own band toward the west wall — the four bands stay in their own lanes, so nothing crosses vertically before the centre. |
-| gather | 7 s | Past the gate each arrow eases onto a point sampled from the Vector mark, shrinking from ambient scale to ~10 px and crossing from the arrow gradient to white or magenta. Arrows with no point to fill dissolve. |
+| sweep | 14 s | Ambient fades down. Arrows fade in at brand orientation, turn to fly nose-first, and run **horizontally** along their own band toward the west wall — the four bands stay in their own lanes, so nothing crosses vertically before the centre. |
+| gather | 7 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands, shrinking from ambient scale to ~10 px and crossing from the arrow gradient to white or magenta. Arrows with no point to fill dissolve. |
 | reveal | 4 s | The crisp mark fades in over the arrows; the arrows fade out. |
 | resolve | 3 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
 | hold | 7 s | The finished logo sits at 70% of the Domino screen's width. |
@@ -81,10 +82,18 @@ Once per loop the ambient field steps aside and the wall resolves into the logo:
 
 Two details make it work:
 
-- **The sweep is a conveyor, not a drain.** Arrows are laid out over a run 1.9× the
-  band's width and all travel at close to the same speed, so ones starting off the outer
-  end keep feeding in behind the leaders. Starting every arrow inside the band empties
-  the far ends of the wall within a few seconds.
+- **The sweep is a conveyor, not a drain.** Journeys are laid out backwards from where
+  each arrow has to end up, over a run 1.9× the band's width at a single speed, so ones
+  starting off the outer end keep feeding in behind the leaders. Starting every arrow
+  inside the band empties the far ends of the wall within a few seconds.
+- **There is no gate.** An arrow leaves its lane when it comes within its own randomised
+  distance (420–860 px) of its destination, and vertical position is a function of that
+  distance rather than of elapsed time. A single shared turn-in point — which is what an
+  explicit gate is — stacks arrows into a vertical column down the wall before they fly
+  to the mark.
+- **Rotation is temporary.** Arrows turn to follow their flight path and straighten back
+  to brand orientation over the last quarter of the swoop, so the mark is always built
+  out of upright arrows.
 - **It is a pure function of t.** No integration, no accumulated state — `draw(t)` gives
   the same pixels at any time, which is what keeps the whole loop seekable and therefore
   exportable frame by frame. The particle canvas is cleared and inert outside the event,
@@ -97,7 +106,8 @@ lockup over the top, `markOnly` stops at the crisp mark and never brings in the 
 ## Regenerating the logo assets
 
 ```sh
-python3 animation/tools/eps-to-svg.py <the-lockup>.eps animation/assets/vector-logo-horizontal.svg
+python3 animation/tools/eps-to-svg.py <the-lockup>.eps \
+  animation/assets/vector-logo-horizontal.svg --magenta '#EB088A'
 node animation/tools/sample-mark.js --spacing 2.5
 node animation/build.js
 ```
@@ -106,6 +116,10 @@ The EPS is an AI11 EPS whose page content is plain PostScript using Illustrator'
 operators (`mo`/`li`/`cv`/`cp`, `cmyk`, `f`), so the artwork comes out exactly, with no
 rasterising and no Ghostscript — which is not available in this container. Smaller
 `--spacing` means more, finer arrows in the formed mark.
+
+`--magenta` replaces every non-white fill with the given value. CMYK→RGB out of an EPS is
+only ever an approximation — this file converts to `#FF0FF1` — so the brand's own sRGB
+value is what ships.
 
 ## Verifying
 

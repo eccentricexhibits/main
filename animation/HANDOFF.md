@@ -333,8 +333,17 @@ Timeline, particle behaviour and the two non-obvious decisions are documented in
   throughout; against 48–235 px ambient arrows they read as dust and the handoff looked
   like a cross-fade to a different piece. Starting at 34–120 px and shrinking to ~10 px
   during the gather makes the field look like it turns and condenses.
-- **Jitter the gate.** Every arrow turning in at exactly the same x draws a vertical
-  curtain down the wall. ±150 px is enough to break it.
+- **Do not use a gate at all.** The first version funnelled every arrow to a fixed x on
+  each side before flying it to the mark, which stacked them into two vertical columns
+  down the wall. Jittering that x by ±150 px was not enough. What works: no gate, and an
+  arrow leaves its lane when it comes within its *own* randomised distance (420–860 px)
+  of its destination — vertical position keyed to remaining distance, not to elapsed
+  time. Nothing then shares a turn-in point.
+- **Rotation is temporary.** Arrows turn to fly nose-first along their path — which also
+  fixes north-side arrows appearing to travel backwards — and straighten back to brand
+  orientation over the last quarter of the swoop, so the mark is always assembled from
+  upright arrows. Tangent angle is closed-form: with y keyed to remaining distance by a
+  smoothstep, dy/dx = rise · 6s(1−s) / swoop.
 - **Nothing may integrate.** Every particle's position is a closed-form function of t.
   That is what keeps `seek()` exact and the export frame-accurate — and it is why the
   canvas can be cleared and skipped entirely outside the event, leaving t = 0 and t = 360
@@ -365,9 +374,9 @@ export seeks each frame rather than capturing in real time.
    ~219 px, too small to read as built from arrows. The default `settle` forms the mark
    large and eases it into the lockup. `TRANSITION.finish` switches to `inPlace` (literal
    reading) or `markOnly`. Put to the client, unanswered at time of writing.
-4. **Arrow orientation during the sweep.** Every arrow stays unrotated, per brand, so
-   north-side arrows travel left while pointing up-right. Mirroring or rotating them
-   would read as more directional but would modify the mark.
+4. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
+   client sanctioned when asking for a more dynamic swoop. They are upright whenever they
+   matter — at fade-in, and once landed in the mark.
 
 ---
 
@@ -402,6 +411,9 @@ If you are starting over from nothing, this prompt carries the whole design:
 > Place arrows by blue-noise sampling on the tile torus with a seeded PRNG, redraw any
 > arrow that crosses a tile edge on the opposite side, and jitter per-arrow size ×[0.70,
 > 1.35] and opacity ×[0.72, 1.00].
+>
+> The logo's magenta is `#EB088A` — the brand's sRGB value, not the EPS's CMYK
+> conversion, which comes out as `#FF0FF1`.
 >
 > Give each arrow a soft halo (blurred copy of itself at 0.5 alpha, blur 0.055 × arrow
 > height) and a light trail: a tapered quad running back down the travel axis from the
