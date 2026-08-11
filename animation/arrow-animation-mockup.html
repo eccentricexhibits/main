@@ -816,26 +816,33 @@ if (typeof module !== 'undefined' && module.exports) module.exports = { MARK_POI
  *
  * Sequence
  * --------
- *   sweep    the ambient layers fade down; arrows run *horizontally* along their
- *            own band toward the west wall, turning to fly nose-first. Nothing
- *            moves vertically yet, so the four bands stay in their own lanes.
- *   gather   near the centre each arrow swoops out of its lane onto a point
- *            sampled from the Vector mark, straightening up as it lands, while
- *            its colour crosses from the ambient gradient to white or magenta.
- *            Arrows with no point to fill dissolve.
- *
- * There is no gate. An arrow bends when it comes within its own randomised
- * distance of its destination, so no two break at the same x — a single shared
- * turn-in point draws a vertical column of arrows down the wall.
+ *   sweep    the ambient layers fade down; arrows drop in from off the top and
+ *            bottom edges, round a corner into a horizontal lane, and cruise
+ *            toward the centre nose-first, striking light trails as they go.
+ *   gather   each arrow swoops out of its lane onto a point sampled from the
+ *            Vector mark, straightening up as it lands. Arrows with no point to
+ *            fill dissolve short of the shape.
  *   reveal   the crisp mark fades in over the arrows; the arrows fade out.
- *   resolve  the mark eases down into its slot in the full bilingual lockup as
- *            the wordmark fades in beside it.
+ *   resolve  the mark eases into its slot in the full bilingual lockup as the
+ *            wordmark fades in beside it.
  *   hold     the finished logo sits at 70% of the Domino screen's width.
  *   release  the logo fades out and the ambient field comes back up.
  *
+ * Every arrow in the event is white or magenta — the logo's own colours — from
+ * the moment it enters.
+ *
+ * There is no gate. An arrow bends out of its lane when it comes within its own
+ * randomised distance of its destination, so no two break at the same x; a
+ * single shared turn-in point draws a vertical column of arrows down the wall.
+ * Corner radius, swoop distance, cruise length, lane wander, speed and the shape
+ * of the acceleration are all drawn per arrow, which is what stops the swarm
+ * moving as one rigid block.
+ *
  * Everything here is a pure function of t. No integration, no accumulated state:
  * draw(t) at any time gives the same pixels, which is what makes the whole loop
- * seekable and therefore exportable frame by frame.
+ * seekable and therefore exportable frame by frame. It is also what makes the
+ * light trails cheap — an echo is the same path function evaluated a little way
+ * back along the journey.
  */
 
 const TRANSITION = {
@@ -853,8 +860,15 @@ const TRANSITION = {
   // nothing has to cross the full height of the wall to reach its cruise line.
   entryMargin: 340, // how far off the edge an arrow starts
   lane: [80, 1000], // cruise heights; each arrow drops in from whichever edge is nearer
-  corner: 190, // radius of the turn from the entry into the cruise
-  cruise: [760, 3050], // horizontal run before the swoop begins
+  corner: [110, 430], // radius of the turn from the entry into the cruise
+  cruise: [900, 3500], // horizontal run before the swoop begins, capped by the wall
+  laneDrift: [8, 46], // how far an arrow wanders off its lane while cruising
+  baseSpeed: 660, // px/s before the per-arrow multiplier
+  speedVar: [0.72, 1.3],
+  pace: [0.72, 1.45], // acceleration shape: <1 leaves fast, >1 rushes the finish
+  stagger: 2.4, // spread of launch times, seconds
+  trail: { count: 6, gap: [26, 54], alpha: 0.34 },
+  glow: 0.65, // blur radius as a fraction of the arrow's height
   // Arrows leave the wall at roughly ambient scale and shrink as they gather, so
   // the field reads as turning and condensing rather than being swapped out for
   // a different, much smaller set of arrows.
@@ -892,33 +906,6 @@ const ease = {
 const clamp01 = (u) => (u < 0 ? 0 : u > 1 ? 1 : u);
 const span = (t, a, b) => clamp01((t - a) / (b - a));
 const mix = (a, b, u) => a + (b - a) * u;
-
-/* ------------------------------------------------------------------ colours */
-
-function parseHex(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-/** Cached colour lerp — particles quantise their blend so the cache stays small. */
-function makeMixer() {
-  const cache = new Map();
-  return (from, to, u) => {
-    const q = Math.round(u * 24);
-    const key = `${from}|${to}|${q}`;
-    let hit = cache.get(key);
-    if (!hit) {
-      const a = parseHex(from);
-      const b = parseHex(to);
-      const v = q / 24;
-      hit = `rgb(${Math.round(mix(a[0], b[0], v))},${Math.round(mix(a[1], b[1], v))},${Math.round(
-        mix(a[2], b[2], v)
-      )})`;
-      cache.set(key, hit);
-    }
-    return hit;
-  };
-}
 
 /* ------------------------------------------------------------------- timing */
 
@@ -976,7 +963,7 @@ function layout(cfg, venue, markPoints) {
   return { lockup, slot, formed, scale: formed.h / slot.h };
 }
 
-function buildParticles(cfg, venue, markPoints, palette, rand) {
+function buildParticles(cfg, venue, markPoints, rand) {
   const t = phases(cfg);
   const geo = layout(cfg, venue, markPoints);
 
@@ -1001,8 +988,11 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
     // differently coloured flocks.
     dir: (i < half ? 1 : -1) * (rand() < 0.25 ? -1 : 1),
   }));
+  // Extras aim at a scatter around the mark and dissolve before they land. They
+  // carry the logo's colours in the same proportion as the mark itself, so the
+  // whole swarm is white and magenta with nothing left over from the ambient palette.
+  const magentaShare = targets.filter((p) => p.magenta).length / targets.length;
   for (let i = 0; i < cfg.extras; i++) {
-    // Extras aim at a scatter around the mark and dissolve before they land.
     const angle = rand() * Math.PI * 2;
     const r = mix(140, 460, rand());
     jobs.push({
@@ -1010,7 +1000,7 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
       target: {
         x: geo.formed.x + geo.formed.w / 2 + Math.cos(angle) * r,
         y: geo.formed.y + geo.formed.h / 2 + Math.sin(angle) * r * 0.6,
-        magenta: false,
+        magenta: rand() < magentaShare,
       },
       ghost: true,
     });
@@ -1019,26 +1009,28 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
   /*
    * Each journey is three moves: drop in from off the top or bottom edge, round
    * a corner into a horizontal lane, cruise, then swoop out of the lane onto the
-   * target. Journeys are laid out backwards from where the arrow has to end up,
-   * so the arrival window is what is controlled and the entry point falls out of
-   * it. Speeds come out near-uniform without having to be pinned.
+   * target. Nothing about it is shared between arrows — corner radius, swoop
+   * distance, cruise length, speed and the shape of the acceleration are all
+   * drawn per arrow, which is what stops the swarm moving as one rigid block.
    */
-  const window = cfg.sweep + cfg.gather;
-  const nominal = (cfg.entryMargin + venue.height * 0.5 + cfg.cruise[1]) / window;
-
   const particles = jobs.map((job) => {
     const laneY = mix(cfg.lane[0], cfg.lane[1], rand());
     const fromTop = laneY < venue.height / 2;
     const startY = fromTop ? -cfg.entryMargin : venue.height + cfg.entryMargin;
 
-    const cruise = mix(cfg.cruise[0], cfg.cruise[1], rand());
+    // Reach as far out as the wall allows, so arrows enter across its whole
+    // width rather than bunching around the middle third.
+    const room = (job.dir > 0 ? job.target.x : venue.width - job.target.x) - 60;
+    const cruise = Math.min(mix(cfg.cruise[0], cfg.cruise[1], Math.pow(rand(), 0.72)), room);
     const startX = job.target.x - job.dir * cruise;
     const entryLen = Math.abs(laneY - startY);
+    const corner = mix(cfg.corner[0], cfg.corner[1], rand());
     // The corner overlaps the two legs, so it is not travelled twice.
-    const total = entryLen + cruise - cfg.corner;
+    const total = entryLen + cruise - corner;
 
-    const arrive = mix(t.start + window * 0.3, t.gatherEnd, Math.pow(rand(), 0.85));
-    const launch = Math.max(t.start, arrive - total / nominal);
+    const launch = t.start + rand() * cfg.stagger;
+    let dur = total / (cfg.baseSpeed * mix(cfg.speedVar[0], cfg.speedVar[1], rand()));
+    dur = Math.min(dur, t.gatherEnd - launch);
 
     return {
       startX,
@@ -1046,18 +1038,22 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
       laneY,
       entryLen,
       cruise,
-      corner: cfg.corner,
+      corner,
       total,
       target: job.target,
       ghost: !!job.ghost,
       dir: job.dir,
       launch,
-      arrive,
-      speed: total / Math.max(0.35, arrive - launch),
+      dur: Math.max(0.5, dur),
+      // <1 leaves fast and eases in; >1 creeps out and rushes the last stretch.
+      pace: mix(cfg.pace[0], cfg.pace[1], rand()),
       swoop: mix(cfg.swoop[0], cfg.swoop[1], rand()),
+      drift: mix(cfg.laneDrift[0], cfg.laneDrift[1], rand()),
+      driftWave: mix(420, 1100, rand()),
+      driftPhase: rand() * Math.PI * 2,
+      trailGap: mix(cfg.trail.gap[0], cfg.trail.gap[1], rand()),
       size0: mix(cfg.arrowStart[0], cfg.arrowStart[1], Math.pow(rand(), 1.7)),
       size1: mix(cfg.arrowEnd[0], cfg.arrowEnd[1], rand()),
-      tint: palette[Math.floor(rand() * palette.length)],
     };
   });
 
@@ -1072,12 +1068,11 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
  */
 function positionAt(p, d) {
   if (d < p.entryLen) {
-    // Dropping in. Sideways drift builds over the last of the leg so the turn
-    // into the lane is a curve rather than a corner.
+    // Dropping in. Sideways drift builds over the leg so the turn into the lane
+    // is a curve rather than a corner.
     const u = clamp01(d / p.entryLen);
-    const turn = u * u;
     return {
-      x: p.startX + p.dir * p.corner * turn,
+      x: p.startX + p.dir * p.corner * u * u,
       y: mix(p.startY, p.laneY, u * u * (3 - 2 * u)),
       s: 0,
     };
@@ -1086,15 +1081,20 @@ function positionAt(p, d) {
   const x = p.startX + p.dir * Math.min(along, p.cruise);
   const remain = Math.abs(p.target.x - x);
   const s = clamp01((p.swoop - remain) / p.swoop);
-  return { x, y: mix(p.laneY, p.target.y, s * s * (3 - 2 * s)), s };
+  // A long, shallow wander down the lane. Ruler-straight cruising is what makes
+  // a swarm look mechanical; this also keeps the heading alive, since rotation
+  // is read off the path.
+  const settled = clamp01((along - p.corner) / 320) * (1 - s);
+  const wander = p.drift * Math.sin(p.driftPhase + along / p.driftWave) * settled;
+  return { x, y: mix(p.laneY + wander, p.target.y, s * s * (3 - 2 * s)), s };
 }
 
 /* ------------------------------------------------------------------ drawing */
 
-function makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand) {
+function makeRenderer(canvas, cfg, venue, markPoints, arrow, rand) {
   const ctx = canvas.getContext('2d');
-  const { particles, geo, times } = buildParticles(cfg, venue, markPoints, palette, rand);
-  const blend = makeMixer();
+  const { particles, geo, times } = buildParticles(cfg, venue, markPoints, rand);
+  const trailCount = cfg.trail.count;
 
   // Centred on the arrow's own middle, so rotation turns it about itself.
   const path = new Path2D();
@@ -1120,17 +1120,21 @@ function makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand) {
     for (const p of particles) {
       if (t < p.launch) continue;
 
-      const d = Math.min(p.total, (t - p.launch) * p.speed);
+      // Per-arrow acceleration shape, so no two cover their run the same way.
+      const u = clamp01((t - p.launch) / p.dur);
+      const d = p.total * Math.pow(u, p.pace);
       const here = positionAt(p, d);
       const s = here.s;
 
       const size = mix(p.size0, p.size1, s * s * (3 - 2 * s));
       let alpha = span(t, p.launch, p.launch + 0.35) * (1 - packDown);
-      // Arrows that will form the logo carry its colours the whole way in; only
-      // the ones destined to dissolve stay in the ambient palette.
-      let colour = p.ghost ? p.tint : p.target.magenta ? MAGENTA : WHITE;
-      if (p.ghost) alpha *= 1 - clamp01((s - 0.35) / 0.5); // give up before landing
+      // Every arrow in the event carries the logo's colours; the ones with no
+      // point to fill dissolve rather than changing colour.
+      const colour = p.target.magenta ? MAGENTA : WHITE;
+      if (p.ghost) alpha *= 1 - clamp01((s - 0.3) / 0.45);
       if (alpha <= 0.004) continue;
+
+      const k = size / arrow.h;
 
       /*
        * Fly along the path — nose down on the way in, along the lane on the
@@ -1138,23 +1142,55 @@ function makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand) {
        * mark is built out of arrows in their proper orientation. Heading is a
        * finite difference along the same closed-form path.
        */
-      const ahead = positionAt(p, Math.min(p.total, d + 6));
       const land = clamp01((s - 0.74) / 0.26);
       const align = 1 - land * land * (3 - 2 * land);
-      let rot = 0;
-      if (align > 0.001) {
-        const dx = ahead.x - here.x;
-        const dy = ahead.y - here.y;
-        if (dx || dy) rot = align * (Math.atan2(dy, dx) - THETA0);
+      const headingAt = (at, from) => {
+        if (align <= 0.001) return 0;
+        const dx = at.x - from.x;
+        const dy = at.y - from.y;
+        return dx || dy ? align * (Math.atan2(dy, dx) - THETA0) : 0;
+      };
+      const rot = headingAt(positionAt(p, Math.min(p.total, d + 6)), here);
+
+      const stamp = (px, py, scale, angle, a) => {
+        const sk = k * scale;
+        const cos = Math.cos(angle) * sk;
+        const sin = Math.sin(angle) * sk;
+        ctx.globalAlpha = a;
+        ctx.setTransform(cos, sin, -sin, cos, px, py);
+        ctx.fill(path);
+      };
+
+      ctx.fillStyle = colour;
+
+      /*
+       * A light trail struck along the arrow's own path: because position is a
+       * closed-form function of distance travelled, an echo is just the same
+       * function evaluated a little way back. It fades out as the arrow settles,
+       * so the finished mark is clean rather than smeared.
+       */
+      const speedNow = Math.max(0, d - p.total * Math.pow(clamp01(u - 0.02), p.pace));
+      const heat = clamp01(speedNow / 14) * (1 - s) * alpha;
+      if (heat > 0.01) {
+        for (let i = trailCount; i >= 1; i--) {
+          const back = d - i * p.trailGap;
+          if (back <= 0) continue;
+          const echo = positionAt(p, back);
+          const fade = (1 - i / (trailCount + 1)) * cfg.trail.alpha * heat;
+          if (fade <= 0.004) continue;
+          stamp(echo.x, echo.y, 1 - 0.115 * i, headingAt(here, echo), fade);
+        }
       }
 
-      const k = size / arrow.h;
-      const cos = Math.cos(rot) * k;
-      const sin = Math.sin(rot) * k;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = colour;
-      ctx.setTransform(cos, sin, -sin, cos, here.x, here.y);
-      ctx.fill(path);
+      /*
+       * A real blur for the halo, not a scaled copy of the arrow — at this size
+       * an enlarged copy reads as a second, greyer arrow sitting behind the
+       * first rather than as light coming off it.
+       */
+      ctx.shadowColor = colour;
+      ctx.shadowBlur = size * cfg.glow;
+      stamp(here.x, here.y, 1, rot, alpha);
+      ctx.shadowBlur = 0;
     }
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1182,7 +1218,6 @@ function mountTransition(stage, ambient, opts) {
   }
 
   const rand = opts.rng;
-  const palette = opts.palette;
 
   const canvas = doc.createElement('canvas');
   canvas.className = 'af-particles';
@@ -1197,7 +1232,7 @@ function mountTransition(stage, ambient, opts) {
   });
   stage.appendChild(canvas);
 
-  const renderer = makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand);
+  const renderer = makeRenderer(canvas, cfg, venue, markPoints, arrow, rand);
   const geo = renderer.geo;
 
   // The logo, positioned at its final lockup rect. Everything that moves is a
@@ -1613,7 +1648,6 @@ function mountArrowField(stage, cfg = CONFIG) {
   // present. Ambient-only builds simply skip it.
   let transition = null;
   if (typeof mountTransition === 'function' && typeof MARK_POINTS !== 'undefined' && cfg.layers.length) {
-    const shades = [cfg.gradientFrom, '#9E4FD4', '#7B7FD6', '#5FA2D8', cfg.gradientTo];
     transition = mountTransition(stage, ambient, {
       config: cfg.transition,
       venue: VENUE,
@@ -1621,7 +1655,6 @@ function mountArrowField(stage, cfg = CONFIG) {
       arrow: ARROW,
       logoSvg: VECTOR_LOGO_SVG,
       duration: cfg.duration,
-      palette: shades,
       rng: mulberry32(cfg.seed ^ 0x5f3a),
     });
   }

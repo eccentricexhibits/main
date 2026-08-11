@@ -337,6 +337,14 @@ Timeline, particle behaviour and the two non-obvious decisions are documented in
 - **Lanes span the full height** and each arrow enters from whichever edge is nearer.
   Splitting lanes into a top group and a bottom group leaves a bare stripe across the
   middle of the wall.
+- **Give every arrow its own numbers.** Corner radius, swoop distance, cruise length,
+  lane wander, speed multiplier and the exponent shaping its acceleration are all drawn
+  per arrow. With one shared set the swarm reads as stiff no matter how good the path
+  shape is; the cruise also needs a shallow sine wander, because ruler-straight travel is
+  what makes a flock look mechanical.
+- **Cruise length is capped by the wall, not by a constant.** `cruise` is clamped to
+  `target.x − 60` (or the mirror on the north side) so entries spread right out to both
+  edges. A fixed maximum bunches every entry into the middle third.
 - **Particles start at ambient scale and shrink.** The first pass ran them at 7–15 px
   throughout; against 48–235 px ambient arrows they read as dust and the handoff looked
   like a cross-fade to a different piece. Starting at 34–120 px and shrinking to ~10 px

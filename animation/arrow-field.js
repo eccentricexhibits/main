@@ -344,7 +344,6 @@ function mountArrowField(stage, cfg = CONFIG) {
   // present. Ambient-only builds simply skip it.
   let transition = null;
   if (typeof mountTransition === 'function' && typeof MARK_POINTS !== 'undefined' && cfg.layers.length) {
-    const shades = [cfg.gradientFrom, '#9E4FD4', '#7B7FD6', '#5FA2D8', cfg.gradientTo];
     transition = mountTransition(stage, ambient, {
       config: cfg.transition,
       venue: VENUE,
@@ -352,7 +351,6 @@ function mountArrowField(stage, cfg = CONFIG) {
       arrow: ARROW,
       logoSvg: VECTOR_LOGO_SVG,
       duration: cfg.duration,
-      palette: shades,
       rng: mulberry32(cfg.seed ^ 0x5f3a),
     });
   }

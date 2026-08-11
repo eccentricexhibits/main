@@ -73,8 +73,8 @@ Once per loop the ambient field steps aside and the wall resolves into the logo:
 
 | Phase | Length | What happens |
 | --- | --- | --- |
-| sweep | 7 s | Ambient fades down. Arrows drop in from off the top and bottom edges, round a corner into a horizontal lane, and cruise toward the centre — nose-first, so they face where they are going. |
-| gather | 4 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands and shrinking from ambient scale to ~14 px. Arrows with no point to fill dissolve. |
+| sweep | 7 s | Ambient fades down. Arrows drop in from off the top and bottom edges across the full width of the wall, round a corner into a horizontal lane, and cruise toward the centre nose-first, striking light trails as they go. |
+| gather | 4 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands and shrinking from ambient scale to ~14 px. Trails die out as arrows settle, so the finished mark is clean. Arrows with no point to fill dissolve short of the shape. |
 | reveal | 2.5 s | The crisp mark fades in over the arrows; the arrows fade out. |
 | resolve | 2 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
 | hold | 5 s | The finished logo sits at 70% of the Domino screen's width. |
@@ -99,12 +99,20 @@ Two details make it work:
   along the lane on the cruise, banking through the swoop — and straighten back to brand
   orientation over the last quarter of the swoop, so the mark is always built out of
   upright arrows.
-- **Only the arrows that land carry the logo's colours.** They are white or magenta from
-  the moment they enter; the ones destined to dissolve stay in the ambient palette. Mark
-  points are split left/right between the two streams so they do not reach across each
-  other, but a quarter are swapped over — a strict split sends every magenta arrow down
-  one side, since they all sit on the mark's right, and the two streams then read as two
-  differently coloured flocks.
+- **Every arrow in the event is white or magenta** from the moment it enters, including
+  the ones that dissolve — they take the logo's colours in the same proportion as the
+  mark. Mark points are split left/right between the two streams so they do not reach
+  across each other, but a quarter are swapped over: a strict split sends every magenta
+  arrow down one side, since they all sit on the mark's right, and the two streams then
+  read as two differently coloured flocks.
+- **Nothing about a journey is shared.** Corner radius, swoop distance, cruise length,
+  lane wander, speed and the shape of the acceleration are drawn per arrow. A swarm on
+  one set of numbers moves as a rigid block however good the path is.
+- **Trails are free.** Because position is a closed-form function of distance travelled,
+  an echo is that same function evaluated a little way back along the journey — so the
+  trail follows the real path, corners and all, with no history to store. The halo is a
+  canvas shadow rather than a scaled copy of the arrow: at this size an enlarged copy
+  reads as a second, greyer arrow behind the first rather than as light.
 - **It is a pure function of t.** No integration, no accumulated state — `draw(t)` gives
   the same pixels at any time, which is what keeps the whole loop seekable and therefore
   exportable frame by frame. The particle canvas is cleared and inert outside the event,
