@@ -551,6 +551,7 @@
         <button id="playBtn" type="button">Pause</button>
         <button id="restartBtn" type="button">Restart</button>
         <button id="logoBtn" type="button" title="Jump to just before the logo transition and play through it">Play transition</button>
+        <button id="speakerBtn" type="button" title="Jump to just before the speaker cards wipe in">Play speakers</button>
         <button id="seamBtn" type="button" title="Jump to just before the loop point and play through it">Check loop point</button>
 
         <div class="scrub">
@@ -625,6 +626,9 @@
 
         <dt>Logo</dt>
         <dd id="specLogo">—</dd>
+
+        <dt>Speaker card</dt>
+        <dd id="specSpeaker">—</dd>
 
         <dt>Travel</dt>
         <dd>+2.4667 slope · 67.93° · run 15 : rise 37</dd>
@@ -776,11 +780,15 @@
       clock(T.start) + ' → ' + clock(T.end) + ' (' + Math.round(T.end - T.start) + ' s), once per loop';
     document.getElementById('specLogo').textContent =
       transition.particles + ' arrows in, ' + transition.markPoints + ' form the mark';
-    document.getElementById('logoBtn').disabled = false;
+    document.getElementById('specSpeaker').textContent =
+      'Wipes in at ' + clock(T.holdEnd) + ' over ' + (T.wipeEnd - T.holdEnd).toFixed(1) +
+      ' s, holds ' + (T.speakerEnd - T.wipeEnd).toFixed(0) + ' s';
   } else {
     document.getElementById('logoBtn').hidden = true;
+    document.getElementById('speakerBtn').hidden = true;
     document.getElementById('specTransition').textContent = 'off';
     document.getElementById('specLogo').textContent = '—';
+    document.getElementById('specSpeaker').textContent = '—';
   }
 
   document.getElementById('specSpeed').textContent =
@@ -890,12 +898,20 @@
     requestAnimationFrame(tick);
   })();
 
-  document.getElementById('logoBtn').addEventListener('click', function () {
+  function jumpTo(seconds) {
     if (!transition) return;
     setPlaying(false);
-    setTime((transition.times.start - 2) * 1000);
+    setTime(seconds * 1000);
     setRate(1);
     setPlaying(true);
+  }
+
+  document.getElementById('logoBtn').addEventListener('click', function () {
+    jumpTo(transition ? transition.times.start - 2 : 0);
+  });
+
+  document.getElementById('speakerBtn').addEventListener('click', function () {
+    jumpTo(transition ? transition.times.holdEnd - 1.5 : 0);
   });
 
   /* ------------------------------------------------------------- venue map */
@@ -934,6 +950,11 @@
 
     var d = VENUE.domino;
     box(d.x, d.y, d.w, d.h, 'Domino screen  ' + d.w + '×' + d.h, 'key');
+    if (transition && transition.speakers) {
+      transition.speakers.forEach(function (s, i) {
+        box(s.x, s.y, s.w, s.h, 'Speaker card ' + (i ? 'north' : 'south'), 'key low');
+      });
+    }
     if (transition) {
       var L = transition.geo.lockup;
       box(Math.round(L.x), Math.round(L.y), Math.round(L.w), Math.round(L.h),

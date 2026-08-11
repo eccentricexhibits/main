@@ -39,8 +39,24 @@ const TRANSITION = {
   gather: 4,
   reveal: 2.5,
   resolve: 2,
-  hold: 5,
+  hold: 2, // the logo alone, before the speaker cards wipe in
   release: 6,
+
+  /*
+   * After the logo has settled, a single magenta arrow runs the length of each
+   * of the north and south walls, wiping in a speaker card behind it, then fades
+   * as it comes in toward the centre. Cards sit on the wall panels only — never
+   * across the cube band below them.
+   */
+  speaker: {
+    wipe: 3.2, // how long the arrow takes to cross its wall
+    hold: 6, // how long the cards stay up afterwards
+    fill: 0.5, // card width, as a fraction of the wall panel's width
+    arrow: 300, // height of the wiping arrow, px
+    fadeFrom: 0.72, // point in the crossing where the arrow starts to go
+    name: 'Glenda Crisp',
+    title: ['President &amp; CEO,', 'Vector Institute'],
+  },
 
   extras: 130, // arrows beyond those needed for the mark, which dissolve on arrival
   // Arrows drop in from off the top and bottom edges, round a corner into a lane,
@@ -55,8 +71,8 @@ const TRANSITION = {
   speedVar: [0.72, 1.3],
   pace: [0.72, 1.45], // acceleration shape: <1 leaves fast, >1 rushes the finish
   stagger: 2.4, // spread of launch times, seconds
-  trail: { count: 6, gap: [26, 54], alpha: 0.34 },
-  glow: 0.65, // blur radius as a fraction of the arrow's height
+  trail: { count: 4, gap: [26, 54], alpha: 0.19 },
+  glow: 0.4, // blur radius as a fraction of the arrow's height
   // Arrows leave the wall at roughly ambient scale and shrink as they gather, so
   // the field reads as turning and condensing rather than being swapped out for
   // a different, much smaller set of arrows.
@@ -104,7 +120,9 @@ function phases(cfg) {
   t.revealEnd = t.gatherEnd + cfg.reveal;
   t.resolveEnd = t.revealEnd + cfg.resolve;
   t.holdEnd = t.resolveEnd + cfg.hold;
-  t.end = t.holdEnd + cfg.release;
+  t.wipeEnd = t.holdEnd + cfg.speaker.wipe;
+  t.speakerEnd = t.wipeEnd + cfg.speaker.hold;
+  t.end = t.speakerEnd + cfg.release;
   return t;
 }
 
@@ -396,7 +414,7 @@ function makeRenderer(canvas, cfg, venue, markPoints, arrow, rand) {
  * fades down for the duration of the event.
  */
 function mountTransition(stage, ambient, opts) {
-  const { config, venue, markPoints, arrow, logoSvg, duration } = opts;
+  const { config, venue, markPoints, arrow, logoSvg, portrait, duration } = opts;
   const cfg = Object.assign({}, TRANSITION, config || {});
   const doc = stage.ownerDocument;
   const t = phases(cfg);
@@ -459,18 +477,20 @@ function mountTransition(stage, ambient, opts) {
     '@keyframes af-logo-in{' +
       `0%,${pct(t.gatherEnd)}%{opacity:0;transform:${settles ? big : 'none'}}` +
       `${pct(t.revealEnd)}%{opacity:1;transform:${settles ? big : 'none'}}` +
-      `${pct(t.resolveEnd)}%,${pct(t.holdEnd)}%{opacity:1;transform:none}` +
+      `${pct(t.resolveEnd)}%,${pct(t.speakerEnd)}%{opacity:1;transform:none}` +
       `${pct(t.end)}%,100%{opacity:0;transform:none}}`,
     '@keyframes af-wordmark-in{' +
       `0%,${pct(t.revealEnd)}%{opacity:0}` +
-      `${pct(t.resolveEnd)}%,${pct(t.holdEnd)}%{opacity:${keepsWordmark ? 1 : 0}}` +
+      `${pct(t.resolveEnd)}%,${pct(t.speakerEnd)}%{opacity:${keepsWordmark ? 1 : 0}}` +
       `${pct(t.end)}%,100%{opacity:0}}`,
     // The ambient field steps back for the event and returns afterwards.
     '@keyframes af-ambient-out{' +
       `0%,${pct(t.start)}%{opacity:1}` +
-      `${pct(t.start + cfg.sweep * 0.55)}%,${pct(t.holdEnd)}%{opacity:0}` +
+      `${pct(t.start + cfg.sweep * 0.55)}%,${pct(t.speakerEnd)}%{opacity:0}` +
       `${pct(t.end)}%,100%{opacity:1}}`,
   ];
+
+  const cards = mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules);
 
   const style = doc.createElement('style');
   style.textContent = rules.join('');
@@ -479,6 +499,7 @@ function mountTransition(stage, ambient, opts) {
   holder.style.animation = `af-logo-in ${duration}s linear infinite`;
   if (wordmark) wordmark.style.animation = `af-wordmark-in ${duration}s linear infinite`;
   ambient.style.animation = `af-ambient-out ${duration}s linear infinite`;
+  cards.forEach((c) => c.start(duration));
 
   return {
     draw: renderer.draw,
@@ -486,7 +507,116 @@ function mountTransition(stage, ambient, opts) {
     geo,
     particles: renderer.count,
     markPoints: markPoints.points.length,
+    speakers: cards.map((c) => c.rect),
   };
+}
+
+/* ---------------------------------------------------------------- speakers */
+
+/**
+ * A magenta arrow crosses each of the north and south wall panels, wiping in a
+ * speaker card behind it, then fades as it comes in toward the centre.
+ *
+ * The card and the arrow are driven off the same normalised crossing, so the
+ * reveal edge is always exactly where the arrow is: the clip-path keyframes sit
+ * at the fractions of the crossing where the arrow's tip meets the card's near
+ * and far edges. Both are CSS animations on the loop's own timeline, which keeps
+ * them seekable alongside everything else.
+ *
+ * Cards are confined to the wall panels, above the cube band — nothing of the
+ * portrait or the type falls onto the cube faces or the draped returns.
+ */
+function mountSpeakers(stage, cfg, venue, arrow, portrait, t, pct, rules) {
+  const doc = stage.ownerDocument;
+  const spec = cfg.speaker;
+  const band = venue.cubeTop; // wall panels run from y 0 down to the cube band
+  const walls = [
+    { id: 'south', x: venue.panels.southWall.x, w: venue.panels.southWall.w, dir: 1 },
+    { id: 'north', x: venue.panels.northWall.x, w: venue.panels.northWall.w, dir: -1 },
+  ];
+
+  const portraitH = Math.round(band * 0.5);
+  rules.push(
+    '.af-speaker{position:absolute;pointer-events:none;display:flex;align-items:center;' +
+      "justify-content:center;gap:56px;font-family:'Karbon',system-ui,sans-serif;font-weight:600}" +
+      `.af-speaker img{height:${portraitH}px;width:auto;object-fit:cover;display:block;` +
+      'border-radius:4px}' +
+      '.af-speaker-name{color:#fff;font-size:130px;line-height:1.04;letter-spacing:-0.015em}' +
+      `.af-speaker-title{color:${cfg.magenta};font-size:90px;line-height:1.14;margin-top:20px}` +
+      '.af-wipe{position:absolute;pointer-events:none}'
+  );
+
+  return walls.map((wall) => {
+    /*
+     * The card covers its whole wall panel and centres its content, so the wipe
+     * is simply the arrow's progress across that panel — no need to work out
+     * where the arrow meets the artwork. Confining it to the panel is also what
+     * keeps the portrait and type off the cube band and the draped returns.
+     */
+    const rect = { x: wall.x, y: 0, w: wall.w, h: band };
+
+    const card = doc.createElement('div');
+    card.className = `af-speaker af-speaker-${wall.id}`;
+    Object.assign(card.style, {
+      left: `${rect.x}px`,
+      top: `${rect.y}px`,
+      width: `${rect.w}px`,
+      height: `${rect.h}px`,
+    });
+    card.innerHTML =
+      `<img src="${portrait}" alt="">` +
+      '<div><div class="af-speaker-name"></div>' +
+      `<div class="af-speaker-title">${spec.title.join('<br>')}</div></div>`;
+    card.querySelector('.af-speaker-name').textContent = spec.name;
+    stage.appendChild(card);
+
+    // The arrow's run: on from off the outer edge, off toward the centre.
+    const runFrom = wall.dir > 0 ? wall.x - spec.arrow : wall.x + wall.w + spec.arrow;
+    const runTo = wall.dir > 0 ? wall.x + wall.w + spec.arrow : wall.x - spec.arrow;
+    const at = (x) => clamp01((x - runFrom) / (runTo - runFrom));
+    const hitNear = at(wall.dir > 0 ? rect.x : rect.x + rect.w);
+    const hitFar = at(wall.dir > 0 ? rect.x + rect.w : rect.x);
+
+    const wipe = doc.createElement('div');
+    wipe.className = 'af-wipe';
+    const aw = spec.arrow * (arrow.w / arrow.h);
+    Object.assign(wipe.style, {
+      left: `${-aw / 2}px`,
+      top: `${Math.round(band / 2 - spec.arrow / 2)}px`,
+      width: `${aw}px`,
+      height: `${spec.arrow}px`,
+      opacity: '0',
+      filter: `drop-shadow(0 0 34px ${cfg.magenta}80)`,
+    });
+    wipe.innerHTML =
+      `<svg viewBox="0 0 ${arrow.w} ${arrow.h}" width="100%" height="100%">` +
+      `<polygon points="${arrow.points}" fill="${cfg.magenta}"/></svg>`;
+    stage.appendChild(wipe);
+
+    // Between the crossing and the card's own fraction of it, keyframe times.
+    const cross = (u) => t.holdEnd + (t.wipeEnd - t.holdEnd) * u;
+    const key = wall.id;
+
+    rules.push(
+      `@keyframes af-wipe-${key}{` +
+        `0%,${pct(t.holdEnd)}%{opacity:0;transform:translateX(${runFrom}px)}` +
+        `${pct(cross(0.06))}%{opacity:1}` +
+        `${pct(cross(spec.fadeFrom))}%{opacity:1}` +
+        `${pct(t.wipeEnd)}%,100%{opacity:0;transform:translateX(${runTo}px)}}`,
+      `@keyframes af-card-${key}{` +
+        `0%,${pct(cross(hitNear))}%{opacity:1;clip-path:inset(0 ${wall.dir > 0 ? '100% 0 0' : '0 0 100%'})}` +
+        `${pct(cross(hitFar))}%,${pct(t.speakerEnd)}%{opacity:1;clip-path:inset(0 0 0 0)}` +
+        `${pct(t.end)}%,100%{opacity:0;clip-path:inset(0 0 0 0)}}`
+    );
+
+    return {
+      rect,
+      start(duration) {
+        wipe.style.animation = `af-wipe-${key} ${duration}s linear infinite`;
+        card.style.animation = `af-card-${key} ${duration}s linear infinite`;
+      },
+    };
+  });
 }
 
 if (typeof module !== 'undefined' && module.exports) {

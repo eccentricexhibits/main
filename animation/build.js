@@ -23,11 +23,32 @@ const MODULES = [
 
 const logoSvg = fs
   .readFileSync(path.join(dir, 'assets', 'vector-logo-horizontal.svg'), 'utf8')
-  .replace(/\n\s*/g, '')
+  .replace(/\s+/g, ' ')
   .trim();
+
+/**
+ * The speaker's headshot, inlined so both pages stay self-contained. Drop the
+ * real file in as assets/speaker-portrait.{jpg,png,webp} and it is preferred;
+ * without one the build falls back to a clearly-marked placeholder rather than
+ * shipping a broken image.
+ */
+function portraitDataUri() {
+  const types = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
+  for (const ext of Object.keys(types)) {
+    const file = path.join(dir, 'assets', `speaker-portrait${ext}`);
+    if (!fs.existsSync(file)) continue;
+    const b64 = fs.readFileSync(file).toString('base64');
+    console.log(`portrait: ${path.basename(file)} (${(fs.statSync(file).size / 1024).toFixed(0)} KB)`);
+    return `data:${types[ext]};base64,${b64}`;
+  }
+  console.log('portrait: PLACEHOLDER — add animation/assets/speaker-portrait.jpg');
+  const svg = fs.readFileSync(path.join(dir, 'assets', 'speaker-portrait-placeholder.svg'), 'utf8');
+  return `data:image/svg+xml,${encodeURIComponent(svg.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim())}`;
+}
 
 const engine = [
   `const VECTOR_LOGO_SVG = ${JSON.stringify(logoSvg)};`,
+  `const SPEAKER_PORTRAIT = ${JSON.stringify(portraitDataUri())};`,
   ...MODULES.map((m) => fs.readFileSync(path.join(dir, m), 'utf8')),
 ]
   // The modules end with a CommonJS export block that only exists for the Node

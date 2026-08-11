@@ -350,6 +350,7 @@ function mountArrowField(stage, cfg = CONFIG) {
       markPoints: MARK_POINTS,
       arrow: ARROW,
       logoSvg: VECTOR_LOGO_SVG,
+      portrait: SPEAKER_PORTRAIT,
       duration: cfg.duration,
       rng: mulberry32(cfg.seed ^ 0x5f3a),
     });

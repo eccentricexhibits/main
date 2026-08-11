@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 700" width="560" height="700">
+  <!--
+    Stand-in for the speaker's headshot. Drop the real file in as
+    animation/assets/speaker-portrait.jpg (or .png/.webp) and rebuild — build.js
+    prefers it and this is never emitted. Crop to 4:5 first; see README.
+  -->
+  <rect width="560" height="700" fill="#2A2233"/>
+  <rect width="560" height="700" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A3247" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#221B2C" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <circle cx="280" cy="272" r="104" fill="#6B5F7E"/>
+  <path d="M280 396c-104 0-188 68-188 152v152h376V548c0-84-84-152-188-152Z" fill="#6B5F7E"/>
+  <text x="280" y="668" fill="#8E82A2" font-size="26" font-family="ui-monospace, monospace"
+        text-anchor="middle" letter-spacing="3">PORTRAIT</text>
+</svg>

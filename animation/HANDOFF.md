@@ -365,6 +365,19 @@ Timeline, particle behaviour and the two non-obvious decisions are documented in
   canvas can be cleared and skipped entirely outside the event, leaving t = 0 and t = 360
   pixel-identical.
 
+### The speaker cards
+
+- **The card covers the whole wall panel** and centres its content. The wipe is then just
+  the arrow's progress across the panel, so the reveal edge tracks the arrow for free —
+  no working out where the arrow meets the artwork. It also guarantees the portrait and
+  type stay off the cube band and the draped returns.
+- **Minifying SVG by stripping newlines welds attributes together.** `build.js` used
+  `.replace(/\n\s*/g, '')`, which turned `font-family="..."\n text-anchor="..."` into
+  `font-family="..."text-anchor="..."` — the data URI then failed to decode and the image
+  reported `complete: true, naturalWidth: 0`. Collapse to a single space, not to nothing.
+- **The render page needs the font too.** The cards are set in Karbon; inlining it only in
+  the review page would export type in a fallback face.
+
 ### Performance
 
 The review page measures ~13 fps ambient and ~19 fps during the transition in this
@@ -394,7 +407,10 @@ export seeks each frame rather than capturing in real time.
    ~219 px, too small to read as built from arrows. The default `settle` forms the mark
    large and eases it into the lockup. `TRANSITION.finish` switches to `inPlace` (literal
    reading) or `markOnly`. Put to the client, unanswered at time of writing.
-5. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
+5. **The headshot is a placeholder.** The portrait came through as an inline image in the
+   conversation rather than as an attached file, so there was nothing on disk to embed.
+   Drop the real file in at `animation/assets/speaker-portrait.jpg` and rebuild.
+6. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
    client sanctioned when asking for a more dynamic swoop. They are upright whenever they
    matter — at fade-in, and once landed in the mark.
 

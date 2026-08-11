@@ -18,7 +18,8 @@ video.
 | Field | ~352 arrows on screen, each with a soft halo and a light trail |
 | Artwork | `Vector Official - Arrow Regular.svg`, unmodified and unrotated |
 | Venue | DX Trading Floor — 7 panels, cube band from y 674, Domino screen 1653 × 630 |
-| Transition | 4:00 → 4:26.5, once per loop; 365 arrows converge, 235 of them form the mark |
+| Transition | 4:00 → 4:32.7, once per loop; 365 arrows converge, 235 of them form the mark |
+| Speaker card | wipes in behind a magenta arrow on each wall panel, ~43% of the panel's width |
 
 ## Files
 
@@ -77,8 +78,10 @@ Once per loop the ambient field steps aside and the wall resolves into the logo:
 | gather | 4 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands and shrinking from ambient scale to ~14 px. Trails die out as arrows settle, so the finished mark is clean. Arrows with no point to fill dissolve short of the shape. |
 | reveal | 2.5 s | The crisp mark fades in over the arrows; the arrows fade out. |
 | resolve | 2 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
-| hold | 5 s | The finished logo sits at 70% of the Domino screen's width. |
-| release | 6 s | Logo out, ambient field back. |
+| hold | 2 s | The finished logo sits at 70% of the Domino screen's width. |
+| speaker wipe | 3.2 s | A magenta arrow runs the length of each of the north and south wall panels, wiping in a speaker card behind it, then fades as it comes in toward the centre. |
+| speaker hold | 6 s | Logo and both cards hold together. |
+| release | 6 s | Logo, cards and arrows out; ambient field back. |
 
 Every journey is three moves — drop in, cruise, swoop — evaluated by `positionAt(p, d)`
 as a single closed-form function of distance travelled. Heading comes from a finite
@@ -117,6 +120,28 @@ Two details make it work:
   the same pixels at any time, which is what keeps the whole loop seekable and therefore
   exportable frame by frame. The particle canvas is cleared and inert outside the event,
   so t = 0 and t = 360 stay pixel-identical.
+
+### The speaker cards
+
+Each card covers its whole wall panel and centres its content, so the wipe is just the
+arrow's progress across that panel — the clip-path keyframes sit at the fractions of the
+crossing where the arrow crosses the panel's edges, and CSS interpolates linearly between
+them, so the reveal edge is always exactly where the arrow is. Covering the panel rather
+than the artwork is also what guarantees nothing lands on the cube band or the draped
+returns.
+
+The headshot is inlined by `build.js` from `assets/speaker-portrait.{jpg,png,webp}`.
+Without one it falls back to `assets/speaker-portrait-placeholder.svg` and says so on the
+build line, rather than shipping a broken image. To prepare a real one:
+
+```sh
+ffmpeg -i headshot.jpg -vf "crop='min(iw,ih*0.8)':'min(ih,iw/0.8)',scale=560:700" \
+  animation/assets/speaker-portrait.jpg
+node animation/build.js
+```
+
+Name and title live in `TRANSITION.speaker`. Both pages inline Karbon Semibold — the
+render surface needs it as much as the review page does, since that is what gets exported.
 
 `TRANSITION.finish` picks how the reveal resolves: `settle` (default) forms the mark
 large and eases it into the lockup, `inPlace` forms it at lockup size and just fades the
