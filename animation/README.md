@@ -39,7 +39,7 @@ video.
 | `templates/` | Page shells with an `__ENGINE__` slot. |
 | `build.js` | Inlines the engine (and the Karbon faces) into the two self-contained pages. |
 | `verify.js` / `analyze.py` | Render frames headlessly and check the loop, angle and density. |
-| `export-frames.js` | Frame-accurate PNG export. Not run yet. |
+| `export.js` | Frame-accurate export straight to MP4, whole loop or any span of it. |
 | `HANDOFF.md` | Why every number is what it is — read this before changing anything, or before rebuilding elsewhere. |
 
 Rebuild after editing `arrow-field.js` or anything in `templates/`:
@@ -205,12 +205,27 @@ matching over a short interval.
 ## Exporting (after approval)
 
 ```sh
-node animation/export-frames.js --fps 30 --out /tmp/frames
-ffmpeg -framerate 30 -i /tmp/frames/f_%05d.png -c:v prores_ks -profile:v 3 arrow-loop.mov
+node animation/export.js --fps 60 --from 3:45 --to 4:40 --out arrow-loop.mp4
+node animation/export.js --fps 30                                    # the whole loop
 ```
 
-Frames are seeked explicitly rather than screen-captured, so none are dropped or
-duplicated. 360 s divides evenly at 24, 25, 30 and 60 fps — 10,800 frames at 30.
+Every frame is seeked explicitly rather than screen-captured, so none is dropped or
+duplicated and the result is identical however slowly the machine renders. Frames pipe
+straight into ffmpeg — at this resolution a PNG sequence for even a minute of 60 fps runs
+to tens of gigabytes on disk.
+
+Times take seconds or `m:ss`. `--to` may run past the loop length; the surface wraps, so
+a span across the loop point exports cleanly. `--crf` sets quality (lower is better,
+default 16), `--scale` renders full size and scales the output for review copies.
+
+**Capture runs at about 0.5 fps on a machine without a GPU**, so a minute of 60 fps
+footage takes roughly two hours. The rate is a property of the machine, not the export —
+the seeking is exact either way.
+
+360 s divides evenly at 24, 25, 30 and 60 fps — 21,600 frames at 60 for the whole loop.
+
+For playback hardware, ProRes 422 HQ or HAP will serve better than H.264; swap the codec
+flags in `export.js`.
 
 ## Tuning
 

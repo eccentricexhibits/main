@@ -1,0 +1,135 @@
+#!/usr/bin/env node
+/*
+ * Frame-accurate export of the 6878 x 1080 surface, or any span of it.
+ *
+ *   node animation/export.js --fps 60 --from 3:45 --to 4:40 --out arrow-loop.mp4
+ *   node animation/export.js --fps 30                      # the whole loop
+ *
+ * Every frame is seeked explicitly rather than screen-captured, so none is
+ * dropped or duplicated and the result is identical however slowly the machine
+ * renders. Frames are piped straight into ffmpeg: at this resolution a PNG
+ * sequence for even a minute of 60 fps runs to tens of gigabytes on disk.
+ *
+ * Times accept seconds (225) or m:ss (3:45). --to may exceed the loop length;
+ * the surface wraps, so a span across the loop point exports cleanly.
+ *
+ * Options
+ *   --fps N        frame rate (default 60)
+ *   --from T       start time, default 0
+ *   --to T         end time, default the full duration
+ *   --crf N        x264 quality, lower is better (default 16)
+ *   --preset NAME  x264 preset (default slow)
+ *   --scale F      render at full size, then scale the output by F (default 1)
+ *   --out FILE     output path (default animation/arrow-loop.mp4)
+ */
+const path = require('path');
+const fs = require('fs');
+const { spawn } = require('child_process');
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright');
+
+const WIDTH = 6878;
+const HEIGHT = 1080;
+
+function arg(name, fallback) {
+  const i = process.argv.indexOf(`--${name}`);
+  return i === -1 ? fallback : process.argv[i + 1];
+}
+
+/** "3:45" or "225" or "225.5" -> seconds. */
+function seconds(value) {
+  const parts = String(value).split(':').map(Number);
+  return parts.length === 2 ? parts[0] * 60 + parts[1] : parts[0];
+}
+
+function ffmpegPath() {
+  if (process.env.FFMPEG) return process.env.FFMPEG;
+  const bundled =
+    '/usr/local/lib/python3.11/dist-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2';
+  return fs.existsSync(bundled) ? bundled : 'ffmpeg';
+}
+
+(async () => {
+  const fps = Number(arg('fps', 60));
+  const crf = String(arg('crf', 16));
+  const preset = String(arg('preset', 'slow'));
+  const scale = Number(arg('scale', 1));
+  const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage({
+    viewport: { width: WIDTH, height: HEIGHT },
+    deviceScaleFactor: 1,
+  });
+  await page.goto('file://' + path.join(__dirname, 'arrow-animation-render.html'));
+  await page.addStyleTag({ content: `html,body{width:${WIDTH}px;height:${HEIGHT}px;overflow:hidden}` });
+  // Fonts and the inlined portrait must be decoded before the first frame.
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() =>
+    Promise.all(
+      [...document.images].map((img) =>
+        img.complete ? null : new Promise((r) => (img.onload = img.onerror = r))
+      )
+    )
+  );
+
+  const duration = await page.evaluate(() => CONFIG.duration);
+  const from = seconds(arg('from', 0));
+  const to = seconds(arg('to', duration));
+  const total = Math.round((to - from) * fps);
+
+  if (!(total > 0)) throw new Error(`--from ${from} to --to ${to} is not a forward span`);
+
+  const filters = scale === 1 ? [] : ['-vf', `scale=${Math.round(WIDTH * scale / 2) * 2}:-2`];
+  const ff = spawn(ffmpegPath(), [
+    '-y',
+    '-f', 'image2pipe',
+    '-c:v', 'png',
+    '-framerate', String(fps),
+    '-i', '-',
+    ...filters,
+    '-c:v', 'libx264',
+    '-preset', preset,
+    '-crf', crf,
+    '-pix_fmt', 'yuv420p',
+    '-movflags', '+faststart',
+    out,
+  ]);
+  const ffDone = new Promise((resolve, reject) => {
+    let log = '';
+    ff.stderr.on('data', (d) => (log += d.toString().slice(-2000)));
+    ff.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`ffmpeg exited ${code}\n${log}`))));
+  });
+
+  const write = (buf) =>
+    ff.stdin.write(buf) ? Promise.resolve() : new Promise((r) => ff.stdin.once('drain', r));
+
+  console.log(
+    `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${WIDTH}x${HEIGHT}` +
+      (scale === 1 ? '' : ` scaled x${scale}`) + `  crf ${crf} ${preset}`
+  );
+
+  const started = Date.now();
+  for (let f = 0; f < total; f++) {
+    const t = (from + f / fps) % duration;
+    await page.evaluate((t) => window.seek(t), t);
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+    );
+    await write(await page.screenshot({ clip: { x: 0, y: 0, width: WIDTH, height: HEIGHT } }));
+
+    if (f % 25 === 0 || f === total - 1) {
+      const rate = (f + 1) / ((Date.now() - started) / 1000);
+      const eta = Math.round((total - f - 1) / Math.max(rate, 0.001) / 60);
+      process.stdout.write(
+        `\r${f + 1}/${total}  ${rate.toFixed(2)} fps  eta ${eta} min      `
+      );
+    }
+  }
+
+  ff.stdin.end();
+  await browser.close();
+  await ffDone;
+
+  const mb = (fs.statSync(out).size / 1048576).toFixed(1);
+  console.log(`\n${out}  ${mb} MB  (${((Date.now() - started) / 60000).toFixed(1)} min)`);
+})();
