@@ -28,20 +28,26 @@
 
 const TRANSITION = {
   at: 240, // seconds into the loop
-  sweep: 14,
-  gather: 7,
-  reveal: 4,
-  resolve: 3,
-  hold: 7,
-  release: 10,
+  sweep: 7,
+  gather: 4,
+  reveal: 2.5,
+  resolve: 2,
+  hold: 5,
+  release: 6,
 
-  extras: 220, // arrows beyond those needed for the mark, which dissolve on arrival
+  extras: 130, // arrows beyond those needed for the mark, which dissolve on arrival
+  // Arrows drop in from off the top and bottom edges, round a corner into a lane,
+  // and cruise from there. Lanes are kept on the side the arrow entered from, so
+  // nothing has to cross the full height of the wall to reach its cruise line.
+  entryMargin: 340, // how far off the edge an arrow starts
+  lane: [80, 1000], // cruise heights; each arrow drops in from whichever edge is nearer
+  corner: 190, // radius of the turn from the entry into the cruise
+  cruise: [760, 3050], // horizontal run before the swoop begins
   // Arrows leave the wall at roughly ambient scale and shrink as they gather, so
   // the field reads as turning and condensing rather than being swapped out for
   // a different, much smaller set of arrows.
   arrowStart: [34, 120],
-  arrowEnd: [8, 13],
-  feed: 0.9, // extra run laid out beyond each band, so arrows keep feeding in
+  arrowEnd: [11, 17],
   /*
    * How far short of its destination an arrow starts to bend out of its lane.
    * Randomised per arrow: a single figure makes every arrow break at the same x
@@ -172,17 +178,17 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
     }))
     .sort((a, b) => a.x - b.x);
 
-  const bands = venue.bands;
-  const run = bands[0].w * (1 + cfg.feed);
-  // One speed for everything. Journeys are laid out backwards from where each
-  // arrow has to end up, so the length of the run — not the speed — is what
-  // staggers arrivals across the window.
-  const speed = run / (cfg.sweep + cfg.gather * 0.9);
-
   // South-side arrows take the left of the mark and north-side the right, so
   // the two streams interleave in the middle instead of reaching across.
   const half = Math.round(targets.length / 2);
-  const jobs = targets.map((target, i) => ({ target, dir: i < half ? 1 : -1 }));
+  const jobs = targets.map((target, i) => ({
+    target,
+    // Split by side so the streams do not reach across each other, but swap a
+    // quarter of them over. A strict split sends every magenta arrow — they are
+    // all on the mark's right — down one stream, and the two sides read as two
+    // differently coloured flocks.
+    dir: (i < half ? 1 : -1) * (rand() < 0.25 ? -1 : 1),
+  }));
   for (let i = 0; i < cfg.extras; i++) {
     // Extras aim at a scatter around the mark and dissolve before they land.
     const angle = rand() * Math.PI * 2;
@@ -198,41 +204,77 @@ function buildParticles(cfg, venue, markPoints, palette, rand) {
     });
   }
 
-  const particles = jobs.map((job) => {
-    const lane = bands.filter((b) => b.dir === job.dir);
-    const band = lane[Math.floor(rand() * lane.length)];
+  /*
+   * Each journey is three moves: drop in from off the top or bottom edge, round
+   * a corner into a horizontal lane, cruise, then swoop out of the lane onto the
+   * target. Journeys are laid out backwards from where the arrow has to end up,
+   * so the arrival window is what is controlled and the entry point falls out of
+   * it. Speeds come out near-uniform without having to be pinned.
+   */
+  const window = cfg.sweep + cfg.gather;
+  const nominal = (cfg.entryMargin + venue.height * 0.5 + cfg.cruise[1]) / window;
 
-    /*
-     * A conveyor, not a one-shot drain. Distances are spread across the whole
-     * run, so arrows that begin off the outer end keep feeding in behind the
-     * leaders and the wall stays populated to the end of the sweep. Starting
-     * every arrow inside the band empties the far ends within seconds.
-     */
-    const reach = mix(700, run, rand());
-    const start = { x: job.target.x - job.dir * reach, y: band.y + 12 + rand() * (band.h - 24) };
-    const launch = t.start;
-    const arrive = launch + reach / speed;
-    // Arrows laid out beyond the wall appear as they cross into it.
-    const edge = job.dir > 0 ? 0 : venue.width;
-    const outside = job.dir > 0 ? start.x < edge : start.x > edge;
-    const fadeIn = outside ? launch + Math.abs(edge - start.x) / speed : launch;
+  const particles = jobs.map((job) => {
+    const laneY = mix(cfg.lane[0], cfg.lane[1], rand());
+    const fromTop = laneY < venue.height / 2;
+    const startY = fromTop ? -cfg.entryMargin : venue.height + cfg.entryMargin;
+
+    const cruise = mix(cfg.cruise[0], cfg.cruise[1], rand());
+    const startX = job.target.x - job.dir * cruise;
+    const entryLen = Math.abs(laneY - startY);
+    // The corner overlaps the two legs, so it is not travelled twice.
+    const total = entryLen + cruise - cfg.corner;
+
+    const arrive = mix(t.start + window * 0.3, t.gatherEnd, Math.pow(rand(), 0.85));
+    const launch = Math.max(t.start, arrive - total / nominal);
 
     return {
-      start,
+      startX,
+      startY,
+      laneY,
+      entryLen,
+      cruise,
+      corner: cfg.corner,
+      total,
       target: job.target,
       ghost: !!job.ghost,
       dir: job.dir,
       launch,
       arrive,
+      speed: total / Math.max(0.35, arrive - launch),
       swoop: mix(cfg.swoop[0], cfg.swoop[1], rand()),
       size0: mix(cfg.arrowStart[0], cfg.arrowStart[1], Math.pow(rand(), 1.7)),
       size1: mix(cfg.arrowEnd[0], cfg.arrowEnd[1], rand()),
       tint: palette[Math.floor(rand() * palette.length)],
-      fadeIn,
     };
   });
 
-  return { particles, geo, times: t, speed };
+  return { particles, geo, times: t };
+}
+
+/**
+ * Position along a journey after travelling `d`. Returns the swoop factor too,
+ * since size and colour key off it. Kept as one closed-form function so the
+ * heading can be taken as a finite difference rather than derived by hand for
+ * each leg — and so the whole thing stays a pure function of t.
+ */
+function positionAt(p, d) {
+  if (d < p.entryLen) {
+    // Dropping in. Sideways drift builds over the last of the leg so the turn
+    // into the lane is a curve rather than a corner.
+    const u = clamp01(d / p.entryLen);
+    const turn = u * u;
+    return {
+      x: p.startX + p.dir * p.corner * turn,
+      y: mix(p.startY, p.laneY, u * u * (3 - 2 * u)),
+      s: 0,
+    };
+  }
+  const along = p.corner + (d - p.entryLen);
+  const x = p.startX + p.dir * Math.min(along, p.cruise);
+  const remain = Math.abs(p.target.x - x);
+  const s = clamp01((p.swoop - remain) / p.swoop);
+  return { x, y: mix(p.laneY, p.target.y, s * s * (3 - 2 * s)), s };
 }
 
 /* ------------------------------------------------------------------ drawing */
@@ -264,49 +306,42 @@ function makeRenderer(canvas, cfg, venue, markPoints, arrow, palette, rand) {
     const packDown = span(t, times.gatherEnd, times.revealEnd);
 
     for (const p of particles) {
-      if (t < p.fadeIn) continue;
+      if (t < p.launch) continue;
 
-      const flight = clamp01((t - p.launch) / (p.arrive - p.launch));
-      const x = mix(p.start.x, p.target.x, flight);
+      const d = Math.min(p.total, (t - p.launch) * p.speed);
+      const here = positionAt(p, d);
+      const s = here.s;
 
-      /*
-       * The swoop. Vertical position is a function of how close the arrow is to
-       * its destination in x, not of elapsed time — so every arrow travels flat
-       * down its own lane and only bends out of it near the middle, and because
-       * the bend distance is randomised no two arrows break at the same place.
-       */
-      const remain = Math.abs(p.target.x - x);
-      const s = clamp01((p.swoop - remain) / p.swoop);
-      const curve = s * s * (3 - 2 * s);
-      const rise = p.target.y - p.start.y;
-      const y = p.start.y + rise * curve;
-
-      const size = mix(p.size0, p.size1, curve);
-      let alpha = span(t, p.fadeIn, p.fadeIn + 1.1) * (1 - packDown);
-      let colour = p.tint;
-      if (p.ghost) {
-        alpha *= 1 - clamp01((s - 0.35) / 0.5); // give up before landing
-      } else {
-        colour = blend(p.tint, p.target.magenta ? MAGENTA : WHITE, clamp01(s * 1.5));
-      }
+      const size = mix(p.size0, p.size1, s * s * (3 - 2 * s));
+      let alpha = span(t, p.launch, p.launch + 0.35) * (1 - packDown);
+      // Arrows that will form the logo carry its colours the whole way in; only
+      // the ones destined to dissolve stay in the ambient palette.
+      let colour = p.ghost ? p.tint : p.target.magenta ? MAGENTA : WHITE;
+      if (p.ghost) alpha *= 1 - clamp01((s - 0.35) / 0.5); // give up before landing
       if (alpha <= 0.004) continue;
 
       /*
-       * Turn to fly along the path, then straighten up on arrival so the mark is
-       * built out of arrows in their proper orientation.
+       * Fly along the path — nose down on the way in, along the lane on the
+       * cruise, banking through the swoop — then straighten up on arrival so the
+       * mark is built out of arrows in their proper orientation. Heading is a
+       * finite difference along the same closed-form path.
        */
-      const slope = (rise * 6 * s * (1 - s)) / p.swoop;
-      const heading = Math.atan2(slope * p.dir, p.dir);
+      const ahead = positionAt(p, Math.min(p.total, d + 6));
       const land = clamp01((s - 0.74) / 0.26);
-      const align = clamp01((t - p.fadeIn) / 1.4) * (1 - land * land * (3 - 2 * land));
-      const rot = align * (heading - THETA0);
+      const align = 1 - land * land * (3 - 2 * land);
+      let rot = 0;
+      if (align > 0.001) {
+        const dx = ahead.x - here.x;
+        const dy = ahead.y - here.y;
+        if (dx || dy) rot = align * (Math.atan2(dy, dx) - THETA0);
+      }
 
       const k = size / arrow.h;
       const cos = Math.cos(rot) * k;
       const sin = Math.sin(rot) * k;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = colour;
-      ctx.setTransform(cos, sin, -sin, cos, x, y);
+      ctx.setTransform(cos, sin, -sin, cos, here.x, here.y);
       ctx.fill(path);
     }
 

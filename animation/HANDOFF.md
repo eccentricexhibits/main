@@ -329,6 +329,14 @@ Timeline, particle behaviour and the two non-obvious decisions are documented in
   the centre at once and the far ends of the wall are bare within a few seconds. Lay them
   over a run ~1.9× the band width, at close to a single speed, and fade each one in as it
   crosses the outer edge.
+- **Entry is from the top and bottom edges**, not the sides: drop in, round a corner
+  into a horizontal lane, cruise, swoop. `positionAt(p, d)` evaluates the whole
+  three-part path in closed form from distance travelled, and the heading is a finite
+  difference along it — deriving a tangent per leg by hand is where this gets fiddly and
+  starts to snag at the joins.
+- **Lanes span the full height** and each arrow enters from whichever edge is nearer.
+  Splitting lanes into a top group and a bottom group leaves a bare stripe across the
+  middle of the wall.
 - **Particles start at ambient scale and shrink.** The first pass ran them at 7–15 px
   throughout; against 48–235 px ambient arrows they read as dust and the handoff looked
   like a cross-fade to a different piece. Starting at 34–120 px and shrinking to ~10 px
@@ -369,12 +377,16 @@ export seeks each frame rather than capturing in real time.
    `export-frames.js` is written and tested but deliberately not run.
 2. **Grain.** Added unprompted, at 3%, because the ground gradient is a banding risk on
    large hardware. `dither: 0` removes it if the client would rather not have it.
-3. **How the reveal resolves.** The brief asks for the logo at 70% of the Domino screen
+3. **"Speed up the overall animation" was read as the transition**, not the six-minute
+   loop — the ambient speed was set deliberately two rounds earlier and the rest of that
+   round's notes were all about the event. The transition went 45 s → 26.5 s. Flagged to
+   the client.
+4. **How the reveal resolves.** The brief asks for the logo at 70% of the Domino screen
    *and* for arrows to form the mark; at 70% width the mark inside the lockup is only
    ~219 px, too small to read as built from arrows. The default `settle` forms the mark
    large and eases it into the lockup. `TRANSITION.finish` switches to `inPlace` (literal
    reading) or `markOnly`. Put to the client, unanswered at time of writing.
-4. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
+5. **Arrow orientation during the sweep.** Arrows now rotate to fly nose-first, which the
    client sanctioned when asking for a more dynamic swoop. They are upright whenever they
    matter — at fade-in, and once landed in the mark.
 

@@ -18,7 +18,7 @@ video.
 | Field | ~352 arrows on screen, each with a soft halo and a light trail |
 | Artwork | `Vector Official - Arrow Regular.svg`, unmodified and unrotated |
 | Venue | DX Trading Floor — 7 panels, cube band from y 674, Domino screen 1653 × 630 |
-| Transition | 4:00 → 4:45, once per loop; 692 arrows converge, 472 of them form the mark |
+| Transition | 4:00 → 4:26.5, once per loop; 365 arrows converge, 235 of them form the mark |
 
 ## Files
 
@@ -73,27 +73,38 @@ Once per loop the ambient field steps aside and the wall resolves into the logo:
 
 | Phase | Length | What happens |
 | --- | --- | --- |
-| sweep | 14 s | Ambient fades down. Arrows fade in at brand orientation, turn to fly nose-first, and run **horizontally** along their own band toward the west wall — the four bands stay in their own lanes, so nothing crosses vertically before the centre. |
-| gather | 7 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands, shrinking from ambient scale to ~10 px and crossing from the arrow gradient to white or magenta. Arrows with no point to fill dissolve. |
-| reveal | 4 s | The crisp mark fades in over the arrows; the arrows fade out. |
-| resolve | 3 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
-| hold | 7 s | The finished logo sits at 70% of the Domino screen's width. |
-| release | 10 s | Logo out, ambient field back. |
+| sweep | 7 s | Ambient fades down. Arrows drop in from off the top and bottom edges, round a corner into a horizontal lane, and cruise toward the centre — nose-first, so they face where they are going. |
+| gather | 4 s | Each arrow swoops out of its lane onto a point sampled from the Vector mark, straightening back up as it lands and shrinking from ambient scale to ~14 px. Arrows with no point to fill dissolve. |
+| reveal | 2.5 s | The crisp mark fades in over the arrows; the arrows fade out. |
+| resolve | 2 s | The mark eases into its slot in the full bilingual lockup as the wordmark fades in beside it. |
+| hold | 5 s | The finished logo sits at 70% of the Domino screen's width. |
+| release | 6 s | Logo out, ambient field back. |
+
+Every journey is three moves — drop in, cruise, swoop — evaluated by `positionAt(p, d)`
+as a single closed-form function of distance travelled. Heading comes from a finite
+difference along that same function rather than a hand-derived tangent per leg, which is
+what keeps a three-segment path from needing three separate rotation cases.
 
 Two details make it work:
 
-- **The sweep is a conveyor, not a drain.** Journeys are laid out backwards from where
-  each arrow has to end up, over a run 1.9× the band's width at a single speed, so ones
-  starting off the outer end keep feeding in behind the leaders. Starting every arrow
-  inside the band empties the far ends of the wall within a few seconds.
+- **Journeys are laid out backwards.** Each arrow's arrival time is what gets spread
+  across the window; its entry point falls out of that. Speeds come out near-uniform
+  without being pinned, and the wall keeps feeding the centre instead of draining.
 - **There is no gate.** An arrow leaves its lane when it comes within its own randomised
   distance (420–860 px) of its destination, and vertical position is a function of that
   distance rather than of elapsed time. A single shared turn-in point — which is what an
   explicit gate is — stacks arrows into a vertical column down the wall before they fly
   to the mark.
-- **Rotation is temporary.** Arrows turn to follow their flight path and straighten back
-  to brand orientation over the last quarter of the swoop, so the mark is always built
-  out of upright arrows.
+- **Rotation is temporary.** Arrows follow their flight path — nose down on the way in,
+  along the lane on the cruise, banking through the swoop — and straighten back to brand
+  orientation over the last quarter of the swoop, so the mark is always built out of
+  upright arrows.
+- **Only the arrows that land carry the logo's colours.** They are white or magenta from
+  the moment they enter; the ones destined to dissolve stay in the ambient palette. Mark
+  points are split left/right between the two streams so they do not reach across each
+  other, but a quarter are swapped over — a strict split sends every magenta arrow down
+  one side, since they all sit on the mark's right, and the two streams then read as two
+  differently coloured flocks.
 - **It is a pure function of t.** No integration, no accumulated state — `draw(t)` gives
   the same pixels at any time, which is what keeps the whole loop seekable and therefore
   exportable frame by frame. The particle canvas is cleared and inert outside the event,
@@ -108,7 +119,7 @@ lockup over the top, `markOnly` stops at the crisp mark and never brings in the 
 ```sh
 python3 animation/tools/eps-to-svg.py <the-lockup>.eps \
   animation/assets/vector-logo-horizontal.svg --magenta '#EB088A'
-node animation/tools/sample-mark.js --spacing 2.5
+node animation/tools/sample-mark.js --spacing 3.6
 node animation/build.js
 ```
 
