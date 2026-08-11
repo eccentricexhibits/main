@@ -216,11 +216,17 @@ to tens of gigabytes on disk.
 
 Times take seconds or `m:ss`. `--to` may run past the loop length; the surface wraps, so
 a span across the loop point exports cleanly. `--crf` sets quality (lower is better,
-default 16), `--scale` renders full size and scales the output for review copies.
+default 16).
 
-**Capture runs at about 0.5 fps on a machine without a GPU**, so a minute of 60 fps
-footage takes roughly two hours. The rate is a property of the machine, not the export —
-the seeking is exact either way.
+`--scale` is a **render** scale, not an output filter: `--scale 0.5` renders the surface
+at 3440 × 540 rather than rendering it full size and downscaling at the end. That
+distinction is the whole point — the cost per frame is rasterising and PNG-encoding the
+frame, so scaling only on the way out saves nothing. Quartering the pixels takes capture
+from ~0.5 fps to ~1.4 fps.
+
+**Capture runs at about 0.5 fps at full size on a machine without a GPU**, so a minute of
+60 fps footage takes roughly two hours; at `--scale 0.5` it is around 40 minutes. The rate
+is a property of the machine, not the export — the seeking is exact either way.
 
 360 s divides evenly at 24, 25, 30 and 60 fps — 21,600 frames at 60 for the whole loop.
 
