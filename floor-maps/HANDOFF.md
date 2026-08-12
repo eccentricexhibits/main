@@ -76,6 +76,52 @@ Brand assets sit in the **repo root**, not in `floor-maps/`:
 
 ---
 
+## 2a. If you were handed files instead of the repo
+
+**Filename mapping.** The tables and recipes in this report name sheets by
+their repo key. Friendly filenames map across like this:
+
+| Friendly name | Repo key | Notes |
+| --- | --- | --- |
+| Event Map - Level 1 - Lobby | `lobby-event-map` | current style |
+| Event Map - Level 2 - Trading Floor | `trading-floor-event-map` | current style |
+| Event Map - Level 3 - Gallery | `gallery-event-map` | current style |
+| Building Overview / Getting Around | `building-overview` | current style, a section |
+| Plan Sheet - Level 1 - Lobby | `level-1-lobby` | 24 × 36 reference drawing |
+| Plan Sheet - Level 2 - Trading Floor | `level-2-trading-floor` | 24 × 36 reference drawing |
+| Plan Sheet - Level 3 - Gallery | `level-3-gallery` | 24 × 36 reference drawing |
+
+Avoid calling the 24 × 36 sheets "basic" — they carry *more* technical detail
+than the event maps, not less. "Plan sheet" or "reference drawing" is accurate.
+
+**Which format to upload — PNG, not SVG.** This is counter-intuitive:
+
+- **PNG — upload these.** A model can actually *look* at a PNG. For "this label
+  collides", "move that pin", "is this readable at distance", seeing the sheet
+  is worth more than any other input.
+- **SVG — usually skip.** 75–86% of each file is base64-encoded Karbon, so a
+  260 KB SVG is ~194 KB of unreadable font payload. A model reads SVG as text
+  and cannot see the rendered result from it. Upload one only if the work is
+  surgical text/path editing, or if a human is opening it in Illustrator.
+- **PDF — optional.** Viewable like PNG and it is the press format, but it
+  duplicates what the PNG already gives a new session.
+
+**Minimum useful upload set:**
+
+1. This report
+2. The four event-map **PNGs** (and the plan-sheet PNGs if those are in scope)
+3. `Floor 1 / 2 / 3 — Floor Plan.pdf` — **the most important omission to avoid.**
+   Without them nothing in section 4 can be verified, no coordinate can be
+   checked, and geometry cannot be regenerated
+4. `DX_Tech_Deck` — the projection and signage specs
+5. `Floor 3 — Reference Images.pdf` — needed for any vendor-table change
+
+**To rebuild rather than hand-edit**, also include `geometry/f1–f3.json`
+(~143 KB total), the whole of `src/`, and the brand assets named in section 2.
+Cloning the branch is easier than assembling those by hand.
+
+---
+
 ## 3. Rebuilding
 
 ```bash
