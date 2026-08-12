@@ -41,11 +41,21 @@ the direction the client chose. If asked to retire the plan sheets, delete the
 
 ## 2. Where it lives
 
+Two repositories are involved — do not confuse them:
+
 ```
-repo    eccentricexhibits/main
-branch  claude/design-exchange-floor-maps-0icdz3
-dir     floor-maps/
+handoff bundle   eccentricexhibits/floorplan
+                 the finished PDFs, the venue source PDFs and this report
+
+generator source eccentricexhibits/main
+                 branch  claude/design-exchange-floor-maps-0icdz3
+                 dir     floor-maps/
 ```
+
+The bundle is what to read and review. The generator is what to edit if you
+need to *change* a sheet — see the note at the end of section 2a. If the source
+has since been moved into `floorplan`, look for `src/` and `geometry/` there
+first.
 
 ```
 floor-maps/
@@ -159,9 +169,11 @@ formats for looking, the source for changing.
 4. `DX_Tech_Deck` — the projection and signage specs
 5. `Floor 3 — Reference Images.pdf` — needed for any vendor-table change
 
-**To rebuild rather than hand-edit**, also include `geometry/f1–f3.json`
+**To rebuild rather than hand-edit**, you need `geometry/f1–f3.json`
 (~143 KB total), the whole of `src/`, and the brand assets named in section 2.
-Cloning the branch is easier than assembling those by hand.
+Cloning the generator repo is easier than assembling those by hand. If you
+cannot reach it, say so rather than hand-editing an exported PDF or SVG — the
+edit will not survive the next build.
 
 ---
 
