@@ -78,21 +78,36 @@ Brand assets sit in the **repo root**, not in `floor-maps/`:
 
 ## 2a. If you were handed files instead of the repo
 
-**Filename mapping.** The tables and recipes in this report name sheets by
-their repo key. Friendly filenames map across like this:
+**Filename mapping.** This report names sheets by their repo key. If the files
+arrived with the handoff naming, they map across like this:
 
-| Friendly name | Repo key | Notes |
+| Handoff filename | Repo key | What it is |
 | --- | --- | --- |
-| Event Map - Level 1 - Lobby | `lobby-event-map` | current style |
-| Event Map - Level 2 - Trading Floor | `trading-floor-event-map` | current style |
-| Event Map - Level 3 - Gallery | `gallery-event-map` | current style |
-| Building Overview / Getting Around | `building-overview` | current style, a section |
-| Plan Sheet - Level 1 - Lobby | `level-1-lobby` | 24 × 36 reference drawing |
-| Plan Sheet - Level 2 - Trading Floor | `level-2-trading-floor` | 24 × 36 reference drawing |
-| Plan Sheet - Level 3 - Gallery | `level-3-gallery` | 24 × 36 reference drawing |
+| Claude Code - Event Map - Level 1 - Lobby | `lobby-event-map` | current style |
+| Claude Code - Event Map - Level 2 - Trading Floor | `trading-floor-event-map` | current style |
+| Claude Code - Event Map - Level 3 - Gallery | `gallery-event-map` | current style |
+| Claude Code - Building Overview | `building-overview` | current style; the sheet is titled **Getting Around** and is a section, not a plan |
+| Claude Code - Reference Map - Level 1 | `level-1-lobby` | 24 × 36 plan sheet |
+| Claude Code - Reference Map - Level 2 | `level-2-trading-floor` | 24 × 36 plan sheet |
+| Claude Code - Reference Map - Level 3 | `level-3-gallery` | 24 × 36 plan sheet |
 
-Avoid calling the 24 × 36 sheets "basic" — they carry *more* technical detail
-than the event maps, not less. "Plan sheet" or "reference drawing" is accurate.
+Everything prefixed **"Claude Code -"** is generated output from this project.
+Everything prefixed **"Venue Supplied Plans"** is source material from Design
+Exchange:
+
+| Handoff filename | Original | Trust it for |
+| --- | --- | --- |
+| Venue Supplied Plans (From Blueprints - Accurate Layout) - Level 1/2/3 | `Floor 1/2/3 — Floor Plan.pdf` | **everything** — wall geometry, dimensions, room names, the north arrow. This is the authority |
+| Venue Supplied Plans (From 3D Mockups...) - Level 1/2 | `Floor 1/2 — Reference Images.pdf` | look and feel only; not dimensioned |
+| Venue Supplied Plans (From 3D Mockups...) - Level 3 | `Floor 3 — Reference Images.pdf` | **contains the event team's own "Vector – Gallery – Vendor Tables" plan** — see the caution below |
+| Design Exchange - Tech Deck | `DX_Tech_Deck_01.01.2026_LR.pdf` | projection surfaces, LED sign, lighting and audio inventory |
+
+**Caution on the Level 3 mockup file.** The 3D renders across these files are
+indicative rather than dimensioned, and should not be measured against. But the
+Level 3 file is not only renders: page 1 is a 2D vendor-table plan drawn by the
+event team, and it is the authority for *where the vendors go* and for the
+orientation this whole set uses. Do not dismiss that file wholesale on the
+strength of a filename — the renders are loose, the vendor plan is not.
 
 **Which format to upload — PDF.** It wins on every axis at once:
 
