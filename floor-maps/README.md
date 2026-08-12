@@ -76,6 +76,18 @@ committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
 - `src/build_gallery.py` — the event-map renderer, on its own if you want to
   iterate on just that sheet.
 
+## The shareable page
+
+`dist/artifact.html` is a single self-contained file — every sheet, in every
+format, inlined. Its download buttons rebuild each file as a `Blob` in
+JavaScript rather than hanging a `data:` URI off `<a download>`: the page is
+viewed inside a sandboxed iframe, and a sandbox without `allow-downloads`
+swallows a `data:` download **without raising an error**, so the click just
+does nothing. That silent failure is also why the GitHub fallback on each sheet
+is always visible instead of being revealed on error — there is nothing to
+catch. Building the PNG payload from the `<img>` already on the page, rather
+than embedding it a second time, took the file from 11.2 MB to 7.5 MB.
+
 ## Sources
 
 - `Floor 1/2/3 — Floor Plan.pdf` — DX blueprints (geometry, room names, scale)

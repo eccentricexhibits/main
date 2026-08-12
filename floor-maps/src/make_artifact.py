@@ -41,8 +41,55 @@ FACTS = [
 ]
 
 
+REPO_URL = ("https://github.com/eccentricexhibits/main/blob/"
+            "claude/design-exchange-floor-maps-0icdz3/floor-maps/dist/")
+
+
 def b64(path, mime):
-    return "data:%s;base64,%s" % (mime, base64.b64encode(open(path, "rb").read()).decode())
+    return "data:%s;base64,%s" % (mime, raw_b64(path))
+
+
+def raw_b64(path):
+    return base64.b64encode(open(path, "rb").read()).decode()
+
+
+# Artifacts render inside a sandboxed iframe, where clicking an <a download>
+# pointed at a data: URI is silently swallowed. Rebuilding the bytes as a Blob
+# and clicking a generated link works there; the GitHub link is the fallback
+# for anyone whose browser blocks iframe downloads outright.
+DOWNLOAD_JS = """
+<script>
+(function () {
+  var MIME = {pdf: 'application/pdf', svg: 'image/svg+xml', png: 'image/png'};
+  function payload(key, ext) {
+    if (ext === 'png') {
+      var src = document.getElementById('img-' + key).getAttribute('src');
+      return src.slice(src.indexOf(',') + 1);
+    }
+    return document.getElementById('dl-' + key + '-' + ext).textContent.trim();
+  }
+  function toBlob(b64, mime) {
+    var bin = atob(b64), n = bin.length, buf = new Uint8Array(n);
+    for (var i = 0; i < n; i++) buf[i] = bin.charCodeAt(i);
+    return new Blob([buf], {type: mime});
+  }
+  window.dlFile = function (btn, key, ext) {
+    try {
+      var url = URL.createObjectURL(toBlob(payload(key, ext), MIME[ext]));
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = key + '.' + ext;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 8000);
+    } catch (err) {
+      console.error('download failed', key, ext, err);
+    }
+  };
+})();
+</script>
+"""
 
 
 def font_face():
@@ -128,12 +175,16 @@ h1{font-size:clamp(40px,7vw,68px); line-height:1.02; margin:0; font-weight:600;
 .sheet h2{font-size:32px; font-weight:600; margin:2px 0 0; letter-spacing:-.01em}
 .sheet p{max-width:62ch; color:var(--ink-soft); margin:10px 0 0}
 .dl{display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 26px}
-.dl a{font-size:15px; font-weight:600; text-decoration:none; color:var(--ink);
-      border:1px solid var(--line); background:var(--surface);
-      border-radius:8px; padding:8px 14px}
-.dl a:hover{border-color:var(--accent-2); color:var(--accent-2)}
-.dl a:focus-visible{outline:2px solid var(--accent-2); outline-offset:2px}
+.dl a,.dl button{font-size:15px; font-weight:600; text-decoration:none;
+      color:var(--ink); border:1px solid var(--line); background:var(--surface);
+      border-radius:8px; padding:8px 14px; font-family:inherit; cursor:pointer;
+      line-height:1.2}
+.dl a:hover,.dl button:hover{border-color:var(--accent-2); color:var(--accent-2)}
+.dl a:focus-visible,.dl button:focus-visible{outline:2px solid var(--accent-2);
+      outline-offset:2px}
 .dl span{font-size:15px; color:var(--ink-soft); align-self:center}
+.dl .ghost{background:none}
+.blocked{font-size:14px; color:var(--ink-soft); margin:-16px 0 22px; max-width:62ch}
 figure{margin:0; border:1px solid var(--frame); border-radius:12px;
        overflow:hidden; background:#FFFFFF}
 figure img{display:block; width:100%%; height:auto}
@@ -181,13 +232,26 @@ def main():
         parts.append('<section class="sheet" id="%s">' % key)
         parts.append('<div class="sheet-head"><div class="badge">%s</div>'
                      '<div><h2>%s</h2><p>%s</p></div></div>' % (lvl, name, blurb))
+        # base64 kept out of the href: a sandboxed iframe drops data: URI
+        # downloads. The PNG is not repeated here, it is read off the <img>.
+        parts.append('<script type="text/plain" id="dl-%s-pdf">%s</script>'
+                     % (key, raw_b64(pdf)))
+        parts.append('<script type="text/plain" id="dl-%s-svg">%s</script>'
+                     % (key, raw_b64(svg)))
         parts.append('<div class="dl">')
-        parts.append('<a href="%s" download="%s.pdf">Download PDF</a>' % (b64(pdf, "application/pdf"), key))
-        parts.append('<a href="%s" download="%s.svg">Download SVG</a>' % (b64(svg, "image/svg+xml"), key))
-        parts.append('<a href="%s" download="%s.png">Download PNG</a>' % (b64(png, "image/png"), key))
+        for ext, label in (("pdf", "PDF"), ("svg", "SVG"), ("png", "PNG")):
+            parts.append('<button type="button" onclick="dlFile(this,\'%s\',\'%s\')">'
+                         "Download %s</button>" % (key, ext, label))
+        parts.append('<a class="ghost" href="%s%s.pdf">Open in GitHub</a>'
+                     % (REPO_URL, key))
         parts.append("<span>%s</span></div>" % size)
-        parts.append('<figure><img src="%s" alt="%s floor map sheet"></figure>'
-                     % (b64(png, "image/png"), name))
+        parts.append('<p class="blocked">Nothing happens when you click Download? '
+                     "Some browsers block downloads from an embedded page. Use "
+                     "<strong>Open in GitHub</strong> instead &mdash; every format is "
+                     "in <code>floor-maps/dist/</code> on the "
+                     "<code>claude/design-exchange-floor-maps-0icdz3</code> branch.</p>")
+        parts.append('<figure><img id="img-%s" src="%s" alt="%s floor map sheet"></figure>'
+                     % (key, b64(png, "image/png"), name))
         parts.append("</section>")
     parts.append("</main>")
 
@@ -213,6 +277,7 @@ def main():
                  "level sheets and <code>src/gallery_data.py</code> for the event map — edit "
                  "those and re-run <code>src/build.py</code> to regenerate every format.</dd>")
     parts.append("</dl></div></footer>")
+    parts.append(DOWNLOAD_JS)
 
     open(OUT, "w", encoding="utf-8").write("\n".join(parts))
     print("wrote", OUT, round(os.path.getsize(OUT) / 1e6, 2), "MB")
