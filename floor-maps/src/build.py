@@ -577,9 +577,12 @@ def main():
     import event_map
     import gallery_data
     import lobby_data
+    import trading_data
     sheets = []
     for mod, title, sub in ((lobby_data, "Lobby — event map",
                              "Level 1, as a guest-facing event map"),
+                            (trading_data, "Trading Floor — event map",
+                             "Level 2, as a guest-facing event map"),
                             (gallery_data, "Gallery — event map",
                              "Level 3, as a guest-facing event map")):
         event_map.build(mod)

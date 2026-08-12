@@ -3,11 +3,12 @@
 Guest-facing wayfinding maps for the Design Exchange (234 Bay Street, Toronto),
 built from the venue's own blueprints and set in the Vector Institute brand.
 
-Six sheets:
+Seven sheets:
 
 | Sheet | Size | What it covers |
 | --- | --- | --- |
 | `lobby-event-map` | 24 × 16 in | Level 1 as a guest-facing **event map** — arrival, check-in, coat check, Grand Staircase |
+| `trading-floor-event-map` | 24 × 16 in | Level 2 as a guest-facing **event map** — the immersive theatre, projection walls, Domino screen |
 | `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — exhibition hall, boardroom, immersive walls |
 | `level-1-lobby` | 24 × 36 in | Arrival, check-in, coat check, washrooms, Grand Staircase |
 | `level-2-trading-floor` | 24 × 36 in | The immersive projection theatre and its three screen walls |
@@ -16,7 +17,7 @@ Six sheets:
 
 Each sheet ships as `.pdf` (press-ready), `.svg` (vector, fonts embedded) and
 `.png` (2×, for slides and screens). `dist/index.html` is a single-file viewer
-with all six and download links.
+with all seven and download links.
 
 ## Two drawing styles
 
@@ -25,8 +26,7 @@ poché with colour washed over it, and keep the blueprint's orientation. They
 are the reference drawing — good for staff, production and anyone comparing
 against DX's own documents.
 
-`lobby-event-map` and `gallery-event-map` are **event maps**: the same real
-linework, but stacked in
+The three `*-event-map` sheets are **event maps**: the same real linework, but stacked in
 the order an event map wants — room floors tinted by category first, the walls
 and door swings over them, then furniture, numbered pins and a key card. It is
 rotated so north is up, and it carries the vendor layout. The poché is split by
@@ -76,16 +76,20 @@ committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
   map. One place to change a category colour across the whole set.
 - `src/event_map.py` — the event-map renderer. One floor per data module, so
   a new floor is a data file rather than new code.
-- `src/lobby_data.py`, `src/gallery_data.py` — the event-map floors.
+- `src/lobby_data.py`, `src/trading_data.py`, `src/gallery_data.py` — the
+  event-map floors. All three levels are now covered in this style.
 - `src/build.py` — builds everything, including the event maps and the viewer.
-- `src/build_lobby.py`, `src/build_gallery.py` — one sheet at a time, for
-  faster iteration.
+- `src/build_lobby.py`, `src/build_trading.py`, `src/build_gallery.py` — one
+  sheet at a time, for faster iteration.
 
 ### Adding a floor
 
 Copy a data module, point `SHEET["geometry"]` at the right `geometry/f*.json`,
 set `FRAME` to the drawing extent you want, then describe the floor: `ZONES`
 (tinted room floors), `TITLES`, `FEATURES` (numbered pins), `KEY` and `CARDS`.
+Optional extras: `SURFACES` for projection and screen walls, `OVERHEAD` for
+things that cross above the floor, `RUNS`/`BLOCKS` for furniture, `ROUTES` for
+dashed wayfinding lines.
 The renderer fits the plan to the panel on its own, so floors with different
 proportions all fill the same frame. It prints a warning if the right-hand
 column overruns the sheet.

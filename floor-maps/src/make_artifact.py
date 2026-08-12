@@ -15,6 +15,11 @@ SHEETS = [
      "the Grand Staircase up to the show, with the escalators down to the TD "
      "Concourse marked.",
      "24 &times; 16 in"),
+    ("trading-floor-event-map", "2", "Trading Floor — event map",
+     "Level 2 as a guest-facing event map: the immersive theatre, its three "
+     "projection walls and the Domino screen, the bridge that crosses above "
+     "the hall, and the warning that there are no washrooms on this level.",
+     "24 &times; 16 in"),
     ("gallery-event-map", "3", "Gallery — event map",
      "Level 3 as a guest-facing event map: the venue&rsquo;s real plan &mdash; walls, "
      "door swings, fixtures &mdash; with room floors tinted by category, numbered "

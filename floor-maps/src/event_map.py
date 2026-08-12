@@ -170,6 +170,7 @@ def plan():
     for z in G.ZONES:
         o.append(poly(z["pts"], fill=G.FILL[z["cat"]], stroke="none"))
     o += base_plan()
+    o += overheads()
     o += small_labels()
     o += furniture()
     o += routes()
@@ -206,6 +207,27 @@ def base_plan():
     for d in geo.get("detail", []):
         o.append('<path d="%s"/>' % d)
     o.append("</g></g>")
+    return o
+
+
+def overheads():
+    """Things that cross above the floor rather than sitting on it — the
+    Trading Floor's bridge. Drawn as a dashed band so it reads as overhead,
+    not as a room."""
+    o = []
+    for ov in opt("OVERHEAD"):
+        x0, y0, x1, y1 = ov["box"]
+        o.append(poly([(x0, y0), (x1, y0), (x1, y1), (x0, y1)],
+                      fill=G.INK_SOFT, fill_opacity=".07", stroke=G.INK_SOFT,
+                      stroke_width=1.6, stroke_dasharray="7 6",
+                      stroke_opacity=".55"))
+        if ov.get("label"):
+            px, py = P(*ov["label_at"])
+            g = T(px, py, ov["label"], size=ov.get("size", 12.5), weight=600,
+                  fill=G.INK_SOFT, anchor="middle", ls=2.4, halo=3.2)
+            if ov.get("rot"):
+                g = '<g transform="rotate(-90 %.1f %.1f)">%s</g>' % (px, py, g)
+            o.append(g)
     return o
 
 
@@ -289,7 +311,9 @@ def surfaces():
             g = '<g transform="rotate(-90 %.1f %.1f)">%s</g>' % (px, py, g)
         o.append(g)
         if s.get("num"):
-            o.append(chip(px - len(s["label"]) * size * .35 - 26, py - 5, s["num"]))
+            reach = len(s["label"]) * size * .35 + 26
+            cx, cy = (px, py + reach) if s.get("rot") else (px - reach, py - 5)
+            o.append(chip(cx, cy, s["num"]))
     return o
 
 
@@ -405,6 +429,11 @@ def key_panel():
         elif k.get("rule"):
             o.append('<rect x="%d" y="%.1f" width="34" height="7" rx="3.5" '
                      'fill="%s"/>' % (mx, y + 11, G.BRAND["magenta"]))
+        elif k.get("dash"):
+            o.append('<rect x="%d" y="%.1f" width="34" height="26" rx="4" '
+                     'fill="%s" fill-opacity=".07" stroke="%s" stroke-width="1.6" '
+                     'stroke-dasharray="5 4" stroke-opacity=".55"/>'
+                     % (mx, y + 2, G.INK_SOFT, G.INK_SOFT))
         elif k.get("table"):
             for j in range(2):
                 o.append('<rect x="%d" y="%.1f" width="14" height="24" rx="2.5" '
