@@ -254,7 +254,7 @@ def small_labels():
 
 
 def furniture():
-    """Repeated runs (vendor tables) and one-off blocks (desks, counters)."""
+    """Repeated runs (vendor tables), lattices (seating) and one-off blocks."""
     o = []
     for run in opt("RUNS"):
         lw, lt = run.get("len", 27.0), run.get("depth", 13.0)
@@ -266,6 +266,14 @@ def furniture():
             else:
                 box = (c - lw / 2, run["const"] - lt / 2, c + lw / 2, run["const"] + lt / 2)
             o.append(furn_rect(*box))
+    for g in opt("GRIDS"):
+        nx, ny = g["nx"], g["ny"]
+        w, d = g.get("w", 6.5), g.get("d", 7.5)
+        for i in range(nx):
+            x = g["x0"] + (g["x1"] - g["x0"]) * i / max(nx - 1, 1)
+            for j in range(ny):
+                y = g["y0"] + (g["y1"] - g["y0"]) * j / max(ny - 1, 1)
+                o.append(furn_rect(x - w / 2, y - d / 2, x + w / 2, y + d / 2))
     for blk in opt("BLOCKS"):
         o.append(furn_rect(*blk["box"]))
     for lb in opt("RUN_LABELS"):

@@ -116,8 +116,9 @@ differ a lot in usefulness:
 - **Level 1** — "Vector – Lobby". Mostly bare architecture with a little
   furniture. Nothing was taken from it.
 - **Level 2** — "Vector – 350px Theater Style". A **350-seat theatre layout**,
-  two blocks with a centre aisle and stage elements at both ends. **This is not
-  currently drawn on the Trading Floor sheet** — see section 9.
+  two blocks with a centre aisle and stage elements along both long walls. The
+  seating is drawn on the Trading Floor sheet; the stage elements are not,
+  since what they are is not stated on any drawing.
 - **Level 3** — "Vector – Gallery – Vendor Tables". The vendor layout, and the
   source of the vendor rows on the Gallery sheet. It also confirmed the
   north-up orientation the whole set uses.
@@ -358,6 +359,7 @@ from mapstyle import *      # brings in the palette + rect()
 | --- | --- |
 | `SMALL_LABELS` | quiet in-plan captions — `dict(at, text, size, rot)` |
 | `RUNS` | repeated furniture — `dict(axis="x"/"y", const, lo, hi, n, len, depth)` |
+| `GRIDS` | a lattice of furniture, e.g. seating — `dict(x0, x1, nx, y0, y1, ny, w, d)` |
 | `RUN_LABELS` | labels for those — `dict(at, text, rot)` |
 | `BLOCKS` | one-off furniture — `dict(box=(x0,y0,x1,y1))` |
 | `ROUTES` + `ROUTE_LABEL` | dashed wayfinding lines — list of point lists |
@@ -447,12 +449,11 @@ right `geometry/f*.json`, set `FRAME`, describe the floor, add a
 4. **Are the small Level 1 washrooms behind the office block public?** Treated
    as staff — single-fixture rooms behind the BOH corridor, while the plainly
    labelled public ones are the large stall blocks.
-5. **The Trading Floor's 350-seat theatre layout is not drawn.** The event team
-   has one — "Vector – 350px Theater Style", page 1 of the Level 2 reference
-   file — and the Gallery sheet does show its equivalent vendor rows, so the
-   set is inconsistent on this. Adding it would mean a `RUNS` block of seat
-   rows in `trading_data.py`, traced against the blueprint the same way the
-   vendor tables were. Ask before assuming the layout is final.
+5. **Is the 350-seat theatre layout final?** It is now drawn on the Trading
+   Floor sheet (`GRIDS` in `trading_data.py`), traced from "Vector – 350px
+   Theater Style". 22 rows of 16 in two blocks with a centre cross-aisle. That
+   is 352 marks against a stated 350, so a row is presumably two short — the
+   sheet says 350. Re-check if the configuration changes.
 6. **Vendor tables** on the Gallery sheet are traced from the event team's own
    "Vector – Gallery – Vendor Tables" plan. Indicative, not surveyed — re-check
    against the final layout.

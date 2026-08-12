@@ -64,12 +64,29 @@ OVERHEAD = [
          label_at=(306, 606), rot=True),
 ]
 
+# ------------------------------------------------------------- seating --
+# "Vector - 350px Theater Style", page 1 of the Level 2 reference file. That
+# document is a raster, so this is traced rather than measured: the seat grid
+# was found by pixel profile, then registered to the blueprint on the hall's
+# own walls — image y 394/1350 against blueprint x 178/434, image x 1786
+# against blueprint y 220. The two scales that fell out agree to 1.3%.
+#
+# 22 rows of 16 in two blocks with a centre cross-aisle = 352 marks against a
+# stated 350, so a row is presumably two short. Indicative, not surveyed.
+GRIDS = [
+    dict(x0=198, x1=290, nx=11, y0=308, y1=527, ny=16, w=6.5, d=7.5),
+    dict(x0=319, x1=412, nx=11, y0=308, y1=527, ny=16, w=6.5, d=7.5),
+]
+
 # ------------------------------------------------------------- room names --
 TITLES = [
-    # Pushed west of centre so the title block clears the stair and the
-    # bridge band on the hall's east side.
-    dict(at=(306, 430), size=46, weight=600, text="TRADING FLOOR",
-         sub="Immersive projection theatre", sub_size=21, num=1),
+    # In the centre cross-aisle — the one part of the hall the seating leaves
+    # clear. The header already carries the floor name at full size.
+    dict(at=(305, 417), size=34, weight=600, text="TRADING FLOOR", num=1),
+]
+
+RUN_LABELS = [
+    dict(at=(306, 560), text="350 SEATS"),
 ]
 
 SMALL_LABELS = [
@@ -142,6 +159,8 @@ KEY = [
          sub="On the west wall · 1655 × 630 px"),
     dict(num=10, cat="staff", dash=True, label="Bridge over",
          sub="Crosses above the hall · has its own projector mask"),
+    dict(num=11, cat="hall", table=True, label="Seating — 350, theatre style",
+         sub="Indicative — from the event team's Level 2 plan"),
 ]
 
 CARDS = [
@@ -152,9 +171,9 @@ CARDS = [
                ("Ceiling, unobstructed", "40 ft")],
          note="Deliver one flattened file at full size, plus a layer per surface."),
     dict(title="No washrooms on this level", accent="cobalt",
-         body="The nearest are one level down in the Lobby, or one level up in "
-              "the Gallery. The Grand Staircase lands in the south-east corner; "
-              "the stairs up to the Gallery leave from the middle of the hall."),
+         body="The nearest are one level down in the Lobby, or one level up "
+              "in the Gallery. The Grand Staircase lands in the south-east "
+              "corner of this floor."),
 ]
 
 SHEET = dict(
