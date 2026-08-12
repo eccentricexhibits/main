@@ -3,11 +3,12 @@
 Guest-facing wayfinding maps for the Design Exchange (234 Bay Street, Toronto),
 built from the venue's own blueprints and set in the Vector Institute brand.
 
-Five sheets:
+Six sheets:
 
 | Sheet | Size | What it covers |
 | --- | --- | --- |
-| `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — real plan, colour-coded room floors, numbered pins, north up |
+| `lobby-event-map` | 24 × 16 in | Level 1 as a guest-facing **event map** — arrival, check-in, coat check, Grand Staircase |
+| `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — exhibition hall, boardroom, immersive walls |
 | `level-1-lobby` | 24 × 36 in | Arrival, check-in, coat check, washrooms, Grand Staircase |
 | `level-2-trading-floor` | 24 × 36 in | The immersive projection theatre and its three screen walls |
 | `level-3-gallery` | 24 × 36 in | Exhibition hall, Gallery Boardroom (Patty Watt Room), washrooms |
@@ -15,7 +16,7 @@ Five sheets:
 
 Each sheet ships as `.pdf` (press-ready), `.svg` (vector, fonts embedded) and
 `.png` (2×, for slides and screens). `dist/index.html` is a single-file viewer
-with all five and download links.
+with all six and download links.
 
 ## Two drawing styles
 
@@ -24,7 +25,8 @@ poché with colour washed over it, and keep the blueprint's orientation. They
 are the reference drawing — good for staff, production and anyone comparing
 against DX's own documents.
 
-`gallery-event-map` is an **event map**: the same real linework, but stacked in
+`lobby-event-map` and `gallery-event-map` are **event maps**: the same real
+linework, but stacked in
 the order an event map wants — room floors tinted by category first, the walls
 and door swings over them, then furniture, numbered pins and a key card. It is
 rotated so north is up, and it carries the vendor layout. The poché is split by
@@ -69,12 +71,24 @@ committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
 (Chromium is used for PNG rasterising and PDF printing).
 
 - `src/mapdata.py` — content for the four plan sheets: zones, pins, labels,
-  callouts, palette. Edit this to move a label or retitle a room.
-- `src/gallery_data.py` — content for the Gallery event map, same idea.
-- `src/build.py` — SVG assembly, icon set, sheet layout, output. Running it
-  also builds the event map and the viewer.
-- `src/build_gallery.py` — the event-map renderer, on its own if you want to
-  iterate on just that sheet.
+  callouts. Edit this to move a label or retitle a room.
+- `src/mapstyle.py` — the shared palette and wall tones, used by every event
+  map. One place to change a category colour across the whole set.
+- `src/event_map.py` — the event-map renderer. One floor per data module, so
+  a new floor is a data file rather than new code.
+- `src/lobby_data.py`, `src/gallery_data.py` — the event-map floors.
+- `src/build.py` — builds everything, including the event maps and the viewer.
+- `src/build_lobby.py`, `src/build_gallery.py` — one sheet at a time, for
+  faster iteration.
+
+### Adding a floor
+
+Copy a data module, point `SHEET["geometry"]` at the right `geometry/f*.json`,
+set `FRAME` to the drawing extent you want, then describe the floor: `ZONES`
+(tinted room floors), `TITLES`, `FEATURES` (numbered pins), `KEY` and `CARDS`.
+The renderer fits the plan to the panel on its own, so floors with different
+proportions all fill the same frame. It prints a warning if the right-hand
+column overruns the sheet.
 
 ## The shareable page
 

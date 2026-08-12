@@ -573,10 +573,17 @@ img{width:100%%;height:auto;display:block;border:1px solid var(--line);border-ra
 
 def main():
     os.makedirs(DIST, exist_ok=True)
-    import build_gallery
-    build_gallery.main()
-    sheets = [("gallery-event-map", "Gallery — event map",
-               "Level 3, redrawn as a guest-facing event map", "24 × 16 in")]
+    # event maps first — the guest-facing style
+    import event_map
+    import gallery_data
+    import lobby_data
+    sheets = []
+    for mod, title, sub in ((lobby_data, "Lobby — event map",
+                             "Level 1, as a guest-facing event map"),
+                            (gallery_data, "Gallery — event map",
+                             "Level 3, as a guest-facing event map")):
+        event_map.build(mod)
+        sheets.append((mod.SHEET["key"], title, sub, "24 × 16 in"))
     for fl in FLOORS:
         svg = build_floor(fl)
         p = os.path.join(DIST, fl["key"] + ".svg")

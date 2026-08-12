@@ -37,8 +37,6 @@ So the blueprint's "west leg" is really the building's SOUTH wing, and its
 """
 
 # ------------------------------------------------------------------ frame --
-PT_PER_FT = 4.5
-
 # Floorplate, interior faces of the exterior walls (blueprint space).
 PLATE = (109.0, 205.0, 504.0, 754.0)          # x0, y0, x1, y1
 
@@ -55,70 +53,7 @@ def rect(x0, y0, x1, y1):
     return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
 
 
-# --------------------------------------------------------------- palette --
-# Vector brand hues, used as light tints for the big areas and at full
-# strength for pins and rules. Category assignment matches the other sheets.
-BRAND = {
-    "magenta":   "#EB088A",
-    "cobalt":    "#313CFF",
-    "violet":    "#8A25C9",
-    "turquoise": "#48C0D9",
-    "tangerine": "#FF9E00",
-}
-
-INK       = "#141414"
-INK_SOFT  = "#5F5C5C"
-PAPER     = "#FFFFFF"
-
-# Big-area fills: light enough that INK body text clears 4.5:1 on all of them.
-FILL = {
-    "hall":     "#FBDCEC",
-    "board":    "#F2C2DE",
-    "washroom": "#DDF1F7",
-    "stair":    "#EBDDF8",
-    "elevator": "#E0E2FF",
-    "corridor": "#F3F2F0",
-    "staff":    "#F4F2F1",
-    "service":  "#D9D6D5",
-}
-
-# Full-strength accent per category, for badges and outlines.
-ACCENT = {
-    "hall":     BRAND["magenta"],
-    "board":    BRAND["magenta"],
-    "washroom": BRAND["turquoise"],
-    "stair":    BRAND["violet"],
-    "elevator": BRAND["cobalt"],
-    "staff":    "#8C8988",
-    "service":  "#8C8988",
-}
-
-# Glyph colour that clears 4.5:1 on each accent.
-GLYPH_ON = {
-    BRAND["magenta"]:   "#FFFFFF",
-    BRAND["cobalt"]:    "#FFFFFF",
-    BRAND["violet"]:    "#FFFFFF",
-    BRAND["turquoise"]: INK,
-    "#8C8988":          "#FFFFFF",
-}
-
-# Base plan, drawn from the blueprint's own vector linework on top of the
-# room tints: poche, glazing, then the thin detail (door swings, stair treads,
-# washroom fixtures) that makes the rooms read as rooms.
-# Thin walls read near-white with a defined edge, so the coloured room floors
-# stay the loudest thing on the sheet. The blueprint fills the whole service
-# core as poche too; anything that big is a solid mass, not a wall, so it gets
-# the staff tone instead of the wall tone (see MASS_AREA in build_gallery).
-WALL_FILL  = "#F1EFEE"
-WALL_EDGE  = "#7E7B7A"
-MASS_FILL  = "#DEDCDB"
-WALL_DARK  = "#8E8B8A"
-GLAZE_FILL = "#E9E7E6"
-DETAIL_INK = "#969392"
-
-PLATE_EDGE = "#232323"
-TABLE_FILL = "#8E8A89"
-ROUTE      = "#313CFF"
+from mapstyle import *          # palette, wall tones, rect()  # noqa: F403
 
 
 # ------------------------------------------------------------------ zones --
@@ -182,39 +117,37 @@ FEATURES = [
 # ~66.7 px/ft; the south run then lands on the full height of the core's
 # south face. The two runs wrap the hall's inside corner — exactly the
 # corner photographed on p.13 of the deck.
-PROJECTION = dict(
-    path=[(236, 362), (236, 626), (443, 626)],
-    num=9,
-    label="IMMERSIVE PROJECTION WALLS",
-    label_at=(219, 402),
-)
-
-# Boardroom screen: "screen" + 13'-3" on the blueprint, north wall.
-SCREEN = dict(p0=(426, 232), p1=(426, 292), label="SCREEN")
-SCREEN_LABEL_AT = (415, 262)
+SURFACES = [
+    dict(path=[(236, 362), (236, 626), (443, 626)], num=9,
+         label="IMMERSIVE PROJECTION WALLS", label_at=(219, 402)),
+    dict(path=[(426, 232), (426, 292)], w=5, glow=False, size=12,
+         label="SCREEN", label_at=(415, 262)),
+]
 
 # ---------------------------------------------------------- vendor tables --
 # Indicative layout, traced from the event team's own
 # "Vector - Gallery - Vendor Tables" plan (Floor_3__Reference_Images p.1).
-VENDOR = [
+RUNS = [
     dict(axis="y", const=211, lo=365, hi=598, n=7),    # south wing, inner row
     dict(axis="y", const=135, lo=245, hi=630, n=9),    # south wing, window row
     dict(axis="x", const=727, lo=180, hi=430, n=7),    # east wing, window row
 ]
 # The two north-south corridors off the hall; naming them stops the light
 # strips reading as gaps in the floor.
-CORRIDOR_LABELS = [
+SMALL_LABELS = [
     dict(at=(424, 340), text="CORRIDOR"),
     dict(at=(424, 608), text="CORRIDOR"),
 ]
 
-VENDOR_LABELS = [
+RUN_LABELS = [
     dict(at=(174, 300), text="VENDOR TABLES", rot=True),
     dict(at=(300, 668), text="VENDOR TABLES", rot=True),
 ]
 
 # ------------------------------------------------------------ way-finding --
 # Dashed guide from the hall, up each corridor, to a washroom door.
+ROUTE_LABEL = "Route from the hall to the washrooms"
+
 ROUTES = [
     [(225, 340), (370, 340), (370, 371)],      # to the men's room
     [(225, 608), (352, 608), (352, 570)],      # to the women's room
@@ -254,26 +187,24 @@ KEY = [
          sub="Indicative — from the event team's gallery plan"),
 ]
 
-AV_CARD = dict(
-    title="Immersive AV",
-    rows=[("Projection, edge to edge", "7015 × 1080 px"),
-          ("  south run · gap · corner", "3242 · 400 · 307"),
-          ("  east run", "3066 px"),
-          ("LED wall (separate)", "1920 × 1080 px"),
-          ("Ceiling, unobstructed", "12 ft")],
-    note="LED wall position to be confirmed with the venue.",
-)
-
-FLOORS_CARD = dict(
-    title="Getting between floors",
-    body="The centre stair drops straight to the Trading Floor, one "
-         "level down — and that floor has no washrooms, so these are the "
-         "closest. Elevators serve every level; the two fire stairs are "
-         "the exits.",
-)
+CARDS = [
+    dict(title="Immersive AV", accent="magenta",
+         rows=[("Projection, edge to edge", "7015 × 1080 px"),
+               ("  south run · gap · corner", "3242 · 400 · 307"),
+               ("  east run", "3066 px"),
+               ("LED wall (separate)", "1920 × 1080 px"),
+               ("Ceiling, unobstructed", "12 ft")],
+         note="LED wall position to be confirmed with the venue."),
+    dict(title="Getting between floors", accent="cobalt",
+         body="The centre stair drops straight to the Trading Floor, one "
+              "level down — and that floor has no washrooms, so these are the "
+              "closest. Elevators serve every level; the two fire stairs are "
+              "the exits."),
+]
 
 SHEET = dict(
     key="gallery-event-map",
+    geometry="f3.json",
     level="3",
     title="Gallery",
     tagline="Exhibition hall, boardroom and immersive walls",

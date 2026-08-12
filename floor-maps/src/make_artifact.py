@@ -10,6 +10,11 @@ DIST = os.path.join(ROOT, "dist")
 OUT = os.path.join(DIST, "artifact.html")
 
 SHEETS = [
+    ("lobby-event-map", "1", "Lobby — event map",
+     "Level 1 as a guest-facing event map: arrival, check-in, coat check and "
+     "the Grand Staircase up to the show, with the escalators down to the TD "
+     "Concourse marked.",
+     "24 &times; 16 in"),
     ("gallery-event-map", "3", "Gallery — event map",
      "Level 3 as a guest-facing event map: the venue&rsquo;s real plan &mdash; walls, "
      "door swings, fixtures &mdash; with room floors tinted by category, numbered "
