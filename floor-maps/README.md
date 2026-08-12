@@ -7,7 +7,7 @@ Five sheets:
 
 | Sheet | Size | What it covers |
 | --- | --- | --- |
-| `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — flat colour-blocked spaces, numbered pins, north up |
+| `gallery-event-map` | 24 × 16 in | Level 3 as a guest-facing **event map** — real plan, colour-coded room floors, numbered pins, north up |
 | `level-1-lobby` | 24 × 36 in | Arrival, check-in, coat check, washrooms, Grand Staircase |
 | `level-2-trading-floor` | 24 × 36 in | The immersive projection theatre and its three screen walls |
 | `level-3-gallery` | 24 × 36 in | Exhibition hall, Gallery Boardroom (Patty Watt Room), washrooms |
@@ -24,11 +24,13 @@ poché with colour washed over it, and keep the blueprint's orientation. They
 are the reference drawing — good for staff, production and anyone comparing
 against DX's own documents.
 
-`gallery-event-map` is an **event map**: the poché is thrown away and the floor
-is rebuilt as flat filled shapes, one tone per category, with white gaps
-between rooms and numbered pins keyed to a panel. Geometry still comes from the
-blueprint, so the simplification stays dimensionally true — but nothing is drawn
-that a guest does not need. This is the style to extend to the other levels.
+`gallery-event-map` is an **event map**: the same real linework, but stacked in
+the order an event map wants — room floors tinted by category first, the walls
+and door swings over them, then furniture, numbered pins and a key card. It is
+rotated so north is up, and it carries the vendor layout. The poché is split by
+area, so the big solid masses the blueprint uses for the service core are toned
+as floor rather than as wall thickness and the core reads as a block instead of
+a smear of grey. This is the style to extend to the other levels.
 
 ## Design decisions
 

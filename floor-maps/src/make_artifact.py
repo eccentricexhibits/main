@@ -11,9 +11,10 @@ OUT = os.path.join(DIST, "artifact.html")
 
 SHEETS = [
     ("gallery-event-map", "3", "Gallery — event map",
-     "Level 3 redrawn as a guest-facing event map: flat colour-blocked spaces "
-     "instead of blueprint linework, numbered pins keyed to a panel, north up, "
-     "and the vendor rows from the event team&rsquo;s own gallery plan.",
+     "Level 3 as a guest-facing event map: the venue&rsquo;s real plan &mdash; walls, "
+     "door swings, fixtures &mdash; with room floors tinted by category, numbered "
+     "pins keyed to a card, north up, and the vendor rows from the event "
+     "team&rsquo;s own gallery plan.",
      "24 &times; 16 in"),
     ("level-1-lobby", "1", "Lobby",
      "Arrival, check-in and coat check. Both the Bay Street doors and the TD "

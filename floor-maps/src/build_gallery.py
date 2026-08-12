@@ -6,15 +6,21 @@ Build the Level 3 Gallery event map — the guest-facing, colour-blocked sheet.
 
 Outputs dist/gallery-event-map.{svg,png,pdf} at 24 x 16 in landscape.
 
-Where the earlier level sheets draw the venue's blueprint and wash colour over
-it, this one throws the poche away and rebuilds the floor as flat shapes: one
-tone per category, white gaps between rooms, numbered pins keyed to a panel.
-The geometry still comes from the blueprint (see gallery_data), so the
-simplification stays true to the building.
+Same base drawing as the level sheets — the venue's own wall poche, glazing,
+door swings and fixtures out of geometry/f3.json — but built up in the order an
+event map wants: room floors tinted by category first, the real linework over
+them, then furniture, numbered pins and a key card on top. The plan is rotated
+90 deg CCW so north is up.
+
+The poche is split by area: thin runs are drawn as wall thickness, while the
+big solid masses the blueprint uses for the service core are toned as floor,
+so the core reads as a room-sized block instead of one heavy smear of grey.
 """
 from __future__ import annotations
 
+import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -27,6 +33,7 @@ from build import (CHROME, esc, font_face, icon_defs, T, vector_logo_symbol,
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist")
+GEO = os.path.join(ROOT, "geometry")
 
 # 24 x 16 in at 72 units/in
 SHEET_W, SHEET_H = 1728, 1152
@@ -34,17 +41,37 @@ HEAD_H = 168
 RULE_H = 7
 
 # plan panel
-S = 1.95                       # sheet units per blueprint point
+S = 1.855                      # sheet units per blueprint point
 MX, MY = 62.0, 238.0
-MAP_W, MAP_H = G.MAP_W * S, G.MAP_H * S        # 1070 x 770
+MAP_W, MAP_H = G.MAP_W * S, G.MAP_H * S        # 1075 x 768
 
 # right-hand key column
 COL_X, COL_W = 1196, 472
 
+# A poche path bigger than this (blueprint pt^2) is a solid mass — the service
+# core — not a wall, and is toned as floor rather than as wall thickness.
+MASS_AREA = 9000
+
+_NUM = re.compile(r"-?\d+\.?\d*")
+
+
+def path_area(d):
+    n = [float(v) for v in _NUM.findall(d)]
+    xs, ys = n[0::2], n[1::2]
+    if not xs or not ys:
+        return 0.0
+    return (max(xs) - min(xs)) * (max(ys) - min(ys))
+
 
 def P(x, y):
     """Blueprint point -> sheet point, rotated 90 deg CCW so north is up."""
-    return (MX + (y - G.PLATE[1]) * S, MY + (G.PLATE[2] - x) * S)
+    return (MX + (y - G.FRAME[1]) * S, MY + (G.FRAME[2] - x) * S)
+
+
+# The same rotation as an SVG matrix, so the blueprint's own path data can be
+# dropped in untouched:  x' = S*y + (MX - S*fy0),  y' = -S*x + (MY + S*fx1)
+PLAN_XF = "matrix(0,%.6f,%.6f,0,%.4f,%.4f)" % (
+    -S, S, MX - S * G.FRAME[1], MY + S * G.FRAME[2])
 
 
 def poly(pts, **kw):
@@ -82,22 +109,21 @@ def header():
 
 # -------------------------------------------------------------------- plan --
 def plan():
-    o = ['<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" fill="%s"/>'
-         % (MX, MY, MAP_W, MAP_H, G.FILL["staff"])]
+    """Room tints first, then the blueprint's own poche and detail over them.
+
+    Drawing the walls last means the simplified zone rectangles never have to
+    line up perfectly — any overshoot is covered by the poche, exactly as on
+    the four plan sheets.
+    """
+    a, b = P(G.PLATE[0], G.PLATE[1]), P(G.PLATE[2], G.PLATE[3])
+    o = ['<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="%s"/>'
+         % (min(a[0], b[0]), min(a[1], b[1]), abs(b[0] - a[0]),
+            abs(b[1] - a[1]), G.FILL["staff"])]
 
     for z in G.ZONES:
-        o.append(poly(z["pts"], fill=G.FILL[z["cat"]], stroke=G.PAPER,
-                      stroke_width=3.4, stroke_linejoin="round"))
-    for z in G.ZONES:
-        if z.get("stroke"):
-            o.append(poly(z["pts"], fill="none", stroke=G.ACCENT[z["cat"]],
-                          stroke_width=1.7, opacity=".48",
-                          stroke_linejoin="round"))
+        o.append(poly(z["pts"], fill=G.FILL[z["cat"]], stroke="none"))
 
-    o.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" '
-             'fill="none" stroke="%s" stroke-width="3.6"/>'
-             % (MX, MY, MAP_W, MAP_H, G.PLATE_EDGE))
-
+    o += base_plan()
     o += corridor_labels()
     o += vendor_tables()
     o += routes()
@@ -105,6 +131,39 @@ def plan():
     o += screen()
     o += titles()
     o += features()
+    return o
+
+
+def base_plan():
+    """Wall poche, glazing and thin detail, straight from geometry/f3.json."""
+    geo = json.load(open(os.path.join(GEO, "f3.json")))
+    clip = "gallery-plan"
+    o = ['<clipPath id="%s"><rect x="%.1f" y="%.1f" width="%.1f" '
+         'height="%.1f"/></clipPath>' % (clip, MX, MY, MAP_W, MAP_H),
+         '<g clip-path="url(#%s)">' % clip,
+         '<g transform="%s">' % PLAN_XF]
+    for d in geo.get("light", []):
+        o.append('<path d="%s" fill="%s" fill-rule="evenodd"/>' % (d, G.GLAZE_FILL))
+    for d in geo["walls"]:
+        fill = G.MASS_FILL if path_area(d) > MASS_AREA else G.WALL_FILL
+        o.append('<path d="%s" fill="%s" fill-rule="evenodd"/>' % (d, fill))
+    for d in geo.get("dark", []):
+        o.append('<path d="%s" fill="%s" fill-rule="evenodd"/>' % (d, G.WALL_DARK))
+    o.append("</g>")
+    # wall edges
+    o.append('<g transform="%s" fill="none" stroke="%s" stroke-width="%.4f" '
+             'stroke-linejoin="round" stroke-opacity=".9">'
+             % (PLAN_XF, G.WALL_EDGE, 0.95 / S))
+    for d in geo["walls"]:
+        o.append('<path d="%s"/>' % d)
+    o.append("</g>")
+    # door swings, stair treads, washroom fixtures — texture, not information
+    o.append('<g transform="%s" fill="none" stroke="%s" stroke-width="%.4f" '
+             'stroke-linejoin="round" stroke-linecap="round" stroke-opacity=".62">'
+             % (PLAN_XF, G.DETAIL_INK, 0.7 / S))
+    for d in geo.get("detail", []):
+        o.append('<path d="%s"/>' % d)
+    o.append("</g></g>")
     return o
 
 
@@ -274,12 +333,21 @@ def meta_strip():
 
 
 # --------------------------------------------------------------- key panel --
+ROW_H = 38
+
+
 def key_panel():
-    o = [T(COL_X, 258, "MAP KEY", size=19, weight=600, fill=G.INK, ls=3.4)]
-    y = 288
-    for k in G.KEY:
-        o.append(chip(COL_X + 16, y + 15, k["num"], r=13))
-        mx = COL_X + 52
+    card_h = 60 + len(G.KEY) * ROW_H + 52
+    o = ['<rect x="%d" y="238" width="%d" height="%d" rx="14" fill="%s" '
+         'stroke="#E4E2E1" stroke-width="1.6"/>' % (COL_X, COL_W, card_h, G.PAPER),
+         T(COL_X + 22, 278, "MAP KEY", size=19, weight=600, fill=G.INK, ls=3.4)]
+    y = 296
+    for i, k in enumerate(G.KEY):
+        if i:
+            o.append('<rect x="%d" y="%.1f" width="%d" height="1" fill="#EEECEB"/>'
+                     % (COL_X + 22, y - 2, COL_W - 44))
+        o.append(chip(COL_X + 38, y + 15, k["num"], r=13))
+        mx = COL_X + 74
         if k.get("swatch"):
             o.append('<rect x="%d" y="%.1f" width="34" height="26" rx="6" '
                      'fill="%s" stroke="%s" stroke-width="1.6"/>'
@@ -293,18 +361,18 @@ def key_panel():
                          'fill="%s" opacity=".82"/>' % (mx + i * 20, y + 3,
                                                         G.TABLE_FILL))
         else:
-            o += badge(mx + 17, y + 15, k["cat"], k["icon"], size=30)
-        o.append(T(COL_X + 104, y + 12, k["label"], size=17, weight=600,
+            o += badge(mx + 16, y + 15, k["cat"], k["icon"], size=29)
+        o.append(T(COL_X + 126, y + 12, k["label"], size=16.5, weight=600,
                    fill=G.INK))
-        o.append(T(COL_X + 104, y + 30, k["sub"], size=13.5, fill=G.INK_SOFT))
-        y += 40
+        o.append(T(COL_X + 126, y + 29, k["sub"], size=13, fill=G.INK_SOFT))
+        y += ROW_H
     # route note
     o += ['<path d="M %d %.1f L %d %.1f" stroke="%s" stroke-width="3.2" '
           'stroke-dasharray="9 7" stroke-linecap="round" opacity=".55"/>'
-          % (COL_X + 4, y + 14, COL_X + 44, y + 14, G.ROUTE),
-          T(COL_X + 58, y + 19, "Route from the hall to the washrooms",
-            size=13.5, fill=G.INK_SOFT)]
-    return o, y + 40
+          % (COL_X + 26, y + 16, COL_X + 66, y + 16, G.ROUTE),
+          T(COL_X + 80, y + 21, "Route from the hall to the washrooms",
+            size=13, fill=G.INK_SOFT)]
+    return o, 238 + card_h + 18
 
 
 def card(x, y, w, title, lines, accent, h):
@@ -317,7 +385,7 @@ def card(x, y, w, title, lines, accent, h):
 
 
 def av_card(y):
-    h = 186
+    h = 182
     o = card(COL_X, y, COL_W, G.AV_CARD["title"].upper(), None,
              G.BRAND["magenta"], h)
     ry = y + 58

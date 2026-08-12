@@ -1,9 +1,10 @@
 """
 Content model for the Level 3 Gallery *event* map.
 
-This is the guest-facing, colour-blocked sheet — a diagram of spaces rather
-than a blueprint with tints laid over it. Geometry is still taken from the
-venue's own drawing, so the simplified shapes stay dimensionally true.
+This is the guest-facing sheet: the venue's real plan — walls, door swings,
+fixtures — with room floors tinted by category and numbered pins over the top.
+The zone polygons below are simplified rectangles used only to tint floors;
+they are drawn *under* the poche, so they never have to line up perfectly.
 
 COORDINATES
 -----------
@@ -41,9 +42,13 @@ PT_PER_FT = 4.5
 # Floorplate, interior faces of the exterior walls (blueprint space).
 PLATE = (109.0, 205.0, 504.0, 754.0)          # x0, y0, x1, y1
 
-# Rotation: map_u = y - PLATE.y0 ; map_v = PLATE.x1 - x
-MAP_W = PLATE[3] - PLATE[1]                   # 549 units across (east-west)
-MAP_H = PLATE[2] - PLATE[0]                   # 395 units down   (north-south)
+# Drawing extent — the blueprint's own geometry bbox, so the exterior walls
+# are inside the frame rather than clipped off at their inner face.
+FRAME = (99.05, 184.66, 512.85, 764.19)       # x0, y0, x1, y1
+
+# Rotation: map_u = y - FRAME.y0 ; map_v = FRAME.x1 - x
+MAP_W = FRAME[3] - FRAME[1]                   # 579.5 units across (east-west)
+MAP_H = FRAME[2] - FRAME[0]                   # 413.8 units down   (north-south)
 
 
 def rect(x0, y0, x1, y1):
@@ -73,7 +78,7 @@ FILL = {
     "stair":    "#EBDDF8",
     "elevator": "#E0E2FF",
     "corridor": "#F3F2F0",
-    "staff":    "#ECEAE9",
+    "staff":    "#F4F2F1",
     "service":  "#D9D6D5",
 }
 
@@ -96,6 +101,20 @@ GLYPH_ON = {
     BRAND["turquoise"]: INK,
     "#8C8988":          "#FFFFFF",
 }
+
+# Base plan, drawn from the blueprint's own vector linework on top of the
+# room tints: poche, glazing, then the thin detail (door swings, stair treads,
+# washroom fixtures) that makes the rooms read as rooms.
+# Thin walls read near-white with a defined edge, so the coloured room floors
+# stay the loudest thing on the sheet. The blueprint fills the whole service
+# core as poche too; anything that big is a solid mass, not a wall, so it gets
+# the staff tone instead of the wall tone (see MASS_AREA in build_gallery).
+WALL_FILL  = "#F1EFEE"
+WALL_EDGE  = "#7E7B7A"
+MASS_FILL  = "#DEDCDB"
+WALL_DARK  = "#8E8B8A"
+GLAZE_FILL = "#E9E7E6"
+DETAIL_INK = "#969392"
 
 PLATE_EDGE = "#232323"
 TABLE_FILL = "#8E8A89"
@@ -260,6 +279,6 @@ SHEET = dict(
     tagline="Exhibition hall, boardroom and immersive walls",
     footer_left="Event floor map · Gallery, Level 3",
     footer_right="Design Exchange · 234 Bay Street, Toronto",
-    scale_note="Simplified from the venue's blueprint · north is up "
+    scale_note="Wall geometry taken from the venue's blueprint · north is up "
                "(the venue's own drawings are turned 90°)",
 )
