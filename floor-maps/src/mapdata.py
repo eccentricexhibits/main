@@ -231,33 +231,3 @@ L3 = dict(
 )
 
 FLOORS = [L1, L2, L3]
-
-# --------------------------------------------------------------- vertical --
-# Schematic used on the overview sheet. x is a nominal 0-1000 lane position.
-CORES = [
-    dict(x=90,  label="Escalators",       role="stair",    levels=["C", "1"],
-         note="TD Concourse (PATH) to Lobby"),
-    dict(x=215, label="Grand Staircase",  role="stair",    levels=["1", "2"],
-         note="Lobby to Trading Floor — the main guest route"),
-    dict(x=340, label="Centre Stair",     role="stair",    levels=["2", "3"],
-         note="Trading Floor to Gallery"),
-    dict(x=470, label="West Elevators",   role="elevator", levels=["1", "2", "3"],
-         note="Two cars, all levels"),
-    dict(x=595, label="East Elevator",    role="elevator", levels=["1", "2", "3"],
-         note="One car, all levels"),
-    dict(x=720, label="Corner Stairs",    role="stair",    levels=["1", "2", "3"],
-         note="Four stairwells, one per corner — also the fire exits"),
-    dict(x=845, label="Freight Elevator", role="boh",      levels=["1", "2", "3"],
-         note="Crew and load-in only"),
-]
-
-LEVEL_ROWS = [
-    dict(level="3", name="Gallery",       highlight="Exhibition hall + Gallery Boardroom",
-         washrooms=True),
-    dict(level="2", name="Trading Floor", highlight="Immersive projection theatre",
-         washrooms=False),
-    dict(level="1", name="Lobby",         highlight="Arrival, check-in, coat check",
-         washrooms=True),
-    dict(level="C", name="TD Concourse",  highlight="PATH connection — escalators up",
-         washrooms=None),
-]

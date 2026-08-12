@@ -72,6 +72,14 @@ def configure(mod):
         -S, S, MX - S * G.FRAME[1], MY + S * G.FRAME[2])
 
 
+def configure_chrome(mod):
+    """Bind a data module for the shared chrome only — header, key card, notes
+    cards, footer. Used by sheets that draw their own body and have no plan to
+    fit, such as the Getting Around section."""
+    global G
+    G = mod
+
+
 def P(x, y):
     """Blueprint point -> sheet point, rotated 90 deg CCW so north is up."""
     return (MX + (y - G.FRAME[1]) * S, MY + (G.FRAME[2] - x) * S)
@@ -154,10 +162,11 @@ def header():
            size=23, fill="#FFFFFF", op=.78),
          '<rect x="%d" y="34" width="118" height="110" rx="10" fill="%s"/>'
          % (SHEET_W - 182, G.BRAND["magenta"]),
-         T(SHEET_W - 123, 72, "LEVEL", size=15, weight=600, fill="#FFFFFF",
-           anchor="middle", ls=2.6),
-         T(SHEET_W - 123, 126, G.SHEET["level"], size=52, weight=600,
-           fill="#FFFFFF", anchor="middle")]
+         T(SHEET_W - 123, 72, G.SHEET.get("chip_top", "LEVEL"), size=15,
+           weight=600, fill="#FFFFFF", anchor="middle", ls=2.6),
+         T(SHEET_W - 123, 126, G.SHEET.get("chip_main", G.SHEET.get("level", "")),
+           size=G.SHEET.get("chip_size", 52), weight=600, fill="#FFFFFF",
+           anchor="middle")]
     return o
 
 
@@ -501,13 +510,20 @@ def document():
     parts += header()
     parts += plan()
     parts += meta_strip()
+    parts += right_column()
+    return svg_wrap(parts)
+
+
+def right_column():
+    """Key card plus the notes cards, shared by every sheet."""
     kp, y = key_panel()
-    parts += kp
     cb, y = cards(y)
-    parts += cb
-    parts += footer()
     if y > SHEET_H - 70:
         print("  ! right column overruns the sheet by %d pt" % (y - (SHEET_H - 70)))
+    return kp + cb + footer()
+
+
+def svg_wrap(parts):
     defs = ('<defs><style>%s</style>'
             '<linearGradient id="brandgrad" x1="0" y1="0" x2="1" y2="0">'
             '<stop offset="0%%" stop-color="%s"/><stop offset="55%%" stop-color="%s"/>'
@@ -518,6 +534,17 @@ def document():
             'xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 %d %d" '
             'width="%d" height="%d">%s%s</svg>'
             % (SHEET_W, SHEET_H, SHEET_W, SHEET_H, defs, "".join(parts)))
+
+
+def emit(svg, key):
+    """Write + rasterise an already-assembled sheet."""
+    os.makedirs(DIST, exist_ok=True)
+    svg_path = os.path.join(DIST, key + ".svg")
+    with open(svg_path, "w", encoding="utf-8") as f:
+        f.write(svg)
+    render(svg_path, key)
+    print("built", key)
+    return key
 
 
 def render(svg_path, key):

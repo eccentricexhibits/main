@@ -39,9 +39,11 @@ SHEETS = [
      "Boardroom (Patty Watt Room). Washrooms, stairs and elevators all sit "
      "inside the core, reachable from either leg.", "24 &times; 36 in"),
     ("building-overview", "★", "Getting Around",
-     "Every vertical route in the building on one sheet — which stair, "
-     "escalator or elevator serves which levels, and what each one is for.",
-     "24 &times; 36 in"),
+     "Every vertical route in the building on one sheet, drawn as a section "
+     "rather than a plan: the levels stacked, with each stair, escalator and "
+     "elevator running across the floors it reaches, like lines on a transit "
+     "map.",
+     "24 &times; 16 in"),
 ]
 
 FACTS = [

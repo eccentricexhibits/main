@@ -23,8 +23,8 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from mapdata import (BRAND, BOH_FILL, CORES, FLOORS, GLYPH_ON, INK, INK_SOFT,
-                     LEVEL_ROWS, PAPER, PT_PER_FT, ROLE, WALL_EDGE, WALL_FILL)
+from mapdata import (BRAND, BOH_FILL, FLOORS, GLYPH_ON, INK, INK_SOFT, PAPER,
+                     PT_PER_FT, ROLE, WALL_EDGE, WALL_FILL)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = os.path.dirname(ROOT)
@@ -383,112 +383,6 @@ def legend_block(floor):
 
 
 # --------------------------------------------------------- overview sheet --
-def build_overview():
-    o = ['<rect width="%d" height="%d" fill="%s"/>' % (SHEET_W, SHEET_H, PAPER)]
-    o.append(header("Getting Around", None, "How the three levels connect"))
-
-    left, right = MARGIN, SHEET_W - MARGIN
-    lane_x0, lane_x1 = 760, right - 40
-    row_h, gap = 208, 66
-    top = 620
-    rows = {}
-    for i, lr in enumerate(LEVEL_ROWS):
-        y = top + i * (row_h + gap)
-        rows[lr["level"]] = y + row_h / 2
-
-    o.append(T(left, 466, "THE BUILDING, TOP TO BOTTOM", 24, 600, INK, ls=3.4))
-    o.append(T(left, 508, "Every vertical route in the building, and which levels it serves.",
-               24, 400, INK_SOFT))
-
-    # lane labels (rotated, above the stack)
-    n = len(CORES)
-    for i, c in enumerate(CORES):
-        lx = lane_x0 + (lane_x1 - lane_x0) * (i + 0.5) / n
-        o.append('<g transform="translate(%.1f,%.1f) rotate(-90)">%s</g>'
-                 % (lx, top - 26, T(0, 0, c["label"].upper(), 18, 600, ROLE[c["role"]], "start", ls=2.0)))
-
-    # level slabs
-    for i, lr in enumerate(LEVEL_ROWS):
-        y = top + i * (row_h + gap)
-        concourse = lr["level"] == "C"
-        bg = "#F6F5F5" if concourse else "#FFFFFF"
-        o.append('<rect x="%d" y="%.1f" width="%d" height="%d" rx="18" fill="%s" '
-                 'stroke="#E2E0E0" stroke-width="2.5"/>' % (left, y, right - left, row_h, bg))
-        badge = ROLE["boh"] if concourse else BRAND["magenta"]
-        o.append('<rect x="%d" y="%.1f" width="112" height="112" rx="16" fill="%s"/>'
-                 % (left + 34, y + row_h / 2 - 56, badge))
-        o.append(T(left + 90, y + row_h / 2 + 22, lr["level"], 62, 600, "#FFFFFF", "middle"))
-        o.append(T(left + 176, y + row_h / 2 - 12, lr["name"], 40, 600, INK))
-        o.append(T(left + 176, y + row_h / 2 + 30, lr["highlight"], 23, 400, INK_SOFT))
-        if lr["washrooms"] is not None:
-            wcol = BRAND["turquoise"] if lr["washrooms"] else BRAND["magenta"]
-            txt = "Washrooms on this level" if lr["washrooms"] else "No washrooms on this level"
-            o.append('<rect x="%d" y="%.1f" width="330" height="46" rx="23" fill="%s" '
-                     'fill-opacity=".18"/>' % (left + 176, y + row_h / 2 + 46, wcol))
-            o.append('<circle cx="%d" cy="%.1f" r="9" fill="%s"/>'
-                     % (left + 202, y + row_h / 2 + 69, wcol))
-            o.append(T(left + 220, y + row_h / 2 + 76, txt, 20, 600, INK))
-
-    # connector lanes
-    for i, c in enumerate(CORES):
-        lx = lane_x0 + (lane_x1 - lane_x0) * (i + 0.5) / n
-        col = ROLE[c["role"]]
-        ys = [rows[l] for l in c["levels"] if l in rows]
-        if not ys:
-            continue
-        o.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="9" '
-                 'stroke-linecap="round" stroke-opacity=".85"/>'
-                 % (lx, min(ys), lx, max(ys), col))
-        for yy in ys:
-            o.append('<circle cx="%.1f" cy="%.1f" r="17" fill="#FFFFFF"/>' % (lx, yy))
-            o.append('<circle cx="%.1f" cy="%.1f" r="12" fill="%s"/>' % (lx, yy, col))
-
-    # route key
-    ky = top + len(LEVEL_ROWS) * (row_h + gap) + 26
-    o.append('<rect x="%d" y="%.1f" width="%d" height="2" fill="#E2E0E0"/>'
-             % (left, ky, right - left))
-    o.append(T(left, ky + 46, "ROUTES", 21, 600, INK, ls=3.4))
-    for i, c in enumerate(CORES):
-        col = ROLE[c["role"]]
-        cy = ky + 92 + i * 52
-        o.append('<circle cx="%d" cy="%.1f" r="12" fill="%s"/>' % (left + 14, cy - 6, col))
-        o.append(T(left + 44, cy, c["label"], 24, 600, INK))
-        o.append(T(left + 340, cy, c["note"], 23, 400, INK_SOFT))
-        o.append(T(right, cy, " → ".join("Level " + l if l != "C" else "Concourse"
-                                         for l in c["levels"]), 21, 400, INK_SOFT, "end"))
-
-    # quick-reference strip
-    qy = ky + 92 + len(CORES) * 52 + 56
-    o.append('<rect x="%d" y="%.1f" width="%d" height="2" fill="#E2E0E0"/>'
-             % (left, qy - 34, right - left))
-    o.append(T(left, qy + 8, "IF YOU ONLY REMEMBER THREE THINGS", 21, 600, INK, ls=3.4))
-    cards = [
-        (BRAND["magenta"], "The show is on Level 2",
-         "The Trading Floor is the immersive theatre. Three walls of projection, "
-         "40 ft ceilings. Get there on the Grand Staircase from the Lobby."),
-        (BRAND["turquoise"], "Washrooms are on 1 and 3",
-         "There are none on the Trading Floor. Level 1 has women's, men's and a "
-         "universal washroom; Level 3 has all three inside the core."),
-        (BRAND["cobalt"], "Every corner has a stairwell",
-         "Four stairwells run the full height of the building, one per corner, "
-         "and double as the fire exits. Elevators sit west and east."),
-    ]
-    cw = (right - left - 2 * 28) / 3
-    for i, (col, title, body) in enumerate(cards):
-        cx = left + i * (cw + 28)
-        o.append('<rect x="%.1f" y="%.1f" width="%.1f" height="188" rx="16" fill="%s" '
-                 'fill-opacity=".10"/>' % (cx, qy + 34, cw, col))
-        o.append('<rect x="%.1f" y="%.1f" width="6" height="188" rx="3" fill="%s"/>'
-                 % (cx, qy + 34, col))
-        o.append(T(cx + 30, qy + 84, title, 27, 600, INK))
-        for j, ln in enumerate(wrap(body, 46)):
-            o.append(T(cx + 30, qy + 120 + j * 28, ln, 21, 400, INK_SOFT))
-
-    o.append(footer("Event floor maps  ·  Building overview"))
-    return svg_document(o)
-
-
-# ---------------------------------------------------------------- assembly --
 def svg_document(body_parts):
     defs = ('<defs><style>%s</style>'
             '<linearGradient id="brandgrad" x1="0" y1="0" x2="1" y2="0">'
@@ -596,13 +490,10 @@ def main():
                        fl["tagline"], "24 × 36 in"))
         print("built", fl["key"])
 
-    svg = build_overview()
-    p = os.path.join(DIST, "building-overview.svg")
-    open(p, "w", encoding="utf-8").write(svg)
-    render(p, "building-overview")
+    import build_overview_map
+    build_overview_map.main()
     sheets.append(("building-overview", "Getting Around",
-                   "How the three levels connect", "24 × 36 in"))
-    print("built building-overview")
+                   "How the levels connect — a section, not a plan", "24 × 16 in"))
 
     build_viewer(sheets)
     print("built index.html")

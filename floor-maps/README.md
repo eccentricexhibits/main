@@ -13,7 +13,7 @@ Seven sheets:
 | `level-1-lobby` | 24 × 36 in | Arrival, check-in, coat check, washrooms, Grand Staircase |
 | `level-2-trading-floor` | 24 × 36 in | The immersive projection theatre and its three screen walls |
 | `level-3-gallery` | 24 × 36 in | Exhibition hall, Gallery Boardroom (Patty Watt Room), washrooms |
-| `building-overview` | 24 × 36 in | How the three levels connect — every vertical route in the building |
+| `building-overview` | 24 × 16 in | **Getting Around** — a section through the building, every vertical route drawn across the levels it reaches |
 
 Each sheet ships as `.pdf` (press-ready), `.svg` (vector, fonts embedded) and
 `.png` (2×, for slides and screens). `dist/index.html` is a single-file viewer
@@ -81,6 +81,17 @@ committed so `build.py` runs standalone. Requires `pymupdf` and `playwright`
 - `src/build.py` — builds everything, including the event maps and the viewer.
 - `src/build_lobby.py`, `src/build_trading.py`, `src/build_gallery.py` — one
   sheet at a time, for faster iteration.
+
+### The Getting Around sheet
+
+`build_overview_map.py` is the odd one out: not a plan, but a section — the
+levels stacked as bands with each vertical route running across them and a stop
+marked at every floor it reaches, like a transit map. That shape is a
+deliberate response to the drawings. Each DX blueprint was drawn as its own
+sheet with its own page origin, so the levels do not register against one
+another well enough to claim where a shaft sits *in plan*; what can be stated
+with confidence is what each route *connects*. It borrows the header, key card,
+notes cards and footer from `event_map` so the set stays one design.
 
 ### Adding a floor
 
