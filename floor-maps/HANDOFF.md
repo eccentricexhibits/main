@@ -98,16 +98,29 @@ Exchange:
 | Handoff filename | Original | Trust it for |
 | --- | --- | --- |
 | Venue Supplied Plans (From Blueprints - Accurate Layout) - Level 1/2/3 | `Floor 1/2/3 — Floor Plan.pdf` | **everything** — wall geometry, dimensions, room names, the north arrow. This is the authority |
-| Venue Supplied Plans (From 3D Mockups...) - Level 1/2 | `Floor 1/2 — Reference Images.pdf` | look and feel only; not dimensioned |
-| Venue Supplied Plans (From 3D Mockups...) - Level 3 | `Floor 3 — Reference Images.pdf` | **contains the event team's own "Vector – Gallery – Vendor Tables" plan** — see the caution below |
+| Venue Supplied Plans (... + 3D Mockups) - Level 1 | `Floor 1 — Reference Images.pdf` | "Vector – Lobby" — a sparse lobby plan plus renders |
+| Venue Supplied Plans (... + 3D Mockups) - Level 2 | `Floor 2 — Reference Images.pdf` | **"Vector – 350px Theater Style" — a full 350-seat theatre layout for the Trading Floor** |
+| Venue Supplied Plans (... + 3D Mockups) - Level 3 | `Floor 3 — Reference Images.pdf` | "Vector – Gallery – Vendor Tables" — the vendor layout |
 | Design Exchange - Tech Deck | `DX_Tech_Deck_01.01.2026_LR.pdf` | projection surfaces, LED sign, lighting and audio inventory |
 
-**Caution on the Level 3 mockup file.** The 3D renders across these files are
-indicative rather than dimensioned, and should not be measured against. But the
-Level 3 file is not only renders: page 1 is a 2D vendor-table plan drawn by the
-event team, and it is the authority for *where the vendors go* and for the
-orientation this whole set uses. Do not dismiss that file wholesale on the
-strength of a filename — the renders are loose, the vendor plan is not.
+**All three reference files carry an event layout, not just renders.** Each is a
+Visrez document by Alicia Black: page 1 is a layout plan, pages 2–3 are 3D views
+of it. Every page is a raster image — there is no vector geometry to extract, so
+anything taken from them is traced by eye against the blueprint, not measured.
+Do not treat them as dimensioned drawings; do not dismiss them as decoration
+either.
+
+They are named per level for what they actually contain, because the three
+differ a lot in usefulness:
+
+- **Level 1** — "Vector – Lobby". Mostly bare architecture with a little
+  furniture. Nothing was taken from it.
+- **Level 2** — "Vector – 350px Theater Style". A **350-seat theatre layout**,
+  two blocks with a centre aisle and stage elements at both ends. **This is not
+  currently drawn on the Trading Floor sheet** — see section 9.
+- **Level 3** — "Vector – Gallery – Vendor Tables". The vendor layout, and the
+  source of the vendor rows on the Gallery sheet. It also confirmed the
+  north-up orientation the whole set uses.
 
 **Which format to upload — PDF.** It wins on every axis at once:
 
@@ -434,7 +447,13 @@ right `geometry/f*.json`, set `FRAME`, describe the floor, add a
 4. **Are the small Level 1 washrooms behind the office block public?** Treated
    as staff — single-fixture rooms behind the BOH corridor, while the plainly
    labelled public ones are the large stall blocks.
-5. **Vendor tables** on the Gallery sheet are traced from the event team's own
+5. **The Trading Floor's 350-seat theatre layout is not drawn.** The event team
+   has one — "Vector – 350px Theater Style", page 1 of the Level 2 reference
+   file — and the Gallery sheet does show its equivalent vendor rows, so the
+   set is inconsistent on this. Adding it would mean a `RUNS` block of seat
+   rows in `trading_data.py`, traced against the blueprint the same way the
+   vendor tables were. Ask before assuming the layout is final.
+6. **Vendor tables** on the Gallery sheet are traced from the event team's own
    "Vector – Gallery – Vendor Tables" plan. Indicative, not surveyed — re-check
    against the final layout.
 
