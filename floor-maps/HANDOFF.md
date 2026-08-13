@@ -137,7 +137,7 @@ differ a lot in usefulness:
 
 | | vector | model can *see* it | text extractable | size (this set) |
 | --- | --- | --- | --- | --- |
-| **PDF** | yes | yes — pages render as images | yes | **117–336 KB** |
+| **PDF** | yes | yes — pages render as images | yes | **119–505 KB** |
 | PNG | no | yes | no | 350–580 KB |
 | SVG | yes | no — read as text | yes | 225–332 KB |
 
