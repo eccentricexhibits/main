@@ -264,11 +264,19 @@ south run 3242 | gap 400 | corner 307 | east run 3066   = 7015
 full south wall 3949 = 3242 + 400 + 307
 ```
 
-The east run measures **46'-0"** on the drawing, which pins the surface at
-~66.7 px/ft; the south run then lands on the **full height of the core's south
-face**. The two runs wrap the hall's inside corner — the same corner
-photographed on deck p.13. This is drawn on the sheet as a heavy magenta
-polyline `(236,362) → (236,626) → (443,626)`.
+The east run scales to **46'-0"** against the wall geometry (207 pt at
+4.5 pt/ft — there is no printed dimension for it on the sheet), which pins
+the surface at ~66.7 px/ft; the south run then lands on the **full extent of
+the core's south face**. The two runs wrap the hall's inside corner — the
+same corner photographed on deck p.13.
+
+The wall geometry carries the deck's split exactly: wall from y 362.3 to
+584.5 (≈ the 3242 px run), **an opening 584.5–607.5 — the 400 px gap, which
+is the walkway into the east corridor** — then a 4.6 ft corner return
+607.5–628.2 that is the 307 px corner to the pixel. The sheets draw the
+surface in two pieces, `(236,362)→(236,585)` and `(236,608)→(236,626)→
+(443,626)`, so the gap reads as the opening it is; the washroom route passes
+through it.
 
 ### 4.5 Trading Floor projection — which wall is which, but no pixel extents
 
@@ -452,10 +460,21 @@ right `geometry/f*.json`, set `FRAME`, describe the floor, add a
 1. **Which Lobby door do guests use?** DX publishes access "from Bay Street and
    the TD Concourse". The plan shows two door clusters on the east side; both
    are pinned as entrances, and the key says to confirm routing.
-2. **Is the Level 2 in-hall stair the one to the Gallery?** It is the only
-   interior stair in the hall, and Level 3's centre stair does come down to
-   Level 2 — but the two sheets place them ~15 ft apart, and per §4.6 the
-   drawings do not register, so this is inference, not fact.
+2. **Which stair takes guests from the Trading Floor up to the Gallery?**
+   The in-hall stair rises onto the **bridge**, not the Gallery: the event
+   team's own 3D render (Level 2 reference file, p.2) shows it climbing onto
+   the bridge, the blueprint's "Bridge Over" label sits at its head, and it
+   carries no UP/DN annotation — unlike every inter-floor stair on these
+   drawings. Whether the bridge continues into the Gallery is shown nowhere.
+   Level 3's centre stair is marked DN, so it does descend toward Level 2,
+   but where it lands cannot be read off the drawings (§4.6) — and it is not
+   the in-hall stair. The only stairs *proven* to connect Levels 2 and 3 are
+   the corner stairwells (UP and DN marked on all three Level 2 corner
+   stairs). The sheets now say "up to the bridge" on Level 2, hedge the
+   centre stair, and send guests to the Gallery by elevator. Confirm the
+   stair route with the venue. (Related: "fire exit" on the corner stairs is
+   an inference from their position and Level 3's EXIT labels — Levels 1–2
+   do not label them.)
 3. **Where is the Gallery LED wall (1920 × 1080)?** Specified in the deck, not
    sited on any drawing. Listed in the AV card, deliberately not pinned.
 4. **Are the small Level 1 washrooms behind the office block public?** Treated

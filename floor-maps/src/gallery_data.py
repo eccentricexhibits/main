@@ -117,9 +117,15 @@ FEATURES = [
 # ~66.7 px/ft; the south run then lands on the full height of the core's
 # south face. The two runs wrap the hall's inside corner — exactly the
 # corner photographed on p.13 of the deck.
+# The wall geometry carries the deck's own split: wall runs y 362.3-584.5
+# (the 3242 px south run), an opening 584.5-607.5 (the 400 px gap — the way
+# into the east corridor), then a 4.6 ft corner return 607.5-628.2 (the
+# 307 px corner). The surface is drawn in two pieces so the gap reads as the
+# walkway it is.
 SURFACES = [
-    dict(path=[(236, 362), (236, 626), (443, 626)], num=9,
+    dict(path=[(236, 362), (236, 585)], num=9,
          label="IMMERSIVE PROJECTION WALLS", label_at=(219, 402)),
+    dict(path=[(236, 608), (236, 626), (443, 626)]),
     dict(path=[(426, 232), (426, 292)], w=5, glow=False, size=12,
          label="SCREEN", label_at=(415, 262)),
 ]
@@ -150,7 +156,8 @@ ROUTE_LABEL = "Route from the hall to the washrooms"
 
 ROUTES = [
     [(225, 340), (370, 340), (370, 371)],      # to the men's room
-    [(225, 608), (352, 608), (352, 570)],      # to the women's room
+    # Enters through the real opening in the projection wall (y 584.5-607.5).
+    [(225, 596), (352, 596), (352, 570)],      # to the women's room
 ]
 
 # ---------------------------------------------------------------- the key --
@@ -168,8 +175,8 @@ KEY = [
          label="Women's washroom",
          sub="Off the east corridor · accessible stall"),
     dict(num=5, cat="stair", icon="stairs",
-         label="Stairs to Trading Floor",
-         sub="Centre stair, down one level"),
+         label="Stairs down",
+         sub="Centre stair — confirm where it lands with the venue"),
     dict(num=6, cat="elevator", icon="elevator",
          label="Elevator",
          sub="Serves every level"),
@@ -196,9 +203,9 @@ CARDS = [
                ("Ceiling, unobstructed", "12 ft")],
          note="LED wall position to be confirmed with the venue."),
     dict(title="Getting between floors", accent="cobalt",
-         body="The centre stair drops straight to the Trading Floor, one "
-              "level down — and that floor has no washrooms, so these are the "
-              "closest. Elevators serve every level; the two fire stairs are "
+         body="The elevator is the reliable way down to the Trading Floor — "
+              "and that floor has no washrooms, so these are the closest. "
+              "The centre stair also heads down; the two fire stairs are "
               "the exits."),
 ]
 

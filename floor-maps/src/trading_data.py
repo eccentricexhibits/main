@@ -97,8 +97,12 @@ SMALL_LABELS = [
 FEATURES = [
     dict(num=2, cat="stair", icon="stairs", at=(133, 667),
          label="Down to the Lobby", side="left"),
+    # The event team's 3D render (Level 2 reference file) shows this stair
+    # rising onto the bridge; the blueprint's "Bridge Over" label sits at its
+    # head and it carries no UP/DN annotation. It is NOT the Gallery route —
+    # see HANDOFF §9.2.
     dict(num=3, cat="stair", icon="stairs", at=(274, 576),
-         label="Up to the Gallery", side="below"),
+         label="Up to the bridge", side="below"),
     dict(num=4, cat="elevator", icon="elevator", at=(106, 515),
          label="Elevator", side="left"),
     dict(num=4, cat="elevator", icon="elevator", at=(493, 620),
@@ -143,8 +147,8 @@ KEY = [
          sub="The immersive theatre — 106 × 58 ft, 40 ft ceiling"),
     dict(num=2, cat="stair", icon="stairs", label="Grand Staircase",
          sub="Down to the Lobby — the main guest route"),
-    dict(num=3, cat="stair", icon="stairs", label="Stairs to the Gallery",
-         sub="From the middle of the hall, up one level"),
+    dict(num=3, cat="stair", icon="stairs", label="Stairs to the bridge",
+         sub="From the hall up onto the bridge over"),
     dict(num=4, cat="elevator", icon="elevator", label="Elevators",
          sub="Two locations on this level"),
     dict(num=5, cat="stair", icon="stairs", label="Fire exit stairs",
@@ -172,8 +176,8 @@ CARDS = [
          note="Deliver one flattened file at full size, plus a layer per surface."),
     dict(title="No washrooms on this level", accent="cobalt",
          body="The nearest are one level down in the Lobby, or one level up "
-              "in the Gallery. The Grand Staircase lands in the south-east "
-              "corner of this floor."),
+              "in the Gallery — take the elevator up. The Grand Staircase "
+              "lands in the south-east corner of this floor."),
 ]
 
 SHEET = dict(

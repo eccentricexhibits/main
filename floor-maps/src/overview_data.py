@@ -51,7 +51,7 @@ KEY = [
     dict(num=2, cat="stair", icon="stairs", label="Grand Staircase",
          sub="Lobby up to the Trading Floor — the main guest route"),
     dict(num=3, cat="stair", icon="stairs", label="Centre stair",
-         sub="Trading Floor up to the Gallery"),
+         sub="Gallery, down one level — confirm landing with venue"),
     dict(num=4, cat="elevator", icon="elevator", label="Elevators",
          sub="Every level — locations marked on each floor map"),
     dict(num=5, cat="stair", icon="stairs", label="Fire exit stairs",
@@ -67,7 +67,7 @@ CARDS = [
          body="Arrive in the Lobby from Bay Street, or up the escalators from "
               "the TD Concourse. Check in, leave coats, then take the Grand "
               "Staircase up to the Trading Floor. The Gallery is one more "
-              "level up, by the centre stair or the elevators."),
+              "level up, by the elevators."),
     dict(title="Step-free access", accent="cobalt",
          body="Elevators reach every level. The universal washroom is on "
               "Level 1; Level 3's washrooms have accessible stalls. There are "

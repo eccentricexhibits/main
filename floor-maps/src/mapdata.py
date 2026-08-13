@@ -121,7 +121,7 @@ L1 = dict(
     connections="Guests arrive from Bay Street or up the escalators from the TD "
                 "Concourse (PATH), check in at the front desk, and leave coats near "
                 "the north-east corner. The Grand Staircase in the south-east corner "
-                "is the main route up to the Trading Floor; elevators and four corner "
+                "is the main route up to the Trading Floor; elevators and the corner "
                 "stairwells serve every level.",
 )
 
@@ -160,11 +160,12 @@ L2 = dict(
              label_at=(416, 400), rot=-90),
     ],
     pins=[
-        # The mid-hall stair goes UP to the Gallery (see HANDOFF §9.2); the
-        # Grand Staircase from the Lobby is the south-east corner stair, where
-        # the blueprint's own DN annotation sits.
+        # The mid-hall stair rises onto the bridge (3D render + "Bridge Over"
+        # label; see HANDOFF §9.2); the Grand Staircase from the Lobby is the
+        # south-east corner stair, where the blueprint's own DN annotation
+        # sits.
         dict(icon="stairs", role="stair", at=(275, 575), label="Stairs",
-             note="up to the Gallery", side="right", show_label=True),
+             note="up to the bridge", side="right", show_label=True),
         dict(icon="elevator", role="elevator", at=(122, 518)),
         dict(icon="elevator", role="elevator", at=(495, 614)),
         dict(icon="stairs", role="stair", at=(122, 218)),
@@ -217,9 +218,12 @@ L3 = dict(
     # The Gallery LED wall (1920 x 1080) is specified in the tech deck but not
     # sited on any drawing, so it is deliberately not drawn here — see
     # HANDOFF §9.3.
+    # Split at the real opening in the wall (y 584.5-607.5 — the deck's
+    # 400 px gap); the short piece is the 307 px corner return.
     screens=[
-        dict(kind="line", p0=(231, 370), p1=(231, 626), label="PROJECTION WALL",
+        dict(kind="line", p0=(231, 370), p1=(231, 585), label="PROJECTION WALL",
              label_at=(249, 500), rot=90),
+        dict(kind="line", p0=(231, 608), p1=(231, 626)),
         dict(kind="line", p0=(233, 626), p1=(440, 626), label="PROJECTION WALL",
              label_at=(340, 650), rot=0),
     ],

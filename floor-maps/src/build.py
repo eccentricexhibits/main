@@ -252,6 +252,8 @@ def build_floor(floor):
         a, b = P(*sc["p0"]), P(*sc["p1"])
         o.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="11" '
                  'stroke-linecap="round"/>' % (a[0], a[1], b[0], b[1], BRAND["magenta"]))
+        if not sc.get("label"):
+            continue
         lx, ly = P(*sc["label_at"])
         rot = sc.get("rot", 0)
         o.append('<g transform="translate(%.1f,%.1f) rotate(%d)">%s</g>'
