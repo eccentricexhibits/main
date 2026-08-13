@@ -4,7 +4,9 @@ A full check of the floor-map set built on branch
 `claude/design-exchange-floor-maps-0icdz3` (generator under `floor-maps/`),
 verified against the venue source material in `eccentricexhibits/floorplan`
 (blueprints, tech deck, reference images) and the shipped "Claude Code -"
-PDFs in that bundle. Review only — no fixes applied.
+PDFs in that bundle. The fixes for everything below (except the bundle
+re-export, which lives in the `floorplan` repo) are applied in the
+`floor-maps/` tree committed alongside this report.
 
 ## What checks out
 
