@@ -56,20 +56,45 @@ _NUM = re.compile(r"-?\d+\.?\d*")
 G = None
 S = MX = MY = MAP_W = MAP_H = 0.0
 PLAN_XF = ""
+# The frame actually being drawn. Normally the floor's own FRAME; the
+# flip-book binds one shared frame across every floor instead.
+FR = None
+# Where that frame sits on the sheet, *before* any per-floor registration
+# nudge — the clip box and the scale/north strip hang off this, so they stay
+# put from page to page even when a floor is offset.
+FRAME_X = FRAME_Y = FRAME_W = FRAME_H = 0.0
+
+
+def _fit(frame, off=(0.0, 0.0)):
+    global S, MX, MY, MAP_W, MAP_H, PLAN_XF, FR, FRAME_X, FRAME_Y, FRAME_W, FRAME_H
+    FR = frame
+    fw, fh = frame[3] - frame[1], frame[2] - frame[0]
+    px, py, pw, ph = PANEL[0], PANEL[1], PANEL[2] - PANEL[0], PANEL[3] - PANEL[1]
+    S = min(pw / fw, ph / fh)
+    MAP_W, MAP_H = fw * S, fh * S
+    FRAME_X, FRAME_Y = px + (pw - MAP_W) / 2, py + (ph - MAP_H) / 2
+    FRAME_W, FRAME_H = MAP_W, MAP_H
+    # A nudge of (dx, dy) blueprint pt moves east by dy and south by dx.
+    MX, MY = FRAME_X + off[1] * S, FRAME_Y - off[0] * S
+    # the same rotation as an SVG matrix, so blueprint path data goes in as-is
+    PLAN_XF = "matrix(0,%.6f,%.6f,0,%.4f,%.4f)" % (
+        -S, S, MX - S * frame[1], MY + S * frame[2])
 
 
 def configure(mod):
     """Bind a floor's data module and fit its plan to the panel."""
-    global G, S, MX, MY, MAP_W, MAP_H, PLAN_XF
+    global G
     G = mod
-    fw, fh = G.FRAME[3] - G.FRAME[1], G.FRAME[2] - G.FRAME[0]
-    px, py, pw, ph = PANEL[0], PANEL[1], PANEL[2] - PANEL[0], PANEL[3] - PANEL[1]
-    S = min(pw / fw, ph / fh)
-    MAP_W, MAP_H = fw * S, fh * S
-    MX, MY = px + (pw - MAP_W) / 2, py + (ph - MAP_H) / 2
-    # the same rotation as an SVG matrix, so blueprint path data goes in as-is
-    PLAN_XF = "matrix(0,%.6f,%.6f,0,%.4f,%.4f)" % (
-        -S, S, MX - S * G.FRAME[1], MY + S * G.FRAME[2])
+    _fit(G.FRAME)
+
+
+def configure_shared(mod, frame, off=(0.0, 0.0)):
+    """Bind a floor but fit one *shared* frame, so several sheets land on a
+    common scale and a common origin and can be flipped through as a set.
+    `off` is this floor's registration nudge, in blueprint pt."""
+    global G
+    G = mod
+    _fit(frame, off)
 
 
 def configure_chrome(mod):
@@ -82,7 +107,7 @@ def configure_chrome(mod):
 
 def P(x, y):
     """Blueprint point -> sheet point, rotated 90 deg CCW so north is up."""
-    return (MX + (y - G.FRAME[1]) * S, MY + (G.FRAME[2] - x) * S)
+    return (MX + (y - FR[1]) * S, MY + (FR[2] - x) * S)
 
 
 def poly(pts, **kw):
@@ -194,7 +219,7 @@ def base_plan():
     geo = json.load(open(os.path.join(GEO, G.SHEET["geometry"])))
     clip = "plan-clip"
     o = ['<clipPath id="%s"><rect x="%.1f" y="%.1f" width="%.1f" '
-         'height="%.1f"/></clipPath>' % (clip, MX, MY, MAP_W, MAP_H),
+         'height="%.1f"/></clipPath>' % (clip, FRAME_X, FRAME_Y, FRAME_W, FRAME_H),
          '<g clip-path="url(#%s)">' % clip, '<g transform="%s">' % PLAN_XF]
     for d in geo.get("light", []):
         o.append('<path d="%s" fill="%s" fill-rule="evenodd"/>' % (d, G.GLAZE_FILL))
@@ -407,7 +432,7 @@ def features():
 
 # ------------------------------------------------------------ scale / north --
 def meta_strip():
-    y = MY + MAP_H + 42
+    y = FRAME_Y + FRAME_H + 42
     ft = 20
     w = ft * G.PT_PER_FT * S
     x0 = PANEL[0]

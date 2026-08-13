@@ -150,3 +150,15 @@ than embedding it a second time, took the file from 11.2 MB to 7.5 MB.
 - Back-of-house rooms (Eatertainment offices, storage, staff washrooms off the
   Level 1 east corridor) are deliberately left untinted so guests read them as
   "not for me".
+
+## The registered flip-book
+
+`python3 src/build_flipbook.py` → `dist/building-flipbook.pdf`, four 24 × 16 in
+pages on one shared frame, one scale and one origin, so flipping between pages
+holds the building still and anything that moves has genuinely moved.
+
+Registration was measured, not assumed — see the header of
+`src/build_flipbook.py`. Levels 1 and 2 share an origin (wall-outline overlap
+peaks at 40%, 8.6σ above background, after a 1.8 ft nudge that is applied).
+Level 3 does not, and no rigid move fixes it, so it gets two pages: one on its
+own drawn origin and one best-fit shifted, each labelled on the sheet.
