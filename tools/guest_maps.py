@@ -11,6 +11,10 @@ SBOTF = "/home/user/main/Karbon-Semibold.otf"
 freg, fsb = fitz.Font(fontfile=REGOTF), fitz.Font(fontfile=SBOTF)
 import json
 KREG = json.load(open(f"{SP}/registration.json"))
+UP = "/root/.claude/uploads/8646fd97-4ad3-5951-b0bc-d4bea048f46f"
+VENUE = {1: f"{UP}/6187c370-Venue_Supplied_Plans__Level_1__From_Blueprints.pdf",
+         2: f"{UP}/3e70b7e6-Venue_Supplied_Plans__Level_2__From_Blueprints.pdf",
+         3: f"{UP}/2bb18f85-Venue_Supplied_Plans__Level_3__From_Blueprints.pdf"}
 
 W, H = 1728, 1152
 AREA = fitz.Rect(60, 195, 1005, 1075)
@@ -91,8 +95,58 @@ class Page:
 
     def plate(self, r):
         rr = self.TR(r)
-        self.pg.draw_rect(rr, fill=FIELD, color=WALL, width=2.6, radius=0.012)
+        self.pg.draw_rect(rr, fill=FIELD, color=None)
+        self.plate_rect = rr
         return rr
+
+    def walls(self, lvl):
+        """Real wall geometry from the venue blueprint, registered into
+        this map's frame and drawn over the colour zones."""
+        reg = KREG[str(lvl)]
+        s_, (tx, ty) = reg["s"], reg["t"]
+        def V(pt):
+            return fitz.Point(*self.T(pt.y*s_ + tx, -pt.x*s_ + ty))
+        doc = fitz.open(VENUE[lvl])
+        for d in doc[0].get_drawings():
+            c, f = d.get("color"), d.get("fill")
+            if (c and c[0] > 0.7 and c[1] < 0.45) or                (f and f[0] > 0.7 and f[1] < 0.45 and f[2] < 0.45):
+                continue                                    # red clearances
+            grayf = f and max(f)-min(f) < 0.08 and max(f) < 0.88
+            grays = c and max(c)-min(c) < 0.08
+            wd = d.get("width") or 0
+            if not grayf and not (grays and wd >= 0.55):
+                continue
+            if grayf:
+                v = sum(f)/3
+                fill = (0.62,0.595,0.575) if v < 0.5 else                        ((0.68,0.66,0.64) if v < 0.7 else (0.82,0.80,0.78))
+                stroke = None
+            else:
+                fill = None
+                stroke = (0.63,0.61,0.59)
+            sh = self.pg.new_shape()
+            for it in d["items"]:
+                if it[0] == "l":
+                    sh.draw_line(V(it[1]), V(it[2]))
+                elif it[0] == "c":
+                    sh.draw_bezier(V(it[1]), V(it[2]), V(it[3]), V(it[4]))
+                elif it[0] == "re":
+                    r_ = it[1]
+                    pts = [V(fitz.Point(r_.x0,r_.y0)), V(fitz.Point(r_.x1,r_.y0)),
+                           V(fitz.Point(r_.x1,r_.y1)), V(fitz.Point(r_.x0,r_.y1))]
+                    sh.draw_polyline(pts + [pts[0]])
+                elif it[0] == "qu":
+                    q = it[1]
+                    pts = [V(q.ul), V(q.ur), V(q.lr), V(q.ll)]
+                    sh.draw_polyline(pts + [pts[0]])
+            sh.finish(color=stroke, fill=fill, width=0.8,
+                      closePath=bool(grayf), even_odd=True)
+            sh.commit()
+        doc.close()
+        # crop everything to the plate
+        pr = self.plate_rect
+        for band in (fitz.Rect(0,150,pr.x0,H), fitz.Rect(pr.x1,150,W,H),
+                     fitz.Rect(0,150,W,pr.y0), fitz.Rect(0,pr.y1,W,H)):
+            self.pg.draw_rect(band, fill=(1,1,1), color=None)
 
     def zone(self, r, style, radius=None):
         rr = self.TR(r)
@@ -223,6 +277,7 @@ p.zone((658, 318, 801, 396), Z_ORNG)                       # coat check
 p.zone((378, 593, 558, 683), Z_BLUEW)                      # washrooms
 p.zone((251, 602, 317, 730), Z_PURP)                       # escalators
 p.zone((638, 621, 801, 724), Z_PURP)                       # grand staircase
+p.walls(1)
 # labels
 cx, cy = 458, 470
 x, y = p.T(cx, cy)
@@ -279,6 +334,7 @@ p.pg.insert_text((bx, by), "BRIDGE ABOVE", fontsize=9.4, fontname="KRG",
 p.zone((601, 448, 637, 539), Z_PURP)                       # mid-hall stair
 p.zone((686, 628, 786, 723), Z_PURP)                       # grand staircase
 p.zone((370, 622, 545, 690), Z_STAFF)                      # kitchen strip
+p.walls(2)
 x, y = p.T(457, 660); p.caps(x, y, "STAFF ONLY", 9.6, GRAY)
 x, y = p.T(400, 326)
 p.caps(x, y, "TRADING FLOOR", 26, DARK)
@@ -310,7 +366,7 @@ p.pg.draw_rect(p.TR((233.4, 275.7, 660.5, 564)), fill=FIELD, color=None)
 p.zone((80.4, 295.2, 233.4, 556.7), Z_STAFF)               # boardroom (private)
 p.zone((296, 214.5, 612, 564), Z_STAFF)                    # service core
 p.zone((196, 193.6, 520, 272), Z_STAFF)                    # north staff band
-p.zone((296, 357.8, 612, 427.3), Z_BLUEW)                  # washrooms
+p.zone((340, 357.8, 612, 427.3), Z_BLUEW)                  # washrooms
 p.zone((749.6, 193.6, 835.8, 252), Z_PURP)                 # NE stair down
 # vendor tables
 for i in range(8):
@@ -322,6 +378,7 @@ for i in range(7):
 for i in range(3):
     p.pg.draw_rect(p.TR((92, 585+i*44, 134, 603+i*44)), fill=(0.72,0.70,0.69),
                    color=None, radius=0.2)
+p.walls(3)
 x, y = p.T(156.9, 425); p.caps(x, y, "GALLERY BOARDROOM", 10.5, GRAY)
 x, y = p.T(156.9, 442); p.caps(x, y, "PRIVATE", 8.6, GRAY)
 x, y = p.T(454, 505); p.caps(x, y, "STAFF ONLY", 9.6, GRAY)
