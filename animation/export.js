@@ -35,6 +35,10 @@
  *                  cannot be verified locally. qtrle and prores round-trip
  *                  verifiably; use one of those when the alpha has to be proven.
  *   --speakers 0   run the logo event without the speaker cards
+ *   --seq DIR      write a numbered PNG sequence to DIR instead of encoding a
+ *                  movie. With --alpha those PNGs carry the alpha channel
+ *                  straight from the browser, with no codec in the path at all —
+ *                  which is the route to take when a codec's alpha is suspect.
  *   --out FILE     output path (default animation/arrow-loop.mp4)
  */
 const path = require('path');
@@ -73,7 +77,9 @@ function ffmpegPath() {
   const codec = String(arg('codec', alpha === null ? 'h264' : 'vp9'));
   const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
 
-  if (alpha !== null && codec === 'h264') {
+  const seq = arg('seq', null);
+
+  if (alpha !== null && codec === 'h264' && !seq) {
     throw new Error('h264 carries no alpha channel — use --codec vp9 or --codec prores');
   }
 
@@ -111,6 +117,44 @@ function ffmpegPath() {
   const total = Math.round((to - from) * fps);
 
   if (!(total > 0)) throw new Error(`--from ${from} to --to ${to} is not a forward span`);
+
+  if (seq) {
+    fs.mkdirSync(seq, { recursive: true });
+    console.log(
+      `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${w}x${h}` +
+        (scale === 1 ? '' : ` (render scale ${scale})`) +
+        `  PNG sequence` + (alpha === null ? '' : `  alpha ground 0 -> ${alpha}`) +
+        (speakers ? '' : '  no speakers')
+    );
+    const began = Date.now();
+    let bytes = 0;
+    for (let f = 0; f < total; f++) {
+      const t = (from + f / fps) % duration;
+      await page.evaluate((t) => window.seek(t), t);
+      await page.evaluate(
+        () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      );
+      // Chromium's PNG goes straight to disk — no re-encode, nothing lossy.
+      const file = path.join(seq, `f_${String(f).padStart(5, '0')}.png`);
+      await page.screenshot({
+        path: file,
+        clip: { x: 0, y: 0, width: w, height: h },
+        omitBackground: alpha !== null,
+      });
+      bytes += fs.statSync(file).size;
+      if (f % 25 === 0 || f === total - 1) {
+        const rate = (f + 1) / ((Date.now() - began) / 1000);
+        process.stdout.write(
+          `\r${f + 1}/${total}  ${rate.toFixed(2)} fps  ` +
+            `${(bytes / 1048576).toFixed(0)} MB  eta ${Math.round((total - f - 1) / Math.max(rate, 0.001) / 60)} min   `
+        );
+      }
+    }
+    await browser.close();
+    console.log(`\n${seq}  ${total} files  ${(bytes / 1048576).toFixed(0)} MB  ` +
+      `(${((Date.now() - began) / 60000).toFixed(1)} min)`);
+    return;
+  }
 
   // VP9 is the only alpha-capable codec here that stays a sane size; ProRes 4444
   // is the one an editor will actually want, at roughly fifty times the bytes.
