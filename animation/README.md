@@ -40,6 +40,7 @@ video.
 | `build.js` | Inlines the engine (and the Karbon faces) into the two self-contained pages. |
 | `verify.js` / `analyze.py` | Render frames headlessly and check the loop, angle and density. |
 | `export.js` | Frame-accurate export straight to MP4, whole loop or any span of it. |
+| `export-still.js` | A single frame as a PNG, optionally over transparency. |
 | `HANDOFF.md` | Why every number is what it is — read this before changing anything, or before rebuilding elsewhere. |
 
 Rebuild after editing `arrow-field.js` or anything in `templates/`:
@@ -232,6 +233,31 @@ is a property of the machine, not the export — the seeking is exact either way
 
 For playback hardware, ProRes 422 HQ or HAP will serve better than H.264; swap the codec
 flags in `export.js`.
+
+### Exporting over transparency
+
+```sh
+node animation/export-still.js --at 1:40 --alpha 0.5 --out frame.png
+```
+
+`--alpha A` keeps the ground's colours but ramps its opacity from 0 at the top to `A` at
+the bottom, so the near-black end goes fully transparent and the violet end sits at `A`.
+Arrows, logo and cards keep whatever alpha they already had. Verified: the ramp lands
+within 0.2% of linear, and RGB is unpremultiplied, so colours hold their value as alpha
+falls away.
+
+Two things change in this mode:
+
+- **Grain is dropped.** It exists to dither an 8-bit ramp, and once the ground is
+  composited onto something else that dithering has to happen downstream, against the
+  final values — grain baked in here would be dithering the wrong gradient.
+- **White artwork needs a dark plate under it.** The mark, the wordmark and the speaker's
+  name are white, and the piece assumes a dark ground. Composited over anything light
+  they disappear. The magenta and the portrait survive on any background.
+
+The same `?alpha=` switch works on `arrow-animation-render.html` directly, so the video
+exporter can be pointed at it too if a transparent movie is ever needed — though H.264
+carries no alpha, so that would have to go out as ProRes 4444, or a PNG/QOI sequence.
 
 ## Tuning
 

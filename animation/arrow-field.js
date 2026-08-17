@@ -43,6 +43,14 @@ const CONFIG = {
   // badly on a large LED wall; a couple of percent of noise dissolves the steps.
   // Set to 0 to switch it off.
   dither: 0.03,
+  /*
+   * Set to { top, bottom } to export with an alpha ground: the ground gradient
+   * keeps its colours but carries those alphas instead of being opaque, so the
+   * piece can be composited over something else. Arrows keep their own alpha
+   * either way. Grain is skipped in this mode — it exists to dither an 8-bit
+   * ramp, and that has to happen downstream once the ground is composited.
+   */
+  alphaGround: null,
   seed: 20260810,
   overscan: 16,
   // tileW must be a multiple of RUN so tileH = tileW / RUN * RISE stays integral
@@ -60,6 +68,12 @@ const CONFIG = {
 };
 
 /* ---------------------------------------------------------------- utilities */
+
+/** '#13071A' + 0.5 -> 'rgba(19, 7, 26, 0.5)'. */
+function withAlpha(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
 
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -272,11 +286,14 @@ function mountArrowField(stage, cfg = CONFIG) {
   const rules = [];
   const metrics = [];
 
-  stage.style.background =
-    `linear-gradient(180deg, ${cfg.background.top} 0%, ${cfg.background.bottom} 100%)`;
+  const ground = cfg.alphaGround
+    ? `linear-gradient(180deg, ${withAlpha(cfg.background.top, cfg.alphaGround.top)} 0%, ` +
+      `${withAlpha(cfg.background.bottom, cfg.alphaGround.bottom)} 100%)`
+    : `linear-gradient(180deg, ${cfg.background.top} 0%, ${cfg.background.bottom} 100%)`;
+  stage.style.background = ground;
   stage.style.position = stage.style.position || 'relative';
 
-  if (cfg.dither > 0) {
+  if (cfg.dither > 0 && !cfg.alphaGround) {
     const grain = doc.createElement('div');
     grain.className = 'af-grain';
     Object.assign(grain.style, {

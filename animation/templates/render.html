@@ -35,10 +35,23 @@
 var params = new URLSearchParams(location.search);
 var only = params.get('layer');
 var config = CONFIG;
+/*
+ * ?alpha=<bottom opacity> exports over transparency: the ground keeps its
+ * colours but ramps from fully transparent at the top to that opacity at the
+ * bottom, and the page itself stops painting so the screenshot can carry alpha.
+ */
+var alpha = params.get('alpha');
+if (alpha !== null) {
+  config = Object.assign({}, config, {
+    alphaGround: { top: 0, bottom: alpha === '' ? 0.5 : Number(alpha) },
+  });
+  document.documentElement.style.background = 'transparent';
+  document.body.style.background = 'transparent';
+}
 if (params.get('bare')) {
-  config = Object.assign({}, CONFIG, { layers: [] });
+  config = Object.assign({}, config, { layers: [] });
 } else if (only) {
-  config = Object.assign({}, CONFIG, {
+  config = Object.assign({}, config, {
     layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
   });
 }
