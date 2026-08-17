@@ -917,6 +917,7 @@ const TRANSITION = {
    * 'markOnly' stops at the crisp mark and never brings in the wordmark.
    */
   finish: 'settle',
+  speakers: true, // set false to run the logo event with no speaker cards
   seed: 90210,
 };
 
@@ -1316,7 +1317,9 @@ function mountTransition(stage, ambient, opts) {
   const wipeBox = /viewBox="([^"]+)"/.exec(wipeArrow);
   const wipeVb = wipeBox ? wipeBox[1].split(/\s+/).map(Number) : [0, 0, 1, 1];
   const wipeAspect = wipeVb[2] / wipeVb[3];
-  const cards = mountSpeakers(stage, cfg, venue, wipeArrow, wipeAspect, portrait, t, pct, rules);
+  const cards = cfg.speakers
+    ? mountSpeakers(stage, cfg, venue, wipeArrow, wipeAspect, portrait, t, pct, rules)
+    : [];
 
   const style = doc.createElement('style');
   style.textContent = rules.join('');

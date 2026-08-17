@@ -55,6 +55,12 @@ if (params.get('bare')) {
     layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
   });
 }
+// ?speakers=0 mounts the logo event without the speaker cards.
+if (params.get('speakers') === '0') {
+  config = Object.assign({}, config, {
+    transition: Object.assign({}, config.transition, { speakers: false }),
+  });
+}
 var stage = document.getElementById('stage');
 var field = mountArrowField(stage, config);
 window.metrics = field.metrics;

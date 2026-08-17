@@ -4,3 +4,5 @@ __pycache__/
 # Exports are build artifacts. The finished one gets added deliberately with -f;
 # a bare `git add -A` while a render is in flight otherwise commits a part-written file.
 *.mp4
+*.webm
+*.mov

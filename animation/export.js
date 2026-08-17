@@ -23,6 +23,18 @@
  *                  rather than scaling the output afterwards — the cost per frame
  *                  is rasterising and PNG-encoding 7.4M pixels, so downscaling
  *                  only at the end would save no time at all.
+ *   --alpha A      export over transparency, ground opacity A at the bottom edge
+ *                  (0 for no ground at all). Forces an alpha-capable codec.
+ *   --codec NAME   h264 (default), vp9, prores or qtrle. H.264 carries no alpha,
+ *                  so --alpha switches to vp9 unless another is asked for.
+ *
+ *                  A caveat worth knowing: this container's ffmpeg encodes VP9
+ *                  alpha (the file comes out ~45% larger than without, and
+ *                  alpha_mode is set) but cannot decode it back, and the headless
+ *                  Chromium here decodes no video at all — so a VP9 alpha export
+ *                  cannot be verified locally. qtrle and prores round-trip
+ *                  verifiably; use one of those when the alpha has to be proven.
+ *   --speakers 0   run the logo event without the speaker cards
  *   --out FILE     output path (default animation/arrow-loop.mp4)
  */
 const path = require('path');
@@ -56,7 +68,14 @@ function ffmpegPath() {
   const crf = String(arg('crf', 16));
   const preset = String(arg('preset', 'slow'));
   const scale = Number(arg('scale', 1));
+  const alpha = arg('alpha', null);
+  const speakers = arg('speakers', '1') !== '0';
+  const codec = String(arg('codec', alpha === null ? 'h264' : 'vp9'));
   const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
+
+  if (alpha !== null && codec === 'h264') {
+    throw new Error('h264 carries no alpha channel — use --codec vp9 or --codec prores');
+  }
 
   // yuv420p needs even dimensions on both axes.
   const w = Math.round((WIDTH * scale) / 2) * 2;
@@ -64,7 +83,13 @@ function ffmpegPath() {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
-  await page.goto('file://' + path.join(__dirname, 'arrow-animation-render.html'));
+  const query = [];
+  if (alpha !== null) query.push(`alpha=${alpha}`);
+  if (!speakers) query.push('speakers=0');
+  await page.goto(
+    'file://' + path.join(__dirname, 'arrow-animation-render.html') +
+      (query.length ? `?${query.join('&')}` : '')
+  );
   await page.addStyleTag({
     content:
       `html,body{width:${w}px;height:${h}px;overflow:hidden}` +
@@ -87,17 +112,27 @@ function ffmpegPath() {
 
   if (!(total > 0)) throw new Error(`--from ${from} to --to ${to} is not a forward span`);
 
+  // VP9 is the only alpha-capable codec here that stays a sane size; ProRes 4444
+  // is the one an editor will actually want, at roughly fifty times the bytes.
+  const codecArgs = {
+    h264: ['-c:v', 'libx264', '-preset', preset, '-crf', crf,
+           '-pix_fmt', 'yuv420p', '-movflags', '+faststart'],
+    vp9: ['-c:v', 'libvpx-vp9', '-pix_fmt', 'yuva420p', '-b:v', '0', '-crf', crf,
+          '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2'],
+    prores: ['-c:v', 'prores_ks', '-profile:v', '4444', '-pix_fmt', 'yuva444p10le'],
+    // Lossless RGBA. Verifiable alpha and far lighter than ProRes 4444, but still
+    // intra-only, so budget on the order of a quarter megabyte per frame at half size.
+    qtrle: ['-c:v', 'qtrle', '-pix_fmt', 'argb'],
+  }[codec];
+  if (!codecArgs) throw new Error(`unknown --codec ${codec}`);
+
   const ff = spawn(ffmpegPath(), [
     '-y',
     '-f', 'image2pipe',
     '-c:v', 'png',
     '-framerate', String(fps),
     '-i', '-',
-    '-c:v', 'libx264',
-    '-preset', preset,
-    '-crf', crf,
-    '-pix_fmt', 'yuv420p',
-    '-movflags', '+faststart',
+    ...codecArgs,
     out,
   ]);
   const ffDone = new Promise((resolve, reject) => {
@@ -111,7 +146,9 @@ function ffmpegPath() {
 
   console.log(
     `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${w}x${h}` +
-      (scale === 1 ? '' : ` (render scale ${scale})`) + `  crf ${crf} ${preset}`
+      (scale === 1 ? '' : ` (render scale ${scale})`) +
+      `  ${codec}` + (alpha === null ? '' : `  alpha ground 0 -> ${alpha}`) +
+      (speakers ? '' : '  no speakers')
   );
 
   const started = Date.now();
@@ -121,7 +158,12 @@ function ffmpegPath() {
     await page.evaluate(
       () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
     );
-    await write(await page.screenshot({ clip: { x: 0, y: 0, width: w, height: h } }));
+    await write(
+      await page.screenshot({
+        clip: { x: 0, y: 0, width: w, height: h },
+        omitBackground: alpha !== null,
+      })
+    );
 
     if (f % 25 === 0 || f === total - 1) {
       const rate = (f + 1) / ((Date.now() - started) / 1000);
