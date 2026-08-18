@@ -273,8 +273,14 @@ node animation/export.js --fps 60 --from 239 --to 273 --alpha 0 \
 | Flag | Effect |
 | --- | --- |
 | `--ambient 0` | drops the six drifting tile layers and the grain, keeping the logo event |
+| `--event 0` | the mirror image — the drifting field with no logo event |
 | `--speakers 0` | runs the logo event without the speaker cards |
 | `--alpha 0` | no ground at all — arrows and logo over transparency |
+
+`--event 0` skips the event at the mount rather than hiding it afterwards, and it has to:
+mounting the event also installs the `af-ambient-out` keyframes that fade the whole
+ambient field to nothing for the 33 seconds the event owns, which would punch a hole in an
+ambient-only export.
 
 `?ambient=0` on the render surface is what `--ambient 0` sets. Note that `?bare=1` empties
 the layers too but takes the transition with it — the transition only mounts when there
@@ -289,6 +295,19 @@ The event runs 240 → 272.7 s on the master clock whether or not the speaker ca
 mounted; with them off, the logo simply holds through the window they would have used.
 Export from 239 so the first second is empty transparent frames — a visible marker that
 the layer starts where it should.
+
+### The ambient field should not be exported as frames at all
+
+360 s at 120 fps is 43,200 frames; measured full size with alpha this layer runs 1.94 MB a
+frame at 0.67 fps capture, so a full-loop sequence is ~84 GB and ~18 hours. The frame
+count is what breaks it, so a lower frame rate or a movie container does not rescue it.
+
+It does not need frames. Each layer is one seamlessly repeating tile under
+`background-repeat`, sliding on a single linear `translate3d` over the whole 360 s — no
+per-arrow animation of any kind. Six static plates plus six linear position keyframes
+reproduce the entire loop exactly, at any frame rate, and make the venue's slow variant a
+change of one number rather than a re-render. `animation/ambient-layer/` holds the plates,
+the tiles they are built from, the motion table and the verification.
 
 ## Tuning
 

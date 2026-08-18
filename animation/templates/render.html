@@ -64,6 +64,15 @@ if (params.get('bare')) {
 if (params.get('ambient') === '0') {
   config = Object.assign({}, config, { layers: [], keepTransition: true });
 }
+/*
+ * ?event=0 is the mirror image: the drifting field with no logo event. The
+ * transition has to be skipped at the mount rather than hidden afterwards,
+ * because mounting it also fades the ambient field out for the 33 s the event
+ * owns — which would leave a hole in an ambient-only export.
+ */
+if (params.get('event') === '0') {
+  config = Object.assign({}, config, { event: false });
+}
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {
   config = Object.assign({}, config, {

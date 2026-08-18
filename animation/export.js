@@ -37,6 +37,10 @@
  *   --speakers 0   run the logo event without the speaker cards
  *   --ambient 0    drop the drifting tile layers, keeping only the logo event —
  *                  for exporting the formation as its own layer
+ *   --event 0      the mirror image: the drifting field with no logo event. Note
+ *                  this is not the same as hiding the logo — mounting the event
+ *                  also fades the ambient field out for the 33 s it owns, so an
+ *                  ambient-only export has to skip it at the mount.
  *   --seq DIR      write a numbered PNG sequence to DIR instead of encoding a
  *                  movie. With --alpha those PNGs carry the alpha channel
  *                  straight from the browser, with no codec in the path at all —
@@ -77,6 +81,7 @@ function ffmpegPath() {
   const alpha = arg('alpha', null);
   const speakers = arg('speakers', '1') !== '0';
   const ambient = arg('ambient', '1') !== '0';
+  const event = arg('event', '1') !== '0';
   const codec = String(arg('codec', alpha === null ? 'h264' : 'vp9'));
   const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
 
@@ -96,6 +101,7 @@ function ffmpegPath() {
   if (alpha !== null) query.push(`alpha=${alpha}`);
   if (!speakers) query.push('speakers=0');
   if (!ambient) query.push('ambient=0');
+  if (!event) query.push('event=0');
   await page.goto(
     'file://' + path.join(__dirname, 'arrow-animation-render.html') +
       (query.length ? `?${query.join('&')}` : '')
@@ -128,7 +134,8 @@ function ffmpegPath() {
       `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${w}x${h}` +
         (scale === 1 ? '' : ` (render scale ${scale})`) +
         `  PNG sequence` + (alpha === null ? '' : `  alpha ground 0 -> ${alpha}`) +
-        (speakers ? '' : '  no speakers') + (ambient ? '' : '  no ambient')
+        (speakers ? '' : '  no speakers') + (ambient ? '' : '  no ambient') +
+        (event ? '' : '  no logo event')
     );
     const began = Date.now();
     let bytes = 0;
@@ -196,7 +203,8 @@ function ffmpegPath() {
     `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${w}x${h}` +
       (scale === 1 ? '' : ` (render scale ${scale})`) +
       `  ${codec}` + (alpha === null ? '' : `  alpha ground 0 -> ${alpha}`) +
-      (speakers ? '' : '  no speakers')
+      (speakers ? '' : '  no speakers') + (ambient ? '' : '  no ambient') +
+      (event ? '' : '  no logo event')
   );
 
   const started = Date.now();

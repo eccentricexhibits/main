@@ -416,6 +416,33 @@ Isolated, the formation is far cheaper than the whole surface: ~1.7 fps capture 
 sweep, 240–247 s, is the costly stretch — every particle on screen trailing — peaking near
 1.9 MB a frame.
 
+`event=0` is the mirror switch: the drifting field with no logo event. It must skip the
+transition at the mount, not hide it afterwards — mounting the event installs the
+`af-ambient-out` keyframes that fade the whole ambient field to nothing for the 33 seconds
+the event owns, which would leave a hole in an ambient-only export.
+
+### The ambient field is a translation, not an animation
+
+Worth knowing before anyone tries to render it: each layer is a single seamlessly
+repeating tile under `background-repeat`, moving on one linear `translate3d` from
+`(0,0)` to `(tileW, −tileH)` over the full duration, at fixed opacity. Nothing else
+animates — no per-arrow motion, no fades, no twinkle. The keyframes are literally two
+stops each.
+
+So the entire six-minute field is six static images and six linear position keyframes.
+That matters because the frame route is impossible: 360 s at 120 fps is 43,200 frames,
+1.94 MB each at full size with alpha and 0.67 fps capture — ~84 GB and ~18 hours, against
+26 GB of disk and a 100 MB per-file delivery ceiling. Lowering the frame rate does not
+help; the frame count is the problem.
+
+The plate form is also strictly better for the client's fast/slow requirement: the slow
+variant is the same six keyframes over a longer duration, not a re-render, and it stays
+seamless at every duration because both keyframes sit on lattice positions.
+`animation/ambient-layer/` holds the plates, the source tiles, the motion table and the
+verification. Plate size is `width + tileW + 2·overscan` by `height + tileH + 2·overscan`,
+which is exactly the element `mountArrowField` builds; the start position is
+`(−tileW − overscan, −overscan)` and the end is `(−overscan, −overscan − tileH)`.
+
 ---
 
 ## 9. Open decisions, not yet answered by the client

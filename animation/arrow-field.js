@@ -359,10 +359,17 @@ function mountArrowField(stage, cfg = CONFIG) {
 
   // The once-per-loop logo event, if the transition module and its assets are
   // present. Ambient-only builds simply skip it.
+  //
+  // event: false skips it deliberately, for exporting the drifting field on its
+  // own. That has to happen here rather than by hiding the result: mounting the
+  // transition also installs the af-ambient-out keyframes that fade this whole
+  // field to nothing for the 33 seconds the event owns, which would punch a hole
+  // in an ambient-only export.
   let transition = null;
   if (
     typeof mountTransition === 'function' &&
     typeof MARK_POINTS !== 'undefined' &&
+    cfg.event !== false &&
     (cfg.layers.length || cfg.keepTransition)
   ) {
     transition = mountTransition(stage, ambient, {

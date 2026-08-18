@@ -1,0 +1,123 @@
+# Ambient arrow field — the whole 6-minute loop, full resolution, in 7 MB
+
+The drifting arrows on their own: no ground gradient, no grain, no logo event. Full
+resolution, transparent, and **frame-rate independent** — it plays at 120 fps, 60 fps or
+anything else because it is not a frame sequence.
+
+## Why this is not a PNG sequence
+
+A 360-second loop at 120 fps is **43,200 frames**. Measured at full size with alpha, this
+layer costs **1.94 MB a frame and captures at 0.67 fps**, so the sequence you asked for
+would be **~84 GB and about 18 hours of render**. The container has 26 GB of disk, and
+GitHub takes 100 MB a file. It cannot be produced or delivered from here in any format —
+the frame count is the problem, so dropping to 60 fps or to a lossless movie does not
+rescue it.
+
+What makes that acceptable rather than a compromise: **this layer does not need frames.**
+Each of the six layers is a single seamlessly repeating tile, `background-repeat`, sliding
+in a straight line at constant speed. There is no per-arrow animation, no fade, no
+twinkle — one linear `translate3d` per layer over the full 360 s, and nothing else. Six
+static images and six position keyframes reproduce the entire six minutes exactly, at any
+frame rate you like.
+
+That also settles the fast/slow question for free. The venue's slow version is not a
+re-render — it is the same six keyframes with a longer duration.
+
+## The build
+
+Stack the six plates in order, layer 1 at the back, and give each a linear position
+keyframe from its start to its end over the loop length. That is the whole animation.
+
+| Layer | Plate | Opacity | Position at 0:00 | Position at 6:00 | Arrow height |
+| --- | --- | --- | --- | --- | --- |
+| 1 (back) | `layer1_plate_7435x2407.png` | 10% | −541, −16 | −16, −1311 | 48 px |
+| 2 | `layer2_plate_7555x2703.png` | 16% | −661, −16 | −16, −1607 | 68 px |
+| 3 | `layer3_plate_7660x2962.png` | 25% | −766, −16 | −16, −1866 | 92 px |
+| 4 | `layer4_plate_7900x3554.png` | 42% | −1006, −16 | −16, −2458 | 130 px |
+| 5 | `layer5_plate_8110x4072.png` | 68% | −1216, −16 | −16, −2976 | 175 px |
+| 6 (front) | `layer6_plate_8260x4442.png` | 100% | −1366, −16 | −16, −3346 | 235 px |
+
+Positions are the **top-left corner of the plate** in a 6878 × 1080 comp, in pixels, with
++y downward. Every layer travels exactly one tile — right by `tileW`, up by `tileH` —
+which is what makes the loop seamless.
+
+Set both keyframes to **linear**. Any easing breaks the loop, because the velocity has to
+match across the seam as well as the position.
+
+Composite normally (source-over) with **straight, unpremultiplied alpha**. The arrows are
+light on a dark ground, so they want a dark background under them; over anything light
+they wash out.
+
+### Checklist
+
+- Comp 6878 × 1080, duration 6:00, at whatever frame rate you are working in.
+- Six plates, no scaling, no smoothing on the plate itself.
+- Linear position keyframes at 0:00 and 6:00 exactly as tabled.
+- Layer opacities as tabled.
+- Loop the comp — frame 0 and frame 6:00 are identical, so the last frame before the wrap
+  is the one at 6:00 minus one frame.
+
+## Speed variants
+
+Change nothing but the comp duration and where the second keyframe sits:
+
+- **Current speed** — second keyframe at 6:00.
+- **Half speed (slow backup)** — 12:00 comp, second keyframe at 12:00. Still seamless,
+  still full resolution, no re-render.
+- **Any other speed** — move the keyframe. The loop stays seamless at every duration
+  because both keyframes sit on lattice positions.
+
+This is the honest way to get the fast and slow versions the venue wants: one build,
+one number.
+
+## `tiles/`
+
+The same six layers as single tiles rather than pre-tiled plates — 2 MB total instead of
+5 MB. Use these if you would rather tile in the editor (After Effects' Motion Tile, or a
+repeating fill) than move a large image. The plates are simpler and are what the table
+above describes; the tiles are here because they are the actual source artwork and some
+pipelines prefer them.
+
+Tile sizes are in the filenames. Each tile is `tileW × tileH` where `tileH = tileW × 37/15`
+— that ratio is the whole trick behind the seamless loop. `(tileW, −tileH)` is
+simultaneously the travel direction and a vector of the tiling lattice, so after one tile
+of travel the field lands exactly on itself.
+
+`layers.json` carries all of it in machine-readable form.
+
+## Verification
+
+- **The loop is pixel-exact.** Rendered at t=0 and t=360 in this exact mode — ambient
+  only, transparent — the two frames differ by **0 on every channel across all 7,428,240
+  pixels**.
+- **The plates reconstruct the rendered animation.** Compositing them per the table and
+  comparing against browser-rendered full-resolution frames at t = 0, 72, 137.5, 240, 300,
+  359.5 and 360: mean visible error **0.2 / 255**. Where offsets land on whole pixels the
+  match is essentially exact; the residual is confined to arrow edges at fractional
+  offsets and is resampling filter difference — my check used bilinear, Chromium uses its
+  own — not a difference in the artwork. Your editor applies its own filter at fractional
+  positions exactly as the browser does.
+- Plates carry a real alpha channel, unpremultiplied.
+
+## Regenerating
+
+The ambient field with no logo event is `--event 0`:
+
+```sh
+node animation/export.js --fps 60 --from 0 --to 360 --scale 1 --alpha 0 --event 0 --seq DIR
+```
+
+Be aware of what that costs — see the top of this file. `--event 0` has to skip the event
+at the mount rather than hide it afterwards: mounting the event also installs the
+keyframes that fade this whole field to nothing for the 33 seconds the event owns, which
+would otherwise punch a hole in an ambient-only export.
+
+The plates and tiles themselves come from the layer geometry in `arrow-field.js`
+(`CONFIG.layers`, `overscan: 16`); plate size is `6878 + tileW + 32` by `1080 + tileH + 32`,
+which is exactly the element the engine builds.
+
+## If you do want frames
+
+A short span at full resolution is affordable — roughly 4 seconds of 120 fps fits in a
+1 GB delivery. Say the word and name the span. The full loop is not deliverable as frames
+from here at any resolution or frame rate.
