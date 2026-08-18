@@ -259,6 +259,37 @@ The same `?alpha=` switch works on `arrow-animation-render.html` directly, so th
 exporter can be pointed at it too if a transparent movie is ever needed — though H.264
 carries no alpha, so that would have to go out as ProRes 4444, or a PNG/QOI sequence.
 
+### Exporting components separately
+
+The piece splits into layers that can be exported on their own and reassembled in an
+edit, each one seeked from the same clock so they stay in sync frame for frame:
+
+```sh
+# the logo formation alone, full size, over transparency
+node animation/export.js --fps 60 --from 239 --to 273 --alpha 0 \
+  --speakers 0 --ambient 0 --seq /tmp/logo-layer
+```
+
+| Flag | Effect |
+| --- | --- |
+| `--ambient 0` | drops the six drifting tile layers and the grain, keeping the logo event |
+| `--speakers 0` | runs the logo event without the speaker cards |
+| `--alpha 0` | no ground at all — arrows and logo over transparency |
+
+`?ambient=0` on the render surface is what `--ambient 0` sets. Note that `?bare=1` empties
+the layers too but takes the transition with it — the transition only mounts when there
+are layers, or when `keepTransition` is set, which is what `?ambient=0` does.
+
+Isolating the formation makes it far cheaper than the full surface: about 1.7 fps capture
+and ~170 KB a frame through most of it, against 0.5 fps and ~2.7 MB for everything at
+once. The sweep (240–247 s) is the expensive stretch — every particle is on screen with
+its trails — peaking near 1.9 MB a frame.
+
+The event runs 240 → 272.7 s on the master clock whether or not the speaker cards are
+mounted; with them off, the logo simply holds through the window they would have used.
+Export from 239 so the first second is empty transparent frames — a visible marker that
+the layer starts where it should.
+
 ## Tuning
 
 Everything adjustable lives in `CONFIG` at the top of `arrow-field.js`: duration,

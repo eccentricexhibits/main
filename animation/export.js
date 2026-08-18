@@ -35,6 +35,8 @@
  *                  cannot be verified locally. qtrle and prores round-trip
  *                  verifiably; use one of those when the alpha has to be proven.
  *   --speakers 0   run the logo event without the speaker cards
+ *   --ambient 0    drop the drifting tile layers, keeping only the logo event —
+ *                  for exporting the formation as its own layer
  *   --seq DIR      write a numbered PNG sequence to DIR instead of encoding a
  *                  movie. With --alpha those PNGs carry the alpha channel
  *                  straight from the browser, with no codec in the path at all —
@@ -74,6 +76,7 @@ function ffmpegPath() {
   const scale = Number(arg('scale', 1));
   const alpha = arg('alpha', null);
   const speakers = arg('speakers', '1') !== '0';
+  const ambient = arg('ambient', '1') !== '0';
   const codec = String(arg('codec', alpha === null ? 'h264' : 'vp9'));
   const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
 
@@ -92,6 +95,7 @@ function ffmpegPath() {
   const query = [];
   if (alpha !== null) query.push(`alpha=${alpha}`);
   if (!speakers) query.push('speakers=0');
+  if (!ambient) query.push('ambient=0');
   await page.goto(
     'file://' + path.join(__dirname, 'arrow-animation-render.html') +
       (query.length ? `?${query.join('&')}` : '')
@@ -124,7 +128,7 @@ function ffmpegPath() {
       `${total} frames  ${fps} fps  ${from}s -> ${to}s  ${w}x${h}` +
         (scale === 1 ? '' : ` (render scale ${scale})`) +
         `  PNG sequence` + (alpha === null ? '' : `  alpha ground 0 -> ${alpha}`) +
-        (speakers ? '' : '  no speakers')
+        (speakers ? '' : '  no speakers') + (ambient ? '' : '  no ambient')
     );
     const began = Date.now();
     let bytes = 0;

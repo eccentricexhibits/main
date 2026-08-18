@@ -55,6 +55,15 @@ if (params.get('bare')) {
     layers: [Object.assign({}, CONFIG.layers[Number(only) - 1], { opacity: 1 })],
   });
 }
+/*
+ * ?ambient=0 drops the drifting tile layers but keeps the logo event, so the
+ * formation can be exported as its own layer. ?bare=1 empties the layers too,
+ * but takes the transition with it — the transition only mounts when there are
+ * layers — so it is no use for this.
+ */
+if (params.get('ambient') === '0') {
+  config = Object.assign({}, config, { layers: [], keepTransition: true });
+}
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {
   config = Object.assign({}, config, {

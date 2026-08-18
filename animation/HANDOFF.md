@@ -392,6 +392,30 @@ them. Real-time smoothness needs
 checking on the actual playback machine; the exported video sidesteps it entirely, since
 export seeks each frame rather than capturing in real time.
 
+### Exporting the piece as separate layers
+
+The client assembles the show layer by layer in an edit, so the surface can be split and
+each part exported on its own clock. Two switches do it, on the render surface as query
+parameters and on `export.js` as flags: `ambient=0` drops the six drifting tile layers and
+the grain but keeps the logo event, and `speakers=0` drops the speaker cards. Combined
+with `alpha=0` — the ground at zero opacity, i.e. no ground at all — that yields the logo
+formation alone over transparency.
+
+`bare=1` looks like it should do the same job and does not: it empties `layers` too, but
+the transition only mounts when there are layers, so `bare=1` takes the event with it.
+`ambient=0` sets `keepTransition`, which is the flag the mount condition in
+`arrow-field.js` also accepts.
+
+Because every layer is seeked from the same master clock, the parts drop onto a timeline
+in sync with no matching to do — a frame exported at t=252 is the same instant in every
+layer. Export the formation from 239 rather than 240 so the layer opens on a second of
+empty transparent frames, which makes the start position visible in the edit.
+
+Isolated, the formation is far cheaper than the whole surface: ~1.7 fps capture and
+~170 KB a frame through most of it, against ~0.5 fps and ~2.7 MB with everything on. The
+sweep, 240–247 s, is the costly stretch — every particle on screen trailing — peaking near
+1.9 MB a frame.
+
 ---
 
 ## 9. Open decisions, not yet answered by the client

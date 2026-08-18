@@ -360,7 +360,11 @@ function mountArrowField(stage, cfg = CONFIG) {
   // The once-per-loop logo event, if the transition module and its assets are
   // present. Ambient-only builds simply skip it.
   let transition = null;
-  if (typeof mountTransition === 'function' && typeof MARK_POINTS !== 'undefined' && cfg.layers.length) {
+  if (
+    typeof mountTransition === 'function' &&
+    typeof MARK_POINTS !== 'undefined' &&
+    (cfg.layers.length || cfg.keepTransition)
+  ) {
     transition = mountTransition(stage, ambient, {
       config: cfg.transition,
       venue: VENUE,
