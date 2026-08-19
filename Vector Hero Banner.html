@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Gradient Banner</title>
+<style>
+  /* -- minimal reset ------------------------------------------------- */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+  svg { display: block; }
+
+  /* -- hero-2 block styles (from the site stylesheet) ----------------- */
+  .hero-2 {
+    background-color: #e00087;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-2__background {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+  .hero-2__pixels {
+    display: flex;
+    mix-blend-mode: soft-light;
+    position: absolute;
+    transform: translateZ(0);
+  }
+  .hero-2__pixels svg { height: auto; width: 100%; }
+  .hero-2__pixels--01 { bottom: 0; }
+  @media (max-width: 1023px) {
+    .hero-2__pixels--01 { display: none; }
+  }
+  @media (min-width: 1024px) {
+    .hero-2__pixels--01 { right: 50px; width: calc(41.66667% - 41.66667px); }
+  }
+  @media (min-width: 1600px) {
+    .hero-2__pixels--01 { right: calc(50vw - 775px); width: 645.8333333333px; }
+  }
+  .hero-2__row {
+    display: flex;
+    flex-direction: column;
+    min-height: 65vh;
+    position: relative;
+  }
+  @media (max-width: 1023px) {
+    .hero-2__row { justify-content: center; padding-bottom: 5rem; padding-top: 5rem; }
+  }
+  @media (max-width: 767px) {
+    .hero-2__row { padding-bottom: 6rem; padding-top: 6rem; }
+  }
+  @media (min-width: 1024px) {
+    .hero-2__row {
+      align-items: center;
+      flex-direction: row;
+      min-height: 75vh;
+      padding-bottom: 4rem;
+      padding-top: 4rem;
+    }
+  }
+  .container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1600px;
+    padding-left: 25px;
+    padding-right: 25px;
+    width: 100%;
+  }
+  @media (min-width: 1024px) {
+    .container { padding-left: 50px; padding-right: 50px; }
+  }
+
+  /* Standalone tweak: fill the whole window instead of the site's 65/75vh.
+     Delete this rule to restore the exact on-site height. */
+  .hero-2 .hero-2__row { min-height: 100vh; }
+</style>
+</head>
+<body>
+
+<div class="hero-2">
+  <div class="hero-2__background fluid-gradient" data-color-a="#8a25c9" data-color-b="#03bfdc"></div>
+
+  <div class="hero-2__pixels hero-2__pixels--01">
+      <svg width="650" height="400" viewBox="0 0 650 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M600.004 250L600.004 300L650.004 300L650.004 250L600.004 250Z" fill="white"></path>
+      <path d="M550 200L550 250L600 250L600 200L550 200Z" fill="white"></path>
+      <path d="M450 200L450 250L500 250L500 200L450 200Z" fill="white"></path>
+      <path d="M400 200L400 250L450 250L450 200L400 200Z" fill="white"></path>
+      <path d="M350.008 250L350.008 300L400.008 300L400.008 250L350.008 250Z" fill="white"></path>
+      <path d="M250.004 300L250.004 350L300.004 350L300.004 300L250.004 300Z" fill="white"></path>
+      <path d="M200.004 250L200.004 300L250.004 300L250.004 250L200.004 250Z" fill="white"></path>
+      <path d="M150.004 350L150.004 400L200.004 400L200.004 350L150.004 350Z" fill="white"></path>
+      <path d="M100.008 300L100.008 350L150.008 350L150.008 300L100.008 300Z" fill="white"></path>
+      <path d="M50 350L50 400L99.9997 400L99.9997 350L50 350Z" fill="white"></path>
+      <path d="M2.5642e-06 300L0 350L49.9997 350L49.9997 300L2.5642e-06 300Z" fill="white"></path>
+      <path d="M200.004 200L200.004 250L250.004 250L250.004 200L200.004 200Z" fill="white"></path>
+      <path d="M150.004 200L150.004 250L200.004 250L200.004 200L150.004 200Z" fill="white"></path>
+      <path d="M150.004 150L150.004 200L200.004 200L200.004 150L150.004 150Z" fill="white"></path>
+      <path d="M100.008 99.9995L100.008 150L150.008 150L150.008 99.9995L100.008 99.9995Z" fill="white"></path>
+      <path d="M250.004 200L250.004 250L300.004 250L300.004 200L250.004 200Z" fill="white"></path>
+      <path d="M250.004 150L250.004 200L300.004 200L300.004 150L250.004 150Z" fill="white"></path>
+      <path d="M200.004 99.9995L200.004 150L250.004 150L250.004 99.9995L200.004 99.9995Z" fill="white"></path>
+      <path d="M400 300L400 350L450 350L450 300L400 300Z" fill="white"></path>
+      <path d="M400 350L400 400L450 400L450 350L400 350Z" fill="white"></path>
+      <path d="M350.008 350L350.008 400L400.008 400L400.008 350L350.008 350Z" fill="white"></path>
+      <path d="M450 350L450 400L500 400L500 350L450 350Z" fill="white"></path>
+      <path d="M450 150L450 200L500 200L500 150L450 150Z" fill="white"></path>
+      <path d="M350.008 99.9995L350.008 150L400.008 150L400.008 99.9995L350.008 99.9995Z" fill="white"></path>
+      <path d="M300.004 49.9995L300.004 99.9995L350.004 99.9995L350.004 49.9995L300.004 49.9995Z" fill="white"></path>
+      <path d="M250.004 7.62939e-06L250.004 50L300.004 50L300.004 9.4944e-06L250.004 7.62939e-06Z" fill="white"></path>
+      <path d="M500.004 150L500.004 200L550.004 200L550.004 150L500.004 150Z" fill="white"></path>
+      <path d="M500.004 250L500.004 300L550.004 300L550.004 250L500.004 250Z" fill="white"></path>
+      </svg>
+  </div>
+
+  <div class="container">
+    <div class="hero-2__row">
+      <!-- Optional content goes here (headings/text render white on the site). -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* FluidGradient — WebGL animated gradient (from the site's script.js,
+   deminified). Targets every element with class "fluid-gradient" and
+   reads data-color-a / data-color-b for the two gradient colors. */
+(function () {
+  'use strict';
+
+  var VERT =
+    'attribute vec2 a_pos;\n' +
+    'varying vec2 vUv;\n' +
+    'void main() {\n' +
+    '  vUv = a_pos * 0.5 + 0.5;\n' +
+    '  gl_Position = vec4(a_pos, 0.0, 1.0);\n' +
+    '}';
+
+  var FRAG =
+    'precision mediump float;\n' +
+    'uniform float u_time;\n' +
+    'uniform vec2  u_res;\n' +
+    'uniform vec3  u_colorA;\n' +
+    'uniform vec3  u_colorB;\n' +
+    'uniform vec2  u_offset;\n' +
+    'varying vec2  vUv;\n' +
+    '\n' +
+    'float hash(vec2 p) {\n' +
+    '  p = fract(p * vec2(234.34, 435.345));\n' +
+    '  p += dot(p, p + 34.23);\n' +
+    '  return fract(p.x * p.y);\n' +
+    '}\n' +
+    '\n' +
+    'float noise(vec2 p) {\n' +
+    '  vec2 i = floor(p);\n' +
+    '  vec2 f = fract(p);\n' +
+    '  vec2 u = f * f * (3.0 - 2.0 * f);\n' +
+    '  return mix(\n' +
+    '    mix(hash(i),               hash(i + vec2(1.0, 0.0)), u.x),\n' +
+    '    mix(hash(i + vec2(0.0,1.0)), hash(i + vec2(1.0,1.0)), u.x),\n' +
+    '    u.y\n' +
+    '  );\n' +
+    '}\n' +
+    '\n' +
+    'float fbm(vec2 p) {\n' +
+    '  float v = 0.0, a = 0.5;\n' +
+    '  for (int i = 0; i < 4; i++) {\n' +
+    '    v += a * noise(p);\n' +
+    '    p  = p * 2.0 + vec2(3.1, 1.7);\n' +
+    '    a *= 0.5;\n' +
+    '  }\n' +
+    '  return v;\n' +
+    '}\n' +
+    '\n' +
+    'float domainWarp(vec2 p, vec2 ct) {\n' +
+    '  vec2 q = vec2(\n' +
+    '    fbm(p + ct * 0.8),\n' +
+    '    fbm(p + ct.yx * 0.6 + vec2(5.2, 1.3))\n' +
+    '  );\n' +
+    '  vec2 r = vec2(\n' +
+    '    fbm(p + 3.0 * q + ct * 0.5 + vec2(1.7, 9.2)),\n' +
+    '    fbm(p + 3.0 * q + ct.yx * 0.4 + vec2(8.3, 2.8))\n' +
+    '  );\n' +
+    '  return fbm(p + 3.5 * r + ct * 0.3);\n' +
+    '}\n' +
+    '\n' +
+    'void main() {\n' +
+    '  float angle = mod(u_time, 108.0) / 108.0 * 6.28318;\n' +
+    '  vec2 ct = vec2(cos(angle), sin(angle)) * 0.5;\n' +
+    '  vec2 p  = vUv * 0.5 + u_offset;\n' +
+    '\n' +
+    '  float t = domainWarp(p, ct);\n' +
+    '  vec3 color = mix(u_colorA, u_colorB, smoothstep(0.1, 0.6, t));\n' +
+    '  color *= 1.12;\n' +
+    '\n' +
+    '  float timeSeed = fract(floor(u_time * 15.0) * 0.7539);\n' +
+    '  float g = hash(floor(vUv * u_res * 0.24) + timeSeed);\n' +
+    '  color += (g - 0.5) * 0.0375;\n' +
+    '\n' +
+    '  gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);\n' +
+    '}';
+
+  function hexToRgb(hex) {
+    var n = parseInt(hex.replace('#', ''), 16);
+    return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
+  }
+
+  function compile(gl, type, source) {
+    var shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('FluidGradient shader error:', gl.getShaderInfoLog(shader));
+    }
+    return shader;
+  }
+
+  function initInstance(el) {
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+
+    var canvas = document.createElement('canvas');
+    canvas.style.cssText =
+      'position:absolute;top:0;left:0;width:100%;height:100%;display:block;';
+    el.appendChild(canvas);
+
+    var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) { console.warn('FluidGradient: WebGL not supported'); return; }
+
+    var program = gl.createProgram();
+    gl.attachShader(program, compile(gl, gl.VERTEX_SHADER, VERT));
+    gl.attachShader(program, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+    var aPos = gl.getAttribLocation(program, 'a_pos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    var uTime   = gl.getUniformLocation(program, 'u_time');
+    var uRes    = gl.getUniformLocation(program, 'u_res');
+    var uColorA = gl.getUniformLocation(program, 'u_colorA');
+    var uColorB = gl.getUniformLocation(program, 'u_colorB');
+    var uOffset = gl.getUniformLocation(program, 'u_offset');
+
+    function resize() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = el.offsetWidth * dpr;
+      canvas.height = el.offsetHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    gl.uniform3fv(uColorA, hexToRgb(el.dataset.colorA || '#EB088A'));
+    gl.uniform3fv(uColorB, hexToRgb(el.dataset.colorB || '#313cff'));
+    gl.uniform2f(uOffset, Math.random() * 100, Math.random() * 100);
+
+    new ResizeObserver(resize).observe(el);
+    resize();
+
+    var start = null;
+    (function frame(now) {
+      if (!start) start = now;
+      gl.uniform1f(uTime, (now - start) / 1000);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(frame);
+    })(performance.now());
+  }
+
+  function boot() {
+    document.querySelectorAll('.fluid-gradient').forEach(initInstance);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
