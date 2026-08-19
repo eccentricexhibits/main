@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Data Storm</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #06061a;
+  }
+  #storm {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+</head>
+<body>
+<canvas id="storm"></canvas>
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('storm');
+  var ctx = canvas.getContext('2d');
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Official long-arrow glyph (viewBox 537.23 x 1080, tip at 463.33, 0). */
+  var ARROW_PATH = new Path2D(
+    'M463.33,0l-168.9,73.89-29.33,69.19,133.39-53.47L0,1079.82l62.23.18' +
+    'L448.81,109.21l59.1,131.81,29.33-69.78L463.33,0Z'
+  );
+  var ARROW_H = 1080, ARROW_TIP_X = 463.33;
+
+  /* Brand palette: magenta side / blue side (light and deep variants). */
+  var MAGENTA = [
+    [224, 0, 135],    /* #e00087 */
+    [255, 79, 163],
+    [255, 143, 199],
+    [173, 0, 104]
+  ];
+  var BLUE = [
+    [30, 70, 255],
+    [63, 123, 255],
+    [130, 180, 255],
+    [18, 40, 190]
+  ];
+
+  var W = 0, H = 0, DPR = 1;
+  var particles = [];
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function pick(arr) { return arr[(Math.random() * arr.length) | 0]; }
+
+  /* Vertical centreline of the storm: high at the edges, dipping mid-screen. */
+  function bandCenter(u) {
+    return H * (0.32 + 0.85 * u * (1 - u));
+  }
+  /* Spread and scale grow toward the edges, pinch at the centre. */
+  function edgeFactor(u) {
+    return Math.pow(Math.abs(u - 0.5) * 2, 1.4);
+  }
+
+  function mixColor(u) {
+    var c;
+    if (u < 0.47) c = pick(MAGENTA);
+    else if (u > 0.53) c = pick(BLUE);
+    else {
+      /* Purple blend where the two streams meet. */
+      var m = pick(MAGENTA), b = pick(BLUE), t = (u - 0.47) / 0.06;
+      c = [
+        Math.round(m[0] + (b[0] - m[0]) * t),
+        Math.round(m[1] + (b[1] - m[1]) * t),
+        Math.round(m[2] + (b[2] - m[2]) * t)
+      ];
+    }
+    return c;
+  }
+
+  function makeParticle(seedAnywhere) {
+    /* Bias positions toward the two edges, with a thin busy band in the middle. */
+    var u;
+    var r = Math.random();
+    if (r < 0.42) u = Math.pow(Math.random(), 1.7) * 0.5;              /* left  */
+    else if (r < 0.84) u = 1 - Math.pow(Math.random(), 1.7) * 0.5;     /* right */
+    else u = 0.35 + Math.random() * 0.3;                               /* middle band */
+
+    var e = edgeFactor(u);
+    var spread = H * (0.06 + 0.44 * e);
+    var x = u * W;
+    var y = bandCenter(u) + rand(-spread, spread);
+
+    var typeRoll = Math.random();
+    var type = typeRoll < 0.44 ? 'plus' : (typeRoll < 0.82 ? 'pixel' : 'arrow');
+
+    var base = 4 + 30 * e * e + rand(0, 5);
+    if (type === 'arrow') base = 22 + 120 * e * e + rand(0, 14);
+
+    var c = mixColor(u);
+    var speed = rand(0.06, 0.22) * (0.4 + e);
+
+    return {
+      type: type,
+      u: u,
+      x: x,
+      y: y,
+      size: base * (H / 900),
+      color: 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',',
+      glow: 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')',
+      baseAlpha: rand(0.45, 1),
+      phase: rand(0, Math.PI * 2),
+      flicker: rand(0.4, 2.2),
+      vx: speed,
+      vy: -speed,
+      life: seedAnywhere ? Math.random() : 0,
+      lifeSpeed: rand(0.0006, 0.002)
+    };
+  }
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth;
+    H = canvas.clientHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    var target = Math.max(420, Math.min(1200, Math.round((W * H) / 1400)));
+    particles.length = 0;
+    for (var i = 0; i < target; i++) particles.push(makeParticle(true));
+  }
+
+  function drawBackground() {
+    var g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#08081f');
+    g.addColorStop(0.5, '#05050f');
+    g.addColorStop(1, '#080823');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    /* Faint purple haze where the streams converge. */
+    var cx = W * 0.5, cy = bandCenter(0.5);
+    var haze = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.35);
+    haze.addColorStop(0, 'rgba(110, 40, 190, 0.10)');
+    haze.addColorStop(1, 'rgba(110, 40, 190, 0)');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawPlus(x, y, s) {
+    var arm = s / 3;
+    ctx.fillRect(x - arm / 2, y - s / 2, arm, s);
+    ctx.fillRect(x - s / 2, y - arm / 2, s, arm);
+  }
+
+  function drawArrow(x, y, s) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI / 4);              /* official glyph points up; aim up-right */
+    var k = s / ARROW_H;
+    ctx.scale(k, k);
+    ctx.translate(-ARROW_TIP_X, 0);
+    ctx.fill(ARROW_PATH);
+    ctx.restore();
+  }
+
+  function drawParticle(p, t) {
+    /* Life cycle: fade in, hold, fade out, respawn elsewhere. */
+    var lifeAlpha = Math.sin(Math.PI * p.life);
+    var flicker = 0.62 + 0.38 * Math.sin(t * p.flicker + p.phase);
+    var a = p.baseAlpha * lifeAlpha * flicker;
+    if (a <= 0.01) return;
+
+    ctx.fillStyle = p.color + a.toFixed(3) + ')';
+    ctx.shadowColor = p.glow;
+    ctx.shadowBlur = p.size * (p.type === 'arrow' ? 0.45 : 1.4);
+
+    if (p.type === 'pixel') {
+      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    } else if (p.type === 'plus') {
+      drawPlus(p.x, p.y, p.size);
+    } else {
+      drawArrow(p.x, p.y, p.size);
+    }
+  }
+
+  var last = 0;
+  function frame(ms) {
+    var t = ms / 1000;
+    var dt = Math.min(ms - last, 50) / 16.7;
+    last = ms;
+
+    drawBackground();
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life += p.lifeSpeed * dt * 16.7;
+      if (p.life >= 1) particles[i] = p = makeParticle(false);
+      drawParticle(p, t);
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+
+    if (!reducedMotion) requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  if (reducedMotion) {
+    /* Render a single rich static frame. */
+    drawBackground();
+    ctx.globalCompositeOperation = 'lighter';
+    for (var i = 0; i < particles.length; i++) {
+      particles[i].life = 0.5;
+      drawParticle(particles[i], particles[i].phase);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  } else {
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>
