@@ -57,6 +57,23 @@ they wash out.
 - Loop the comp — frame 0 and frame 6:00 are identical, so the last frame before the wrap
   is the one at 6:00 minus one frame.
 
+## The fade under the logo event
+
+The field does not simply run behind the logo formation — in the approved animation it
+clears out of the way and comes back. Put a single opacity animation on the group holding
+all six plates, all segments linear:
+
+| Time | Opacity |
+| --- | --- |
+| 0:00 → 4:00.000 | 100% |
+| 4:03.850 | 0% |
+| 4:26.700 | 0% |
+| 4:32.700 | 100% |
+| → 6:00 | 100% |
+
+Measured off the built animation rather than read off the config. `../ASSEMBLY.md` has the
+whole stack and where this sits in it.
+
 ## Speed variants
 
 Change nothing but the comp duration and where the second keyframe sits:
