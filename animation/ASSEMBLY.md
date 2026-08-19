@@ -40,16 +40,23 @@ keyframe at 0:00 and 6:00:
 
 | Layer | Plate | Opacity | Position at 0:00 | Position at 6:00 |
 | --- | --- | --- | --- | --- |
-| 2a (back) | `layer1_plate_7435x2407.png` | 10% | −541, −16 | −16, −1311 |
-| 2b | `layer2_plate_7555x2703.png` | 16% | −661, −16 | −16, −1607 |
-| 2c | `layer3_plate_7660x2962.png` | 25% | −766, −16 | −16, −1866 |
-| 2d | `layer4_plate_7900x3554.png` | 42% | −1006, −16 | −16, −2458 |
-| 2e | `layer5_plate_8110x4072.png` | 68% | −1216, −16 | −16, −2976 |
-| 2f (front) | `layer6_plate_8260x4442.png` | 100% | −1366, −16 | −16, −3346 |
+| 2a (bottom) | `layer1_plate_7435x2407.png` | 10% | 3176.5, 1187.5 | 3701.5, −107.5 |
+| 2b | `layer2_plate_7555x2703.png` | 16% | 3116.5, 1335.5 | 3761.5, −255.5 |
+| 2c | `layer3_plate_7660x2962.png` | 25% | 3064.0, 1465.0 | 3814.0, −385.0 |
+| 2d | `layer4_plate_7900x3554.png` | 42% | 2944.0, 1761.0 | 3934.0, −681.0 |
+| 2e | `layer5_plate_8110x4072.png` | 68% | 2839.0, 2020.0 | 4039.0, −940.0 |
+| 2f (top) | `layer6_plate_8260x4442.png` | 100% | 2764.0, 2205.0 | 4114.0, −1125.0 |
 
-Positions are the plate's **top-left corner** in the comp, +y downward. No scaling, no
-easing — easing breaks the loop, because velocity has to match across the seam as well as
-position. Full detail and the verification are in `ambient-layer/README.md`.
+These are **Premiere / After Effects Position values** — where the clip's anchor point
+lands, and the anchor defaults to the clip's **centre**, not its top-left corner. Getting
+that wrong shifts every plate left by half its own width and leaves the field stopping
+about 46% across the frame with black to the right.
+
+Scale 100% (the plates are bigger than the sequence, so watch Premiere's Default Media
+Scaling), and set **both** Temporal and Spatial Interpolation to Linear — Premiere's
+spatial default is Auto Bézier, and any easing breaks the loop, because velocity has to
+match across the seam as well as position. `ambient-layer/README.md` has the top-left
+equivalents, the rest of the Premiere gotchas and the verification.
 
 ### The part that is easy to miss
 
