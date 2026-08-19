@@ -23,23 +23,6 @@
     top: 0;
     width: 100%;
   }
-  .hero-2__pixels {
-    display: flex;
-    mix-blend-mode: soft-light;
-    position: absolute;
-    transform: translateZ(0);
-  }
-  .hero-2__pixels svg { height: auto; width: 100%; }
-  .hero-2__pixels--01 { bottom: 0; }
-  @media (max-width: 1023px) {
-    .hero-2__pixels--01 { display: none; }
-  }
-  @media (min-width: 1024px) {
-    .hero-2__pixels--01 { right: 50px; width: calc(41.66667% - 41.66667px); }
-  }
-  @media (min-width: 1600px) {
-    .hero-2__pixels--01 { right: calc(50vw - 775px); width: 645.8333333333px; }
-  }
   .hero-2__row {
     display: flex;
     flex-direction: column;
@@ -82,39 +65,6 @@
 
 <div class="hero-2">
   <div class="hero-2__background fluid-gradient" data-color-a="#8a25c9" data-color-b="#03bfdc"></div>
-
-  <div class="hero-2__pixels hero-2__pixels--01">
-      <svg width="650" height="400" viewBox="0 0 650 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M600.004 250L600.004 300L650.004 300L650.004 250L600.004 250Z" fill="white"></path>
-      <path d="M550 200L550 250L600 250L600 200L550 200Z" fill="white"></path>
-      <path d="M450 200L450 250L500 250L500 200L450 200Z" fill="white"></path>
-      <path d="M400 200L400 250L450 250L450 200L400 200Z" fill="white"></path>
-      <path d="M350.008 250L350.008 300L400.008 300L400.008 250L350.008 250Z" fill="white"></path>
-      <path d="M250.004 300L250.004 350L300.004 350L300.004 300L250.004 300Z" fill="white"></path>
-      <path d="M200.004 250L200.004 300L250.004 300L250.004 250L200.004 250Z" fill="white"></path>
-      <path d="M150.004 350L150.004 400L200.004 400L200.004 350L150.004 350Z" fill="white"></path>
-      <path d="M100.008 300L100.008 350L150.008 350L150.008 300L100.008 300Z" fill="white"></path>
-      <path d="M50 350L50 400L99.9997 400L99.9997 350L50 350Z" fill="white"></path>
-      <path d="M2.5642e-06 300L0 350L49.9997 350L49.9997 300L2.5642e-06 300Z" fill="white"></path>
-      <path d="M200.004 200L200.004 250L250.004 250L250.004 200L200.004 200Z" fill="white"></path>
-      <path d="M150.004 200L150.004 250L200.004 250L200.004 200L150.004 200Z" fill="white"></path>
-      <path d="M150.004 150L150.004 200L200.004 200L200.004 150L150.004 150Z" fill="white"></path>
-      <path d="M100.008 99.9995L100.008 150L150.008 150L150.008 99.9995L100.008 99.9995Z" fill="white"></path>
-      <path d="M250.004 200L250.004 250L300.004 250L300.004 200L250.004 200Z" fill="white"></path>
-      <path d="M250.004 150L250.004 200L300.004 200L300.004 150L250.004 150Z" fill="white"></path>
-      <path d="M200.004 99.9995L200.004 150L250.004 150L250.004 99.9995L200.004 99.9995Z" fill="white"></path>
-      <path d="M400 300L400 350L450 350L450 300L400 300Z" fill="white"></path>
-      <path d="M400 350L400 400L450 400L450 350L400 350Z" fill="white"></path>
-      <path d="M350.008 350L350.008 400L400.008 400L400.008 350L350.008 350Z" fill="white"></path>
-      <path d="M450 350L450 400L500 400L500 350L450 350Z" fill="white"></path>
-      <path d="M450 150L450 200L500 200L500 150L450 150Z" fill="white"></path>
-      <path d="M350.008 99.9995L350.008 150L400.008 150L400.008 99.9995L350.008 99.9995Z" fill="white"></path>
-      <path d="M300.004 49.9995L300.004 99.9995L350.004 99.9995L350.004 49.9995L300.004 49.9995Z" fill="white"></path>
-      <path d="M250.004 7.62939e-06L250.004 50L300.004 50L300.004 9.4944e-06L250.004 7.62939e-06Z" fill="white"></path>
-      <path d="M500.004 150L500.004 200L550.004 200L550.004 150L500.004 150Z" fill="white"></path>
-      <path d="M500.004 250L500.004 300L550.004 300L550.004 250L500.004 250Z" fill="white"></path>
-      </svg>
-  </div>
 
   <div class="container">
     <div class="hero-2__row">
@@ -194,10 +144,6 @@
     '  float t = domainWarp(p, ct);\n' +
     '  vec3 color = mix(u_colorA, u_colorB, smoothstep(0.1, 0.6, t));\n' +
     '  color *= 1.12;\n' +
-    '\n' +
-    '  float timeSeed = fract(floor(u_time * 15.0) * 0.7539);\n' +
-    '  float g = hash(floor(vUv * u_res * 0.24) + timeSeed);\n' +
-    '  color += (g - 0.5) * 0.0375;\n' +
     '\n' +
     '  gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);\n' +
     '}';
