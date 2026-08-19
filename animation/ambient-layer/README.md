@@ -25,37 +25,72 @@ re-render — it is the same six keyframes with a longer duration.
 
 ## The build
 
-Stack the six plates in order, layer 1 at the back, and give each a linear position
+Stack the six plates in order, layer 1 at the back, and give each a **linear** position
 keyframe from its start to its end over the loop length. That is the whole animation.
 
-| Layer | Plate | Opacity | Position at 0:00 | Position at 6:00 | Arrow height |
+### Premiere Pro / After Effects — position by centre
+
+Both applications position a clip by its **anchor point**, which defaults to the **centre**
+of the clip, not its top-left corner. Use these numbers directly in Motion > Position:
+
+| Layer | Plate | Opacity | Position at 0:00 | Position at 6:00 |
+| --- | --- | --- | --- | --- |
+| 1 (bottom) | `layer1_plate_7435x2407.png` | 10% | 3176.5, 1187.5 | 3701.5, −107.5 |
+| 2 | `layer2_plate_7555x2703.png` | 16% | 3116.5, 1335.5 | 3761.5, −255.5 |
+| 3 | `layer3_plate_7660x2962.png` | 25% | 3064.0, 1465.0 | 3814.0, −385.0 |
+| 4 | `layer4_plate_7900x3554.png` | 42% | 2944.0, 1761.0 | 3934.0, −681.0 |
+| 5 | `layer5_plate_8110x4072.png` | 68% | 2839.0, 2020.0 | 4039.0, −940.0 |
+| 6 (top) | `layer6_plate_8260x4442.png` | 100% | 2764.0, 2205.0 | 4114.0, −1125.0 |
+
+If the arrows end up crowded into the left of the frame with black to the right, this is
+why: top-left coordinates were entered where centre coordinates were wanted, which shifts
+each plate left by half its own width. The symptom is distinctive — the field stops at
+about 46% across.
+
+### The same thing as top-left coordinates
+
+For any tool that positions by the top-left corner (CSS, canvas, most compositing code):
+
+| Layer | Top-left at 0:00 | Top-left at 6:00 | Plate | Tile | Arrow height |
 | --- | --- | --- | --- | --- | --- |
-| 1 (back) | `layer1_plate_7435x2407.png` | 10% | −541, −16 | −16, −1311 | 48 px |
-| 2 | `layer2_plate_7555x2703.png` | 16% | −661, −16 | −16, −1607 | 68 px |
-| 3 | `layer3_plate_7660x2962.png` | 25% | −766, −16 | −16, −1866 | 92 px |
-| 4 | `layer4_plate_7900x3554.png` | 42% | −1006, −16 | −16, −2458 | 130 px |
-| 5 | `layer5_plate_8110x4072.png` | 68% | −1216, −16 | −16, −2976 | 175 px |
-| 6 (front) | `layer6_plate_8260x4442.png` | 100% | −1366, −16 | −16, −3346 | 235 px |
+| 1 | −541, −16 | −16, −1311 | 7435 × 2407 | 525 × 1295 | 48 px |
+| 2 | −661, −16 | −16, −1607 | 7555 × 2703 | 645 × 1591 | 68 px |
+| 3 | −766, −16 | −16, −1866 | 7660 × 2962 | 750 × 1850 | 92 px |
+| 4 | −1006, −16 | −16, −2458 | 7900 × 3554 | 990 × 2442 | 130 px |
+| 5 | −1216, −16 | −16, −2976 | 8110 × 4072 | 1200 × 2960 | 175 px |
+| 6 | −1366, −16 | −16, −3346 | 8260 × 4442 | 1350 × 3330 | 235 px |
 
-Positions are the **top-left corner of the plate** in a 6878 × 1080 comp, in pixels, with
-+y downward. Every layer travels exactly one tile — right by `tileW`, up by `tileH` —
-which is what makes the loop seamless.
+Centre = top-left + half the plate size. Either way each layer travels exactly one tile —
+right by `tileW`, up by `tileH` — which is what makes the loop seamless.
 
-Set both keyframes to **linear**. Any easing breaks the loop, because the velocity has to
-match across the seam as well as the position.
+### Premiere specifics
 
-Composite normally (source-over) with **straight, unpremultiplied alpha**. The arrows are
-light on a dark ground, so they want a dark background under them; over anything light
-they wash out.
+- **Scale must be 100%.** The plates are larger than the sequence, so if Preferences >
+  Media > Default Media Scaling is set to *Scale to Frame Size* or *Set to Frame Size*,
+  Premiere shrinks them to fit and the arrows come out miniature. Set it to *None* before
+  importing, or reset Scale to 100 on each clip afterwards.
+- **Both interpolations must be linear.** Right-click each keyframe: *Temporal
+  Interpolation > Linear* and *Spatial Interpolation > Linear*. Premiere's spatial default
+  is Auto Bézier, which can ease the motion — and any easing breaks the loop, because
+  velocity has to match across the seam as well as position.
+- **Still-image duration.** The default is 5 seconds. Set Preferences > Timeline > Still
+  Image Default Duration to 6:00 before importing, or stretch each clip afterwards.
+- **The 6:00 keyframe sits one frame past the last frame**, which is correct. At 120 fps a
+  360-second sequence runs frames 0–43199, and 00:06:00:00 is frame 43200. Put the keyframe
+  there and export up to but not including it. If Premiere will not place a keyframe past
+  the clip end, extend the clips a few frames beyond 6:00 and set the export out-point at
+  6:00.
+- **Alpha.** Right-click > Modify > Interpret Footage > Alpha Channel: *Use Alpha Channel*,
+  with *Ignore Alpha* off and premultiply off. The plates are straight alpha.
 
 ### Checklist
 
-- Comp 6878 × 1080, duration 6:00, at whatever frame rate you are working in.
-- Six plates, no scaling, no smoothing on the plate itself.
-- Linear position keyframes at 0:00 and 6:00 exactly as tabled.
+- Sequence 6878 × 1080, 6:00 long, at whatever frame rate you are working in.
+- Six plates, Scale 100%, no smoothing.
+- Linear position keyframes at 0:00 and 6:00, values as tabled.
 - Layer opacities as tabled.
-- Loop the comp — frame 0 and frame 6:00 are identical, so the last frame before the wrap
-  is the one at 6:00 minus one frame.
+- Frame 0 and frame 6:00 are identical, so the last frame before the wrap is 6:00 minus one
+  frame.
 
 ## The fade under the logo event
 
