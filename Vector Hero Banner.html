@@ -139,7 +139,10 @@
     'void main() {\n' +
     '  float angle = mod(u_time, 108.0) / 108.0 * 6.28318;\n' +
     '  vec2 ct = vec2(cos(angle), sin(angle)) * 0.5;\n' +
-    '  vec2 p  = vUv * 0.5 + u_offset;\n' +
+    // Aspect-aware sampling: at 16:9 this matches the site exactly; wider
+    // canvases reveal more of the noise field instead of stretching it.
+    '  vec2 uv = vec2(vUv.x * (u_res.x / u_res.y) / (16.0 / 9.0), vUv.y);\n' +
+    '  vec2 p  = uv * 0.5 + u_offset;\n' +
     '\n' +
     '  float t = domainWarp(p, ct);\n' +
     '  vec3 color = mix(u_colorA, u_colorB, smoothstep(0.1, 0.6, t));\n' +
