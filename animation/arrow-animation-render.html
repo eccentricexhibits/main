@@ -941,10 +941,80 @@ function poissonTorus(w, h, n, rng) {
   return pts;
 }
 
+/**
+ * Blue noise that repeats on an oblique lattice rather than a rectangle.
+ *
+ * This is what lets the loop be shortened without slowing the arrows down or
+ * thinning the field. The loop only needs the pattern to repeat along the
+ * travel vector d; it says nothing about the other direction. Shrinking the
+ * rectangular tile satisfies the loop but throws in two extra repeats — one
+ * horizontal, one vertical — and shrinks the cell so far that only one arrow
+ * fits in it, which is what turns the field into a grid.
+ *
+ * Instead: keep the fundamental cell exactly as large as it is today, so it
+ * holds exactly as many arrows, and make the pattern repeat *only* along d.
+ * The lattice is <d, (reps^0.5 x tileW, 0)>, whose smallest enclosing rectangle
+ * is the super-tile passed in here; d has order `reps` in it, so every point
+ * carries `reps` replicas.
+ *
+ * Points are spaced on the quotient torus: a candidate has to clear every
+ * replica of every placed point, and its own replicas have to clear each other.
+ * Testing only the generators would let two replicas land on top of each other.
+ */
+function poissonLattice(w, h, dx, dy, reps, n, rng) {
+  const pts = [];
+  const gens = [];
+  // Same spacing as the rectangular case: the cell area per point is unchanged.
+  let radius = 0.75 * Math.sqrt((w * h) / (n * reps));
+  const wrap = (v, m) => ((v % m) + m) % m;
+  const near = (ax, ay, bx, by) => {
+    let ddx = Math.abs(ax - bx);
+    let ddy = Math.abs(ay - by);
+    if (ddx > w / 2) ddx = w - ddx;
+    if (ddy > h / 2) ddy = h - ddy;
+    return ddx * ddx + ddy * ddy < radius * radius;
+  };
+
+  while (gens.length < n) {
+    let placed = false;
+    for (let attempt = 0; attempt < 150; attempt++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      const family = [];
+      for (let a = 0; a < reps; a++) {
+        family.push({ x: wrap(x + a * dx, w), y: wrap(y + a * dy, h) });
+      }
+      let ok = family.every((f) => !pts.some((p) => near(f.x, f.y, p.x, p.y)));
+      for (let i = 0; ok && i < family.length; i++) {
+        for (let j = i + 1; ok && j < family.length; j++) {
+          if (near(family[i].x, family[i].y, family[j].x, family[j].y)) ok = false;
+        }
+      }
+      if (ok) {
+        gens.push({ x, y });
+        pts.push(...family);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) radius *= 0.92;
+  }
+  return pts;
+}
+
 /* ------------------------------------------------------------- tile builder */
 
 function buildTile(layer, index, cfg) {
-  const tileH = (layer.tileW / RUN) * RISE;
+  const baseH = (layer.tileW / RUN) * RISE;
+  // loopDiv r shortens the loop by r without changing speed: the field travels
+  // one r-th of a tile per loop, so it has to repeat on that shorter vector.
+  // The tile that carries such a pattern is r x r base tiles, holding r^2 cells.
+  const r = Math.max(1, Math.round(layer.loopDiv || 1));
+  const travelX = layer.tileW / r;
+  const travelY = baseH / r;
+  const tileW = layer.tileW * r;
+  const tileH = baseH * r;
+  const reps = r * r;
   const rng = mulberry32(cfg.seed + index * 7919);
   const grad = gradientEndpoints();
   const trail = trailGeometry(cfg);
@@ -954,7 +1024,11 @@ function buildTile(layer, index, cfg) {
   const [oMin, oMax] = cfg.opacityJitter;
 
   const parts = [];
-  for (const p of poissonTorus(layer.tileW, tileH, layer.count, rng)) {
+  const placement =
+    r === 1
+      ? poissonTorus(tileW, tileH, layer.count, rng)
+      : poissonLattice(tileW, tileH, travelX, -travelY, reps, layer.count, rng);
+  for (const p of placement) {
     const scale = (layer.arrow * (sMin + rng() * (sMax - sMin))) / ARROW.h;
     const alpha = oMin + rng() * (oMax - oMin);
     // Anchor on the arrow's own centre; the sprite reaches further than that.
@@ -965,15 +1039,15 @@ function buildTile(layer, index, cfg) {
     // tile; on the short-loop variants it is not, so the reach is computed
     // rather than assumed — a sprite three tiles wide has to be drawn three
     // tiles either way or it comes back clipped at the seam.
-    const reachX = Math.ceil((sprite.w * scale) / layer.tileW) + 1;
+    const reachX = Math.ceil((sprite.w * scale) / tileW) + 1;
     const reachY = Math.ceil((sprite.h * scale) / tileH) + 1;
     for (let i = -reachX; i <= reachX; i++) {
       for (let j = -reachY; j <= reachY; j++) {
-        const x = x0 + i * layer.tileW;
+        const x = x0 + i * tileW;
         const y = y0 + j * tileH;
         const left = x + sprite.x * scale;
         const top = y + sprite.y * scale;
-        if (left > layer.tileW || left + sprite.w * scale < 0) continue;
+        if (left > tileW || left + sprite.w * scale < 0) continue;
         if (top > tileH || top + sprite.h * scale < 0) continue;
         parts.push(
           `<use href="#s" transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) ` +
@@ -986,8 +1060,8 @@ function buildTile(layer, index, cfg) {
   // Blurs are declared in the arrow's own coordinates, inside the reused group,
   // so the use element's scale carries them — glow stays proportional at every size.
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${layer.tileW}" height="${tileH}" ` +
-    `viewBox="0 0 ${layer.tileW} ${tileH}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${tileW}" height="${tileH}" ` +
+    `viewBox="0 0 ${tileW} ${tileH}">` +
     '<defs>' +
     `<linearGradient id="g" x1="${grad.x1.toFixed(5)}" y1="${grad.y1.toFixed(5)}" ` +
     `x2="${grad.x2.toFixed(5)}" y2="${grad.y2.toFixed(5)}">` +
@@ -1016,7 +1090,7 @@ function buildTile(layer, index, cfg) {
     parts.join('') +
     '</svg>';
 
-  return { svg, tileH };
+  return { svg, tileW, tileH, travelX, travelY };
 }
 
 /** Seamless grey grain, used at a few percent to keep the background ramp smooth. */
@@ -1075,20 +1149,22 @@ function mountArrowField(stage, cfg = CONFIG) {
   stage.appendChild(ambient);
 
   cfg.layers.forEach((layer, index) => {
-    const { svg, tileH } = buildTile(layer, index, cfg);
-    const travel = Math.hypot(layer.tileW, tileH);
+    // The tile can be larger than one loop's travel (see loopDiv in buildTile),
+    // so element geometry and keyframes follow the travel vector, not the tile.
+    const { svg, tileW, tileH, travelX, travelY } = buildTile(layer, index, cfg);
+    const travel = Math.hypot(travelX, travelY);
     const el = doc.createElement('div');
     el.className = 'af-layer';
     el.dataset.layer = String(index + 1);
     Object.assign(el.style, {
       position: 'absolute',
-      left: `${-layer.tileW - cfg.overscan}px`,
+      left: `${-travelX - cfg.overscan}px`,
       top: `${-cfg.overscan}px`,
-      width: `${cfg.width + layer.tileW + cfg.overscan * 2}px`,
-      height: `${cfg.height + tileH + cfg.overscan * 2}px`,
+      width: `${cfg.width + travelX + cfg.overscan * 2}px`,
+      height: `${cfg.height + travelY + cfg.overscan * 2}px`,
       backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}")`,
       backgroundRepeat: 'repeat',
-      backgroundSize: `${layer.tileW}px ${tileH}px`,
+      backgroundSize: `${tileW}px ${tileH}px`,
       opacity: String(layer.opacity),
       animation: `af-drift-${index} ${cfg.duration}s linear infinite`,
       willChange: 'transform',
@@ -1096,18 +1172,22 @@ function mountArrowField(stage, cfg = CONFIG) {
     rules.push(
       `@keyframes af-drift-${index}{` +
         'from{transform:translate3d(0,0,0)}' +
-        `to{transform:translate3d(${layer.tileW}px,${-tileH}px,0)}}`
+        `to{transform:translate3d(${travelX}px,${-travelY}px,0)}}`
     );
     ambient.appendChild(el);
 
     metrics.push({
       index: index + 1,
-      tileW: layer.tileW,
+      tileW,
       tileH,
+      travelX,
+      travelY,
       arrow: layer.arrow,
       opacity: layer.opacity,
       count: layer.count,
-      onScreen: Math.round((layer.count * cfg.width * cfg.height) / (layer.tileW * tileH)),
+      onScreen: Math.round(
+        (layer.count * (layer.loopDiv || 1) ** 2 * cfg.width * cfg.height) / (tileW * tileH)
+      ),
       travel,
       speed: travel / cfg.duration,
     });
@@ -1178,6 +1258,44 @@ function speedVariant(cfg, speed, duration) {
   return Object.assign({}, cfg, { duration, layers, event: fits ? cfg.event : false });
 }
 
+/**
+ * The same field, same arrow speed, on a loop r times shorter.
+ *
+ * This is the one to reach for when the *file* has to be shorter but the motion
+ * must not change — a venue capping videos at 2 minutes, say. Nothing about the
+ * arrows moves differently: r divides the duration and the per-loop travel by
+ * the same factor, so speed is untouched, and the placement absorbs the change
+ * by repeating on the shorter travel vector instead of on a smaller rectangle.
+ *
+ * Density, arrow sizes and the size of the fundamental cell are all unchanged,
+ * so the field looks like the shipped one. The one thing that is genuinely
+ * unavoidable: the pattern now echoes along the direction of travel every
+ * 1/r of a tile, because that is what a shorter loop *means*.
+ *
+ * r must be a whole number. A loop 2.5 times shorter is not a loop.
+ */
+function shortLoop(cfg, r) {
+  if (!Number.isInteger(r) || r < 1) throw new Error(`shortLoop needs a whole number, got ${r}`);
+  const duration = cfg.duration / r;
+  const fits = cfg.transition && duration > cfg.transition.at + 40;
+  return Object.assign({}, cfg, {
+    duration,
+    layers: cfg.layers.map((l) => {
+      /*
+       * Travel per loop is (tileW / r, -tileH / r) and both have to land on a
+       * whole pixel, or the layer ends the loop on a fractional offset and the
+       * wrap resamples instead of matching. tileH = tileW / 15 * 37, and 37 is
+       * coprime to anything we care about, so the condition is simply that
+       * tileW is a multiple of 15r rather than the usual 15.
+       */
+      const step = 15 * r;
+      const tileW = Math.max(step, Math.round(l.tileW / step) * step);
+      return Object.assign({}, l, { tileW, loopDiv: r });
+    }),
+    event: fits ? cfg.event : false,
+  });
+}
+
 
 /*
  * ?layer=N isolates a single layer at full opacity — used for angle checks.
@@ -1234,6 +1352,16 @@ if (params.get('event') === '0') {
 var speed = params.get('speed');
 if (speed) {
   config = speedVariant(config, Number(speed), Number(params.get('loop') || 120));
+}
+/*
+ * ?short=R shortens the loop R times over with the arrows moving at exactly the
+ * shipped speed — a 2-minute file instead of a 6-minute one, same motion. The
+ * placement repeats on the shorter travel vector rather than on a smaller tile,
+ * so density and cell size are untouched.
+ */
+var short = params.get('short');
+if (short) {
+  config = shortLoop(config, Number(short));
 }
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {

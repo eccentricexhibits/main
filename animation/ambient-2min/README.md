@@ -1,67 +1,57 @@
-# Ambient field — 2-minute loops at four speeds
+# Ambient field — 2-minute loop, unchanged arrow speed
 
-The venue caps a video at 2 minutes, so these are exact 120-second loops. Same six-plate
-build as `../ambient-layer/`, same full resolution, same transparency — only the tile
-geometry and the loop length differ.
+The venue caps a video at 2 minutes. This is the same field as the six-minute build, with
+the arrows moving at **exactly the same speed** — only the loop is shorter. Same
+resolution, same transparency, same density, same arrow sizes.
 
-## The constraint, which is geometry rather than preference
+## What had to change, and what did not
 
-**Loop distance = speed × duration.** The field only lands back on itself after travelling
-exactly one tile, so once the loop length is fixed at 120 s, **tile size is proportional to
-speed**. There is no way to choose them independently:
+Nothing about the motion. A shorter loop means the field has to land back on itself after
+a shorter distance, so what changes is the *placement*: the arrangement now repeats along
+the travel direction every third of a tile instead of every whole tile.
 
-| Speed | Tile size | Arrows per tile | Density vs approved | Verdict |
-| --- | --- | --- | --- | --- |
-| 3x | 525–1350 px — today's exactly | 10–14 | 1.00 | identical to what you approved |
-| 2x | 345–900 px | 4–6 | 0.92–0.98 | holds up |
-| 1x | 180–450 px | 1–2 | 0.72–1.29 | reads as a lattice |
-| 0.5x | 90–225 px | 1 (forced) | 2.6–3.4 | not usable as-is |
+The obvious way to do that — shrink every tile to a third — is wrong, and was my first
+answer. It satisfies the loop but throws in two repeats nobody asked for, one horizontal
+and one vertical, and shrinks the cell so far that only one arrow fits in it. That is what
+turns the field into wallpaper. `other-speeds/1x/` is that version, kept for comparison.
 
-Slower means a shorter loop distance means a smaller tile. A third of the width is a ninth
-of the area, so the tile holds a ninth of the arrows. Below roughly two arrows per tile the
-placement stops reading as scattered and starts reading as a repeating grid — and at 0.5x
-the count cannot go below one, so the field also ends up about three times denser than
-intended. That is why the bottom two rows are marked the way they are.
+The right way: a tile does not have to be a small rectangle. It has to be a **lattice**
+containing the travel vector, and the second lattice vector is free to stay long. So the
+fundamental cell keeps exactly the area it has today and holds exactly as many arrows —
+the pattern simply echoes along the direction of travel and nowhere else.
 
-**3x is free.** Its plates are byte-identical to the six in `../ambient-layer/` — a
-2-minute 3x loop is literally the approved field played three times as fast, not a
-re-render. Verified by checksum.
+| | Six-minute build | This 2-minute build |
+| --- | --- | --- |
+| Arrow speed | 3.88–9.98 px/s | **identical** |
+| Arrows on screen per layer | 20–109 | **identical** |
+| Arrow sizes | 48–235 px | identical |
+| Cell area (arrows per cell) | 10–14 | identical |
+| Repeats along travel | every 3,593 px (layer 6) | every 1,198 px |
+| Repeats horizontally / vertically | none within the frame | none within the frame |
 
-## Getting a slow field inside 2 minutes anyway
+The echo along the travel direction is the one genuine cost, and it is not avoidable: a
+shorter loop *means* a shorter repeat distance. Everything else is preserved.
 
-If 1x or 0.5x is what the venue actually wants, the tile route is the wrong one and there
-are two better ones:
+### One small adjustment
 
-1. **Hide the wrap in a fade.** If the piece has any moment where the arrows reach zero
-   opacity — the way the field clears out under the logo event in the six-minute show —
-   the loop can wrap there invisibly, and the constraint disappears entirely. Any speed
-   then works with today's full-size tiles. This is the clean answer if a 2-minute cut
-   includes an event.
-2. **Cross-dissolve the loop.** Build 121.5 s at true 1x or 0.5x with the full-size tiles,
-   then overlap the last 1.5 s onto the first and cross-dissolve. The field is
-   statistically uniform, so the dissolve reads as a brief flutter in density rather than a
-   jump. Not pixel-exact, but it keeps the approved texture, which the small-tile versions
-   do not.
+Travel per loop is a third of a tile and has to land on a whole pixel, so four of the six
+tile widths were nudged to the nearest multiple of 45. That shifts those layers' speeds by
+at most 2.9%, and **layers 4 and 6 — the two most visible — are exactly unchanged**.
 
-Worth asking the venue whether the 2-minute cap is hard before either — the six-minute
-build already exists and needs nothing.
+| Layer | Tile width | Speed change |
+| --- | --- | --- |
+| 1 | 525 → 540 | +2.9% |
+| 2 | 645 → 630 | −2.3% |
+| 3 | 750 → 765 | +2.0% |
+| 4 | 990 → 990 | none |
+| 5 | 1200 → 1215 | +1.2% |
+| 6 | 1350 → 1350 | none |
 
-## Build tables
+## The build
 
-### 0.5x — `0.5x/plates/`
-
-| Layer | Plate | Opacity | Position at 0:00 | Position at 2:00 |
-| --- | --- | --- | --- | --- |
-| 1 (bottom) | `layer1_plate_7000x1334.png` | 10% | 3394.0, 651.0 | 3484.0, 429.0 |
-| 2 | `layer2_plate_7015x1371.png` | 16% | 3386.5, 669.5 | 3491.5, 410.5 |
-| 3 | `layer3_plate_7030x1408.png` | 25% | 3379.0, 688.0 | 3499.0, 392.0 |
-| 4 | `layer4_plate_7075x1519.png` | 42% | 3356.5, 743.5 | 3521.5, 336.5 |
-| 5 | `layer5_plate_7105x1593.png` | 68% | 3341.5, 780.5 | 3536.5, 299.5 |
-| 6 (top) | `layer6_plate_7135x1667.png` | 100% | 3326.5, 817.5 | 3551.5, 262.5 |
-
-Tiles 90–225 px, 7000×1334 to 7135×1667 plates, 1.7 MB.
-
-### 1x — `1x/plates/`
+Identical to the six-minute build in `../ambient-layer/README.md` — six plates stacked in
+order, **linear** position keyframes, opacities as tabled — with the sequence **2:00** long
+and the second keyframe at **2:00**.
 
 | Layer | Plate | Opacity | Position at 0:00 | Position at 2:00 |
 | --- | --- | --- | --- | --- |
@@ -72,61 +62,68 @@ Tiles 90–225 px, 7000×1334 to 7135×1667 plates, 1.7 MB.
 | 5 | `layer5_plate_7315x2111.png` | 68% | 3236.5, 1039.5 | 3641.5, 40.5 |
 | 6 (top) | `layer6_plate_7360x2222.png` | 100% | 3214.0, 1095.0 | 3664.0, −15.0 |
 
-Tiles 180–450 px, 7090×1556 to 7360×2222 plates, 1.4 MB.
+These are Premiere / After Effects **Position** values — where the clip's anchor point
+lands, and the anchor defaults to the clip's **centre**. Entering top-left coordinates here
+shifts every plate left by half its own width and leaves the field stopping about 46%
+across the frame.
 
-### 2x — `2x/plates/`
+Top-left equivalents, for anything that positions by corner:
 
-| Layer | Plate | Opacity | Position at 0:00 | Position at 2:00 |
+| Layer | Top-left at 0:00 | Top-left at 2:00 | Plate | Travel per loop |
 | --- | --- | --- | --- | --- |
-| 1 (bottom) | `layer1_plate_7255x1963.png` | 10% | 3266.5, 965.5 | 3611.5, 114.5 |
-| 2 | `layer2_plate_7345x2185.png` | 16% | 3221.5, 1076.5 | 3656.5, 3.5 |
-| 3 | `layer3_plate_7405x2333.png` | 25% | 3191.5, 1150.5 | 3686.5, −70.5 |
-| 4 | `layer4_plate_7570x2740.png` | 42% | 3109.0, 1354.0 | 3769.0, −274.0 |
-| 5 | `layer5_plate_7705x3073.png` | 68% | 3041.5, 1520.5 | 3836.5, −440.5 |
-| 6 (top) | `layer6_plate_7810x3332.png` | 100% | 2989.0, 1650.0 | 3889.0, −570.0 |
-
-Tiles 345–900 px, 7255×1963 to 7810×3332 plates, 3.0 MB.
-
-### 3x — `3x/plates/`
-
-| Layer | Plate | Opacity | Position at 0:00 | Position at 2:00 |
-| --- | --- | --- | --- | --- |
-| 1 (bottom) | `layer1_plate_7435x2407.png` | 10% | 3176.5, 1187.5 | 3701.5, −107.5 |
-| 2 | `layer2_plate_7555x2703.png` | 16% | 3116.5, 1335.5 | 3761.5, −255.5 |
-| 3 | `layer3_plate_7660x2962.png` | 25% | 3064.0, 1465.0 | 3814.0, −385.0 |
-| 4 | `layer4_plate_7900x3554.png` | 42% | 2944.0, 1761.0 | 3934.0, −681.0 |
-| 5 | `layer5_plate_8110x4072.png` | 68% | 2839.0, 2020.0 | 4039.0, −940.0 |
-| 6 (top) | `layer6_plate_8260x4442.png` | 100% | 2764.0, 2205.0 | 4114.0, −1125.0 |
-
-Tiles 525–1350 px, 7435×2407 to 8260×4442 plates, 5.1 MB.
-
-## How to build
-
-Exactly as `../ambient-layer/README.md` describes — six plates, stacked in order, linear
-position keyframes, opacities as tabled — with two changes: the sequence is **2:00** long,
-and the second keyframe sits at **2:00** instead of 6:00.
-
-Positions are Premiere / After Effects **Position** values: where the clip's anchor point
-lands, and the anchor defaults to the clip's **centre**. `layers.json` in each folder
-carries the top-left equivalents alongside them.
+| 1 | −196, −16 | −16, −460 | 7090 × 1556 | 180, −444 |
+| 2 | −226, −16 | −16, −534 | 7120 × 1630 | 210, −518 |
+| 3 | −271, −16 | −16, −645 | 7165 × 1741 | 255, −629 |
+| 4 | −346, −16 | −16, −830 | 7240 × 1926 | 330, −814 |
+| 5 | −421, −16 | −16, −1015 | 7315 × 2111 | 405, −999 |
+| 6 | −466, −16 | −16, −1126 | 7360 × 2222 | 450, −1110 |
 
 All the Premiere specifics still apply: Scale 100%, both Temporal and Spatial Interpolation
-set to Linear, still-image default duration, straight alpha.
+set to Linear, still-image default duration, straight alpha. The 2:00 keyframe sits one
+frame past the last frame, which is correct — set the export out-point at 2:00 so it is not
+included.
 
 ## Verification
 
-Each of the four was rendered at t=0 and t=120 and compared: **0 differing pixels** on
-every channel across all 7,428,240, so all four loop exactly.
+- **The loop is exact, tested across the wrap rather than at it.** Seeking to exactly the
+  loop length lands back on iteration zero and proves nothing, so the test compares t=5
+  against t=125 and t=37 against t=157 — genuinely different iterations. Both: **0
+  differing pixels** on every channel across all 7,428,240.
+- **Speed is unchanged.** Measured off the built animation, per-layer speeds match the
+  six-minute build to four decimal places on layers 4 and 6 and within 2.9% elsewhere, and
+  on-screen arrow counts are identical layer for layer.
+- **The plates reconstruct the render**, mean visible error 0.21/255 — the same figure as
+  the six-minute plates, and the same cause: resampling filter difference on arrow edges at
+  fractional offsets.
+- **The shipped six-minute field is untouched.** All six of its plates were regenerated
+  after these engine changes and checksummed against the committed ones — byte-identical.
 
-The 3x plates were checksummed against the six already delivered in `../ambient-layer/` —
-all six byte-identical.
+## Other loop lengths
+
+The divisor is a parameter, so any whole fraction of six minutes is available:
+
+| Divisor | Loop | Echo along travel (layer 6) |
+| --- | --- | --- |
+| 2 | 3:00 | every 1,797 px |
+| **3** | **2:00** | **every 1,198 px** |
+| 4 | 1:30 | every 898 px |
+| 6 | 1:00 | every 599 px |
+
+3 is the one that fits the cap with the longest possible repeat distance, which is why it
+is the build here. Ask if a shorter file is ever needed and I will cut the plates for it.
 
 ## Regenerating
 
 ```sh
-node animation/tools/export-plates.js --speed 2 --loop 120 --out DIR
+node animation/tools/export-plates.js --short 3 --out DIR
 ```
 
-`--speed` is relative to the shipped field and `--loop` is the loop length in seconds; the
-tile geometry follows from the two. The same switches work on the render surface as
-`?speed=2&loop=120`, so a variant can be previewed before its plates are cut.
+`?short=3` does the same on the render surface, and `export.js --short 3` renders frames
+from it. `--short` takes a whole number only — a loop 2.5 times shorter is not a loop.
+
+## `other-speeds/`
+
+The earlier round, built when I misread the brief as wanting different arrow speeds. All
+four are exact 2-minute loops, but they change the motion: `3x/` is the approved field
+played three times as fast (its plates are byte-identical to `../ambient-layer/`), `2x/`
+holds up, and `1x/` and `0.5x/` are the shrunken-tile versions this build replaces.

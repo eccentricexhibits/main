@@ -83,6 +83,16 @@ var speed = params.get('speed');
 if (speed) {
   config = speedVariant(config, Number(speed), Number(params.get('loop') || 120));
 }
+/*
+ * ?short=R shortens the loop R times over with the arrows moving at exactly the
+ * shipped speed — a 2-minute file instead of a 6-minute one, same motion. The
+ * placement repeats on the shorter travel vector rather than on a smaller tile,
+ * so density and cell size are untouched.
+ */
+var short = params.get('short');
+if (short) {
+  config = shortLoop(config, Number(short));
+}
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {
   config = Object.assign({}, config, {

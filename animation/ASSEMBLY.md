@@ -9,6 +9,11 @@ and not.
 Comp: **6878 × 1080**, **6:00** (360 s) long, looping. Frame rate is yours to pick; see
 the note at the end.
 
+**For a 2-minute cut**, swap layer 2 for the plates in `ambient-2min/` and make the comp
+2:00. The arrows move at exactly the same speed — only the loop is shorter. Everything
+else on this page is unchanged except that the event times have to be re-placed on the
+shorter timeline, or dropped.
+
 ## The stack, back to front
 
 | # | Layer | Source | Runs |

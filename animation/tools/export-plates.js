@@ -19,6 +19,9 @@
  *
  * Options
  *   --speed S   speed multiple relative to the shipped field (default 1)
+ *   --short R   shorten the loop R times over at the shipped speed — the tile
+ *               grows to R x R base tiles and the travel per loop shrinks to
+ *               1/R, so the plate stays small and the motion is unchanged
  *   --loop T    loop length in seconds (default: the config's own duration)
  *   --out DIR   output directory (required)
  */
@@ -33,6 +36,7 @@ function arg(name, fallback) {
 
 (async () => {
   const speed = arg('speed', null);
+  const short = arg('short', null);
   const loop = arg('loop', null);
   const out = arg('out', null);
   if (!out) throw new Error('--out DIR is required');
@@ -42,6 +46,7 @@ function arg(name, fallback) {
 
   const query = ['event=0', 'alpha=0'];
   if (speed) query.push(`speed=${speed}`);
+  if (short) query.push(`short=${short}`);
   if (loop) query.push(`loop=${loop}`);
 
   const browser = await chromium.launch();
@@ -56,12 +61,16 @@ function arg(name, fallback) {
   // Read the geometry off the built page rather than recomputing it, so the
   // plates cannot drift from what the engine actually renders.
   const layers = await probe.evaluate(() =>
-    [...document.querySelectorAll('.af-ambient > *')].map((el) => {
+    [...document.querySelectorAll('.af-ambient > *')].map((el, i) => {
       const cs = getComputedStyle(el);
       const m = /url\("(.+)"\)/s.exec(cs.backgroundImage);
       const [bw, bh] = cs.backgroundSize.split(' ').map(parseFloat);
+      // Travel per loop is not the tile size once --short is in play, so it
+      // comes from the metrics the engine reports rather than being inferred.
+      const mx = window.metrics[i];
       return {
         url: m[1], tileW: bw, tileH: bh, opacity: Number(cs.opacity),
+        travelX: mx.travelX, travelY: mx.travelY,
         plateW: parseFloat(cs.width), plateH: parseFloat(cs.height),
         left: parseFloat(cs.left), top: parseFloat(cs.top),
       };
@@ -94,13 +103,14 @@ function arg(name, fallback) {
     // what Motion > Position takes, because the anchor point defaults to the
     // middle of the clip and entering top-left there shifts every plate left by
     // half its own width.
-    const topLeft = { start: [L.left, L.top], end: [L.left + L.tileW, L.top - L.tileH] };
+    const topLeft = { start: [L.left, L.top], end: [L.left + L.travelX, L.top - L.travelY] };
     const centre = {
       start: [topLeft.start[0] + L.plateW / 2, topLeft.start[1] + L.plateH / 2],
       end: [topLeft.end[0] + L.plateW / 2, topLeft.end[1] + L.plateH / 2],
     };
     meta.push({
       layer: n, tileW: L.tileW, tileH: L.tileH, opacity: L.opacity,
+      travelX: L.travelX, travelY: L.travelY,
       plateW: L.plateW, plateH: L.plateH, duration,
       topLeft, centre,
       tile: path.basename(tile), plate: path.basename(plate), tileBytes, plateBytes,
