@@ -1244,6 +1244,9 @@ if (params.get('speakers') === '0') {
 var stage = document.getElementById('stage');
 var field = mountArrowField(stage, config);
 window.metrics = field.metrics;
+// The effective duration, which ?speed= changes — CONFIG.duration is the
+// shipped 360 s and is the wrong number to seek or wrap against on a variant.
+window.duration = config.duration;
 window.transition = field.transition
   ? { times: field.transition.times, particles: field.transition.particles,
       markPoints: field.transition.markPoints }

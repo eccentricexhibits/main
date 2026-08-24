@@ -37,6 +37,8 @@
  *   --speakers 0   run the logo event without the speaker cards
  *   --ambient 0    drop the drifting tile layers, keeping only the logo event —
  *                  for exporting the formation as its own layer
+ *   --speed S      rebuild the field at S times the shipped speed
+ *   --loop T       loop length in seconds for --speed (default 120)
  *   --event 0      the mirror image: the drifting field with no logo event. Note
  *                  this is not the same as hiding the logo — mounting the event
  *                  also fades the ambient field out for the 33 s it owns, so an
@@ -82,6 +84,8 @@ function ffmpegPath() {
   const speakers = arg('speakers', '1') !== '0';
   const ambient = arg('ambient', '1') !== '0';
   const event = arg('event', '1') !== '0';
+  const speed = arg('speed', null);
+  const loop = arg('loop', null);
   const codec = String(arg('codec', alpha === null ? 'h264' : 'vp9'));
   const out = path.resolve(arg('out', path.join(__dirname, 'arrow-loop.mp4')));
 
@@ -102,6 +106,8 @@ function ffmpegPath() {
   if (!speakers) query.push('speakers=0');
   if (!ambient) query.push('ambient=0');
   if (!event) query.push('event=0');
+  if (speed) query.push(`speed=${speed}`);
+  if (loop) query.push(`loop=${loop}`);
   await page.goto(
     'file://' + path.join(__dirname, 'arrow-animation-render.html') +
       (query.length ? `?${query.join('&')}` : '')
@@ -121,7 +127,7 @@ function ffmpegPath() {
     )
   );
 
-  const duration = await page.evaluate(() => CONFIG.duration);
+  const duration = await page.evaluate(() => window.duration || CONFIG.duration);
   const from = seconds(arg('from', 0));
   const to = seconds(arg('to', duration));
   const total = Math.round((to - from) * fps);
