@@ -8,7 +8,8 @@ Premiere. `ASSEMBLY.md` is the instruction sheet; this page is the parts list.
 | Folder | What it is | Length | Size |
 | --- | --- | --- | --- |
 | `ambient-layer/` | The drifting arrows. Six plates + keyframes. | 6:00 loop | 7 MB |
-| `ambient-2min/` | The same arrows at the same speed, on a 2:00 loop | 2:00 loop | 3 MB |
+| `ambient-2min/1x/` | The same arrows at the same speed, on a 2:00 loop | 2:00 loop | 12 MB |
+| `ambient-2min/0.5x/` | The same arrows at half speed, on a 2:00 loop | 2:00 loop | 13 MB |
 | `logo-layer/` | The Vector logo formation. PNG sequence, 2,040 frames at 60 fps. | 0:34 | 753 MB |
 
 All full resolution (6878 × 1080) and transparent. The ambient folders are plates rather
@@ -30,18 +31,17 @@ Two pieces of the show are **not** here:
 Both are the same field at the same arrow speed. They differ only in loop length.
 
 - Making a **6-minute** piece → `ambient-layer/`
-- Making a **2-minute** piece (the venue cap) → `ambient-2min/`
+- Making a **2-minute** piece at the approved speed → `ambient-2min/1x/`
+- Making a **2-minute** piece at half speed → `ambient-2min/0.5x/`
 
 The build is identical either way — six plates, linear position keyframes, opacities as
 tabled — with the sequence length and the second keyframe time changed to match. Each
 folder's README carries its own Position table; the numbers differ between them, so use the
 table from the folder you are actually using.
 
-`ambient-2min/other-speeds/` holds four variants at 0.5x, 1x, 2x and 3x **arrow speed**,
-built when I misread a request as being about speed rather than file length. They are
-sound, but they change the motion, so ignore them unless you deliberately want faster or
-slower arrows. `3x/` is the approved field played three times as fast, and its plates are
-byte-identical to `ambient-layer/`.
+The earlier `ambient-2min/other-speeds/` set has been removed. It was built when I misread
+a request as being about arrow speed rather than file length, and its 1x and 0.5x members
+used shrunken tiles, which is the approach `ambient-2min/` now replaces.
 
 ## 3. Old test exports — safe to delete
 

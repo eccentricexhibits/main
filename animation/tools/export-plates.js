@@ -22,6 +22,9 @@
  *   --short R   shorten the loop R times over at the shipped speed — the tile
  *               grows to R x R base tiles and the travel per loop shrinks to
  *               1/R, so the plate stays small and the motion is unchanged
+ *   --rate S    with --secs T: arrows at S times the shipped speed on a T-second
+ *               loop. --short 3 is the same as --rate 1 --secs 120.
+ *   --secs T    loop length for --rate (default 120)
  *   --loop T    loop length in seconds (default: the config's own duration)
  *   --out DIR   output directory (required)
  */
@@ -37,6 +40,8 @@ function arg(name, fallback) {
 (async () => {
   const speed = arg('speed', null);
   const short = arg('short', null);
+  const rate = arg('rate', null);
+  const secs = arg('secs', null);
   const loop = arg('loop', null);
   const out = arg('out', null);
   if (!out) throw new Error('--out DIR is required');
@@ -47,6 +52,7 @@ function arg(name, fallback) {
   const query = ['event=0', 'alpha=0'];
   if (speed) query.push(`speed=${speed}`);
   if (short) query.push(`short=${short}`);
+  if (rate) query.push(`rate=${rate}&secs=${secs || 120}`);
   if (loop) query.push(`loop=${loop}`);
 
   const browser = await chromium.launch();

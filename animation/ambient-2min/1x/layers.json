@@ -1,0 +1,216 @@
+{
+  "speed": 1,
+  "duration": 120,
+  "layers": [
+    {
+      "layer": 1,
+      "tileW": 7362,
+      "tileH": 1828,
+      "opacity": 0.1,
+      "travelX": 180,
+      "travelY": 444,
+      "plateW": 7362,
+      "plateH": 1828,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -332,
+          -152
+        ],
+        "end": [
+          -152,
+          -596
+        ]
+      },
+      "centre": {
+        "start": [
+          3349,
+          762
+        ],
+        "end": [
+          3529,
+          318
+        ]
+      },
+      "tile": "layer1_tile_7362x1828.png",
+      "plate": "layer1_plate_7362x1828.png",
+      "tileBytes": 311780,
+      "plateBytes": 311780
+    },
+    {
+      "layer": 2,
+      "tileW": 7506,
+      "tileH": 2016,
+      "opacity": 0.16,
+      "travelX": 210,
+      "travelY": 518,
+      "plateW": 7506,
+      "plateH": 2016,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -419,
+          -209
+        ],
+        "end": [
+          -209,
+          -727
+        ]
+      },
+      "centre": {
+        "start": [
+          3334,
+          799
+        ],
+        "end": [
+          3544,
+          281
+        ]
+      },
+      "tile": "layer2_tile_7506x2016.png",
+      "plate": "layer2_plate_7506x2016.png",
+      "tileBytes": 736786,
+      "plateBytes": 736786
+    },
+    {
+      "layer": 3,
+      "tileW": 7687,
+      "tileH": 2263,
+      "opacity": 0.25,
+      "travelX": 255,
+      "travelY": 629,
+      "plateW": 7687,
+      "plateH": 2263,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -532,
+          -277
+        ],
+        "end": [
+          -277,
+          -906
+        ]
+      },
+      "centre": {
+        "start": [
+          3311.5,
+          854.5
+        ],
+        "end": [
+          3566.5,
+          225.5
+        ]
+      },
+      "tile": "layer3_tile_7687x2263.png",
+      "plate": "layer3_plate_7687x2263.png",
+      "tileBytes": 973467,
+      "plateBytes": 973467
+    },
+    {
+      "layer": 4,
+      "tileW": 7976,
+      "tileH": 2662,
+      "opacity": 0.42,
+      "travelX": 330,
+      "travelY": 814,
+      "plateW": 7976,
+      "plateH": 2662,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -714,
+          -384
+        ],
+        "end": [
+          -384,
+          -1198
+        ]
+      },
+      "centre": {
+        "start": [
+          3274,
+          947
+        ],
+        "end": [
+          3604,
+          133
+        ]
+      },
+      "tile": "layer4_tile_7976x2662.png",
+      "plate": "layer4_plate_7976x2662.png",
+      "tileBytes": 2059031,
+      "plateBytes": 2059031
+    },
+    {
+      "layer": 5,
+      "tileW": 8305,
+      "tileH": 3101,
+      "opacity": 0.68,
+      "travelX": 405,
+      "travelY": 999,
+      "plateW": 8305,
+      "plateH": 3101,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -916,
+          -511
+        ],
+        "end": [
+          -511,
+          -1510
+        ]
+      },
+      "centre": {
+        "start": [
+          3236.5,
+          1039.5
+        ],
+        "end": [
+          3641.5,
+          40.5
+        ]
+      },
+      "tile": "layer5_tile_8305x3101.png",
+      "plate": "layer5_plate_8305x3101.png",
+      "tileBytes": 2810095,
+      "plateBytes": 2810095
+    },
+    {
+      "layer": 6,
+      "tileW": 8690,
+      "tileH": 3552,
+      "opacity": 1,
+      "travelX": 450,
+      "travelY": 1110,
+      "plateW": 8690,
+      "plateH": 3552,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -1131,
+          -681
+        ],
+        "end": [
+          -681,
+          -1791
+        ]
+      },
+      "centre": {
+        "start": [
+          3214,
+          1095
+        ],
+        "end": [
+          3664,
+          -15
+        ]
+      },
+      "tile": "layer6_tile_8690x3552.png",
+      "plate": "layer6_plate_8690x3552.png",
+      "tileBytes": 3783009,
+      "plateBytes": 3783009
+    }
+  ]
+}

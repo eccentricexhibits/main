@@ -93,6 +93,14 @@ var short = params.get('short');
 if (short) {
   config = shortLoop(config, Number(short));
 }
+/*
+ * ?rate=S&secs=T is the general form: arrows at S times the shipped speed on a
+ * T-second loop. ?short=3 is the same as ?rate=1&secs=120.
+ */
+var rate = params.get('rate');
+if (rate) {
+  config = loopVariant(config, Number(rate), Number(params.get('secs') || 120));
+}
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {
   config = Object.assign({}, config, {

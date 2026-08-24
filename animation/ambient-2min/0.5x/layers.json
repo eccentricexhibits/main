@@ -1,0 +1,216 @@
+{
+  "speed": 1,
+  "duration": 120,
+  "layers": [
+    {
+      "layer": 1,
+      "tileW": 7272,
+      "tileH": 1606,
+      "opacity": 0.1,
+      "travelX": 90,
+      "travelY": 222,
+      "plateW": 7272,
+      "plateH": 1606,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -242,
+          -152
+        ],
+        "end": [
+          -152,
+          -374
+        ]
+      },
+      "centre": {
+        "start": [
+          3394,
+          651
+        ],
+        "end": [
+          3484,
+          429
+        ]
+      },
+      "tile": "layer1_tile_7272x1606.png",
+      "plate": "layer1_plate_7272x1606.png",
+      "tileBytes": 510915,
+      "plateBytes": 510915
+    },
+    {
+      "layer": 2,
+      "tileW": 7401,
+      "tileH": 1757,
+      "opacity": 0.16,
+      "travelX": 105,
+      "travelY": 259,
+      "plateW": 7401,
+      "plateH": 1757,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -314,
+          -209
+        ],
+        "end": [
+          -209,
+          -468
+        ]
+      },
+      "centre": {
+        "start": [
+          3386.5,
+          669.5
+        ],
+        "end": [
+          3491.5,
+          410.5
+        ]
+      },
+      "tile": "layer2_tile_7401x1757.png",
+      "plate": "layer2_plate_7401x1757.png",
+      "tileBytes": 1007077,
+      "plateBytes": 1007077
+    },
+    {
+      "layer": 3,
+      "tileW": 7552,
+      "tileH": 1930,
+      "opacity": 0.25,
+      "travelX": 120,
+      "travelY": 296,
+      "plateW": 7552,
+      "plateH": 1930,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -397,
+          -277
+        ],
+        "end": [
+          -277,
+          -573
+        ]
+      },
+      "centre": {
+        "start": [
+          3379,
+          688
+        ],
+        "end": [
+          3499,
+          392
+        ]
+      },
+      "tile": "layer3_tile_7552x1930.png",
+      "plate": "layer3_plate_7552x1930.png",
+      "tileBytes": 1448756,
+      "plateBytes": 1448756
+    },
+    {
+      "layer": 4,
+      "tileW": 7811,
+      "tileH": 2255,
+      "opacity": 0.42,
+      "travelX": 165,
+      "travelY": 407,
+      "plateW": 7811,
+      "plateH": 2255,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -549,
+          -384
+        ],
+        "end": [
+          -384,
+          -791
+        ]
+      },
+      "centre": {
+        "start": [
+          3356.5,
+          743.5
+        ],
+        "end": [
+          3521.5,
+          336.5
+        ]
+      },
+      "tile": "layer4_tile_7811x2255.png",
+      "plate": "layer4_plate_7811x2255.png",
+      "tileBytes": 2771409,
+      "plateBytes": 2771409
+    },
+    {
+      "layer": 5,
+      "tileW": 8095,
+      "tileH": 2583,
+      "opacity": 0.68,
+      "travelX": 195,
+      "travelY": 481,
+      "plateW": 8095,
+      "plateH": 2583,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -706,
+          -511
+        ],
+        "end": [
+          -511,
+          -992
+        ]
+      },
+      "centre": {
+        "start": [
+          3341.5,
+          780.5
+        ],
+        "end": [
+          3536.5,
+          299.5
+        ]
+      },
+      "tile": "layer5_tile_8095x2583.png",
+      "plate": "layer5_plate_8095x2583.png",
+      "tileBytes": 4080080,
+      "plateBytes": 4080080
+    },
+    {
+      "layer": 6,
+      "tileW": 8465,
+      "tileH": 2997,
+      "opacity": 1,
+      "travelX": 225,
+      "travelY": 555,
+      "plateW": 8465,
+      "plateH": 2997,
+      "duration": 120,
+      "topLeft": {
+        "start": [
+          -906,
+          -681
+        ],
+        "end": [
+          -681,
+          -1236
+        ]
+      },
+      "centre": {
+        "start": [
+          3326.5,
+          817.5
+        ],
+        "end": [
+          3551.5,
+          262.5
+        ]
+      },
+      "tile": "layer6_tile_8465x2997.png",
+      "plate": "layer6_plate_8465x2997.png",
+      "tileBytes": 5552804,
+      "plateBytes": 5552804
+    }
+  ]
+}
