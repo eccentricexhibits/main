@@ -73,6 +73,16 @@ if (params.get('ambient') === '0') {
 if (params.get('event') === '0') {
   config = Object.assign({}, config, { event: false });
 }
+/*
+ * ?speed=S&loop=T rebuilds the field to run S times as fast on a T-second loop
+ * (default 120, the venue's cap). Tile size is not a free choice here: loop
+ * distance is speed x duration and the field only repeats after one tile, so
+ * the tiles scale with speed and the arrow count with their area.
+ */
+var speed = params.get('speed');
+if (speed) {
+  config = speedVariant(config, Number(speed), Number(params.get('loop') || 120));
+}
 // ?speakers=0 mounts the logo event without the speaker cards.
 if (params.get('speakers') === '0') {
   config = Object.assign({}, config, {

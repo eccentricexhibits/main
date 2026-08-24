@@ -207,9 +207,15 @@ function buildTile(layer, index, cfg) {
     // Anchor on the arrow's own centre; the sprite reaches further than that.
     const x0 = p.x - (ARROW.w * scale) / 2;
     const y0 = p.y - (ARROW.h * scale) / 2;
-    // Repeat across tile edges so an arrow straddling a seam is drawn on both sides.
-    for (let i = -1; i <= 1; i++) {
-      for (let j = -1; j <= 1; j++) {
+    // Repeat across tile edges so an arrow straddling a seam is drawn on both
+    // sides. One tile of wrap is enough while the sprite is smaller than the
+    // tile; on the short-loop variants it is not, so the reach is computed
+    // rather than assumed — a sprite three tiles wide has to be drawn three
+    // tiles either way or it comes back clipped at the seam.
+    const reachX = Math.ceil((sprite.w * scale) / layer.tileW) + 1;
+    const reachY = Math.ceil((sprite.h * scale) / tileH) + 1;
+    for (let i = -reachX; i <= reachX; i++) {
+      for (let j = -reachY; j <= reachY; j++) {
         const x = x0 + i * layer.tileW;
         const y = y0 + j * tileH;
         const left = x + sprite.x * scale;
@@ -388,9 +394,41 @@ function mountArrowField(stage, cfg = CONFIG) {
   return { metrics, ambient, transition };
 }
 
+/**
+ * The same field on a shorter loop at a different speed.
+ *
+ * The one thing that is not free to choose: **loop distance is speed times
+ * duration**, and the field only lands back on itself after travelling exactly
+ * one tile. So once the loop length is fixed, tile size is forced — it scales
+ * with speed. A 2-minute loop at today's speed needs tiles a third of today's
+ * size, and a third of the width is a ninth of the area, so each tile holds a
+ * ninth of the arrows. That is what limits how slow a short loop can go: below
+ * about two arrows per tile the placement stops reading as scattered and starts
+ * reading as a lattice, however good the arrows themselves are.
+ *
+ * Tile widths stay multiples of 15 because tileH = tileW x 37/15 has to land on
+ * a whole pixel — a fractional tile shows seams where the background repeats.
+ */
+function speedVariant(cfg, speed, duration) {
+  const ratio = (speed * duration) / cfg.duration;
+  const layers = cfg.layers.map((l) => {
+    const tileW = Math.max(15, Math.round((l.tileW * ratio) / 15) * 15);
+    const area = (tileW / l.tileW) ** 2;
+    return Object.assign({}, l, {
+      tileW,
+      count: Math.max(1, Math.round(l.count * area)),
+    });
+  });
+  // The logo event is keyed to absolute times inside a 360 s loop; it cannot be
+  // squeezed into a shorter one, so a short-loop variant is ambient only.
+  const fits = cfg.transition && duration > cfg.transition.at + 40;
+  return Object.assign({}, cfg, { duration, layers, event: fits ? cfg.event : false });
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     CONFIG,
+    speedVariant,
     ARROW,
     RISE,
     RUN,
