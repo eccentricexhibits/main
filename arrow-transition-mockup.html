@@ -125,6 +125,17 @@
     left: 0;
     top: 0;
     display: block;
+    overflow: visible;
+  }
+  .arrow.glow {
+    filter: drop-shadow(0 0 26px rgba(127, 141, 229, 0.5));
+  }
+
+  .streak {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
   }
 
   /* ---------- control bar ---------- */
@@ -170,11 +181,41 @@
     gap: 12px;
     min-width: 240px;
   }
-  input[type="range"] {
+  .scrub-track {
     flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  input[type="range"] {
+    width: 100%;
     accent-color: var(--purple);
     height: 4px;
     cursor: pointer;
+  }
+  .cover-tick {
+    position: absolute;
+    left: 50%;
+    top: -9px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--cyan);
+    pointer-events: none;
+  }
+  .cover-tick::after {
+    content: 'cover';
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
   }
   .timecode {
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -224,10 +265,11 @@
   <h1>Diagonal Arrow Transition<span class="dot">.</span></h1>
   <div class="specs">
     <span><b>6878 × 1080</b> px</span>
-    <span><b>10.00</b> s</span>
+    <span><b>6.00</b> s</span>
     <span><b>67.93°</b> / slope +2.467</span>
     <span><b>#B659F0 → #48C0D9</b></span>
     <span>transparent background</span>
+    <span>full cover @ <b>3.00 s</b></span>
     <span id="arrowCount"></span>
   </div>
   <span class="draft-tag">Web mock-up</span>
@@ -255,10 +297,14 @@
 <div class="controls">
   <button class="primary" id="playBtn">Pause</button>
   <button id="restartBtn">Restart</button>
+  <button id="coverBtn" title="Jump to the fully-covered frame (3.00 s)">Cover frame</button>
   <label class="check"><input type="checkbox" id="loopChk" checked> Loop</label>
   <div class="scrub-wrap">
-    <input type="range" id="scrub" min="0" max="10000" step="10" value="0" aria-label="Timeline scrubber">
-    <span class="timecode"><b id="tcNow">0.00</b> / 10.00 s</span>
+    <div class="scrub-track">
+      <input type="range" id="scrub" min="0" max="6000" step="10" value="0" aria-label="Timeline scrubber">
+      <div class="cover-tick" aria-hidden="true"></div>
+    </div>
+    <span class="timecode"><b id="tcNow">0.00</b> / 6.00 s</span>
   </div>
   <div class="select-group">
     <span>Backdrop</span>
@@ -285,7 +331,8 @@
 
   // ---------- constants ----------
   var CW = 6878, CH = 1080;          // canvas size
-  var T = 10000;                     // timeline length, ms
+  var T = 6000;                      // timeline length, ms
+  var PEAK = 3000;                   // full-cover moment, ms
   var ANGLE = 67.93 * Math.PI / 180; // travel angle above horizontal
   var UX = Math.cos(ANGLE);          // 0.37575  (rightward)
   var UY = -Math.sin(ANGLE);         // -0.92672 (upward, screen coords)
@@ -300,11 +347,11 @@
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
 
-  // ---------- layer recipes: dense back, mid, bold front ----------
+  // ---------- layer recipes: wide size spread per layer ----------
   var LAYERS = [
-    { sx: 220, sy: 230, h: 260, hj: 55,  opMin: 0.16, opMax: 0.34, z: 1 },
-    { sx: 305, sy: 375, h: 440, hj: 75,  opMin: 0.42, opMax: 0.68, z: 2 },
-    { sx: 395, sy: 515, h: 640, hj: 100, opMin: 0.78, opMax: 1.00, z: 3 }
+    { sx: 200, sy: 210, hMin: 150, hMax: 380, opMin: 0.16, opMax: 0.34, z: 1, glow: false },
+    { sx: 290, sy: 350, hMin: 300, hMax: 620, opMin: 0.42, opMax: 0.68, z: 3, glow: false },
+    { sx: 380, sy: 480, hMin: 480, hMax: 880, opMin: 0.78, opMax: 1.00, z: 4, glow: true }
   ];
 
   var canvas = document.getElementById('canvas');
@@ -314,14 +361,16 @@
   var easeOut = 'cubic-bezier(0.62, 0.03, 0.9, 0.34)'; // accelerating exit
   var count = 0;
 
-  function tf(x, y) { return 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)'; }
+  function tf(x, y, s) {
+    return 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scale(' + s + ')';
+  }
 
   LAYERS.forEach(function (L) {
     var row = 0;
-    for (var y = -L.sy - 120; y < CH + 80; y += L.sy, row++) {
+    for (var y = -L.sy - 500; y < CH + 80; y += L.sy, row++) {
       var xOffset = (row % 2) * L.sx / 2;  // brick-stagger alternate rows
       for (var x = -320 + xOffset; x < CW + 320; x += L.sx) {
-        var h = L.h + (rand() * 2 - 1) * L.hj;
+        var h = L.hMin + rand() * (L.hMax - L.hMin);
         var w = h * AR;
         var px = x + (rand() * 2 - 1) * L.sx * 0.22;
         var py = y + (rand() * 2 - 1) * L.sy * 0.22;
@@ -331,40 +380,52 @@
         var p = (px * UX + (CH - py) * -UY) / (CW * UX + 2 * CH * -UY);
         p = Math.min(1, Math.max(0, p));
 
-        var delay = p * 1600 + rand() * 700;         // <= 2300
-        var durIn = 1400 + rand() * 800;             // landed <= 4500
-        var exitStart = 6000 + p * 1400 + rand() * 600;
-        var durOut = Math.min(1500 + rand() * 900, T - 100 - exitStart); // gone <= 9900
-        var drift = 50 + rand() * 90;                // slow slide while covering
+        var delay = p * 1000 + rand() * 500;              // <= 1500
+        var durIn = 900 + rand() * 600;                   // landed <= 3000
+        var tLand = delay + durIn;
+        var tExit = 3200 + p * 800 + rand() * 400;        // 3200..4400
+        var durOut = Math.min(1000 + rand() * 600, T - 100 - tExit);
+        var tGone = tExit + durOut;                       // <= 5900
 
-        var dIn = (CH - py) / -UY + 180 + rand() * 260;   // start fully below frame
-        var dOut = (py + h) / -UY + 180 + rand() * 260;   // end fully above frame
+        // never park: drift through the grid slot, exactly on it at PEAK
+        var v = 0.04 + rand() * 0.06;                     // px per ms
+        var preX = px - UX * v * (PEAK - tLand),  preY = py - UY * v * (PEAK - tLand);
+        var postX = px + UX * v * (tExit - PEAK), postY = py + UY * v * (tExit - PEAK);
+
+        var dIn = (CH - preY) / -UY + 180 + rand() * 260;    // start fully below frame
+        var dOut = (postY + h) / -UY + 180 + rand() * 260;   // end fully above frame
 
         var el = document.createElementNS(svgNS, 'svg');
-        el.setAttribute('class', 'arrow');
+        el.setAttribute('class', 'arrow' + (L.glow ? ' glow' : ''));
         el.setAttribute('viewBox', '0 0 422.98 600');
         el.setAttribute('width', w.toFixed(1));
         el.setAttribute('height', h.toFixed(1));
         el.style.opacity = op.toFixed(2);
         el.style.zIndex = L.z;
+
+        // motion-trail echoes behind the arrow, along the travel axis
+        var trailOp = [0.05, 0.13, 0.28];
+        for (var k = 3; k >= 1; k--) {
+          var echo = document.createElementNS(svgNS, 'use');
+          echo.setAttribute('href', '#arrowShape');
+          echo.setAttribute('transform',
+            'translate(' + (-UX * 115 * k).toFixed(1) + ' ' + (-UY * 115 * k).toFixed(1) + ')');
+          echo.setAttribute('opacity', trailOp[k - 1]);
+          el.appendChild(echo);
+        }
         var use = document.createElementNS(svgNS, 'use');
         use.setAttribute('href', '#arrowShape');
         el.appendChild(use);
         canvas.appendChild(el);
         count++;
 
-        var start = tf(px - UX * dIn, py - UY * dIn);
-        var at = tf(px, py);
-        var drifted = tf(px + UX * drift, py + UY * drift);
-        var end = tf(px + UX * (drift + dOut), py + UY * (drift + dOut));
-
         var anim = el.animate([
-          { offset: 0,                        transform: start,   easing: 'linear' },
-          { offset: delay / T,                transform: start,   easing: easeIn },
-          { offset: (delay + durIn) / T,      transform: at,      easing: 'linear' },
-          { offset: exitStart / T,            transform: drifted, easing: easeOut },
-          { offset: (exitStart + durOut) / T, transform: end,     easing: 'linear' },
-          { offset: 1,                        transform: end }
+          { offset: 0,         transform: tf(preX - UX * dIn, preY - UY * dIn, 0.82), easing: 'linear' },
+          { offset: delay / T, transform: tf(preX - UX * dIn, preY - UY * dIn, 0.82), easing: easeIn },
+          { offset: tLand / T, transform: tf(preX, preY, 1), easing: 'linear' },
+          { offset: tExit / T, transform: tf(postX, postY, 1), easing: easeOut },
+          { offset: tGone / T, transform: tf(postX + UX * dOut, postY + UY * dOut, 1.06), easing: 'linear' },
+          { offset: 1,         transform: tf(postX + UX * dOut, postY + UY * dOut, 1.06) }
         ], { duration: T, fill: 'both' });
         anim.pause();
         anim.currentTime = 0;
@@ -373,11 +434,58 @@
     }
   });
 
+  // ---------- gradient speed streaks along the same slope ----------
+  var STREAK_COLORS = ['#b659f0', '#48c0d9', '#7f8de5'];
+  var DEG = -67.93;
+  for (var i = 0; i < 70; i++) {
+    var front = i >= 45;                          // last 25 fly over the arrows
+    var len = 250 + rand() * 650;
+    var th = 2 + rand() * 5;
+    var sOp = front ? 0.1 + rand() * 0.2 : 0.14 + rand() * 0.26;
+    var col = STREAK_COLORS[Math.floor(rand() * 3)];
+    var Px = -300 + rand() * (CW + 500);
+    var Py = rand() * CH;
+    var d1 = (CH - Py) / -UY + 300;
+    var d2 = (Py + 100) / -UY + 300;
+    var ts = rand() * 2500;
+    var te = Math.min(ts + 1800 + rand() * 1600, T - 100);
+    var fade = (te - ts) * 0.18;
+
+    var st = document.createElement('div');
+    st.className = 'streak';
+    st.style.width = len.toFixed(0) + 'px';
+    st.style.height = th.toFixed(1) + 'px';
+    st.style.borderRadius = th + 'px';
+    st.style.zIndex = front ? 5 : 2;
+    st.style.background = 'linear-gradient(90deg, transparent, ' + col + ' 35%, ' + col + ' 65%, transparent)';
+    st.style.boxShadow = '0 0 10px ' + col + '55';
+    canvas.appendChild(st);
+
+    var span = d1 + d2;
+    function sTf(f) {
+      var s = -d1 + span * f;
+      return 'translate3d(' + (Px + UX * s).toFixed(1) + 'px,' + (Py + UY * s).toFixed(1) + 'px,0) rotate(' + DEG + 'deg)';
+    }
+    var w = te - ts;
+    var sAnim = st.animate([
+      { offset: 0,                  transform: sTf(0), opacity: 0, easing: 'linear' },
+      { offset: ts / T,             transform: sTf(0), opacity: 0, easing: 'linear' },
+      { offset: (ts + fade) / T,    transform: sTf(fade / w), opacity: sOp, easing: 'linear' },
+      { offset: (te - fade) / T,    transform: sTf(1 - fade / w), opacity: sOp, easing: 'linear' },
+      { offset: te / T,             transform: sTf(1), opacity: 0, easing: 'linear' },
+      { offset: 1,                  transform: sTf(1), opacity: 0 }
+    ], { duration: T, fill: 'both' });
+    sAnim.pause();
+    sAnim.currentTime = 0;
+    anims.push(sAnim);
+  }
+
   document.getElementById('arrowCount').innerHTML = '<b>' + count + '</b> arrows';
 
   // ---------- transport ----------
   var playBtn = document.getElementById('playBtn');
   var restartBtn = document.getElementById('restartBtn');
+  var coverBtn = document.getElementById('coverBtn');
   var loopChk = document.getElementById('loopChk');
   var scrub = document.getElementById('scrub');
   var tcNow = document.getElementById('tcNow');
@@ -404,6 +512,7 @@
 
   playBtn.addEventListener('click', function () { playing ? pause() : play(); });
   restartBtn.addEventListener('click', function () { setAll(0); if (!playing) play(); });
+  coverBtn.addEventListener('click', function () { pause(); setAll(PEAK); });
 
   scrub.addEventListener('pointerdown', function () {
     scrubbing = true;
@@ -461,7 +570,7 @@
 
   // ---------- start ----------
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    setAll(5000);  // show the fully-covered frame, paused
+    setAll(PEAK);  // show the fully-covered frame, paused
     pause();
   } else {
     play();
