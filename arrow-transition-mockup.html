@@ -130,13 +130,17 @@
   .arrow.glow {
     filter: drop-shadow(0 0 26px rgba(127, 141, 229, 0.5));
   }
+  .arrow.ghost {
+    filter: blur(4px);
+  }
 
-  .streak {
+  .streak, .spark, .sweep {
     position: absolute;
     left: 0;
     top: 0;
     opacity: 0;
   }
+  .spark { border-radius: 50%; }
 
   /* ---------- control bar ---------- */
   .controls {
@@ -347,22 +351,47 @@
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
 
-  // ---------- layer recipes: wide size spread per layer ----------
+  // ---------- layer recipes: fine dust layer up to bold foreground ----------
   var LAYERS = [
-    { sx: 200, sy: 210, hMin: 150, hMax: 380, opMin: 0.16, opMax: 0.34, z: 1, glow: false },
-    { sx: 290, sy: 350, hMin: 300, hMax: 620, opMin: 0.42, opMax: 0.68, z: 3, glow: false },
-    { sx: 380, sy: 480, hMin: 480, hMax: 880, opMin: 0.78, opMax: 1.00, z: 4, glow: true }
+    { sx: 150, sy: 160, hMin: 70,  hMax: 170, opMin: 0.10, opMax: 0.22, z: 1, glow: false, trails: 1 },
+    { sx: 175, sy: 185, hMin: 150, hMax: 380, opMin: 0.16, opMax: 0.34, z: 2, glow: false, trails: 2 },
+    { sx: 240, sy: 290, hMin: 300, hMax: 640, opMin: 0.42, opMax: 0.68, z: 3, glow: false, trails: 3 },
+    { sx: 330, sy: 410, hMin: 480, hMax: 900, opMin: 0.78, opMax: 1.00, z: 4, glow: true,  trails: 3 }
   ];
 
   var canvas = document.getElementById('canvas');
   var svgNS = 'http://www.w3.org/2000/svg';
   var anims = [];
-  var easeIn = 'cubic-bezier(0.16, 0.84, 0.28, 1)';   // decelerating arrival
-  var easeOut = 'cubic-bezier(0.62, 0.03, 0.9, 0.34)'; // accelerating exit
+  var easeIn = 'cubic-bezier(0.25, 0.7, 0.45, 0.98)';   // decelerating arrival, never flat
+  var easeOut = 'cubic-bezier(0.62, 0.03, 0.9, 0.34)';  // accelerating exit
   var count = 0;
+  var TRAIL_OP = [0.28, 0.13, 0.05];  // nearest echo strongest
 
   function tf(x, y, s) {
     return 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scale(' + s + ')';
+  }
+
+  function makeArrow(cls, w, h, op, z, trails) {
+    var el = document.createElementNS(svgNS, 'svg');
+    el.setAttribute('class', cls);
+    el.setAttribute('viewBox', '0 0 422.98 600');
+    el.setAttribute('width', w.toFixed(1));
+    el.setAttribute('height', h.toFixed(1));
+    el.style.opacity = op.toFixed(2);
+    el.style.zIndex = z;
+    for (var k = trails; k >= 1; k--) {
+      var echo = document.createElementNS(svgNS, 'use');
+      echo.setAttribute('href', '#arrowShape');
+      echo.setAttribute('transform',
+        'translate(' + (-UX * 115 * k).toFixed(1) + ' ' + (-UY * 115 * k).toFixed(1) + ')');
+      echo.setAttribute('opacity', TRAIL_OP[k - 1]);
+      el.appendChild(echo);
+    }
+    var use = document.createElementNS(svgNS, 'use');
+    use.setAttribute('href', '#arrowShape');
+    el.appendChild(use);
+    canvas.appendChild(el);
+    return el;
   }
 
   LAYERS.forEach(function (L) {
@@ -380,43 +409,22 @@
         var p = (px * UX + (CH - py) * -UY) / (CW * UX + 2 * CH * -UY);
         p = Math.min(1, Math.max(0, p));
 
-        var delay = p * 1000 + rand() * 500;              // <= 1500
-        var durIn = 900 + rand() * 600;                   // landed <= 3000
+        var delay = p * 1000 + rand() * 600;              // <= 1600
+        var durIn = 800 + rand() * 600;                   // landed <= 3000
         var tLand = delay + durIn;
         var tExit = 3200 + p * 800 + rand() * 400;        // 3200..4400
-        var durOut = Math.min(1000 + rand() * 600, T - 100 - tExit);
+        var durOut = Math.min(900 + rand() * 600, T - 100 - tExit);
         var tGone = tExit + durOut;                       // <= 5900
 
-        // never park: drift through the grid slot, exactly on it at PEAK
-        var v = 0.04 + rand() * 0.06;                     // px per ms
+        // never stop: stream through the grid slot, exactly on it at PEAK
+        var v = 0.16 + rand() * 0.18;                     // px per ms (160-340 px/s)
         var preX = px - UX * v * (PEAK - tLand),  preY = py - UY * v * (PEAK - tLand);
         var postX = px + UX * v * (tExit - PEAK), postY = py + UY * v * (tExit - PEAK);
 
         var dIn = (CH - preY) / -UY + 180 + rand() * 260;    // start fully below frame
         var dOut = (postY + h) / -UY + 180 + rand() * 260;   // end fully above frame
 
-        var el = document.createElementNS(svgNS, 'svg');
-        el.setAttribute('class', 'arrow' + (L.glow ? ' glow' : ''));
-        el.setAttribute('viewBox', '0 0 422.98 600');
-        el.setAttribute('width', w.toFixed(1));
-        el.setAttribute('height', h.toFixed(1));
-        el.style.opacity = op.toFixed(2);
-        el.style.zIndex = L.z;
-
-        // motion-trail echoes behind the arrow, along the travel axis
-        var trailOp = [0.05, 0.13, 0.28];
-        for (var k = 3; k >= 1; k--) {
-          var echo = document.createElementNS(svgNS, 'use');
-          echo.setAttribute('href', '#arrowShape');
-          echo.setAttribute('transform',
-            'translate(' + (-UX * 115 * k).toFixed(1) + ' ' + (-UY * 115 * k).toFixed(1) + ')');
-          echo.setAttribute('opacity', trailOp[k - 1]);
-          el.appendChild(echo);
-        }
-        var use = document.createElementNS(svgNS, 'use');
-        use.setAttribute('href', '#arrowShape');
-        el.appendChild(use);
-        canvas.appendChild(el);
+        var el = makeArrow('arrow' + (L.glow ? ' glow' : ''), w, h, op, L.z, L.trails);
         count++;
 
         var anim = el.animate([
@@ -434,22 +442,47 @@
     }
   });
 
-  // ---------- gradient speed streaks along the same slope ----------
+  // ---------- shared helper: straight run along the slope over [ts, te] ----------
+  function runPath(el, Px, Py, d1, d2, ts, te, opPeak, flicker, extraTf) {
+    var span = d1 + d2;
+    var w = te - ts;
+    var fade = w * 0.18;
+    function pos(f) {
+      var s = -d1 + span * f;
+      return 'translate3d(' + (Px + UX * s).toFixed(1) + 'px,' + (Py + UY * s).toFixed(1) + 'px,0)' + (extraTf || '');
+    }
+    var frames = [
+      { offset: 0,               transform: pos(0), opacity: 0, easing: 'linear' },
+      { offset: ts / T,          transform: pos(0), opacity: 0, easing: 'linear' },
+      { offset: (ts + fade) / T, opacity: opPeak, easing: 'linear' }
+    ];
+    if (flicker) {
+      frames.push({ offset: (ts + w * 0.38) / T, opacity: opPeak * 0.3, easing: 'linear' });
+      frames.push({ offset: (ts + w * 0.58) / T, opacity: opPeak, easing: 'linear' });
+      frames.push({ offset: (ts + w * 0.78) / T, opacity: opPeak * 0.25, easing: 'linear' });
+    }
+    frames.push({ offset: (te - fade) / T, opacity: flicker ? opPeak * 0.8 : opPeak, easing: 'linear' });
+    frames.push({ offset: te / T, transform: pos(1), opacity: 0, easing: 'linear' });
+    frames.push({ offset: 1, transform: pos(1), opacity: 0 });
+    var a = el.animate(frames, { duration: T, fill: 'both' });
+    a.pause();
+    a.currentTime = 0;
+    anims.push(a);
+  }
+
+  // ---------- gradient speed streaks along the slope ----------
   var STREAK_COLORS = ['#b659f0', '#48c0d9', '#7f8de5'];
   var DEG = -67.93;
-  for (var i = 0; i < 70; i++) {
-    var front = i >= 45;                          // last 25 fly over the arrows
+  for (var i = 0; i < 120; i++) {
+    var front = i >= 75;                          // last 45 fly over the arrows
     var len = 250 + rand() * 650;
     var th = 2 + rand() * 5;
     var sOp = front ? 0.1 + rand() * 0.2 : 0.14 + rand() * 0.26;
     var col = STREAK_COLORS[Math.floor(rand() * 3)];
     var Px = -300 + rand() * (CW + 500);
     var Py = rand() * CH;
-    var d1 = (CH - Py) / -UY + 300;
-    var d2 = (Py + 100) / -UY + 300;
-    var ts = rand() * 2500;
-    var te = Math.min(ts + 1800 + rand() * 1600, T - 100);
-    var fade = (te - ts) * 0.18;
+    var ts = rand() * 3400;
+    var te = Math.min(ts + 1500 + rand() * 1600, T - 100);
 
     var st = document.createElement('div');
     st.className = 'streak';
@@ -461,24 +494,81 @@
     st.style.boxShadow = '0 0 10px ' + col + '55';
     canvas.appendChild(st);
 
-    var span = d1 + d2;
-    function sTf(f) {
-      var s = -d1 + span * f;
-      return 'translate3d(' + (Px + UX * s).toFixed(1) + 'px,' + (Py + UY * s).toFixed(1) + 'px,0) rotate(' + DEG + 'deg)';
-    }
-    var w = te - ts;
-    var sAnim = st.animate([
-      { offset: 0,                  transform: sTf(0), opacity: 0, easing: 'linear' },
-      { offset: ts / T,             transform: sTf(0), opacity: 0, easing: 'linear' },
-      { offset: (ts + fade) / T,    transform: sTf(fade / w), opacity: sOp, easing: 'linear' },
-      { offset: (te - fade) / T,    transform: sTf(1 - fade / w), opacity: sOp, easing: 'linear' },
-      { offset: te / T,             transform: sTf(1), opacity: 0, easing: 'linear' },
-      { offset: 1,                  transform: sTf(1), opacity: 0 }
-    ], { duration: T, fill: 'both' });
-    sAnim.pause();
-    sAnim.currentTime = 0;
-    anims.push(sAnim);
+    runPath(st, Px, Py,
+      (CH - Py) / -UY + 300, (Py + 100) / -UY + 300,
+      ts, te, sOp, false, ' rotate(' + DEG + 'deg)');
   }
+
+  // ---------- sparkle particles: glowing motes with flicker ----------
+  var SPARK_COLORS = ['#b659f0', '#48c0d9', '#dff6ff'];
+  for (var i = 0; i < 150; i++) {
+    var sz = 3 + rand() * 7;
+    var col = SPARK_COLORS[Math.floor(rand() * 3)];
+    var Px = -200 + rand() * (CW + 400);
+    var Py = rand() * CH;
+    var ts = rand() * 3600;
+    var te = Math.min(ts + 1300 + rand() * 1800, T - 100);
+
+    var sp = document.createElement('div');
+    sp.className = 'spark';
+    sp.style.width = sz.toFixed(1) + 'px';
+    sp.style.height = sz.toFixed(1) + 'px';
+    sp.style.zIndex = 5;
+    sp.style.background = 'radial-gradient(circle, ' + col + ', transparent 70%)';
+    sp.style.boxShadow = '0 0 ' + (sz * 2).toFixed(0) + 'px ' + col + '88';
+    canvas.appendChild(sp);
+
+    runPath(sp, Px, Py,
+      (CH - Py) / -UY + 200, (Py + 60) / -UY + 200,
+      ts, te, 0.35 + rand() * 0.55, true, '');
+  }
+
+  // ---------- giant blurred ghost arrows: fast foreground parallax ----------
+  for (var i = 0; i < 10; i++) {
+    var h = 1100 + rand() * 500;
+    var w = h * AR;
+    var op = 0.05 + rand() * 0.07;
+    var Px = -600 + rand() * (CW + 400);
+    var Py = rand() * CH - h / 2;
+    var ts = 300 + rand() * 3000;
+    var te = Math.min(ts + 1400 + rand() * 1200, T - 100);
+
+    var g = makeArrow('arrow ghost', w, h, 1, 6, 0);
+    g.style.opacity = '';  // opacity is animated, not static
+    count++;
+
+    runPath(g, Px, Py,
+      (CH - Py) / -UY + 400, (Py + h) / -UY + 400,
+      ts, te, op, false, '');
+  }
+
+  // ---------- light sweep crossing the frame at the cover moment ----------
+  (function () {
+    var sw = document.createElement('div');
+    sw.className = 'sweep';
+    sw.style.width = '9000px';
+    sw.style.height = '600px';
+    sw.style.zIndex = 7;
+    sw.style.background =
+      'linear-gradient(180deg, transparent, rgba(223,246,255,0.13) 35%, rgba(182,89,240,0.10) 50%, rgba(72,192,217,0.13) 65%, transparent)';
+    sw.style.transformOrigin = '50% 50%';
+    canvas.appendChild(sw);
+
+    var cx = CW / 2 - 4500, cy = CH / 2 - 300;  // centered band, pre-rotation
+    function pos(s) {
+      return 'translate3d(' + (cx + UX * s).toFixed(1) + 'px,' + (cy + UY * s).toFixed(1) + 'px,0) rotate(22.07deg)';
+    }
+    var a = sw.animate([
+      { offset: 0,          transform: pos(-1400), opacity: 0, easing: 'linear' },
+      { offset: 2500 / T,   transform: pos(-1400), opacity: 0, easing: 'linear' },
+      { offset: 3000 / T,   transform: pos(0), opacity: 0.9, easing: 'linear' },
+      { offset: 3600 / T,   transform: pos(1400), opacity: 0, easing: 'linear' },
+      { offset: 1,          transform: pos(1400), opacity: 0 }
+    ], { duration: T, fill: 'both' });
+    a.pause();
+    a.currentTime = 0;
+    anims.push(a);
+  })();
 
   document.getElementById('arrowCount').innerHTML = '<b>' + count + '</b> arrows';
 
