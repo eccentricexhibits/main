@@ -1,0 +1,1005 @@
+<!-- wp:paragraph {"fontSize":"large"} -->
+<p class="has-large-font-size">Leveraging structured knowledge to improve accuracy and relevance in retrieval augmented generation systems.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size">By <a href="https://github.com/a-kore" target="_blank" rel="noreferrer noopener">Ali Kore</a> and <a href="https://github.com/amrit110" target="_blank" rel="noreferrer noopener">Amrit Krishnan</a>, <a href="https://vectorinstitute.ai" target="_blank" rel="noreferrer noopener">Vector Institute</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading {"level":2,"anchor":"contents"} -->
+<h2 class="wp-block-heading" id="contents">Contents</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#introduction">Introduction</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#challenges">The Challenges of Traditional RAG</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#knowledge-graphs">Knowledge Graphs: A Structural Solution</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#alternative-approaches">Alternative RAG Enhancement Approaches</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#rag-architecture">RAG Architecture Overview</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#rag-components">Key Components</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#baseline-rag">Baseline RAG Implementation</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#baseline-workflow">Workflow</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#baseline-limitations">Limitations</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#kg-rag">Knowledge Graph-Based RAG</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#kg-generation">Knowledge Graph Generation</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#entity-based-approach">Entity-Based Approach</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#interactive-visualization">Interactive Visualization</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#kg-rag-advantages">Advantages</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#kg-rag-challenges">Challenges and Limitations</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#dataset-evaluation">SEC 10-Q Dataset &amp; Evaluation</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#dataset-overview">Dataset Overview</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#evaluation-methodology">Evaluation Methodology</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#performance-results">Performance Results</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#other-approaches">Other KG-RAG Approaches</a>
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#cypher-based">Cypher-Based KG-RAG</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#graphrag">GraphRAG</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#conclusion">Conclusion and Future Directions</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#references">References</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading {"anchor":"introduction"} -->
+<h2 class="wp-block-heading" id="introduction">Introduction</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Retrieval Augmented Generation (RAG) systems have revolutionized how large language models (LLMs) access and utilize external knowledge. By retrieving relevant information from a knowledge base before generating responses, RAG enables LLMs to provide more accurate, up-to-date, and verifiable answers. As shown in Figure 1, a RAG system consists of three essential components: a Retriever that identifies relevant information, a Knowledge Store that maintains the indexed document repository, and a Generator (typically an LLM) that synthesizes the retrieved context with the user's query to produce a comprehensive response. However, traditional RAG systems face significant challenges when dealing with complex information structures.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","width":"700px","sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="https://d3ddy8balm3goa.cloudfront.net/vector-ai-pocket-refs/nlp/rag-components.excalidraw.svg" alt="Components of RAG: Retriever, Knowledge Store, and Generator" style="width:700px"/><figcaption class="wp-block-image__caption">Figure 1: Components of a RAG system: Retriever, Knowledge Store, and Generator <sup><a href="#ref-1">[1]</a></sup></figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3,"anchor":"challenges"} -->
+<h3 class="wp-block-heading" id="challenges">The Challenges of Traditional RAG</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Standard RAG implementations rely primarily on vector similarity search, treating documents as collections of independent chunks with limited contextual relationships. While effective for simple question answering, this approach struggles with:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Connecting Related Information:</strong> When relevant information is spread across multiple documents or sections</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Understanding Complex Relationships:</strong> Between entities mentioned in different contexts</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Multi-hop Reasoning:</strong> Questions that require synthesizing facts from multiple sources</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Preserving Structural Information:</strong> Important relationships that exist in the original documents</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>For example, when answering questions about financial data, a traditional RAG system might retrieve document chunks containing relevant numbers but may miss crucial context about which fiscal periods, products, or business segments they relate to. This is particularly relevant for standardized financial documentation with highly correlated chunks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"knowledge-graphs"} -->
+<h3 class="wp-block-heading" id="knowledge-graphs">Knowledge Graphs: A Structural Solution</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Knowledge graphs provide a natural solution to these challenges by explicitly modeling entities and their relationships. By representing documents as interconnected nodes and edges rather than isolated chunks, knowledge graph-based RAG systems can:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<figure style="margin:0 0 1.5rem;">
+<iframe src="https://vectorinstitute.github.io/kg-rag/diagrams/kg_figure.html" title="Interactive knowledge graph visualization" width="100%" height="500" loading="lazy" style="border:0;border-radius:6px;display:block;width:100%;"></iframe>
+<figcaption style="margin-top:12px;">Figure 2: Interactive visualization of a knowledge graph for financial data. This graph represents entities like Apple Inc., its financial metrics across different quarters, and the relationships between them. Click on any node to explore its connections.</figcaption>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Capture Meaningful Relationships:</strong> Between entities mentioned across documents</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Enable Traversal-Based Retrieval:</strong> Following connection paths between related concepts</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Combine Structural and Semantic Information:</strong> Leveraging both relationships and textual content</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Support Explainable Retrieval:</strong> Making it clear why certain information was selected</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Knowledge graph-based approaches for RAG have been gaining attention in recent research. Notable examples include Microsoft's GraphRAG <sup><a href="#ref-2">[2]</a></sup>, which leverages graph structures for query-focused summarization, along with other approaches like MiniRAG <sup><a href="#ref-3">[3]</a></sup>, which explores efficient retrieval methods that combines text chunks and named entities in a unified structure.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"alternative-approaches"} -->
+<h3 class="wp-block-heading" id="alternative-approaches">Alternative RAG Enhancement Approaches</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>While this article focuses on knowledge graph-based enhancements to RAG, several other approaches have been developed to address the limitations of basic vector-based retrieval:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong><a href="https://medium.com/@sandyshah1990/exploring-rag-implementation-with-metadata-filters-llama-index-3c6c08a83428" target="_blank" rel="noreferrer noopener">Metadata Filtering:</a></strong> Enhances retrieval by using document metadata (e.g., titles, dates, authors) to filter or re-rank results. This can be particularly effective when users' queries include specific metadata elements.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hierarchical (Big-to-Small) Retrieval:</strong> Implements a multi-stage retrieval process that first identifies relevant high-level documents or sections before retrieving specific chunks within them.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Advanced Embedding Models:</strong> Models like ColBERTv2 <sup><a href="#ref-4">[4]</a></sup> and E5 <sup><a href="#ref-5">[5]</a></sup> offer more sophisticated embedding capabilities than basic models, capturing more nuanced semantic relationships. Similarly, <a href="https://cohere.com/rerank" target="_blank" rel="noreferrer noopener">Cohere's Rerank</a> provides re-ranking capabilities to further improve relevance of retrieved context.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong><a href="https://docs.llamaindex.ai/en/stable/examples/vector_stores/qdrant_hybrid/" target="_blank" rel="noreferrer noopener">Hybrid Search:</a></strong> Combines multiple retrieval methods (e.g., keyword search with vector search) to leverage the strengths of different approaches.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>These approaches each have their own strengths and are often complementary to knowledge graph methods. The entity-based KG-RAG approach we present in this article shares similarities with hierarchical retrieval methods, as it first identifies relevant entities before exploring their local neighborhoods to find relevant document chunks. However, it distinguishes itself by explicitly modeling and utilizing the relationships between entities in a structured knowledge graph.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"rag-architecture"} -->
+<h2 class="wp-block-heading" id="rag-architecture">RAG Architecture Overview</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3,"anchor":"rag-components"} -->
+<h3 class="wp-block-heading" id="rag-components">Key Components</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>As illustrated in Figure 1, a comprehensive RAG system consists of three primary components that work together to provide accurate, context-aware responses:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Knowledge Store:</strong> Responsible for storing, indexing, and organizing information from source documents. The knowledge store can be implemented using various approaches:
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Vector databases (traditional RAG)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Knowledge graphs (KG-RAG)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Hybrid stores (combining multiple representation methods)</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Retriever:</strong> Responsible for identifying and retrieving the most relevant information from the knowledge store based on the user query. Retrieval mechanisms vary by implementation:
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Embedding similarity (traditional RAG)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Graph traversal (KG-RAG)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Hybrid approaches combining multiple retrieval strategies</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Generator:</strong> The large language model that synthesizes the retrieved context and the user query to produce a comprehensive response. While the generator is typically consistent across different RAG implementations, its effectiveness depends heavily on the quality and relevance of the retrieved context.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>In this article, we focus primarily on the knowledge store and retriever components, as these are where knowledge graph enhancements have the most significant impact. The following sections will explore how these components are implemented in both traditional vector-based RAG and our knowledge graph-based approach.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"baseline-rag"} -->
+<h2 class="wp-block-heading" id="baseline-rag">Baseline RAG Implementation</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3,"anchor":"baseline-workflow"} -->
+<h3 class="wp-block-heading" id="baseline-workflow">Workflow</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The standard RAG approach relies on vector similarity between the query embedding and the pre-embedded document chunks in the vector database to retrieve relevant context. This implementation aligns with the three core components shown in Figure 1, where the Knowledge Store contains chunk embeddings mapped to document chunks, the Retriever uses embedding similarity to match queries to relevant chunks, and the Generator is an LLM. The process follows a straightforward pipeline as illustrated below:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-full"><img src="https://vectorinstitute.github.io/kg-rag/assets/baseline.svg" alt="Baseline RAG Architecture"/><figcaption class="wp-block-image__caption">Figure 3: Standard RAG architecture showing the Knowledge Store with chunk embeddings and the Retriever using direct similarity matching between the query and document chunks</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The workflow consists of three main stages:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Query Embedding:</strong> Convert the user query into a vector embedding</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Chunk Similarity Matching:</strong> Find document chunks with embeddings similar to the query (the Retriever calculates similarity scores like 0.73, 0.54, etc.)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Chunk Selection:</strong> Select the top-k most similar chunks based on these scores</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>In our implementation of the baseline system, we incorporate metadata into chunks by adding source information (e.g., "From: 2023_Q3_AAPL.pdf") at the top of each chunk, although this metadata is not included in the embedding calculation itself.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"baseline-limitations"} -->
+<h3 class="wp-block-heading" id="baseline-limitations">Limitations</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>This approach works well for many question-answering tasks but has certain limitations when dealing with complex, relationship-heavy domains:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>The Knowledge Store only captures direct mappings between embeddings and chunks, without preserving relationships between information across different chunks</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>The Retriever relies solely on direct similarity matching, making it difficult to handle multi-hop questions that require following chains of relationships</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Without explicit entity relationships, the system has limited ability to leverage structural information that exists in the original documents</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>The similarity-only approach risks retrieving chunks that are semantically related to the query but lack the specific contextual relationships needed for accurate answers</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"anchor":"kg-rag"} -->
+<h2 class="wp-block-heading" id="kg-rag">Knowledge Graph-Based RAG</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>To address the limitations of vector-based RAG, we introduce knowledge graph-based approaches that incorporate structured relationships into the retrieval process. These methods build and leverage a knowledge graph representing entities and relationships extracted from the document collection.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"kg-generation"} -->
+<h3 class="wp-block-heading" id="kg-generation">Knowledge Graph Generation</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The effectiveness of any KG-RAG system heavily depends on the quality of the underlying knowledge graph. But how exactly is this graph generated from the unstructured document text? The process typically involves using LLMs to extract entities and their relationships from text chunks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":4} -->
+<h4 class="wp-block-heading">LLM-Based Entity and Relationship Extraction</h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The core of our knowledge graph generation process is the <a href="https://python.langchain.com/v0.1/docs/use_cases/graph/constructing/" target="_blank" rel="noreferrer noopener"><code>LLMGraphTransformer</code> from Langchain</a>, which leverages large language models to identify entities and relationships from document text. The process follows these key steps:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Text Chunking:</strong> Documents are first split into manageable chunks</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Entity and Relationship Extraction:</strong> Each chunk is processed by an LLM with specialized prompting</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Graph Construction:</strong> The extracted entities and relationships are assembled into a cohesive graph structure</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Let's take a closer look at the extraction process:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code># Define the graph transformer with allowed entities and relationships
+transformer = LLMGraphTransformer(
+    llm=ChatOpenAI(model="gpt-4o", temperature=0),
+    strict_mode=True
+)
+# Process documents to extract graph elements
+graph_documents = transformer.convert_to_graph_documents(documents)
+# Create a unified graph from the extracted elements
+graph = create_graph_from_graph_documents(graph_documents)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size"><em>Python code for knowledge graph generation using LLMGraphTransformer</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":4} -->
+<h4 class="wp-block-heading">Prompt Engineering for Graph Extraction</h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The system prompts the LLM with specific instructions to identify entities and their relationships. Here's a simplified view of how the extraction works:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:group {"style":{"color":{"background":"#f5f5f5"},"spacing":{"padding":{"top":"1rem","right":"1rem","bottom":"1rem","left":"1rem"}},"border":{"radius":"6px"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group has-background" style="border-radius:6px;background-color:#f5f5f5;padding-top:1rem;padding-right:1rem;padding-bottom:1rem;padding-left:1rem"><!-- wp:paragraph {"fontSize":"small","style":{"typography":{"fontFamily":"monospace"}}} -->
+<p class="has-small-font-size" style="font-family:monospace"><strong>Input:</strong> "Apple Inc. reported a gross margin of 44.3% for Q3 2023, compared to 43.3% in the same quarter of 2022."</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"typography":{"fontFamily":"monospace"}}} -->
+<p class="has-small-font-size" style="font-family:monospace"><strong>Output Entities:</strong><br>- "Apple Inc." (type: Company)<br>- "gross margin" (type: Metric)<br>- "44.3%" (type: Amount)<br>- "Q3 2023" (type: Quarter)<br>- "43.3%" (type: Amount)<br>- "Q3 2022" (type: Quarter)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"typography":{"fontFamily":"monospace"}}} -->
+<p class="has-small-font-size" style="font-family:monospace"><strong>Output Relationships:</strong><br>- (Apple Inc., REPORTED, gross margin)<br>- (gross margin, HAS_VALUE, 44.3%)<br>- (44.3%, REPORTED_IN, Q3 2023)<br>- (43.3%, REPORTED_IN, Q3 2022)<br>- (44.3%, COMPARED_TO, 43.3%)</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:paragraph -->
+<p>The LLM transforms this structured output into graph nodes and edges with appropriate types and properties.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":4} -->
+<h4 class="wp-block-heading">Challenges in Knowledge Graph Construction</h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Building high-quality knowledge graphs from unstructured text presents several challenges:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Entity Resolution:</strong> The LLM must correctly identify when different mentions refer to the same entity (e.g., "Apple", "Apple Inc.", "the company")</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Relationship Accuracy:</strong> Extracting accurate relationships between entities requires understanding complex linguistic patterns and domain knowledge</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Schema Consistency:</strong> Maintaining a consistent ontology (types of entities and relationships) across diverse documents</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Processing Limitations:</strong> LLM context windows limit how much text can be processed at once, requiring careful document chunking strategies</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Our implementation addresses some of these challenges by:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Entity normalization to reduce duplication (NetworkX graph creation runs this by default)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Careful document chunking to balance context preservation with processing efficiency</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":4} -->
+<h4 class="wp-block-heading">Document-Level Context Preservation</h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>One significant challenge we encountered was that document-level hierarchies and metadata are not reliably extracted during knowledge graph creation. This occurs because critical context (like document titles "2023 Q3 AAPL" or "2022 Q2 MSFT") typically appears only on the first page or in the document title, but gets lost during the chunking process.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To address this limitation, we implemented a context preservation technique that hyphenates entities with their source document titles before creating entity embeddings. For example, rather than just embedding "Gross Margin Percentage" as a standalone entity, we embed "Gross Margin Percentage - 2023 Q3 AAPL" to incorporate document-level context. This approach ensures that even when the chunk-level extraction misses the hierarchical relationship, the entity embeddings still capture the critical document-source context.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"entity-based-approach"} -->
+<h3 class="wp-block-heading" id="entity-based-approach">Entity-Based Approach</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Entity-Based KG-RAG approach enhances the standard RAG pipeline by reimagining the Knowledge Store and Retriever components shown in Figure 1. Instead of just storing chunk embeddings, the Knowledge Store consists of a knowledge graph of interconnected entities with entity-chunk relationships that map these entities to the relevant document chunks from which they were extracted. The Retriever uses a two-step process that first identifies relevant entities and then explores their connections before selecting chunks. The process follows these steps:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-full"><img src="https://vectorinstitute.github.io/kg-rag/assets/entity.svg" alt="Entity-Based KG-RAG Architecture"/><figcaption class="wp-block-image__caption">Figure 4: Entity-Based KG-RAG architecture showing the Knowledge Store with a knowledge graph and entity-chunk relationships, and the Retriever using entity similarity matching followed by subgraph exploration</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The workflow consists of four main stages:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Query Embedding:</strong> Convert the user query to a vector embedding</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Entity Similarity Matching:</strong> Find top N entities in the knowledge graph most similar to the query (with similarity scores like 0.73, 0.54, etc.)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Subgraph Exploration:</strong> Explore the local neighborhood around similar entities to discover related entities and their connections</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Chunk-Entity Voting:</strong> Select the top K most relevant document chunks based on their connections and similarity to the identified entities and provide subgraph context.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>This approach leverages both semantic similarity (through embeddings) and structural relationships (through the knowledge graph) to provide more accurate and comprehensive answers. The entities in the knowledge graph are embedded based on the entity name and source document using the OpenAI <code>text-embedding-3-small</code> model, and compared to the query embedding using cosine similarity.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It's important to note that the "top nodes" concept is separate from the final number of chunks selected. We choose top N nodes and score them based on both their frequency (how often they are associated with a specific chunk) and overall similarity scores to the query. Then we select a set of top K chunks based on that combined score.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"interactive-visualization"} -->
+<h3 class="wp-block-heading" id="interactive-visualization">Interactive Visualization</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>To better understand how the Entity-Based KG-RAG method works in practice, let's look at an interactive visualization of the process for a query where the baseline system answers incorrectly but the entity-based system gets right:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<figure style="margin:0 0 1.5rem;">
+<iframe src="https://vectorinstitute.github.io/kg-rag/diagrams/diagram.html" title="Interactive Entity-Based KG-RAG walkthrough" width="100%" height="896" loading="lazy" style="border:0;border-radius:6px;display:block;width:100%;"></iframe>
+<figcaption style="margin-top:12px;">Figure 5: Interactive visualization of the Entity-Based KG-RAG approach showing query processing flow for a question about Apple's gross margin percentage. The visualization demonstrates how entities are identified, the subgraph is explored, and relevant document chunks are selected to provide comprehensive answers.</figcaption>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>The visualization above shows how a query about Apple's gross margin percentage flows through the Entity-Based KG-RAG system:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li>The system first identifies relevant entities in the knowledge graph based on similarity to the query</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>It then explores the subgraph around these entities to discover related information</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Based on the explored subgraph, it selects the most relevant document chunks</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Finally, it assembles a comprehensive context that combines both structural knowledge and textual information</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3,"anchor":"kg-rag-advantages"} -->
+<h3 class="wp-block-heading" id="kg-rag-advantages">Advantages</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Entity-Based KG-RAG approach offers several advantages over traditional RAG systems:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Relational Context Preservation:</strong> The Knowledge Store's graph structure explicitly maintains the relationships between entities, preserving crucial contextual information that might be lost in vector-based approaches.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Multi-hop Reasoning Support:</strong> The Retriever's subgraph exploration capability allows the system to discover relevant entities and information that may be multiple hops away from the initially matched entities.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Entity-Grounded Context Selection:</strong> The entity-chunk relationships in the Knowledge Store ensure that document chunks are selected based on their connections to relevant entities, not just lexical similarity.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Structural Patterns in Financial Data:</strong> Financial documents follow predictable structures, with information organized around key entities like companies, time periods, and financial metrics. Knowledge graphs naturally capture these patterns, making them particularly effective for this domain.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Explanation and Transparency:</strong> The paths in the knowledge graph provide a clear explanation of how different pieces of information are related, enhancing the transparency of the retrieval process.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3,"anchor":"kg-rag-challenges"} -->
+<h3 class="wp-block-heading" id="kg-rag-challenges">Challenges and Limitations</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Despite its advantages, knowledge graph-based RAG approaches also face several challenges and limitations:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Domain Specificity:</strong> The effectiveness of a knowledge graph depends heavily on how well it captures the domain-specific relationships in the documents. Different domains may require different graph schemas and extraction approaches.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Computational Overhead:</strong> Building and maintaining a knowledge graph introduces additional computational requirements compared to simple vector stores, particularly for large document collections.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Graph Quality vs. Performance:</strong> The quality of the knowledge graph directly impacts the performance of the KG-RAG system. Incomplete or inaccurate graphs can lead to missing connections or irrelevant retrievals.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Optimization Challenges:</strong> Finding the optimal configuration for knowledge graph construction and exploration (e.g., similarity thresholds, number of hops) often requires extensive experimentation.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>In our implementation, we initially aimed to create a knowledge graph that would map all the way to terminal nodes containing specific values (e.g., APPLE -&gt; HAS_DOCUMENT -&gt; 2023 Q3 -&gt; REPORTED -&gt; Gross Margin Percentage -&gt; 44%). However, we found that the knowledge graph creation process was biased toward extracting semantic relationships rather than embedding specific values. This led us to develop the entity-chunk mapping approach as a pragmatic solution to connect entities in the graph with the document chunks containing relevant values.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"dataset-evaluation"} -->
+<h2 class="wp-block-heading" id="dataset-evaluation">SEC 10-Q Dataset &amp; Evaluation</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3,"anchor":"dataset-overview"} -->
+<h3 class="wp-block-heading" id="dataset-overview">Dataset Overview</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>To evaluate the performance of different RAG approaches, we leverage a <a href="https://github.com/docugami/KG-RAG-datasets/tree/main" target="_blank" rel="noreferrer noopener">specialized dataset from Docugami</a> based on SEC 10-Q quarterly financial reports from major technology companies. The dataset includes:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Financial reports from Apple, Amazon, Intel, Microsoft, and NVIDIA</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Multiple quarters per company (2022-2023)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>PDF files with extractable text content</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Structured financial data including revenue, profit margins, and other metrics</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:image {"align":"center","width":"750px","sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="https://vectorinstitute.github.io/kg-rag/assets/sec10q_sample.png" alt="Sample SEC 10-Q Document" style="width:750px"/><figcaption class="wp-block-image__caption">Figure 6: Sample SEC 10-Q document from Apple's Q3 2023 report. The document contains structured financial data and textual information.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This dataset was chosen because financial documents represent an ideal use case for knowledge graph approaches - they contain numerous entities with complex relationships between them, and answering questions often requires connecting information across different sections.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"evaluation-methodology"} -->
+<h3 class="wp-block-heading" id="evaluation-methodology">Evaluation Methodology</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>While the original dataset included human-reviewed LLM-generated question-answer pairs, these tended to be qualitative in nature, making precise evaluation challenging. To address this limitation, we developed a set of 100 synthetic question-answer pairs with the following characteristics:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Derived from original Q&amp;A pairs but focused on quantitative answers</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Designed to have objective numerical answers that can be precisely evaluated</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Questions require understanding relationships between entities (e.g., companies, time periods, financial metrics)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Manually verified to ensure answerable using the original documents</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Include a mix of single-hop and multi-hop questions, though the latter comprise a smaller fraction</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>For example, a qualitative question like:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p><em>"Can any trends be identified in Apple's Services segment revenue over the reported periods?"</em></p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>was transformed into a quantitative question such as:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p><em>"What was the increase in Apple's Services segment net sales from the quarter ended June 25, 2022, to the quarter ended July 1, 2023, as reported in their 2022 Q3 and 2023 Q3 10-Q filings? Provide the answer in millions of dollars as a whole number without commas."</em></p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>Here's an example of a multi-hop question where the KG-RAG method outperforms the baseline approach:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:group {"style":{"color":{"background":"#f5f5f5"},"spacing":{"padding":{"top":"1rem","right":"1rem","bottom":"1rem","left":"1rem"}},"border":{"radius":"6px"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group has-background" style="border-radius:6px;background-color:#f5f5f5;padding-top:1rem;padding-right:1rem;padding-bottom:1rem;padding-left:1rem"><!-- wp:paragraph -->
+<p><strong>Multi-hop Question Example:</strong><br><em>"What was the increase in Apple's R&amp;D expenses from the third quarter of 2022 to the first quarter of 2023, as reported in their 2022 Q3 and 2023 Q1 10-Q filings? Provide the answer in millions of dollars as a whole number without commas."</em></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:paragraph -->
+<p>This question requires the system to find and connect information about R&amp;D expenses from two different filing periods, perform a calculation, and return the result in a specific format. The knowledge graph approach excels at this type of question because it can explicitly model the relationships between entities (Apple, R&amp;D expenses, time periods) and facilitate the multi-hop reasoning required.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It's important to note that our focus on quantitative questions is primarily for evaluation simplicity and not to suggest that end users would only ask for numerical answers. In real-world deployments, users would likely ask a much broader range of questions, including qualitative ones about trends, strategies, risks, and other textual information in the reports.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We evaluated each RAG system using the following methodology:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Accuracy:</strong> An answer is considered correct only if the numerical value exactly matches the ground truth.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Controlled Environment:</strong> All systems used the same LLMs (GPT-4o/GPT-4o-mini) for generation, ensuring that performance differences were attributable to the retrieval components.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hyperparameter Consistency:</strong> Where applicable, we used consistent hyperparameters (e.g., top-k = 5 chunks) across systems for fair comparison. For document chunking, we used a standard approach of 512 tokens with an overlap of 24 tokens, kept constant for both baseline and KG-RAG implementations.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Error Analysis:</strong> Beyond simple accuracy, we analyzed the confusion matrix between systems to understand where and why different approaches succeeded or failed.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>It's worth noting that we did not implement a re-ranker for either method in these experiments. However, re-ranking could be an interesting future exploration for the KG-RAG method by supplying token-efficient subgraph path definitions to have the model re-rank paths based on their usefulness to the query, with the associated nodes then used to select chunks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"performance-results"} -->
+<h3 class="wp-block-heading" id="performance-results">Performance Results</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Our evaluation revealed significant performance differences between the baseline RAG and Entity-Based KG-RAG approaches. The following visualization shows the overall accuracy comparison:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","width":"700px","sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="https://vectorinstitute.github.io/kg-rag/assets/accuracy.png" alt="Performance Comparison" style="width:700px"/><figcaption class="wp-block-image__caption">Figure 7: Performance comparison between Entity-based KG-RAG and Baseline RAG across different LLM models. Entity-based KG-RAG consistently outperforms the baseline approach.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The Entity-Based KG-RAG approach showed a substantial improvement over the baseline, with accuracy increasing from 40% to 55% when using GPT-4o, and from 36.36% to 56% when using GPT-4o-mini. This represents a relative improvement of approximately 37.5% and 54% respectively.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Surprisingly, the performance of the entity-based approach was even more pronounced with the smaller GPT-4o-mini model, which typically performs worse than the larger GPT-4o model. This suggests that the structural knowledge provided by the knowledge graph compensates for the limitations of the smaller model, allowing it to leverage relationships more effectively than the baseline approach.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Regarding latency, our measurements showed that the KG-RAG method adds only minimal overhead to the retrieval process compared to the baseline method:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Baseline Method:</strong> Mean Latency: 0.5679 seconds, Median: 0.3511 seconds</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>KG-RAG Method:</strong> Mean Latency: 0.6224 seconds, Median: 0.4533 seconds</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Here, we conduct a detailed error analysis using a confusion matrix to understand the patterns of success and failure between the two approaches:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","width":"700px","sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="https://vectorinstitute.github.io/kg-rag/assets/confusion_matrix.png" alt="Confusion Matrix" style="width:700px"/><figcaption class="wp-block-image__caption">Figure 8: Confusion matrix comparing KG-RAG and Baseline RAG performance. The matrix shows that KG-RAG correctly answers many questions that the Baseline approach misses, while rarely missing questions that the Baseline gets right.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The confusion matrix reveals that:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Both systems correctly answered 38 questions (38% of the dataset)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>KG-RAG correctly answered 17 questions that the Baseline RAG missed</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Baseline RAG correctly answered only 2 questions that KG-RAG missed</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Both systems incorrectly answered 43 questions (43% of the dataset)</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>This asymmetric pattern suggests that the KG-RAG approach maintains most of the strengths of the baseline approach while addressing many of its weaknesses through improved structural understanding.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We also investigated how the performance of the KG-RAG approach varies with different configuration parameters, particularly the number of top nodes considered in the similarity matching stage:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"align":"center","width":"700px","sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="https://vectorinstitute.github.io/kg-rag/assets/entity_topn.png" alt="KG-RAG Performance by Top-N Nodes" style="width:700px"/><figcaption class="wp-block-image__caption">Figure 9: KG-RAG performance with varying numbers of top similarity nodes considered. The peak performance occurs around 30-40 nodes, with diminishing returns when considering too many or too few nodes.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This analysis reveals that performance peaks when considering between 30-40 top similar nodes (56% accuracy), with a noticeable decline when considering either too few (&lt; 10 nodes) or too many (&gt; 50 nodes) similar entities. This suggests an optimal balance where the system has enough similar entities to explore related connections, but not so many that it introduces noise or dilutes the relevance of the retrieved context.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"other-approaches"} -->
+<h2 class="wp-block-heading" id="other-approaches">Other Knowledge Graph RAG Approaches</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>While this article has focused on the entity-based KG-RAG approach, we also implemented several other knowledge graph-based methods that show promise for different use cases. These approaches were not included in the main evaluation for various reasons detailed below, but they offer valuable alternatives for specific scenarios.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"cypher-based"} -->
+<h3 class="wp-block-heading" id="cypher-based">Cypher-Based KG-RAG</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Cypher-based KG-RAG method leverages a Neo4j graph database and uses structured query language (Cypher) instead of vector embeddings as the primary retrieval mechanism:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Cypher Query Generation:</strong> A specialized LLM prompt template helps generate valid Cypher queries based on natural language questions</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Schema-Aware Design:</strong> The system maintains awareness of the underlying graph schema to ensure generated queries use the correct entity types and relationships</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Declarative Retrieval:</strong> Rather than exploring a subgraph based on similarity, this approach directly queries for specific patterns of relationships</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Error Handling:</strong> Includes mechanisms to detect and correct malformed queries through an iterative process</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>This approach excels when questions map clearly to specific relationship patterns in the knowledge graph, but requires more specialized knowledge of the underlying graph structure. We use the <a href="https://python.langchain.com/docs/integrations/graphs/neo4j_cypher/" target="_blank" rel="noreferrer noopener">Langchain neo4j cookbooks</a> as a reference for our implementation. LlamaIndex also implements a <a href="https://docs.llamaindex.ai/en/stable/examples/query_engine/knowledge_graph_query_engine/" target="_blank" rel="noreferrer noopener">Knowledge Graph Query Engine</a> using neo4j and cypher generation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In our initial testing, the cypher-based approach had difficulty with the knowledge graph provided for the SEC 10-Q dataset, as the LLM-generated Cypher queries could not reliably capture the complexity of the relationships in the financial documents. This led to brittle query generation and inconsistent results, which is why we excluded it from the main evaluation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Future work could leverage <a href="https://huggingface.co/vprashant/cypher-gen" target="_blank" rel="noreferrer noopener">custom models for cypher generation</a> or validating cyphers in a loop to refine query until valid cypher is emitted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3,"anchor":"graphrag"} -->
+<h3 class="wp-block-heading" id="graphrag">GraphRAG</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>GraphRAG combines knowledge graphs with embedding-based retrieval and community detection algorithms:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Document-to-Graph Transformation:</strong> Transforms documents into graph structures with nodes, edges, and community clusters</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hybrid Search Strategies:</strong> Implements both local (node-centered) and global (community-based) search strategies</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Community Detection:</strong> Uses graph algorithms to identify clusters of related information</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>LangChain Integration:</strong> Built on the LangChain framework for seamless integration with other components</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>This approach is particularly effective for documents with natural community structures, such as research papers with distinct sections or reports covering various business segments. We leverage a <a href="https://github.com/ksachdeva/langchain-graphrag/tree/main" target="_blank" rel="noreferrer noopener">langchain implementation of GraphRAG</a> for ease-of-use, though other implementations like those from <a href="https://python.llamaindex.ai/examples/query_engine/knowledge_graph_query_engine/" target="_blank" rel="noreferrer noopener">LlamaIndex</a> also offer similar capabilities.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In our early evaluations, this particular implementation of GraphRAG achieved approximately 20% accuracy (without any prompt tuning) on the SEC 10-Q dataset. Due to time constraints, we decided to focus our comprehensive evaluation on the entity-based approach that showed more promising initial results.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"conclusion"} -->
+<h2 class="wp-block-heading" id="conclusion">Conclusion and Future Directions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Knowledge graph-based RAG approaches represent a significant advancement over traditional vector-based methods, especially for domains with complex relational structures. By incorporating structured relationships into the retrieval process, these methods can provide more accurate, comprehensive, and explainable answers.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Our experiments with the Entity-Based KG-RAG method show promising results, particularly for questions that require understanding relationships between multiple entities and documents. The ability to explore subgraphs and combine structural knowledge with textual information enables more nuanced and accurate responses.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The comparative analysis clearly demonstrates that incorporating structural knowledge through knowledge graphs significantly improves the ability of RAG systems to handle complex information needs, particularly in domains with rich relational structures like financial documentation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Future directions for this research include:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Improved graph construction techniques:</strong> Developing better methods for automatically extracting entities and relationships from documents</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Dynamic graph updates:</strong> Creating systems that can continuously update the knowledge graph as new information becomes available</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Reasoning-enhanced retrieval:</strong> Incorporating logical reasoning capabilities into the graph exploration process</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hybrid approaches:</strong> Integrating the strengths of different KG-RAG methods for optimal performance across diverse question types</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The source code for reproducing all experiments and implementations described in this article is available in our <a href="https://github.com/VectorInstitute/kg-rag" target="_blank" rel="noreferrer noopener">KG-RAG repository</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://github.com/VectorInstitute/kg-rag" target="_blank" rel="noreferrer noopener">View the KG-RAG repository</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading {"anchor":"acknowledgements"} -->
+<h2 class="wp-block-heading" id="acknowledgements">Acknowledgments</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We would like to thank the Vector Institute for supporting this research, and the open-source community for providing valuable tools and frameworks that made this work possible.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"references"} -->
+<h2 class="wp-block-heading" id="references">References</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true,"fontSize":"small"} -->
+<ol class="wp-block-list has-small-font-size"><!-- wp:list-item -->
+<li id="ref-1">Vector Institute - AI Engineering. <em>AI Pocket Reference</em>, 2024. <a href="https://vectorinstitute.github.io/ai-pocket-reference" target="_blank" rel="noreferrer noopener">vectorinstitute.github.io/ai-pocket-reference</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li id="ref-2">Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, Dasha Metropolitansky, Robert Osazuwa Ness, and Jonathan Larson. <em>From Local to Global: A Graph RAG Approach to Query-Focused Summarization</em>, 2025. arXiv:2404.16130. <a href="https://arxiv.org/abs/2404.16130" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2404.16130</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li id="ref-3">Tianyu Fan, Jingyuan Wang, Xubin Ren, and Chao Huang. <em>MiniRAG: Towards Extremely Simple Retrieval-Augmented Generation</em>, 2025. arXiv:2501.06713. <a href="https://arxiv.org/abs/2501.06713" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2501.06713</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li id="ref-4">Keshav Santhanam, Omar Khattab, Jon Saad-Falcon, Christopher Potts, and Matei Zaharia. <em>ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction</em>, 2022. arXiv:2112.01488. <a href="https://arxiv.org/abs/2112.01488" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2112.01488</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li id="ref-5">Liang Wang, Nan Yang, Xiaolong Huang, Binxing Jiao, Linjun Yang, Daxin Jiang, Rangan Majumder, and Furu Wei. <em>Text Embeddings by Weakly-Supervised Contrastive Pre-training</em>, 2024. arXiv:2212.03533. <a href="https://arxiv.org/abs/2212.03533" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2212.03533</a></li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
