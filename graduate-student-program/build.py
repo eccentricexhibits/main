@@ -18,7 +18,10 @@ def rot(x, y):
     if ROT == 'ccw': return (y, PW - x)          # 90 counter-clockwise
     return (x, y)
 PS = 0.43                     # pattern scale
-PX, PY = 600, 54              # pattern origin
+# text layout (px): top positions, font sizes, heights
+L = dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=136, h1_fs=76, by_top=323, by_fs=26,
+         tr_top=425, tr_fs=19, logo_top=523, logo_h=56)
+PX, PY = 620, 54              # pattern origin
 ARM = 72.85 * PS              # plus width in px
 BAR = 14.99 * PS              # stroke thickness in px
 pts = [(PX + rot(x, y)[0]*PS, PY + rot(x, y)[1]*PS) for x, y in centers]
@@ -67,13 +70,13 @@ html = f'''<!doctype html><html><head><meta charset="utf-8"><title>Graduate Stud
 html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#8A25C9}}
 #c{{position:relative;width:{W}px;height:{H}px;font-family:Karbon,sans-serif;color:#fff;overflow:hidden}}
 .bg,svg.fx{{position:absolute;inset:0}}
-.pill{{position:absolute;left:64px;top:54px;height:48px;padding:0 24px;border:2px solid #fff;border-radius:24px;
-  display:flex;align-items:center;font-size:20px;letter-spacing:.05em;font-weight:400}}
-h1{{position:absolute;left:61px;top:126px;font-weight:600;font-size:80px;line-height:.98;letter-spacing:-.012em}}
-.by{{position:absolute;left:64px;top:304px;font-size:28px;line-height:1.28;font-weight:400;width:640px}}
-.tr{{position:absolute;left:65px;top:433px;font-size:20px;letter-spacing:.18em;font-weight:400}}
+.pill{{position:absolute;left:64px;top:{L['pill_top']}px;height:{L['pill_h']}px;padding:0 22px;border:2px solid #fff;border-radius:{L['pill_h']//2}px;
+  display:flex;align-items:center;font-size:{L['pill_fs']}px;letter-spacing:.05em;font-weight:400}}
+h1{{position:absolute;left:61px;top:{L['h1_top']}px;font-weight:600;font-size:{L['h1_fs']}px;line-height:.98;letter-spacing:-.012em}}
+.by{{position:absolute;left:64px;top:{L['by_top']}px;font-size:{L['by_fs']}px;line-height:1.3;font-weight:400;white-space:nowrap}}
+.tr{{position:absolute;left:65px;top:{L['tr_top']}px;font-size:{L['tr_fs']}px;letter-spacing:.18em;font-weight:400}}
 .tr i{{font-style:normal;margin:0 .7em 0 .4em}}
-.logo{{position:absolute;left:64px;top:510px;height:60px}}
+.logo{{position:absolute;left:64px;top:{L['logo_top']}px;height:{L['logo_h']}px}}
 .stage{{position:absolute;left:992px;top:150px;width:176px;height:300px;perspective:900px}}
 .card{{width:100%;height:100%;border-radius:24px;background:rgba(255,255,255,.2);
   border:1.5px solid rgba(255,255,255,.55);transform:rotateY(-16deg);transform-origin:0 50%;
@@ -112,9 +115,9 @@ h1{{position:absolute;left:61px;top:126px;font-weight:600;font-size:80px;line-he
 </svg>
 <div class="pill">NOW ACCEPTING APPLICATIONS</div>
 <h1>Graduate Student<br>Program</h1>
-<p class="by">Connect with AI research supervisors<br>at Canadian universities<br>through one application.</p>
+<p class="by">Connect with AI research supervisors<br>at Canadian universities through one application.</p>
 <p class="tr">13 UNIVERSITIES<i>•</i>ONE APPLICATION</p>
-<svg class="logo" viewBox="0 0 {LOGO_W} {LOGO_H}" height="60" width="{60*LOGO_W/LOGO_H:.1f}">{logo_inner}</svg>
+<svg class="logo" viewBox="0 0 {LOGO_W} {LOGO_H}" height="{L['logo_h']}" width="{L['logo_h']*LOGO_W/LOGO_H:.1f}">{logo_inner}</svg>
 </div></body></html>'''
 (OUT/'graphic.html').write_text(html)
 print('pattern bbox', min(p[0] for p in pts), max(p[0] for p in pts), min(p[1] for p in pts), max(p[1] for p in pts))
