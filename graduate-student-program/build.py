@@ -19,9 +19,9 @@ def rot(x, y):
     return (x, y)
 PS = 0.43                     # pattern scale
 # text layout (px): top positions, font sizes, heights
-L = dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=136, h1_fs=76, by_top=323, by_fs=26,
+L = dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=136, h1_fs=76, by_top=323, by_fs=25,
          tr_top=425, tr_fs=19, logo_top=523, logo_h=56)
-PX, PY = 620, 54              # pattern origin
+PX, PY = 632, 54              # pattern origin
 ARM = 72.85 * PS              # plus width in px
 BAR = 14.99 * PS              # stroke thickness in px
 pts = [(PX + rot(x, y)[0]*PS, PY + rot(x, y)[1]*PS) for x, y in centers]
@@ -71,10 +71,10 @@ html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#8A25C9}}
 #c{{position:relative;width:{W}px;height:{H}px;font-family:Karbon,sans-serif;color:#fff;overflow:hidden}}
 .bg,svg.fx{{position:absolute;inset:0}}
 .pill{{position:absolute;left:64px;top:{L['pill_top']}px;height:{L['pill_h']}px;padding:0 22px;border:2px solid #fff;border-radius:{L['pill_h']//2}px;
-  display:flex;align-items:center;font-size:{L['pill_fs']}px;letter-spacing:.05em;font-weight:400}}
+  display:flex;align-items:center;font-size:{L['pill_fs']}px;letter-spacing:.05em;font-weight:600}}
 h1{{position:absolute;left:61px;top:{L['h1_top']}px;font-weight:600;font-size:{L['h1_fs']}px;line-height:.98;letter-spacing:-.012em}}
-.by{{position:absolute;left:64px;top:{L['by_top']}px;font-size:{L['by_fs']}px;line-height:1.3;font-weight:400;white-space:nowrap}}
-.tr{{position:absolute;left:65px;top:{L['tr_top']}px;font-size:{L['tr_fs']}px;letter-spacing:.18em;font-weight:400}}
+.by{{position:absolute;left:64px;top:{L['by_top']}px;font-size:{L['by_fs']}px;line-height:1.3;font-weight:600;white-space:nowrap}}
+.tr{{position:absolute;left:65px;top:{L['tr_top']}px;font-size:{L['tr_fs']}px;letter-spacing:.18em;font-weight:600}}
 .tr i{{font-style:normal;margin:0 .7em 0 .4em}}
 .logo{{position:absolute;left:64px;top:{L['logo_top']}px;height:{L['logo_h']}px}}
 .stage{{position:absolute;left:992px;top:150px;width:176px;height:300px;perspective:900px}}
