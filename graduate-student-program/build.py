@@ -66,7 +66,7 @@ html = f'''<!doctype html><html><head><meta charset="utf-8"><title>Graduate Stud
 *{{margin:0;padding:0;box-sizing:border-box}}
 html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#8A25C9}}
 #c{{position:relative;width:{W}px;height:{H}px;font-family:Karbon,sans-serif;color:#fff;overflow:hidden}}
-svg.bg,svg.fx{{position:absolute;inset:0}}
+.bg,svg.fx{{position:absolute;inset:0}}
 .pill{{position:absolute;left:64px;top:64px;height:40px;padding:0 20px;border:1.5px solid #fff;border-radius:20px;
   display:flex;align-items:center;font-size:16px;letter-spacing:.06em;font-weight:400}}
 h1{{position:absolute;left:61px;top:140px;font-weight:600;font-size:82px;line-height:.98;letter-spacing:-.012em}}
@@ -77,28 +77,11 @@ h1{{position:absolute;left:61px;top:140px;font-weight:600;font-size:82px;line-he
 .stage{{position:absolute;left:992px;top:150px;width:176px;height:300px;perspective:900px}}
 .card{{width:100%;height:100%;border-radius:24px;background:rgba(255,255,255,.2);
   border:1.5px solid rgba(255,255,255,.55);transform:rotateY(-16deg);transform-origin:0 50%;
-  box-shadow:0 0 40px rgba(255,255,255,.18), inset 0 0 30px rgba(255,255,255,.12);backdrop-filter:blur(6px)}}
+  box-shadow:0 0 22px rgba(255,255,255,.14), inset 0 0 30px rgba(255,255,255,.12);backdrop-filter:blur(6px)}}
 .card .ln{{position:absolute;left:24px;height:5px;border-radius:3px;background:rgba(255,255,255,.55)}}
 .card svg{{position:absolute;left:44px;top:82px;width:106px;filter:drop-shadow(0 0 10px rgba(255,255,255,.7))}}
 </style></head><body><div id="c">
-<svg class="bg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
- <defs>
-  <linearGradient id="g" x1="0" y1="0" x2="1" y2="0.35">
-   <stop offset="0" stop-color="#8A25C9"/><stop offset=".38" stop-color="#8A25C9"/><stop offset="1" stop-color="#48C0D9"/>
-  </linearGradient>
-  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="70"/></filter>
-  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" stitchTiles="stitch"/>
-   <feColorMatrix values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1"/></filter>
- </defs>
- <rect width="{W}" height="{H}" fill="url(#g)"/>
- <g filter="url(#soft)">
-  <ellipse cx="1130" cy="90" rx="260" ry="170" fill="#48C0D9" opacity=".95"/>
-  <ellipse cx="820" cy="640" rx="300" ry="120" fill="#8A25C9" opacity=".75"/>
-  <path d="M560 700 C 760 520, 900 460, 1240 520 L1240 700Z" fill="#48C0D9" opacity=".55"/>
-  <ellipse cx="160" cy="80" rx="260" ry="150" fill="#8A25C9" opacity=".9"/>
- </g>
- <rect width="{W}" height="{H}" filter="url(#grain)" opacity=".16" style="mix-blend-mode:overlay"/>
-</svg>
+<img class="bg" src="bg@2x.png" width="{W}" height="{H}" alt="">
 <svg class="fx" viewBox="0 0 {W} {H}" width="{W}" height="{H}">
  <defs>
   <linearGradient id="t" gradientUnits="userSpaceOnUse" x1="640" y1="0" x2="{CX}" y2="0">
