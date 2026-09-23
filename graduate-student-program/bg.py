@@ -25,7 +25,6 @@ def bump(cx, cy, rx, ry):
 t = smooth(0.36, 0.92, (x + 0.30 * y) / W)              # diagonal base gradient
 t = t + (1 - t) * bump(1130, 90, 330, 250)              # turquoise glow, top right
 t = t + (1 - t) * 0.55 * bump(1080, 660, 420, 170)      # turquoise sweep, bottom right
-t = t * (1 - 0.7 * bump(800, 660, 300, 150))            # violet pool, bottom middle
 
 img = VIOLET + t[..., None] * (TURQ - VIOLET)
 out = pathlib.Path(__file__).parent / 'bg@2x.png'

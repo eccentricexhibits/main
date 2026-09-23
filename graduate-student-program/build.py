@@ -12,13 +12,13 @@ for p in polys:
     n = list(map(float, p.split()))
     xs, ys = n[0::2], n[1::2]
     centers.append(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2))
-ROT = sys.argv[1] if len(sys.argv) > 1 else 'cw'
+ROT = sys.argv[1] if len(sys.argv) > 1 else 'ccw'
 def rot(x, y):
     if ROT == 'cw':  return (PH - y, x)          # 90 clockwise
     if ROT == 'ccw': return (y, PW - x)          # 90 counter-clockwise
     return (x, y)
 PS = 0.43                     # pattern scale
-PX, PY = 626, 66              # pattern origin
+PX, PY = 600, 66              # pattern origin
 ARM = 72.85 * PS              # plus width in px
 BAR = 14.99 * PS              # stroke thickness in px
 pts = [(PX + rot(x, y)[0]*PS, PY + rot(x, y)[1]*PS) for x, y in centers]
