@@ -24,14 +24,14 @@ COPY = {
     'en': dict(pill='NOW ACCEPTING APPLICATIONS',
                h1='Graduate Student<br>Program',
                by='Connect with AI research supervisors<br>at Canadian universities through one application.',
-               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=146, h1_fs=76, by_top=338, by_fs=25,
-                      logo_top=523, logo_h=56)),
+               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=152, h1_fs=76, by_top=350, by_fs=25,
+                      logo_top=509, logo_h=70)),
     'fr': dict(pill='LES CANDIDATURES SONT MAINTENANT OUVERTES',
                h1='Programme pour les<br>étudiants diplômés',
                by='Entrez en contact avec des directeurs de recherche<br>en IA dans les universités canadiennes<br>'
                   'grâce à une seule candidature.',
-               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=140, h1_fs=68, by_top=314, by_fs=25,
-                      logo_top=523, logo_h=56)),
+               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=146, h1_fs=68, by_top=324, by_fs=25,
+                      logo_top=509, logo_h=70)),
 }[LANG]
 L = COPY['L']
 PX, PY = 632, 54              # pattern origin
