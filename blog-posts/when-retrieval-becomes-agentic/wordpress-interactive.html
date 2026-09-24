@@ -1,0 +1,562 @@
+<!-- wp:heading {"level":1} -->
+<h1 class="wp-block-heading">When retrieval becomes agentic</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"fontSize":"large"} -->
+<p class="has-large-font-size">Retrieval-augmented generation now has a wide menu of upgrades. A reranker, a decomposed query, a knowledge graph, or an agent that takes retrieval into a loop are different kinds of change, with different costs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>By Ali Kore, Mahshid Alinoori, and Shayaan Mehdi, Vector Institute</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"contents"} -->
+<h2 id="contents" class="wp-block-heading">Contents</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="#introduction">Introduction</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#one-axis">1. One axis: retrieval becoming agentic</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#two-knobs">2. Two knobs, one frontier</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#corpus-and-query">3. Corpus, query, and what the substrate holds</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#published-comparisons">4. What the published comparisons actually compare</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#graph-updates">5. What breaks when the graph is updated</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#agent-knob">6. What the agent knob changes</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#what-we-would-measure">7. What we would measure before turning a knob</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="#references">References</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:spacer {"height":"10px"} -->
+<div style="height:10px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"introduction"} -->
+<h2 id="introduction" class="wp-block-heading">Introduction</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>One common way to order the options is as a ladder, starting with basic RAG, then advanced RAG, then possibly GraphRAG, then agents. When used as a decision procedure it suggests each step is an improvement on the last. Published comparisons do not generally support that reading.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A different axis is how much retrieval happens inside a reasoning loop, and, separately, what the retrieval substrate has to represent. A knowledge graph is one way to enrich that substrate. This post is a first pass at that framing, and, as an aside, what it would mean to keep a graph correct after the documents underneath it start to move.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"one-axis"} -->
+<h2 id="one-axis" class="wp-block-heading">1. One axis: retrieval becoming agentic</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>The axis we have been using is how much of our retrieval happens inside a reasoning loop.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Baseline RAG</strong> retrieves once and reads. A query is embedded, the nearest chunks come back, the generator answers. The pipeline is static and every request follows the same path.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Advanced RAG</strong> improves what that single pass returns. Hybrid lexical and dense search, cross-encoder reranking, contextual or hierarchical chunking, and query rewriting raise the quality of the candidate set without changing the control flow.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Agentic RAG</strong> moves part of retrieval into a loop. Query decomposition splits a question before retrieving; ReAct-style loops interleave reasoning with retrieval actions; corrective approaches such as CRAG judge what came back and retrieve again when it is insufficient.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Agent-native retrieval</strong> takes the vector index out of the loop. The agent navigates the corpus with search, file, and tool calls, in the way coding agents work over a repository. Retrieval reduces to actions the agent takes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We treat these as positions on a spine. A static pipeline over a well-built index is a reasonable place to stay. Moving along the axis trades adaptivity for latency, token cost, and variance.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"two-knobs"} -->
+<h2 id="two-knobs" class="wp-block-heading">2. Two knobs, one frontier</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>The spine is easier to hold next to a second picture. Two overlapping circles: retrieval, the substrate a system can draw on, and agent, the loop reasoning over it. Moving along the spine grows the agent circle until, at the agent-native end, the two coincide.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<!-- Sizes the interactive figures below to their content. Each figure reports its own height; without this they fall back to a fixed height and may crop on phones. Keep this block above Figure 1. -->
+<script>
+(function () {
+  window.addEventListener("message", function (e) {
+    var d = e.data;
+    if (!d || d.type !== "artifact:height" || !d.height) return;
+    var frames = document.querySelectorAll("iframe.wrba-figure");
+    for (var i = 0; i < frames.length; i++) {
+      if (frames[i].contentWindow === e.source) {
+        frames[i].style.height = Math.ceil(d.height) + "px";
+        return;
+      }
+    }
+  });
+})();
+</script>
+<!-- /wp:html -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:html -->
+<iframe class="wrba-figure" src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-01/fig-01-two-circle-model.html" title="Interactive figure: what changes as retrieval becomes more agentic" loading="lazy" scrolling="no" width="100%" height="680" style="border:0;border-radius:6px;display:block;width:100%;height:680px;"></iframe>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 1. Move the agent circle across retrieval, and set how much it can do. The overlap is how much retrieval happens inside the loop. The four named positions are readings of that overlap, not stops you are held to.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>A working hypothesis is that quality can move by turning either knob. A richer substrate with a simple loop and a plain substrate with a sophisticated loop can land at similar answer quality with very different cost, latency, and operational shape.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Each knob has its own settings. The substrate knob is how the corpus is represented: flat chunks, hierarchical or contextual chunks, a hybrid lexical and dense index, a knowledge graph. All of these are built before a question arrives.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The agent knob is what the agent does with that substrate. At one end is a single shot: no loop at all, retrieve once and generate. Query decomposition splits the question and retrieves per part. A ReAct-style loop interleaves reasoning with retrieval actions and decides the next one from what the last returned. Self-critique adds a judgement step by scoring its own evidence or answer and retries when it falls short, which is the pattern CRAG and Self-RAG formalise.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Each of these is a different architecture with its own latency profile and its own failure modes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Reranking belongs to neither knob. It is a stage that sits on top of whatever the substrate returns, which is why a graph plus a reranker is a normal thing to build. A knowledge graph with basic traversal and a flat chunk index with a capable agent are both designs where the relative complexity sits on either end.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:html -->
+<iframe class="wrba-figure" src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-02/fig-02-turn-the-knob.html" title="Interactive figure: two knobs, one at a time" loading="lazy" scrolling="no" width="100%" height="630" style="border:0;border-radius:6px;display:block;width:100%;height:630px;"></iframe>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 2. Zoom into the overlap and it resolves into two wheels: how the corpus is represented, and what the agent does with it. Turn one and the other's reading does not move. One knob at a time is what makes a gain attributable.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>If the two decisions collapse into one ladder, the expensive substrate (like a knowledge graph) is easy to buy first, because it sits higher on the imagined ordering. When evaluation falls short, changing one circle at a time makes it easier to find the root cause.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"corpus-and-query"} -->
+<h2 id="corpus-and-query" class="wp-block-heading">3. Corpus, query, and what the substrate holds</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>A second cut, orthogonal to the spine, is what the substrate has to represent. Two properties give a rough first map.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Corpus structure ranges from loose to dense. A loose corpus holds narrative or heterogeneous documents with sparse, unstable relationships between entities. A dense corpus has recurring entities, useful hierarchy, and relationships that stay meaningful across documents. Support tickets that carry product, fault, and resolution fields are denser than a set of unrelated essays.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Query type ranges from local fact retrieval to relationship-heavy reasoning. Local queries need one or two passages. Multi-hop queries combine facts across sources. Global queries ask about themes or coverage across a whole corpus. Path queries ask for the relationship chain itself, where the path is part of the answer.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:html -->
+<iframe class="wrba-figure" src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-03/fig-03-capability-decision-surface.html" title="Interactive figure: corpus structure and query type" loading="lazy" scrolling="no" width="100%" height="600" style="border:0;border-radius:6px;display:block;width:100%;height:600px;"></iframe>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 3. A first map of corpus structure against query type, read off published task-level results. Operating constraints can move a cell.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>On local factual queries over a loose corpus, a tuned retrieval stack is often enough. Graph extraction can add noisy relations without giving the query a capability it needs. On a dense corpus, metadata and entity filters sometimes capture enough structure for local questions that a graph would be premature.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Multi-hop is a closer call. Query decomposition and iterative retrieve-reason-retrieve loops work without a persistent graph. Graph methods look more plausible when the same relationships recur across traffic and the corpus is stable enough that construction might amortize. That is a bet.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Global sensemaking is a different workload again. Hierarchical summaries can cover a loose corpus. Community-based GraphRAG is interesting when the corpus supports stable communities and users keep asking corpus-wide questions. Explicit path queries are the cleanest motivation for a graph that we know, because the relationship path is part of the answer.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The grid is a starting map. Corpus size, update rate, latency budget, query mix, and whether anyone on the team has maintained a graph before can move a cell. A method that improves one benchmark can still be a poor fit if its index is rebuilt daily or its query path blows the latency budget.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"published-comparisons"} -->
+<h2 id="published-comparisons" class="wp-block-heading">4. What the published comparisons actually compare</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>Aggregate leaderboards flatten the conditional behaviour. Published comparisons show small gaps on some standard multi-hop tasks and large reversals on particular query types <sup><a href="#ref-1">[1]</a>, <a href="#ref-2">[2]</a></sup>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:table {"hasFixedLayout":false} -->
+<figure class="wp-block-table"><table><thead><tr><th>Task and metric</th><th>Retrieval baseline</th><th>Graph method</th><th>Difference</th></tr></thead><tbody><tr><td>MuSiQue Recall@5</td><td>NV-Embed-v2: 69.7</td><td>HippoRAG 2: 74.7</td><td>Graph +5.0</td></tr><tr><td>2Wiki Recall@5</td><td>NV-Embed-v2: 76.5</td><td>HippoRAG 2: 90.4</td><td>Graph +13.9</td></tr><tr><td>HotpotQA Recall@5</td><td>NV-Embed-v2: 94.5</td><td>HippoRAG 2: 96.3</td><td>Graph +1.8</td></tr><tr><td>Natural Questions F1</td><td>Vector RAG: 68.18</td><td>Community-GraphRAG Local: 65.44</td><td>RAG +2.74</td></tr><tr><td>MultiHop-RAG temporal</td><td>RAG: 25.73</td><td>Community-GraphRAG Local: 49.06</td><td>Graph +23.33</td></tr><tr><td>MultiHop-RAG null</td><td>RAG: 91.36</td><td>GraphRAG Global: 13.95</td><td>RAG +77.41</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Table 1. Selected published comparisons across different datasets and metrics. Recall@5 rows are from HippoRAG 2 <sup><a href="#ref-3">[3]</a></sup>; the Natural Questions and MultiHop-RAG rows are from the RAG versus GraphRAG evaluation <sup><a href="#ref-2">[2]</a></sup>, whose GraphRAG configurations follow Edge et al. <sup><a href="#ref-4">[4]</a></sup>. The rows use different tasks and scoring, so they do not combine into one ranking.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>That incomparability is useful. On MultiHop-RAG temporal questions, the local community graph result exceeded the RAG result by 23.33 points. On null questions, where the right response is that the answer is absent, Global GraphRAG scored 13.95 against RAG's 91.36. A map-reduced answer over community summaries can produce a confident synthesis even when the source does not contain the answer.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Xiang et al. <sup><a href="#ref-1">[1]</a></sup> report the same dependence on task and corpus structure. Their tests span loosely structured novels and densely structured oncology guidelines. RAG with a reranker led graph variants on Level 1 fact retrieval over the novel corpus. Graph methods improved Level 2 and Level 3 reasoning and summarization on the dense corpus. The paper also reports substantial prompt-token growth for some global GraphRAG configurations.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A benchmark set that reflected this would include local, multi-hop, temporal, global, and unanswerable questions in proportions that match expected traffic, and would record retrieval quality, answer correctness, latency, index cost, and update cost. Few published tables do all of that.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"graph-updates"} -->
+<h2 id="graph-updates" class="wp-block-heading">5. What breaks when the graph is updated</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>A vector index absorbs a revised document by re-embedding the changed chunks. A graph has no equivalent operation that is that cheap <sup><a href="#ref-5">[5]</a></sup>. Extraction is probabilistic, so an update can change the topology while the index remains queryable. The failure, when it appears, looks like a wrong answer with a confident path.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:image {"sizeSlug":"full","linkDestination":"none","align":"center"} -->
+<figure class="wp-block-image aligncenter size-full"><img src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-04/fig-04-update-blast-radius.svg" alt="Two structures side by side, each a set of nodes, with the same document change landing on one node in each. The chunk index has no edges between its twelve chunks, so at every hop the change still covers one chunk. The knowledge graph has twelve nodes joined by edges; at one hop the change covers four nodes, at two hops eight, and at three hops eleven of the twelve. A readout counts the nodes reached in each structure at each step."/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 4. One document changes. In a chunk index the change stays where it landed. In a graph it travels along whatever edges the extractor draws, and the nodes it reaches were never inspected.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>We can enumerate at least three primary ways that this happens, though there are probably more.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Structural regression:</strong> re-ingesting a revised page can orphan a node, create a hub artifact, or drop the edges that hold a fault tree together. The graph still has a query API. A parameter that used to sit on a path now sits alone.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Semantic drift:</strong> entity typing, relation vocabulary, and co-reference shift between ingestion runs. The same object appears twice under two labels. A relation that was <code>triggers</code> last month is <code>related_to</code> this month. Traversal still runs. It follows the wrong name.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Completeness gaps:</strong> the graph can be connected and still miss the identifier, the triggering condition, or the resolution that made the path worth having. A fault links to a procedure and not to the parameter that causes it. Last week's answer accuracy will not be seen until someone asks that question.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:image {"sizeSlug":"full","linkDestination":"none","align":"center"} -->
+<figure class="wp-block-image aligncenter size-full"><img src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-05/fig-05-graph-lifecycle-explorer.svg" alt="A small knowledge graph for a technical fault: a fault code linked to a drive unit, a torque limit, a procedure, a coupling, a manual section, and a resolution. The healthy graph is shown first. Structural regression drops the edge from the fault to the torque limit, leaving the parameter in the graph with nothing reaching it. Semantic drift adds a second torque-limit node under a different label, so the procedure points at one copy and the fault at the other. Completeness gaps fade out the resolution node and its edges, leaving the rest of the graph connected and answerable. A readout states that the query still runs in every case."/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 5. One support graph, three ways an ingest can damage it. In each case the graph still has a query API and traversal still returns a path.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>Answer-level evaluation scores the last question set. It does not inspect the graph that will serve the next one.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:html -->
+<iframe class="wrba-figure" src="https://ASSET-HOST.example/when-retrieval-becomes-agentic/assets/fig-06/fig-06-graph-degree-reality.html" title="Animated figure: one support graph, three ways of measuring it" loading="lazy" scrolling="no" style="border:0;border-radius:6px;display:block;width:100%;aspect-ratio:16/10;"></iframe>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}},"fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Figure 6. The graph laid out flat, with each measure as elevation. The surface turns on its own and cycles between the three; the cursor tilts it and lights the ridge under the pointer.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>One stack we have been experimenting with runs three tiers over the graph itself, ordered from cheap and deterministic to expensive and generative.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Topology maps can flag isolation, degree skew, and relation-type collapse, and mark the high and low zones worth a look.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Constraint shapes are induced from a snapshot accepted as known-good and act as a fingerprint. They are silent on that snapshot by construction, so any new violation after an ingest is a candidate regression.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A third pass seeds an LLM on those zones and proposes an action: merge a split entity, split a collapsed hub, enrich an orphan, or prune a noisy bridge. Deterministic deltas and review items are easier to audit when they stay tagged separately.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A known-good snapshot can be versioned the way a schema is versioned. An update (a revised manual, a new article, a withdrawn page) could go through a gate before it is live for retrieval: topology delta, constraint delta, and a small held-out question smoke test. Findings would arrive as recommended actions. A human-in-the-loop could accept the merge, the split, or the enrichment. The new graph would not become the next known-good until that review closed, and only then would the fingerprint be re-induced.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Two practices look cheap enough to try before a graph is in front of users:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>One is a synthetic setup where we add, revise, and withdraw documents on purpose and see whether the harness fires on the failure you planted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The other is a written trigger. Deciding which events cause a re-ingest (a document revision, a schema change, a drift threshold on relation vocabulary) is an important consideration, which mirrors the way flat embedding tables update selectively.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This is a large part of what the substrate knob costs. On a dense, slowly changing corpus the gate looks feasible. On a corpus that moves every day it is a reason to leave the graph unbuilt and spend the effort on the other knob instead.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"agent-knob"} -->
+<h2 id="agent-knob" class="wp-block-heading">6. What the agent knob changes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>Turning the other knob moves work from the index to the request path.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A simple agent can decompose a question, route local sub-questions to hybrid search, and use graph traversal only for relationship-heavy steps. A ReAct-style agent interleaves each retrieval action with a reasoning step over what the last one returned. A corrective loop in the CRAG mould scores the retrieved evidence and retrieves again when it falls short. A graph-oriented agent can inspect candidate paths, follow supporting edges, return to source spans, and stop when the evidence looks incomplete. An agent-native system navigates a structured corpus with search and document tools and no vector index at all.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In each case the substrate is one input to a policy. Agentic control will not repair a noisy graph, and a detailed graph will not decide when traversal is worth its latency. A comparison that mixed those two would be hard to read. One way to keep them apart is to run the same questions with a fixed generator, record every retrieval action, and compare the evidence delivered to the answer stage, not only the final text.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"anchor":"what-we-would-measure"} -->
+<h2 id="what-we-would-measure" class="wp-block-heading">7. What we would measure before turning a knob</h2>
+<!-- /wp:heading -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"35px"} -->
+<div style="height:35px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:paragraph -->
+<p>The questions we keep coming back to, before changing architecture, are ordinary ones.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>When a question fails, was the right passage missing from the candidate set, or was it retrieved and unused?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If the evidence is missing, hybrid search, reranking, and better chunking are the cheap first moves. If the evidence is present and one pass cannot assemble it, decomposition and iterative retrieval are the next ones we would try.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A graph enters the conversation when explicit paths, entity aggregation, or corpus-wide structure still look necessary after that, and only if the corpus looks dense and stable enough to keep. Construction cost, query cost, and update cost belong in that conversation with answer quality.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"50px"} -->
+<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:spacer {"height":"25px"} -->
+<div style="height:25px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:heading {"level":3,"anchor":"references"} -->
+<h3 id="references" class="wp-block-heading">References</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true,"fontSize":"small"} -->
+<ol class="wp-block-list has-small-font-size"><!-- wp:list-item {"anchor":"ref-1"} -->
+<li id="ref-1">Zhishang Xiang et al. <em>When to use Graphs in RAG: A Comprehensive Analysis for Graph Retrieval-Augmented Generation</em>, 2026 revision. arXiv:2506.05690. <a href="https://arxiv.org/abs/2506.05690" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2506.05690</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item {"anchor":"ref-2"} -->
+<li id="ref-2">Haoyu Han et al. <em>RAG vs. GraphRAG: A Systematic Evaluation and Key Insights</em>, 2026 revision. arXiv:2502.11371. <a href="https://arxiv.org/abs/2502.11371" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2502.11371</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item {"anchor":"ref-3"} -->
+<li id="ref-3">Bernal Jimenez Gutierrez et al. <em>From RAG to Memory: Non-Parametric Continual Learning for Large Language Models</em>, ICML 2025. arXiv:2502.14802. <a href="https://arxiv.org/abs/2502.14802" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2502.14802</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item {"anchor":"ref-4"} -->
+<li id="ref-4">Darren Edge et al. <em>From Local to Global: A Graph RAG Approach to Query-Focused Summarization</em>, 2024. arXiv:2404.16130. <a href="https://arxiv.org/abs/2404.16130" target="_blank" rel="noreferrer noopener">arxiv.org/abs/2404.16130</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item {"anchor":"ref-5"} -->
+<li id="ref-5">Vector Institute. <em>KG-RAG source and original article implementation</em>, 2025. <a href="https://github.com/VectorInstitute/kg-rag" target="_blank" rel="noreferrer noopener">github.com/VectorInstitute/kg-rag</a></li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:spacer -->
+<div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
