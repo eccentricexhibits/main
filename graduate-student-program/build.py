@@ -12,15 +12,28 @@ for p in polys:
     n = list(map(float, p.split()))
     xs, ys = n[0::2], n[1::2]
     centers.append(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2))
-ROT = sys.argv[1] if len(sys.argv) > 1 else 'ccw'
+ROT = 'ccw'
+LANG = sys.argv[1] if len(sys.argv) > 1 else 'en'
 def rot(x, y):
     if ROT == 'cw':  return (PH - y, x)          # 90 clockwise
     if ROT == 'ccw': return (y, PW - x)          # 90 counter-clockwise
     return (x, y)
 PS = 0.43                     # pattern scale
 # text layout (px): top positions, font sizes, heights
-L = dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=136, h1_fs=76, by_top=323, by_fs=25,
-         tr_top=425, tr_fs=19, logo_top=523, logo_h=56)
+COPY = {
+    'en': dict(pill='NOW ACCEPTING APPLICATIONS',
+               h1='Graduate Student<br>Program',
+               by='Connect with AI research supervisors<br>at Canadian universities through one application.',
+               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=146, h1_fs=76, by_top=338, by_fs=25,
+                      logo_top=523, logo_h=56)),
+    'fr': dict(pill='LES CANDIDATURES SONT MAINTENANT OUVERTES',
+               h1='Programme pour les<br>étudiants diplômés',
+               by='Entrez en contact avec des directeurs de recherche<br>en IA dans les universités canadiennes<br>'
+                  'grâce à une seule candidature.',
+               L=dict(pill_top=48, pill_h=44, pill_fs=19, h1_top=140, h1_fs=68, by_top=314, by_fs=25,
+                      logo_top=523, logo_h=56)),
+}[LANG]
+L = COPY['L']
 PX, PY = 632, 54              # pattern origin
 ARM = 72.85 * PS              # plus width in px
 BAR = 14.99 * PS              # stroke thickness in px
@@ -62,7 +75,7 @@ logo_inner = re.sub(r'class="st[01]"', 'fill="#fff"', mark + text)
 # --- official arrow ---
 arrow = re.search(r'points="([^"]+)"', (R/'Vector Official - Arrow Regular.svg').read_text()).group(1)
 
-html = f'''<!doctype html><html><head><meta charset="utf-8"><title>Graduate Student Program</title>
+html = f'''<!doctype html><html lang="{LANG}"><head><meta charset="utf-8"><title>Graduate Student Program</title>
 <style>
 @font-face{{font-family:Karbon;src:url(../Karbon-Regular.otf);font-weight:400}}
 @font-face{{font-family:Karbon;src:url(../Karbon-Semibold.otf);font-weight:600}}
@@ -74,8 +87,6 @@ html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#8A25C9}}
   display:flex;align-items:center;font-size:{L['pill_fs']}px;letter-spacing:.05em;font-weight:600}}
 h1{{position:absolute;left:61px;top:{L['h1_top']}px;font-weight:600;font-size:{L['h1_fs']}px;line-height:.98;letter-spacing:-.012em}}
 .by{{position:absolute;left:64px;top:{L['by_top']}px;font-size:{L['by_fs']}px;line-height:1.3;font-weight:600;white-space:nowrap}}
-.tr{{position:absolute;left:65px;top:{L['tr_top']}px;font-size:{L['tr_fs']}px;letter-spacing:.18em;font-weight:600}}
-.tr i{{font-style:normal;margin:0 .7em 0 .4em}}
 .logo{{position:absolute;left:64px;top:{L['logo_top']}px;height:{L['logo_h']}px}}
 .stage{{position:absolute;left:992px;top:150px;width:176px;height:300px;perspective:900px}}
 .card{{width:100%;height:100%;border-radius:24px;background:rgba(255,255,255,.2);
@@ -113,11 +124,10 @@ h1{{position:absolute;left:61px;top:{L['h1_top']}px;font-weight:600;font-size:{L
  <ellipse cx="{CX}" cy="{CY}" rx="70" ry="38" fill="url(#flare)" opacity=".85"/>
  <ellipse cx="{CX}" cy="{CY}" rx="16" ry="9" fill="url(#flare)"/>
 </svg>
-<div class="pill">NOW ACCEPTING APPLICATIONS</div>
-<h1>Graduate Student<br>Program</h1>
-<p class="by">Connect with AI research supervisors<br>at Canadian universities through one application.</p>
-<p class="tr">13 UNIVERSITIES<i>•</i>ONE APPLICATION</p>
+<div class="pill">{COPY['pill']}</div>
+<h1>{COPY['h1']}</h1>
+<p class="by">{COPY['by']}</p>
 <svg class="logo" viewBox="0 0 {LOGO_W} {LOGO_H}" height="{L['logo_h']}" width="{L['logo_h']*LOGO_W/LOGO_H:.1f}">{logo_inner}</svg>
 </div></body></html>'''
-(OUT/'graphic.html').write_text(html)
+(OUT/f'graphic_{LANG}.html').write_text(html)
 print('pattern bbox', min(p[0] for p in pts), max(p[0] for p in pts), min(p[1] for p in pts), max(p[1] for p in pts))
