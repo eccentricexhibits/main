@@ -75,11 +75,20 @@ function defaultHero(copy) {
       <h1 class="hero__title">${esc(h.event_name)}</h1>
       <p class="hero__tagline">${esc(h.tagline)}</p>
       <p class="hero__meta">${meta(copy)}</p>
+      <p class="hero__address">${esc(h.venue_address)}</p>
       ${ctas(copy)}
       <p class="small-print">${esc(h.small_print)}</p>
     </div>
     ${anniversarySlot(copy)}
   </div>`;
+}
+
+/* Intro: bold lead sentence, body paragraphs, bold closer (structure from the reg-site copy doc) */
+function intro(copy) {
+  const [lead, ...rest] = copy.intro;
+  return `<p class="intro__lead">${esc(lead)}</p>
+    ${rest.map((t) => `<p class="intro__text">${esc(t)}</p>`).join("")}
+    <p class="intro__closer">${esc(copy.intro_closer)}</p>`;
 }
 
 function nav(copy, variant) {
@@ -138,12 +147,13 @@ function sections(copy, C) {
     .map(social)
     .map((so) => `<li><a class="social social--${so.key}" href="#${so.key}">${so.icon}<span>${esc(so.label)}</span></a></li>`)
     .join("");
+  const links = f.links.map((col) => `<ul>${col.map((l) => `<li><a href="#">${esc(l)}</a></li>`).join("")}</ul>`).join("");
 
   return `
-  <section class="hero" id="home">${C.hero ? C.hero(copy, { logo, anniversarySlot, ctas, meta, esc, asset, photoAlt, ROOT }) : defaultHero(copy)}</section>
+  <section class="hero" id="home">${C.hero ? C.hero(copy, { logo, anniversarySlot, ctas, meta, intro, esc, asset, photoAlt, ROOT }) : defaultHero(copy)}</section>
 
   <section class="intro" aria-label="About Remarkable">
-    <div class="container"><p class="intro__text">${esc(copy.intro)}</p></div>
+    <div class="container"><div class="intro__body">${intro(copy)}</div></div>
   </section>
 
   <section class="stats" aria-labelledby="stats-h">
@@ -157,6 +167,7 @@ function sections(copy, C) {
     <div class="container">
       <h2 class="visually-hidden" id="days-h">${esc(copy.days.map((d) => d.label).join(" and "))}</h2>
       <div class="days__grid">${days}</div>
+      <p class="days__note">${esc(copy.agenda_note)}</p>
     </div>
   </section>
 
@@ -197,14 +208,15 @@ function sections(copy, C) {
           <p class="footer__credit">${esc(f.ontario_credit)}</p>
         </div>
         <div class="footer__col">
-          <h2 class="footer__h">Contact</h2>
+          <p class="footer__h">${esc(f.contact_line)}</p>
           <p><a href="mailto:${esc(f.contact)}">${esc(f.contact)}</a></p>
           <p class="footer__hashtag">${esc(f.hashtag)}</p>
         </div>
         <div class="footer__col">
-          <h2 class="footer__h">Follow</h2>
+          <p class="footer__h">${esc(f.socials_label)}</p>
           <ul class="footer__socials">${socials}</ul>
         </div>
+        <nav class="footer__links" aria-label="Vector Institute">${links}</nav>
       </div>
       <div class="footer__bottom">
         <p class="footer__legal">${esc(f.legal)}</p>

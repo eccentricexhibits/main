@@ -1,5 +1,5 @@
 {
-  "_note": "PLACEHOLDER COPY, adapted from the 2026 reg-site copy and the Vector brand messaging. Final copy comes from Nadia. Use identical copy in all three concepts. Speaker bios are fictitious placeholders written for layout only; replace with speaker-approved text before anything is shared externally.",
+  "_note": "PLACEHOLDER COPY. Home-page and agenda text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy); every edit is listed in content/COPY-CHANGES.md. Stats, themes-free structure, recap and funders come from the original handoff. Speaker bios are fictitious placeholders written for layout only; replace with speaker-approved text before anything is shared externally. Final copy comes from Nadia. Use identical copy in all three concepts.",
   "nav": [
     "Home",
     "Agenda",
@@ -15,10 +15,17 @@
     "venue": "Hilton Toronto",
     "cta_primary": "Register in person",
     "cta_secondary": "Join virtually",
-    "small_print": "In-person attendance is by invitation only.",
-    "anniversary_slot": "[10th-anniversary mark — reserved space, supplied later by agency]"
+    "small_print": "In-person attendance to this event is by invitation only.",
+    "anniversary_slot": "[10th-anniversary mark — reserved space, supplied later by agency]",
+    "venue_address": "145 Richmond St W, Toronto, ON"
   },
-  "intro": "Vector Institute's Remarkable conference returns, where groundbreaking research meets real-world innovation. Two days bring together world-class researchers, industry innovators and emerging talent to show how Canada's AI leadership is taking shape on the global stage.",
+  "intro": [
+    "Vector Institute's Remarkable conference returns, where groundbreaking research meets real-world innovation.",
+    "Remarkable 2027 continues to strengthen its position as the nexus where human brilliance converges with industry innovation. Vector believes AI powers possibility, and this conference shows how we advance leading research and bring it to life through real-world impact.",
+    "As Canada’s preeminent AI institute, Vector collaborates with research, industry, and government partners to turn breakthroughs into progress and outcomes. Remarkable 2027 offers a rare chance to see where possibility becomes productivity and how Canada’s AI leadership is emerging on the global stage.",
+    "This two-day integrated experience brings together the best of Canada's AI ecosystem: world-class researchers, industry innovators, and emerging talent who are pushing new boundaries. Through cutting-edge presentations and hands-on workshops across both days, you will gain practical insights, build new connections, and help drive Canada's AI community forward."
+  ],
+  "intro_closer": "Get ready to be inspired, challenged, and empowered at Remarkable 2027!",
   "stats": {
     "caption": "Remarkable 2026 by the numbers",
     "items": [
@@ -46,16 +53,17 @@
       "date": "Thursday, February 18",
       "length": "Full day",
       "title": "Research & keynotes",
-      "body": "Immerse yourself in cutting-edge AI research as global pioneers and emerging talent share their latest breakthroughs through visionary keynotes and technical presentations."
+      "body": "Immerse yourself in cutting-edge AI research as global pioneers and emerging talent share their latest breakthroughs. Join us for a full day of visionary keynotes and technical presentations that showcase how research powers possibility."
     },
     {
       "label": "Day 2",
       "date": "Friday, February 19",
       "length": "Half day",
       "title": "From research to real-world impact",
-      "body": "See how industry leaders turn AI research into real-world solutions through hands-on workshops, lightning talks and poster sessions."
+      "body": "Experience how industry leaders transform cutting-edge AI research into real-world solutions. Connect with implementation experts through hands-on workshops, presentations and poster sessions."
     }
   ],
+  "agenda_note": "Agenda subject to change",
   "speakers_heading": "Featured speakers",
   "speakers_note": "2026 speakers used as stand-ins; bios are placeholder text",
   "speakers": [
@@ -114,15 +122,36 @@
   ],
   "footer": {
     "ontario_credit": "Funding provided by the Government of Ontario",
+    "contact_line": "Questions about this event? Contact us at",
     "contact": "events@vectorinstitute.ai",
     "hashtag": "#Remarkable2027",
+    "socials_label": "Find us on socials",
     "socials": [
       "X @VectorInst",
       "LinkedIn @VectorInstitute",
       "Bluesky @vectorinstitute.ai",
       "YouTube"
     ],
-    "legal": "By registering, you consent to our collection of your name, title, email address and event feedback. This information may be shared with event organizers and used in Vector's marketing materials. This event will be audio- and video-recorded. Please note this event is conducted in English only. Remarkable 2027 is produced by the Vector Institute, Toronto, Canada.",
+    "links": [
+      [
+        "Research",
+        "Programs",
+        "Partnerships",
+        "Insights"
+      ],
+      [
+        "Contact Us",
+        "About Us",
+        "Careers at Vector",
+        "Media"
+      ],
+      [
+        "Talent Hub",
+        "Privacy",
+        "All Policies"
+      ]
+    ],
+    "legal": "Please note that in registering for our events, the personal data we collect, including contact information such as name, title, and email address, as well as feedback relating to projects and events, may be shared with the organizers of this event and may be disclosed to your employer for tracking purposes. Your name may also be mentioned publicly in Vector's marketing materials. This event will be audio- and video-recorded. Please note this event is conducted in English only. Remarkable 2027 is produced by the Vector Institute, Toronto, Canada.",
     "copyright": "© Vector Institute"
   },
   "frame_label": "Concept {X} — internal draft — placeholder copy",
