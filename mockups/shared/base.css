@@ -24,6 +24,7 @@ h1, h2 { font-family: var(--font-heading); font-weight: var(--weight-heading); l
 h3 { font-family: var(--font-body); font-weight: var(--weight-subhead); line-height: 1.3; }
 :focus-visible { outline: 3px solid var(--vi-cobalt); outline-offset: 3px; }
 
+:root { --lead-indent: 64px; }
 .container { width: 100%; max-width: calc(var(--content-max) + 2 * var(--space-4)); margin: 0 auto; padding: 0 var(--space-4); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .sep { margin: 0 0.4em; opacity: 0.6; }
@@ -85,11 +86,12 @@ main > section.hero { padding: 0; }
 .section-note { font-size: 16px; color: #555; }
 
 /* 3. Intro */
-.intro__text { max-width: 720px; margin: 0 auto; font-size: 24px; line-height: 1.55; text-align: center; }
+/* Left-aligned lead paragraph, set in by a slight tab (follows vectorinstitute.ai) */
+.intro__text { max-width: 760px; margin: 0 0 0 var(--lead-indent); font-size: 24px; line-height: 1.55; }
 
 /* 4. Stats */
-.stats__caption { font: 700 16px/1.4 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--space-4); text-align: center; }
-.stats__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); text-align: center; }
+.stats__caption { font: 700 16px/1.4 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--space-4); }
+.stats__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
 .stat { display: flex; flex-direction: column; gap: var(--space-1); }
 .stat__value { font: var(--weight-heading) 80px/1 var(--font-heading); }
 .stat__label { font-size: 18px; }
@@ -105,19 +107,16 @@ main > section.hero { padding: 0; }
 .day__text { font-size: 18px; }
 
 /* 6. Speakers */
-.speakers__grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-4) var(--space-3); text-align: center; }
-.speaker { display: flex; flex-direction: column; align-items: center; }
-.speaker__ring { width: 100%; max-width: 168px; aspect-ratio: 1; border-radius: 50%; margin-bottom: var(--space-2); }
+.speakers__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8) var(--space-6); }
+.speaker { display: flex; flex-direction: column; align-items: flex-start; }
+.speaker__ring { flex: none; width: 168px; height: 168px; border-radius: 50%; margin-bottom: var(--space-3); }
 .speaker__photo { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; border-radius: 50%; }
-.speaker__name { font-size: 18px; }
-.speaker__title, .speaker__org { font-size: 16px; line-height: 1.4; }
+.speaker__name { font-size: 20px; }
+.speaker__title, .speaker__org { font-size: 16px; line-height: 1.45; }
+.speaker__bio { font-size: 16px; line-height: 1.6; margin-top: var(--space-2); }
 
 /* 7. Themes */
-.themes__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
-.theme { display: flex; flex-direction: column; gap: var(--space-2); }
-.theme__index { font: var(--weight-heading) 20px/1 var(--font-heading); }
-.theme__title { font-size: 26px; font-family: var(--font-heading); font-weight: var(--weight-heading); }
-.theme__text { font-size: 18px; }
+
 
 /* 8. Recap video (static thumbnail, nothing autoplays) */
 .recap .section-title { margin-bottom: var(--space-6); }
@@ -131,8 +130,8 @@ main > section.hero { padding: 0; }
 .recap__play svg { width: 48px; height: 48px; margin-left: 6px; }
 
 /* 9. Funders: equal-height logos */
-.funders__title { font: 700 16px/1.4 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; margin-bottom: var(--space-6); }
-.funders__row { display: flex; justify-content: center; align-items: center; gap: var(--space-12); flex-wrap: wrap; }
+.funders__title { font: 700 16px/1.4 var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--space-6); }
+.funders__row { display: flex; justify-content: flex-start; align-items: center; gap: var(--space-12); flex-wrap: wrap; }
 .funder img { height: 56px; width: auto; }
 .funder--canada img { height: 52px; } /* wordmark has no inner padding; optically matches the others */
 
@@ -158,11 +157,12 @@ main > section.hero { padding: 0; }
   .nav__links { display: none; }
   .nav__actions { margin-left: auto; }
   .nav__burger { display: flex; }
-  .speakers__grid { grid-template-columns: repeat(3, 1fr); }
+  .speakers__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ---------- Mobile (390) ---------- */
 @media (max-width: 640px) {
+  :root { --lead-indent: 16px; }
   body { font-size: 16px; }
   .container { padding: 0 20px; }
   .frame-label { top: 4px; left: 4px; font-size: 10px; line-height: 14px; padding: 1px 8px; }
@@ -182,7 +182,7 @@ main > section.hero { padding: 0; }
 
   .section-title { font-size: 34px; }
   .section-head { margin-bottom: var(--space-4); }
-  .intro__text { font-size: 19px; text-align: left; }
+  .intro__text { font-size: 19px; }
 
   .stats__grid { grid-template-columns: 1fr 1fr; gap: var(--space-4) var(--space-2); }
   .stat__value { font-size: 52px; }
@@ -194,13 +194,13 @@ main > section.hero { padding: 0; }
   .day__title { font-size: 22px; }
   .day__text { font-size: 16px; }
 
-  .speakers__grid { grid-template-columns: 1fr 1fr; gap: var(--space-4) var(--space-2); }
-  .speaker__ring { max-width: 140px; }
-  .speaker__name { font-size: 17px; }
+  /* With bios, speakers read better as a single list: photo left, text right */
+  .speakers__grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  .speaker { flex-direction: row; gap: var(--space-2); }
+  .speaker__ring { width: 96px; height: 96px; margin-bottom: 0; }
+  .speaker__name { font-size: 18px; }
+  .speaker__title, .speaker__org { font-size: 15px; }
 
-  .themes__grid { grid-template-columns: 1fr; gap: var(--space-4); }
-  .theme__title { font-size: 24px; }
-  .theme__text { font-size: 16px; }
 
   .recap .section-title { margin-bottom: var(--space-4); }
   .recap__play { width: 72px; height: 72px; }
@@ -217,8 +217,8 @@ main > section.hero { padding: 0; }
   .footer__legal { font-size: 13px; }
 }
 
-/* Mobile: dates and venue stack instead of leaving a dangling divider */
+/* Mobile: dates/venue and date/length stack instead of leaving a dangling divider */
 @media (max-width: 640px) {
-  .hero__meta .sep { display: none; }
-  .hero__meta .nowrap { display: block; }
+  .hero__meta .sep, .day__meta .sep { display: none; }
+  .hero__meta .nowrap, .day__meta .nowrap { display: block; }
 }

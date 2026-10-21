@@ -1,5 +1,5 @@
 /* Remarkable 2027 mockups: shared renderer.
-   Loads content/copy.json and builds the 10 home-page sections in a fixed order.
+   Loads content/copy.json and builds the 9 home-page sections (themes section removed per review) in a fixed order.
    Each concept sets window.CONCEPT before this script runs:
      letter      "A" | "B" | "C"               (frame label)
      navLogo     "colour" | "knockout"          (nav logo variant, default colour)
@@ -109,7 +109,7 @@ function sections(copy, C) {
         ${ph ? `<img class="day__photo" src="${asset(ph.src)}" alt="${esc(ph.alt || photoAlt(ph.src))}">` : ""}
         <div class="day__body">
           <p class="day__label">${esc(d.label)}</p>
-          <p class="day__meta"><span class="day__date nowrap">${esc(d.date)}</span> <span class="sep" aria-hidden="true">·</span> <span class="day__length nowrap">${esc(d.length)}</span></p>
+          <p class="day__meta"><span class="day__date nowrap">${esc(d.date)}<span class="sep" aria-hidden="true">·</span></span> <span class="day__length nowrap">${esc(d.length)}</span></p>
           <h3 class="day__title">${esc(d.title)}</h3>
           <p class="day__text">${esc(d.body)}</p>
         </div>
@@ -121,15 +121,14 @@ function sections(copy, C) {
     .map(
       (sp) => `<li class="speaker">
         <div class="speaker__ring"><img class="speaker__photo" src="${asset(sp.photo)}" alt="Portrait of ${esc(sp.name)}"></div>
-        <h3 class="speaker__name">${esc(sp.name)}</h3>
-        <p class="speaker__title">${esc(sp.title)}</p>
-        <p class="speaker__org">${esc(sp.org)}</p>
+        <div class="speaker__info">
+          <h3 class="speaker__name">${esc(sp.name)}</h3>
+          <p class="speaker__title">${esc(sp.title)}</p>
+          <p class="speaker__org">${esc(sp.org)}</p>
+          <p class="speaker__bio">${esc(sp.bio)}</p>
+        </div>
       </li>`
     )
-    .join("");
-
-  const themes = copy.themes
-    .map((t, i) => `<li class="theme"><span class="theme__index" aria-hidden="true">0${i + 1}</span><h3 class="theme__title">${esc(t.title)}</h3><p class="theme__text">${esc(t.body)}</p></li>`)
     .join("");
 
   const funders = copy.funders.map((f) => `<li class="funder funder--${file(f).replace(".png", "")}"><img src="${asset(f)}" alt="${FUNDER_ALT[file(f)]}"></li>`).join("");
@@ -168,16 +167,6 @@ function sections(copy, C) {
         <p class="section-note">${esc(copy.speakers_note)}</p>
       </div>
       <ul class="speakers__grid">${speakers}</ul>
-    </div>
-  </section>
-
-  <section class="themes" aria-labelledby="themes-h">
-    <div class="container">
-      <div class="section-head">
-        <h2 class="section-title" id="themes-h">${esc(copy.themes_heading)}</h2>
-        <p class="section-note">${esc(copy.themes_note)}</p>
-      </div>
-      <ul class="themes__grid">${themes}</ul>
     </div>
   </section>
 

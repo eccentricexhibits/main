@@ -1,6 +1,11 @@
 {
-  "_note": "PLACEHOLDER COPY, adapted from the 2026 reg-site copy and the Vector brand messaging. Final copy comes from Nadia. Use identical copy in all three concepts.",
-  "nav": ["Home", "Agenda", "Speakers", "Venue", "FAQ", "Partners", "Log in"],
+  "_note": "PLACEHOLDER COPY, adapted from the 2026 reg-site copy and the Vector brand messaging. Final copy comes from Nadia. Use identical copy in all three concepts. Speaker bios are fictitious placeholders written for layout only; replace with speaker-approved text before anything is shared externally.",
+  "nav": [
+    "Home",
+    "Agenda",
+    "Speakers",
+    "FAQ"
+  ],
   "nav_cta": "Register",
   "hero": {
     "eyebrow": "Vector Institute presents",
@@ -17,10 +22,22 @@
   "stats": {
     "caption": "Remarkable 2026 by the numbers",
     "items": [
-      {"value": "1,500+", "label": "attendees"},
-      {"value": "39", "label": "countries"},
-      {"value": "20", "label": "speakers"},
-      {"value": "50+", "label": "research posters"}
+      {
+        "value": "1,500+",
+        "label": "attendees"
+      },
+      {
+        "value": "39",
+        "label": "countries"
+      },
+      {
+        "value": "20",
+        "label": "speakers"
+      },
+      {
+        "value": "50+",
+        "label": "research posters"
+      }
     ]
   },
   "days": [
@@ -40,33 +57,71 @@
     }
   ],
   "speakers_heading": "Featured speakers",
-  "speakers_note": "2026 speakers used as stand-ins",
+  "speakers_note": "2026 speakers used as stand-ins; bios are placeholder text",
   "speakers": [
-    {"name": "Nick Frosst", "title": "Co-founder", "org": "Cohere", "photo": "assets/speakers/nick-frosst.png"},
-    {"name": "Priyank Jaini", "title": "Research Scientist", "org": "Google DeepMind", "photo": "assets/speakers/priyank-jaini.jpg"},
-    {"name": "Ankita Upadhyay", "title": "Senior Director, AI Enablement", "org": "Thomson Reuters", "photo": "assets/speakers/ankita-upadhyay.png"},
-    {"name": "Chris Maddison", "title": "Faculty Member", "org": "Vector Institute", "photo": "assets/speakers/chris-maddison.jpg"},
-    {"name": "Alán Aspuru-Guzik", "title": "Faculty Member", "org": "Vector Institute", "photo": "assets/speakers/alan-aspuru-guzik.jpg"},
-    {"name": "Glenda Crisp", "title": "President & CEO", "org": "Vector Institute", "photo": "assets/speakers/glenda-crisp.jpg"}
-  ],
-  "themes_heading": "2027 themes",
-  "themes_note": "2026 themes used as stand-ins",
-  "themes": [
-    {"title": "Agentic AI", "body": "Bridging autonomous AI research and practical deployment."},
-    {"title": "LLMs & Inference", "body": "Moving from LLM experimentation to production-ready systems."},
-    {"title": "Privacy & Security", "body": "Building trustworthy AI with privacy-enhancing technologies."}
+    {
+      "name": "Nick Frosst",
+      "title": "Co-founder",
+      "org": "Cohere",
+      "photo": "assets/speakers/nick-frosst.png",
+      "bio": "Nick Frosst is Co-founder of Cohere, which builds large language models for enterprise use. At Remarkable, Nick will share what it takes to move generative AI from prototype to production."
+    },
+    {
+      "name": "Priyank Jaini",
+      "title": "Research Scientist",
+      "org": "Google DeepMind",
+      "photo": "assets/speakers/priyank-jaini.jpg",
+      "bio": "Priyank Jaini is a Research Scientist at Google DeepMind working on machine learning research. Priyank's talk will look at how new modelling approaches can make AI systems more reliable."
+    },
+    {
+      "name": "Ankita Upadhyay",
+      "title": "Senior Director, AI Enablement",
+      "org": "Thomson Reuters",
+      "photo": "assets/speakers/ankita-upadhyay.png",
+      "bio": "Ankita Upadhyay leads AI enablement at Thomson Reuters, helping teams put AI to work across products and operations. Ankita will cover practical lessons from scaling AI inside a global company."
+    },
+    {
+      "name": "Chris Maddison",
+      "title": "Faculty Member",
+      "org": "Vector Institute",
+      "photo": "assets/speakers/chris-maddison.jpg",
+      "bio": "Chris Maddison is a Faculty Member at the Vector Institute whose research focuses on machine learning methods. Chris will discuss open questions at the frontier of AI research."
+    },
+    {
+      "name": "Alán Aspuru-Guzik",
+      "title": "Faculty Member",
+      "org": "Vector Institute",
+      "photo": "assets/speakers/alan-aspuru-guzik.jpg",
+      "bio": "Alán Aspuru-Guzik is a Faculty Member at the Vector Institute working where AI meets chemistry and materials science. Alán's talk will explore how AI-driven labs can speed up discovery."
+    },
+    {
+      "name": "Glenda Crisp",
+      "title": "President & CEO",
+      "org": "Vector Institute",
+      "photo": "assets/speakers/glenda-crisp.jpg",
+      "bio": "Glenda Crisp is President and CEO of the Vector Institute. Glenda will open Remarkable 2027 with a look at Canada's AI ecosystem and where it goes next."
+    }
   ],
   "recap": {
     "heading": "Watch the Remarkable 2026 recap",
     "thumbnail": "assets/photos-2026/auditorium-wide-stage.jpg"
   },
   "funders_heading": "Thank you to our funders",
-  "funders": ["assets/funders/canada.png", "assets/funders/ontario.png", "assets/funders/cifar.png"],
+  "funders": [
+    "assets/funders/canada.png",
+    "assets/funders/ontario.png",
+    "assets/funders/cifar.png"
+  ],
   "footer": {
     "ontario_credit": "Funding provided by the Government of Ontario",
     "contact": "events@vectorinstitute.ai",
     "hashtag": "#Remarkable2027",
-    "socials": ["X @VectorInst", "LinkedIn @VectorInstitute", "Bluesky @vectorinstitute.ai", "YouTube"],
+    "socials": [
+      "X @VectorInst",
+      "LinkedIn @VectorInstitute",
+      "Bluesky @vectorinstitute.ai",
+      "YouTube"
+    ],
     "legal": "By registering, you consent to our collection of your name, title, email address and event feedback. This information may be shared with event organizers and used in Vector's marketing materials. This event will be audio- and video-recorded. Please note this event is conducted in English only. Remarkable 2027 is produced by the Vector Institute, Toronto, Canada.",
     "copyright": "© Vector Institute"
   },
