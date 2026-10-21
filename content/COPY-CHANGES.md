@@ -20,7 +20,6 @@ anniversary wording). Everything else is verbatim.
 Not from the doc (sources):
 - Stats, recap heading, funders heading, day titles ("Research & keynotes", "From research to real-world impact"): original handoff `copy.json`.
 - Footer "Questions about this event? Contact us at", "Find us on socials" and the Vector link list (Research … All Policies): the AI Summit 2026 Swoogo page.
-- Speaker bios: fictitious placeholders written for layout only.
 
 ## Written for the mockups (placeholders: replace before anything is shared externally)
 
@@ -29,6 +28,7 @@ Not from the doc (sources):
 | Nav | EN / FR language switch | AI Summit 2026 Swoogo nav (Language: English / Français) |
 | Home | "Remarkable 2026 in photos" carousel heading and "Highlights from last year’s conference" | New |
 | Home | "View the full agenda", "See all speakers" links | New |
-| Agenda page | Intro paragraph, every session (times, titles, descriptions, speakers, rooms), "Livestreamed" tags, placeholder note | Session topics reuse the 2026 themes from the original handoff (Agentic AI, LLMs & Inference, Privacy & Security); day structure from BRIEF.md §2. Times, rooms and speaker assignments are invented |
-| Speakers page | Intro, session line per speaker, "More speakers to be announced soon!" | Last line follows the AI Summit page; the rest is new |
+| Agenda page | Intro paragraph, every session (times, titles, descriptions, speakers, rooms), "Livestreamed" tags, placeholder note | Session topics reuse the 2026 themes from the original handoff (Agentic AI, LLMs & Inference, Privacy & Security); day structure from BRIEF.md §2. Times, rooms, sessions and all named people are fictitious |
+| Speakers (Home and Speakers page) | Six fictitious speakers: names, titles, companies, bios, sessions | All invented. No 2027 speakers are confirmed. Company and university names are made up; check them against real organizations before anything leaves the team. Portraits are 2026 headshots used temporarily until stock images arrive |
+| Speakers page | Intro, "More speakers to be announced soon!" | Last line follows the AI Summit page; the rest is new |
 | FAQ page | All questions and answers | Facts reused from BRIEF.md §2 and the legal copy (invitation-only, public livestream, Hilton address, recorded, English only, privacy paragraph). Process details (confirmation-email link, viewing details by email), the Osgoode station directions and the accessibility answer are placeholders to confirm |

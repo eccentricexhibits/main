@@ -1,0 +1,136 @@
+/* Concept A, "Gradient Stage".
+   Colour plan, section by section (max two brand colours each):
+     nav + hero, page headers, speakers teaser ... horizontal magenta->cobalt gradient, white type
+     stats ...................................... cobalt, white numbers (solid, never gradient)
+     days, speakers page, funders ............... grey with white cards / keylines, magenta accents
+     agenda, faq, recap, gallery ................ white with magenta / cobalt accents
+     footer ..................................... cobalt (from base)
+   Graphic elements: the 2026 "AI" letterform (hero only) and the plus pattern (corners of gradient bands only).
+   White text sits on the gradient only where it measures >= 4.5:1, or is large (>= 24px, or bold >= 19px). */
+
+/* Plus pattern: the PNG holds two clusters (left: x 0-1072, y 554-963; right: x 1428-2500, y 538-970 of 2500 x 1406).
+   Each corner box shows exactly one cluster, scaled by --s, so the pattern never reaches the text. */
+:root { --a-plus: url("../../assets/brand-elements/plus-pattern-2026.png"); }
+
+
+/* ---------- Nav sits on the gradient on every page ---------- */
+.nav { background: var(--vi-gradient); color: var(--vi-white); }
+.nav__links a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--vi-white); }
+.nav .btn--nav { background: var(--vi-white); color: var(--vi-magenta); }
+
+/* Buttons on the gradient: white primary (a magenta pill disappears into the magenta end), white outline secondary */
+.hero .btn--primary { background: var(--vi-white); color: var(--vi-magenta); }
+.hero .btn--secondary { color: var(--vi-white); border-color: var(--vi-white); }
+
+/* ---------- Home hero ---------- */
+.hero { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
+.hero::before { /* faint 2026 "AI" letterform, white, behind and to the right */
+  content: ""; position: absolute; right: -4%; top: -12%; width: 64%; height: 128%;
+  background: url("../../assets/brand-elements/ai-letterform-2026.png") no-repeat 70% 50% / cover;
+  filter: brightness(0) invert(1); opacity: 0.12; pointer-events: none;
+}
+.hero::after { /* plus pattern, left cluster, bottom-left corner */
+  --s: 0.38; content: ""; position: absolute; left: -60px; bottom: 8px; width: calc(1072px * var(--s)); height: calc(409px * var(--s));
+  background: var(--a-plus) no-repeat 0 calc(-554px * var(--s)) / calc(2500px * var(--s)) auto;
+  filter: brightness(0) invert(1); opacity: 0.35; pointer-events: none;
+}
+.a-hero__inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: var(--space-8); padding-bottom: var(--space-12); }
+.a-hero__eyebrow { margin-bottom: var(--space-4); }
+.a-box {
+  position: relative; width: 100%; max-width: 940px;
+  padding: var(--space-8) var(--space-8) var(--space-6);
+  background: var(--vi-overlay-fill); border-radius: var(--vi-overlay-radius);
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
+}
+/* Letter-spaced wordmark, as on the 2026 stage and title slides. Trailing tracking is cancelled so it centres. */
+.a-wordmark { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; line-height: 1; }
+.a-wordmark__name { font-size: 76px; letter-spacing: 0.5em; margin-right: -0.5em; }
+.a-wordmark__year { font-size: 40px; letter-spacing: 0.6em; margin-right: -0.6em; font-weight: 500; }
+.a-box__tagline { font: 400 28px/1.3 var(--font-body); margin-top: var(--space-2); }
+.a-box .hero__meta { margin: 0; font-size: 24px; }
+.a-box .cta-row { justify-content: center; margin-top: var(--space-2); }
+.a-hero__fine { margin-top: var(--space-3); font-size: 16px; }
+/* 10th-anniversary mark: empty dashed circle on the box's top-right corner */
+.a-anniv { position: absolute; top: -56px; right: -56px; width: 136px; border-radius: 50%; border-color: var(--vi-white); color: var(--vi-white); align-items: center; opacity: 1; }
+.a-anniv .anniv__label { padding: 0 14px; text-align: center; line-height: 1.3; }
+
+/* ---------- Inner-page header band ---------- */
+.page-hero { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
+.page-hero::after { /* right cluster, top-right corner */
+  --s: 0.4; content: ""; position: absolute; right: -40px; top: 12px; width: calc(1072px * var(--s)); height: calc(432px * var(--s));
+  background: var(--a-plus) no-repeat calc(-1428px * var(--s)) calc(-538px * var(--s)) / calc(2500px * var(--s)) auto;
+  filter: brightness(0) invert(1); opacity: 0.35; pointer-events: none;
+}
+.page-hero__inner { position: relative; z-index: 1; padding-top: var(--space-8); padding-bottom: var(--space-12); }
+.page-hero__title { font-weight: 400; text-transform: uppercase; letter-spacing: 0.3em; font-size: 64px; }
+
+/* ---------- Intro ---------- */
+.intro__lead { color: var(--vi-black); }
+
+/* ---------- Stats: solid cobalt, white numbers ---------- */
+.stats { background: var(--vi-cobalt); color: var(--vi-white); }
+.stat__value { font-size: 88px; }
+.stat { border-left: 1px solid rgba(255, 255, 255, 0.45); padding-left: var(--space-3); }
+
+/* ---------- Day cards: white on grey ---------- */
+.days { background: var(--vi-grey); }
+.day { background: var(--vi-white); }
+.day__label { color: var(--vi-magenta); }
+
+/* ---------- Speakers teaser: gradient band, white keylines ---------- */
+.speakers--teaser { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
+.speakers--teaser::after { /* right cluster, bottom-right corner (clear of the heading and note) */
+  --s: 0.4; content: ""; position: absolute; right: -40px; bottom: 8px; width: calc(1072px * var(--s)); height: calc(432px * var(--s));
+  background: var(--a-plus) no-repeat calc(-1428px * var(--s)) calc(-538px * var(--s)) / calc(2500px * var(--s)) auto;
+  filter: brightness(0) invert(1); opacity: 0.3; pointer-events: none;
+}
+.speakers--teaser .container { position: relative; z-index: 1; }
+.speakers--teaser .section-note { color: var(--vi-white); }
+.speakers--teaser .speaker__ring { border: 4px solid var(--vi-white); }
+.speakers--teaser .more-link .arrow-icon { color: var(--vi-white); }
+
+/* ---------- Speakers page: grey band, white keylines ---------- */
+.speakers--full { background: var(--vi-grey); }
+.speakers--full .speaker__ring { border: 4px solid var(--vi-white); }
+.speaker__session { color: var(--vi-cobalt); }
+
+/* ---------- Recap and gallery ---------- */
+.recap__play { background: var(--vi-magenta); }
+
+/* ---------- Funders on grey ---------- */
+.funders { background: var(--vi-grey); }
+
+/* ---------- Agenda ---------- */
+.day-tabs__tab.is-active { border-bottom-color: var(--vi-magenta); }
+.agenda .day__label { color: var(--vi-magenta); }
+.session__time, .session__type { color: var(--vi-cobalt); }
+.tag--live { color: var(--vi-cobalt); }
+
+/* ---------- FAQ ---------- */
+.faq__icon { color: var(--vi-magenta); }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .hero::before { right: -30%; top: 2%; width: 120%; height: 60%; }
+  .hero::after { display: none; } /* no free corner on a 390 hero; the letterform carries it */
+  .a-hero__inner { padding-top: var(--space-4); padding-bottom: var(--space-8); }
+  .a-hero__eyebrow { margin-bottom: var(--space-6); font-size: 13px; }
+  .a-box { padding: var(--space-8) var(--space-3) var(--space-4); gap: var(--space-2); }
+  .a-wordmark__name { font-size: 25px; letter-spacing: 0.4em; margin-right: -0.4em; }
+  .a-wordmark__year { font-size: 24px; letter-spacing: 0.5em; margin-right: -0.5em; }
+  .a-box__tagline { font-size: 24px; }
+  .a-box .hero__meta { font-size: 20px; }
+  .a-box .cta-row { width: 100%; }
+  .a-hero__fine .sep { display: none; }
+  .a-hero__fine .nowrap { display: block; }
+  .a-anniv { top: -40px; right: -6px; width: 92px; }
+  .a-anniv .anniv__label { font-size: 9px; padding: 0 8px; }
+
+  .page-hero__inner { padding-bottom: var(--space-8); }
+  .page-hero__title { font-size: 34px; letter-spacing: 0.2em; }
+  .page-hero::after { display: none; } /* would sit on the eyebrow at this width */
+
+  .stat__value { font-size: 52px; }
+  .stat { padding-left: var(--space-2); }
+  .speakers--teaser::after { --s: 0.24; right: -30px; bottom: 4px; }
+}

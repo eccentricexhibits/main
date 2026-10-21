@@ -1,5 +1,5 @@
 {
-  "_note": "PLACEHOLDER COPY. Home-page intro and agenda day text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy). Agenda sessions, speaker sessions and bios, FAQ answers and page intros were written for the mockups and are placeholders. Every source and edit is listed in content/COPY-CHANGES.md. Final copy comes from Nadia. Use identical copy in all three concepts.",
+  "_note": "PLACEHOLDER COPY. Home-page intro and agenda day text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy). No 2027 speakers or sessions are confirmed: every speaker, company, bio and session below is FICTITIOUS, written for layout only. Portraits are temporary stand-ins (2026 headshots) until stock images are supplied. Every source and edit is listed in content/COPY-CHANGES.md. Final copy comes from Nadia. Use identical copy in all three concepts.",
   "nav": [
     "Home",
     "Agenda",
@@ -75,55 +75,55 @@
     "speakers": "See all speakers"
   },
   "speakers_heading": "Featured speakers",
-  "speakers_note": "2026 speakers used as stand-ins",
+  "speakers_note": "Fictitious speakers for layout; portraits are temporary",
   "speakers": [
     {
-      "name": "Nick Frosst",
-      "title": "Co-founder",
-      "org": "Cohere",
+      "name": "Rowan Achterberg",
+      "title": "Co-founder & CEO",
+      "org": "Lumenfold AI",
       "photo": "assets/speakers/nick-frosst.png",
-      "bio": "Nick Frosst is Co-founder of Cohere, which builds large language models for enterprise use. At Remarkable, Nick will share what it takes to move generative AI from prototype to production.",
-      "session": "Day 1 · Keynote"
+      "session": "Day 1 · Keynote",
+      "bio": "Rowan Achterberg co-founded Lumenfold AI, which builds language-model tools for regulated industries, after a decade in applied machine learning research. Rowan's keynote looks at what it takes to move generative AI from a promising prototype to a product that thousands of people rely on every day."
     },
     {
-      "name": "Priyank Jaini",
-      "title": "Research Scientist",
-      "org": "Google DeepMind",
+      "name": "Avery Nakamura-Shah",
+      "title": "Principal Research Scientist",
+      "org": "Halcyon Labs",
       "photo": "assets/speakers/priyank-jaini.jpg",
-      "bio": "Priyank Jaini is a Research Scientist at Google DeepMind working on machine learning research. Priyank's talk will look at how new modelling approaches can make AI systems more reliable.",
-      "session": "Day 1 · Research talks: Agentic AI"
+      "session": "Day 1 · Research talks: Agentic AI",
+      "bio": "Avery Nakamura-Shah leads Halcyon Labs' work on planning and tool use in AI agents. Avery's talk covers how agents can break long tasks into steps they can check, and why evaluation is the hardest part of building them."
     },
     {
-      "name": "Ankita Upadhyay",
-      "title": "Senior Director, AI Enablement",
-      "org": "Thomson Reuters",
+      "name": "Morgan Adeyemi",
+      "title": "Vice-President, Applied AI",
+      "org": "Northbridge Financial Group",
       "photo": "assets/speakers/ankita-upadhyay.png",
-      "bio": "Ankita Upadhyay leads AI enablement at Thomson Reuters, helping teams put AI to work across products and operations. Ankita will cover practical lessons from scaling AI inside a global company.",
-      "session": "Day 1 · Panel"
+      "session": "Day 1 · Panel moderator",
+      "bio": "Morgan Adeyemi runs the applied AI team at Northbridge Financial Group, taking models from pilot to production across lending, fraud and customer service. Morgan moderates the panel on scaling AI inside large organizations."
     },
     {
-      "name": "Chris Maddison",
-      "title": "Faculty Member",
-      "org": "Vector Institute",
+      "name": "Jordan Castellano",
+      "title": "Associate Professor, Computer Science",
+      "org": "Lakeview Institute of Technology",
       "photo": "assets/speakers/chris-maddison.jpg",
-      "bio": "Chris Maddison is a Faculty Member at the Vector Institute whose research focuses on machine learning methods. Chris will discuss open questions at the frontier of AI research.",
-      "session": "Day 1 · Research talks: LLMs & Inference"
+      "session": "Day 1 · Research talks: LLMs & Inference",
+      "bio": "Jordan Castellano studies how to make large language models faster and cheaper to run without losing accuracy. Jordan's talk walks through recent results on efficient inference and what they mean for teams deploying models at scale."
     },
     {
-      "name": "Alán Aspuru-Guzik",
-      "title": "Faculty Member",
-      "org": "Vector Institute",
+      "name": "Sam Okonkwo-Reid",
+      "title": "Director, Autonomous Discovery Lab",
+      "org": "Cobalt Ridge Materials",
       "photo": "assets/speakers/alan-aspuru-guzik.jpg",
-      "bio": "Alán Aspuru-Guzik is a Faculty Member at the Vector Institute working where AI meets chemistry and materials science. Alán's talk will explore how AI-driven labs can speed up discovery.",
-      "session": "Day 1 · Fireside chat"
+      "session": "Day 1 · Fireside chat",
+      "bio": "Sam Okonkwo-Reid directs a self-driving laboratory where AI designs experiments and robots run them. In the fireside chat, Sam shares what changes when the time from hypothesis to result drops from months to days."
     },
     {
-      "name": "Glenda Crisp",
-      "title": "President & CEO",
-      "org": "Vector Institute",
+      "name": "Riley Fontaine",
+      "title": "Chief Privacy Officer",
+      "org": "Meridian Health Network",
       "photo": "assets/speakers/glenda-crisp.jpg",
-      "bio": "Glenda Crisp is President and CEO of the Vector Institute. Glenda will open Remarkable 2027 with a look at Canada's AI ecosystem and where it goes next.",
-      "session": "Day 1 · Opening remarks"
+      "session": "Day 1 · Research talks: Privacy & Security",
+      "bio": "Riley Fontaine oversees privacy and data governance for a network of hospitals and clinics. Riley's talk covers privacy-enhancing technologies that let health data power AI research while staying protected."
     }
   ],
   "recap": {
@@ -154,7 +154,7 @@
   "agenda_page": {
     "title": "Agenda",
     "intro": "Two days, one program: a full day of keynotes and research talks on the main stage, followed by a half day of hands-on workshops, lightning talks and poster sessions. Main-stage sessions are livestreamed for virtual attendees.",
-    "note": "Sample program for layout. Session titles, times and speakers are placeholders until the program is confirmed. Agenda subject to change.",
+    "note": "Sample program for layout. All sessions and speakers are fictitious. Agenda subject to change.",
     "livestream_label": "Livestreamed",
     "days": [
       {
@@ -172,8 +172,8 @@
             "time": "9:00 AM",
             "type": "Welcome",
             "title": "Opening remarks",
-            "body": "",
-            "speakers": "Glenda Crisp, Vector Institute",
+            "body": "A welcome from the Vector Institute and an overview of the two days ahead.",
+            "speakers": "Vector Institute",
             "where": "Main stage",
             "livestream": true
           },
@@ -181,17 +181,17 @@
             "time": "9:20 AM",
             "type": "Keynote",
             "title": "From prototype to production",
-            "body": "What it takes to move generative AI out of the lab and into products people rely on.",
-            "speakers": "Nick Frosst, Cohere",
+            "body": "What it takes to move generative AI out of the lab and into products people rely on, and the lessons learned along the way.",
+            "speakers": "Rowan Achterberg, Lumenfold AI",
             "where": "Main stage",
             "livestream": true
           },
           {
             "time": "10:00 AM",
             "type": "Research talks",
-            "title": "Agentic AI",
-            "body": "Bridging autonomous AI research and practical deployment.",
-            "speakers": "Priyank Jaini, Google DeepMind, and Vector researchers",
+            "title": "Agentic AI: agents you can check",
+            "body": "Three short talks on planning, tool use and evaluation for AI agents that carry out long, multi-step tasks.",
+            "speakers": "Avery Nakamura-Shah, Halcyon Labs; Theo Marchand, Vector Institute; Ines Varga-Holm, Brightwater University",
             "where": "Main stage",
             "livestream": true
           },
@@ -207,9 +207,9 @@
           {
             "time": "11:30 AM",
             "type": "Fireside chat",
-            "title": "AI-driven labs and the pace of discovery",
-            "body": "How AI is changing the way science gets done, from hypothesis to experiment.",
-            "speakers": "Alán Aspuru-Guzik, Vector Institute",
+            "title": "When the lab runs itself",
+            "body": "How AI-designed experiments and robotic labs are shortening the path from hypothesis to discovery.",
+            "speakers": "Sam Okonkwo-Reid, Cobalt Ridge Materials, in conversation with Dana Whitlock, Vector Institute",
             "where": "Main stage",
             "livestream": true
           },
@@ -225,9 +225,9 @@
           {
             "time": "1:30 PM",
             "type": "Research talks",
-            "title": "LLMs & Inference",
-            "body": "Moving from LLM experimentation to production-ready systems.",
-            "speakers": "Chris Maddison, Vector Institute, and Vector researchers",
+            "title": "LLMs & Inference: doing more with less",
+            "body": "New methods for faster, cheaper inference, and how to choose the right model size for the job.",
+            "speakers": "Jordan Castellano, Lakeview Institute of Technology; Mira Solberg, Fernway Cloud",
             "where": "Main stage",
             "livestream": true
           },
@@ -235,17 +235,17 @@
             "time": "2:45 PM",
             "type": "Panel",
             "title": "Scaling AI inside the enterprise",
-            "body": "Practical lessons from teams putting AI to work across products and operations.",
-            "speakers": "Ankita Upadhyay, Thomson Reuters, and panellists to be announced",
+            "body": "Leaders from finance, logistics and retail compare notes on moving from pilots to production, and what they would do differently.",
+            "speakers": "Moderated by Morgan Adeyemi, Northbridge Financial Group, with Elliot Varga, Tidewater Logistics, and Noor Siddiqui-Laurent, Brightwell Retail",
             "where": "Main stage",
             "livestream": true
           },
           {
             "time": "3:45 PM",
             "type": "Research talks",
-            "title": "Privacy & Security",
-            "body": "Building trustworthy AI with privacy-enhancing technologies.",
-            "speakers": "Vector researchers",
+            "title": "Privacy & Security: trustworthy by design",
+            "body": "Privacy-enhancing technologies that let sensitive data power AI while staying protected.",
+            "speakers": "Riley Fontaine, Meridian Health Network; Kai Lindgren, Vector Institute",
             "where": "Main stage",
             "livestream": true
           },
@@ -275,8 +275,8 @@
             "time": "9:00 AM",
             "type": "Workshops",
             "title": "Hands-on workshops",
-            "body": "Small-group sessions led by implementation experts. Choose one track when you register.",
-            "speakers": "Workshop leads to be announced",
+            "body": "Choose one of three small-group tracks when you register: Building evaluation sets for agents; Fine-tuning on a budget; Privacy reviews for AI projects.",
+            "speakers": "Led by Avery Nakamura-Shah, Mira Solberg and Riley Fontaine",
             "where": "Workshop rooms",
             "livestream": false
           },
@@ -284,8 +284,8 @@
             "time": "10:30 AM",
             "type": "Lightning talks",
             "title": "Research to real-world impact",
-            "body": "Rapid-fire talks from emerging researchers and industry teams.",
-            "speakers": "Speakers to be announced",
+            "body": "Eight five-minute talks from emerging researchers and industry teams, from climate forecasting to clinical triage.",
+            "speakers": "Vector Institute researchers and partner teams",
             "where": "Main stage",
             "livestream": true
           },
@@ -313,7 +313,7 @@
   },
   "speakers_page": {
     "title": "Speakers",
-    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. Profiles shown are 2026 speakers used as stand-ins, with placeholder bios.",
+    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. All speakers shown are fictitious, written for layout; portraits are temporary stand-ins.",
     "more": "More speakers to be announced soon!"
   },
   "faq_page": {
