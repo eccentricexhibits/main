@@ -1,0 +1,108 @@
+/* Concept C, "Open Canvas": modern editorial.
+   White space and large black type; colour is an accent only:
+     - the horizontal gradient as a band behind "2027" and behind inner-page titles (white text on it, never gradient text)
+     - thin horizontal gradient rules between elements (brand p.37)
+     - magenta speaker names (large, so 4.3:1 passes) and the magenta pixel pattern once, beside the hero photo
+   Sections breathe: 128px vertical padding on desktop.
+   Deviation: the brief's gradient *vertical* divider between the day columns would put a second gradient direction
+   on the page, so the days get a horizontal gradient rule above both columns and a thin neutral divider between them. */
+
+main > section { padding: var(--space-16) 0; }
+main > section.hero, main > section.page-hero { padding: 0; }
+
+.c-rule { border: 0; height: 3px; margin: 0; background: var(--vi-gradient); }
+
+/* ---------- Nav: white, with a gradient hairline underneath ---------- */
+.nav { background: var(--vi-white); }
+.nav::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--vi-gradient); }
+
+/* ---------- Hero ---------- */
+.c-hero__inner { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: var(--space-8); align-items: end; padding-top: var(--space-12); padding-bottom: var(--space-16); }
+.c-hero__copy { display: flex; flex-direction: column; align-items: flex-start; }
+.c-lockup { display: grid; grid-template-columns: max-content max-content 1fr; align-items: end; column-gap: var(--space-4); margin: var(--space-3) 0 var(--space-6); }
+.c-title { display: contents; }
+.c-title__name { grid-column: 1 / -1; font-size: 128px; line-height: 0.95; letter-spacing: -0.02em; }
+.c-title__year { grid-column: 1; justify-self: start; margin-top: var(--space-2); margin-left: -0.14em;
+  padding: 0.06em 0.14em 0.04em; background: var(--vi-gradient); color: var(--vi-white);
+  font-size: 128px; line-height: 0.95; letter-spacing: -0.01em; }
+/* 10th-anniversary mark: large dashed square beside "2027" */
+.c-anniv { grid-column: 2; grid-row: 2; width: 132px; color: var(--muted); }
+.c-rule + .c-hero__tagline { margin-top: var(--space-4); }
+.c-hero__copy > .c-rule { width: 100%; }
+.c-hero__tagline { font: 400 30px/1.3 var(--font-body); }
+.c-hero__copy .hero__meta { margin-top: var(--space-2); }
+
+/* One placed photo, rounded; the pixel pattern breaks out past its top-right corner without touching it */
+.c-hero__media { position: relative; margin: 0; }
+.c-hero__photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 60% 50%; border-radius: var(--vi-image-radius); }
+.c-pixels { position: absolute; left: calc(100% - 40px); bottom: calc(100% + 8px); width: 150px; height: auto; } /* above the photo's top edge, never on it */
+
+/* ---------- Inner-page header: white, title on a gradient band ---------- */
+.page-hero__inner { padding-top: var(--space-12); padding-bottom: var(--space-8); }
+.page-hero__title { font-size: 88px; margin: var(--space-3) 0 var(--space-6); }
+.c-band { display: inline; padding: 0.02em 0.16em 0.06em; margin-left: -0.16em; background: var(--vi-gradient); color: var(--vi-white);
+  box-decoration-break: clone; -webkit-box-decoration-break: clone; line-height: 1.25; }
+.page-hero .c-rule { margin-bottom: var(--space-4); }
+
+/* ---------- Intro ---------- */
+.intro { padding-top: var(--space-12) !important; }
+
+/* ---------- Stats: grey, black numbers, gradient rule above ---------- */
+.stats { position: relative; background: var(--vi-grey); }
+.stats::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--vi-gradient); }
+.stat__value { font-size: 80px; }
+
+/* ---------- Days: typographic two-column layout, no card boxes ---------- */
+.days__grid { position: relative; gap: var(--space-12); padding-top: var(--space-6); border-top: 0; }
+.days__grid::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--vi-gradient); }
+.days__grid::after { content: ""; position: absolute; top: var(--space-6); bottom: 0; left: 50%; width: 1px; background: var(--rule); }
+.day { border-radius: 0; overflow: visible; }
+.day__body { padding: 0; gap: var(--space-3); }
+.day__label { font-size: 72px; line-height: 0.95; }
+.day__title { font: var(--weight-heading) 34px/1.2 var(--font-heading); }
+.days__foot { margin-top: var(--space-6); }
+
+/* ---------- Speakers: thin black keylines, magenta names ---------- */
+.speaker__ring { border: 1.5px solid var(--vi-black); padding: 6px; }
+.speaker__name { color: var(--vi-magenta); }
+.speakers--teaser .speaker__name { font-size: 20px; }
+
+/* ---------- Recap, gallery, funders ---------- */
+.recap__play { background: var(--vi-magenta); }
+.funders .container { position: relative; padding-top: var(--space-6); }
+.funders .container::before { content: ""; position: absolute; top: 0; left: var(--space-4); right: var(--space-4); height: 3px; background: var(--vi-gradient); }
+
+/* ---------- Agenda / FAQ ---------- */
+.day-tabs__tab.is-active { border-bottom-color: transparent; border-image: var(--vi-gradient) 1; }
+.sessions { border-top: 3px solid transparent; border-image: var(--vi-gradient) 1; }
+.faq-group { border-top: 3px solid transparent; border-image: var(--vi-gradient) 1; }
+.faq__icon { color: var(--vi-magenta); }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  main > section { padding: var(--space-8) 0; }
+  .c-hero__inner { grid-template-columns: 1fr; gap: var(--space-12); padding-top: var(--space-6); padding-bottom: var(--space-8); }
+  .c-lockup { column-gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); }
+  .c-title__name { font-size: 64px; }
+  .c-title__year { font-size: 64px; }
+  .c-anniv { width: 96px; }
+  .c-anniv .anniv__label { font-size: 9px; text-align: center; padding: 0 6px 8px; line-height: 1.3; }
+  .c-hero__tagline { font-size: 24px; }
+  .c-hero__media { width: calc(100% - 56px); }
+  .c-pixels { width: 96px; left: calc(100% - 36px); }
+
+  .page-hero__title { font-size: 48px; }
+  .intro { padding-top: var(--space-8) !important; }
+  .stat__value { font-size: 52px; }
+
+  .days__grid { gap: var(--space-8); }
+  .days__grid::after { display: none; }
+  .days__grid .day + .day { border-top: 1px solid var(--rule); padding-top: var(--space-8); }
+  .day__label { font-size: 48px; }
+  .day__title { font-size: 26px; }
+
+  .speakers--teaser .speaker__name, .speaker__name { font-size: 19px; } /* bold >= 19px keeps magenta at large-text contrast */
+}
+
+/* The page header already ends in a rule and white space; the first section after it needs less top padding */
+.page-hero + .speakers--full { padding-top: var(--space-8); }

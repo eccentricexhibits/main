@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Email banner — Remarkable 2027 — Concept B</title>
+  <link rel="stylesheet" href="../../brand/tokens.css">
+  <style>
+    /* Concept B banner: gradient panel on the left with headline and dates; on the right a photo strip split by the
+       official magenta extended arrow (same geometry as the B hero). Pixel pattern once, on the cobalt end of the panel. */
+    * { box-sizing: border-box; margin: 0; }
+    html, body { width: 1478px; height: 300px; overflow: hidden; }
+    body { position: relative; color: var(--vi-white); font-family: var(--font-body);
+      background: linear-gradient(90deg, var(--vi-magenta) 0, var(--vi-cobalt) 760px); }
+    .logo { position: absolute; left: 40px; top: 30px; height: 44px; width: auto; }
+    .text { position: absolute; left: 40px; bottom: 44px; display: flex; align-items: flex-end; gap: 28px; }
+    .headline { font: 500 72px/1 var(--font-heading); white-space: nowrap; }
+    .sub { margin-top: 12px; font: 700 26px/1.2 var(--font-body); white-space: nowrap; }
+    .anniv { flex: none; width: 112px; height: 112px; border: 2px dashed var(--vi-white); border-radius: 10px; display: flex; align-items: flex-end; justify-content: center; }
+    .anniv span { font: 400 11px/1.3 var(--font-body); text-align: center; padding: 0 8px 10px; }
+    .pixels { position: absolute; left: 580px; top: 22px; width: 92px; height: auto; }
+    .split { position: absolute; top: 0; right: 0; width: 778px; height: 300px; }
+    .split svg { display: block; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <img class="logo" src="../../assets/logos/logo-bilingual-knockout-white.png" alt="Vector Institute | Institut Vecteur">
+  <img class="pixels" src="../../assets/brand-elements/pixel-pattern-magenta.svg" alt="">
+  <div class="text">
+    <div>
+      <h1 class="headline" data-copy="banner.headline"></h1>
+      <p class="sub" data-copy="banner.subline"></p>
+    </div>
+    <div class="anniv" role="img" data-copy-label="hero.anniversary_slot"><span>10th anniversary mark</span></div>
+  </div>
+  <!-- Photo strip, W 778 x H 300. Arrow shaft slope K = 0.4017 (measured from the SVG); arrow drawn 1.05 x H tall so its
+       tail runs off the bottom; seam at x = 330 on the bottom edge, x = 330 + K*H = 450.5 on the top edge. -->
+  <div class="split">
+    <svg viewBox="0 0 778 300" role="img" aria-label="Two speakers in a fireside chat in front of the Remarkable backdrop. Attendees talking in a busy hallway between sessions">
+      <defs>
+        <clipPath id="p1"><polygon points="50,300 170.5,0 450.5,0 330,300"/></clipPath>
+        <clipPath id="p2"><polygon points="330,300 450.5,0 778,0 778,300"/></clipPath>
+      </defs>
+      <image href="../../assets/photos-2026/stage-fireside-chat.jpg" x="50" y="0" width="400.5" height="300" preserveAspectRatio="xMidYMid slice" clip-path="url(#p1)"/>
+      <image href="../../assets/photos-2026/networking-crowd.jpg" x="330" y="0" width="448" height="300" preserveAspectRatio="xMidYMid slice" clip-path="url(#p2)"/>
+      <image href="../../assets/brand-elements/vector-arrow-extended-magenta.svg" x="311.4" y="0" width="165.2" height="315"/>
+    </svg>
+  </div>
+  <script src="../shared/banner.js" type="module"></script>
+</body>
+</html>

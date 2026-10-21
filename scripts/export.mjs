@@ -10,7 +10,8 @@
 //   OUT_DIR=some/dir node scripts/export.mjs ...   -> write PNGs somewhere else
 
 import { createServer } from "node:http";
-import { readFile, mkdir, writeFile, access } from "node:fs/promises";
+import { readFile, mkdir, writeFile, access, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { extname, join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -18,6 +19,8 @@ import { PDFDocument } from "pdf-lib";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = resolve(ROOT, process.env.OUT_DIR || "exports");
+// The review PDF embeds JPEG copies of the frames (PNG keeps the PDF near 30 MB); the PNGs in OUT stay lossless.
+const PDF_IMAGES = join(tmpdir(), "remarkable-pdf-frames");
 const PDF_NAME = "remarkable-2027-concepts-review.pdf";
 const REVIEW_DATE = "Oct 23, 2026";
 
@@ -60,8 +63,8 @@ const TYPES = {
 function serve() {
   const server = createServer(async (req, res) => {
     const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
-    const file = join(ROOT, path);
-    if (!file.startsWith(ROOT)) return res.writeHead(403).end();
+    const [dir, file] = path.startsWith("/pdf-frames/") ? [PDF_IMAGES, join(PDF_IMAGES, path.slice(12))] : [ROOT, join(ROOT, path)];
+    if (!file.startsWith(dir)) return res.writeHead(403).end();
     try {
       const body = await readFile(file);
       res.writeHead(200, { "content-type": TYPES[extname(file).toLowerCase()] || "application/octet-stream" }).end(body);
@@ -89,6 +92,7 @@ async function shoot(browser, base, f) {
   if (check.missingAlt) problems.push(`${check.missingAlt} image(s) without alt`);
   const path = join(OUT, `${f.name}.png`);
   await page.screenshot({ path, fullPage: f.fullPage, animations: "disabled" });
+  await page.screenshot({ path: join(PDF_IMAGES, `${f.name}.jpg`), type: "jpeg", quality: 88, fullPage: f.fullPage, animations: "disabled" });
   const size = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.scrollHeight]);
   await page.close();
   console.log(`${problems.length ? "!!" : "ok"}  ${f.name}.png  ${f.fullPage ? size.join(" x ") : `${f.viewport.width} x ${f.viewport.height}`}`);
@@ -139,7 +143,7 @@ async function buildPdf(browser, base) {
       <h1>Remarkable 2027 — Registration site concepts — internal draft — ${REVIEW_DATE}</h1>
       <p class="sub">Three registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px, plus a 1478 × 300 email banner for each · placeholder copy</p>
       <ul>${list}</ul>
-      <p class="foot">Frames follow in order A, B, C. Speakers, themes and photos are 2026 stand-ins.</p>
+      <p class="foot">Frames follow in order A, B, C. All speakers, companies and sessions are fictitious; portraits and event photos are from Remarkable 2026 and are temporary.</p>
     </div></body></html>`,
     1536,
     960
@@ -160,7 +164,7 @@ async function buildPdf(browser, base) {
           <div class="k">${esc(f.concept.name)} · ${esc(f.label)}</div>
           ${first ? `<h1>${esc(f.concept.name.split(" — ")[1])}</h1><p class="r">${esc(f.concept.rationale)}</p>` : ""}
         </div>
-        <div class="frame"><img src="${OUT.startsWith(ROOT) ? OUT.slice(ROOT.length + 1) : "exports"}/${f.name}.png" width="${w}" height="${h}" alt=""></div>
+        <div class="frame"><img src="pdf-frames/${f.name}.jpg" width="${w}" height="${h}" alt=""></div>
       </body></html>`,
       width,
       headH + h + 48
@@ -174,6 +178,7 @@ const filters = process.argv.slice(2);
 const targets = filters.length ? [...FRAMES, ...EXTRA].filter((f) => filters.some((x) => f.name.startsWith(x))) : FRAMES;
 
 await mkdir(OUT, { recursive: true });
+await mkdir(PDF_IMAGES, { recursive: true });
 const server = await serve();
 const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch();
@@ -189,6 +194,7 @@ try {
 } finally {
   await browser.close();
   server.close();
+  await rm(PDF_IMAGES, { recursive: true, force: true });
 }
 if (issues) {
   console.log(`\n${issues} problem(s) found — see above.`);
