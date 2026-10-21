@@ -3,6 +3,7 @@
    Every page gets the same nav (with EN/FR switch) and footer; the home page also gets funders.
    Each concept sets window.CONCEPT (in its concept.js) before this script runs:
      letter                "A" | "B" | "C"               (frame label)
+     label                 replaces the whole frame label (optional, e.g. the wireframe)
      navLogo               "colour" | "knockout"          (nav logo variant, default colour)
      hero(copy, h)         inner HTML of the home hero (optional)
      pageHeader(copy, page, h)  inner HTML of the header band on agenda/speakers/faq (optional)
@@ -402,7 +403,7 @@ async function render() {
   const C = window.CONCEPT || {};
   const page = document.body.dataset.page || "home";
   const copy = await fetch(ROOT + "content/copy.json").then((r) => r.json());
-  const label = copy.frame_label.replace("{X}", C.letter || "?") + (page === "home" ? "" : ` · ${PAGE_OF[page]}`);
+  const label = (C.label || copy.frame_label.replace("{X}", C.letter || "?")) + (page === "home" ? "" : ` · ${PAGE_OF[page]}`);
   const content = { home: homePage, agenda: agendaPage, speakers: speakersPage, faq: faqPage }[page](copy, C, helpers);
   document.body.classList.add(`page-${page}`);
   document.body.insertAdjacentHTML(

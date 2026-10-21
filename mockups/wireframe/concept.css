@@ -1,0 +1,76 @@
+/* Remarkable 2027 wireframe.
+   Greyscale only, so the review is about structure and content, not colour.
+   Every image becomes a crossed placeholder box; every section gets a numbered marker
+   that the review notes refer to. Not a brand frame: the brand-token rule doesn't apply here. */
+
+:root {
+  --wf-ink: #2b2b2b;
+  --wf-mid: #6b6b6b;
+  --wf-fill: #efefef;
+  --wf-box: #dedede;
+  --wf-line: #b5b5b5;
+  --wf-cross: linear-gradient(to top right, transparent calc(50% - 1px), var(--wf-line) 50%, transparent calc(50% + 1px)),
+              linear-gradient(to bottom right, transparent calc(50% - 1px), var(--wf-line) 50%, transparent calc(50% + 1px));
+}
+body { color: var(--wf-ink); counter-reset: wf; }
+.section-note, .agenda__note, .muted { color: var(--wf-mid); }
+
+/* Images -> crossed boxes (object-position hides the pixels, the box stays) */
+img { object-position: -99999px 0 !important; background-color: var(--wf-box); background-image: var(--wf-cross); }
+.nav__logo, .footer__brand { position: relative; }
+.nav__logo::after, .footer__brand::before {
+  content: "Bilingual logo"; position: absolute; left: 0; top: 0; height: 40px; width: 188px;
+  display: grid; place-items: center; font: 700 11px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--wf-mid);
+}
+.footer__brand::before { height: 44px; width: 207px; }
+.recap__media::after, .gallery__slide { position: relative; }
+.recap__media::after { content: "Recap video thumbnail (16:9)"; position: absolute; left: 24px; bottom: 20px; font: 700 13px/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--wf-mid); }
+.gallery__slide::after { content: "2026 event photo"; position: absolute; left: 16px; bottom: 14px; font: 700 12px/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--wf-mid); }
+.funder { position: relative; }
+.funder::after { content: "Funder logo"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 11px/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--wf-mid); }
+
+/* Controls in grey */
+.btn--primary { background: var(--wf-ink); color: #fff; }
+.btn--secondary { color: var(--wf-ink); }
+.recap__play { background: var(--wf-ink); }
+.arrow-icon { color: var(--wf-mid); }
+.gallery__dot { background: var(--wf-line); }
+.gallery__dot.is-active { background: var(--wf-ink); }
+
+/* Bands */
+.stats, .page-hero { background: var(--wf-fill); }
+.day { background: var(--wf-fill); }
+.footer { background: var(--wf-box); color: var(--wf-ink); }
+.footer__top { border-bottom-color: var(--wf-line); }
+.social img { width: 18px; height: 18px; border-radius: 3px; }
+.anniv { color: var(--wf-mid); }
+
+/* Numbered section markers: "3 · Stats" pinned to each block's top-right corner */
+.nav, main > section, .footer { position: relative; counter-increment: wf; outline: 1px dashed var(--wf-line); outline-offset: -1px; }
+.nav::before, main > section::before, .footer::before {
+  content: counter(wf) " · " var(--wf-name, "");
+  position: absolute; top: 8px; right: 8px; z-index: 5;
+  padding: 3px 10px; border-radius: 999px; background: var(--wf-ink); color: #fff;
+  font: 700 12px/1.3 var(--font-body); letter-spacing: 0.04em;
+}
+.nav { --wf-name: "Nav"; }
+.hero { --wf-name: "Hero"; }
+.intro { --wf-name: "Intro"; }
+.stats { --wf-name: "Stats"; }
+.days { --wf-name: "Two days"; }
+.speakers--teaser { --wf-name: "Speakers"; }
+.recap { --wf-name: "Recap video"; }
+.gallery { --wf-name: "Photo carousel"; }
+.funders { --wf-name: "Funders"; }
+.page-hero { --wf-name: "Page header"; }
+.agenda { --wf-name: "Day tabs and sessions"; }
+.speakers--full { --wf-name: "Speaker list"; }
+.faqs { --wf-name: "FAQ groups"; }
+.footer { --wf-name: "Footer"; }
+
+@media (max-width: 640px) {
+  .nav::before, main > section::before, .footer::before { top: 4px; right: 4px; font-size: 11px; padding: 2px 8px; }
+  .nav::before { top: 2px; }
+  .nav__logo::after { height: 24px; width: 113px; font-size: 9px; }
+  .footer__brand::before { height: 36px; width: 170px; }
+}

@@ -1,0 +1,287 @@
+<title>Remarkable 2027 Wireframes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+  /* Layout: a review sheet. Wireframe on the left at reading scale, numbered notes pinned beside it. */
+  :root {
+    --paper: #f6f5f4;
+    --sheet: #ffffff;
+    --ink: #1d1c1c;
+    --soft: #5c5a5a;
+    --line: #d9d6d4;
+    --pill: #2b2b2b;
+    --pill-ink: #ffffff;
+    --accent: #c4076f;        /* Vector magenta, darkened to pass 4.5:1 on white for small text */
+    --accent-soft: #fbe7f2;
+    --font: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #161515; --sheet: #201f1f; --ink: #f1efee; --soft: #b2aeac; --line: #3a3837;
+      --pill: #f1efee; --pill-ink: #161515; --accent: #ff6fbd; --accent-soft: #3a1d2c; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #161515; --sheet: #201f1f; --ink: #f1efee; --soft: #b2aeac; --line: #3a3837;
+    --pill: #f1efee; --pill-ink: #161515; --accent: #ff6fbd; --accent-soft: #3a1d2c; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--font);
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 48px 72px; display: flex; flex-direction: column; gap: 40px; }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2 { text-wrap: balance; }
+
+  .head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; align-items: end; }
+  .eyebrow { font: 700 12px/1.4 var(--font); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .head h1 { font: 700 44px/1.1 var(--font); margin: 10px 0 14px; letter-spacing: -0.01em; }
+  .head p { max-width: 62ch; color: var(--soft); }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 14px; padding: 18px 20px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; }
+  .facts dt { color: var(--soft); }
+  .facts dd { margin: 0; font-weight: 600; }
+
+  .ask { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 28px 28px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .ask h2 { font: 700 22px/1.3 var(--font); }
+  .ask ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 32px; counter-reset: q; }
+  .ask li { counter-increment: q; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+  .ask li::before { content: counter(q); width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 700 13px/28px var(--font); text-align: center; }
+  .ask b { display: block; }
+  .ask span { color: var(--soft); font-size: 15px; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); }
+  .tab { appearance: none; border: 0; background: none; color: var(--soft); font: 700 15px/1 var(--font); padding: 14px 4px 13px; margin-right: 20px; border-bottom: 3px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab small { font-weight: 400; color: var(--soft); margin-left: 6px; }
+  .tab:focus-visible, .seg button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .panel { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: start; padding-top: 28px; }
+  .stage { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .stage-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .stage-bar p { font-size: 14px; color: var(--soft); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--sheet); }
+  .seg button { appearance: none; border: 0; background: none; color: var(--soft); font: 600 13px/1 var(--font); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--pill); color: var(--pill-ink); }
+  .frame { background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .frame img { display: block; width: 100%; height: auto; }
+  .frame.is-mobile { width: 100%; max-width: 360px; margin: 0 auto; }
+
+  .notes { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: flex; flex-direction: column; gap: 18px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; }
+  .notes h2 { font: 700 26px/1.2 var(--font); }
+  .notes .lede { color: var(--soft); font-size: 15px; }
+  .notes ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .notes li { display: flex; flex-direction: column; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .notes li:last-child { border-bottom: 0; }
+  .marker { align-self: flex-start; background: var(--pill); color: var(--pill-ink); font: 700 12px/1.3 var(--font); letter-spacing: 0.03em; padding: 3px 10px; border-radius: 999px; }
+  .notes p { font-size: 15px; }
+  .flag { color: var(--accent); font-weight: 600; }
+
+  .next { font-size: 15px; color: var(--soft); border-top: 1px solid var(--line); padding-top: 24px; max-width: 80ch; }
+
+  @media (max-width: 960px) {
+    .head { grid-template-columns: 1fr; gap: 24px; }
+    .ask ol { grid-template-columns: 1fr; }
+    .panel { grid-template-columns: 1fr; gap: 28px; }
+    .notes { position: static; max-height: none; overflow: visible; order: -1; }
+  }
+  @media (max-width: 480px) {
+    .wrap { padding-block: 28px 48px; gap: 28px; }
+    .head h1 { font-size: 32px; }
+    .ask { padding: 20px 18px; }
+    .tab { margin-right: 10px; }
+  }
+  /* "#all" (used for the PDF export): every page panel stacked, desktop frames only */
+  .show-all .tabs, .show-all .seg { display: none; }
+  .show-all [role="tabpanel"][hidden] { display: grid !important; }
+  .show-all .notes { position: static; max-height: none; overflow: visible; }
+  .show-all .panel { padding-top: 0; }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <p class="eyebrow">Vector Institute · Registration site · Internal review</p>
+      <h1>Remarkable 2027 wireframes</h1>
+      <p>A low-fidelity layout of the Remarkable 2027 registration site. This round is about structure: which pages exist, what each section does and the order it appears in. Colour, type and imagery come later, in three visual concepts built on this same layout.</p>
+    </div>
+    <dl class="facts">
+      <dt>Event</dt><dd>February 18–19, 2027</dd>
+      <dt>Venue</dt><dd>Hilton Toronto</dd>
+      <dt>Pages</dt><dd>Home, Agenda, Speakers, FAQ</dd>
+      <dt>Widths</dt><dd>Desktop 1440 px, mobile 390 px</dd>
+      <dt>Status</dt><dd>Draft, placeholder copy</dd>
+    </dl>
+  </header>
+
+  <section class="ask" aria-labelledby="ask-h">
+    <h2 id="ask-h">What we need you to confirm</h2>
+    <ol>
+      <li><div><b>The four pages</b><span>Home, Agenda, Speakers and FAQ. Venue, Partners and Log in are no longer in the nav; venue details live in the FAQ.</span></div></li>
+      <li><div><b>Home page order</b><span>Ten blocks, from hero to footer. Anything to add, drop or move?</span></div></li>
+      <li><div><b>Speakers in two places</b><span>Six faces with titles on Home; the full list with bios on the Speakers page.</span></div></li>
+      <li><div><b>Agenda format</b><span>Day 1 / Day 2 tabs and a session list, with main-stage sessions tagged as livestreamed.</span></div></li>
+      <li><div><b>EN / FR switch and photo carousel</b><span>Both are new on Home since the last draft. Keep them?</span></div></li>
+      <li><div><b>Copy</b><span>The reg-site copy doc still holds the 2026 text; it has been updated for 2027. Agenda sessions, bios and some FAQ answers are placeholders.</span></div></li>
+    </ol>
+  </section>
+
+  <div>
+    <div class="tabs" role="tablist" aria-label="Pages">
+      <button class="tab" role="tab" id="tab-home" aria-controls="home" aria-selected="true">Home <small>10 blocks</small></button>
+      <button class="tab" role="tab" id="tab-agenda" aria-controls="agenda" aria-selected="false" tabindex="-1">Agenda <small>4 blocks</small></button>
+      <button class="tab" role="tab" id="tab-speakers" aria-controls="speakers" aria-selected="false" tabindex="-1">Speakers <small>4 blocks</small></button>
+      <button class="tab" role="tab" id="tab-faq" aria-controls="faq" aria-selected="false" tabindex="-1">FAQ <small>4 blocks</small></button>
+    </div>
+
+    <section class="panel" role="tabpanel" id="home" aria-labelledby="tab-home">
+      <div class="stage">
+        <div class="stage-bar">
+          <p>Numbers on the wireframe match the notes.</p>
+          <div class="seg" role="group" aria-label="Screen size">
+            <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-view="mobile" aria-pressed="false">Mobile</button>
+          </div>
+        </div>
+        <div class="frame"><img src="wireframe-home-desktop.png" data-desktop="wireframe-home-desktop.png" data-mobile="wireframe-home-mobile.png" width="1440" height="5518" alt="Home page wireframe: nav, hero, intro, stats, two days, speakers, recap video, photo carousel, funders and footer"></div>
+      </div>
+      <aside class="notes" aria-label="Home page notes">
+        <h2>Home</h2>
+        <p class="lede">The page that the registration email and social posts link to. Its job is to get people to register, in person or virtually.</p>
+        <ol>
+          <li><span class="marker">1 · Nav</span><p>Bilingual Vector logo; Home, Agenda, Speakers, FAQ; EN / FR switch; Register button. On mobile the links fold into a menu icon, and the switch and Register stay visible.</p></li>
+          <li><span class="marker">2 · Hero</span><p>Event name, tagline, dates, venue and address. Two buttons: Register in person and Join virtually, with the invitation-only note under them. The dashed box is reserved for the 10th-anniversary mark the agency will supply.</p></li>
+          <li><span class="marker">3 · Intro</span><p>Opening copy from the reg-site doc, updated for 2027. Left-aligned with a slight indent, as on vectorinstitute.ai.</p></li>
+          <li><span class="marker">4 · Stats</span><p>Remarkable 2026 by the numbers: 1,500+ attendees, 39 countries, 20 speakers, 50+ research posters.</p></li>
+          <li><span class="marker">5 · Two days</span><p>Day 1 is a full day of keynotes and research talks; Day 2 is a half day of workshops, lightning talks and posters. Links to the Agenda page.</p></li>
+          <li><span class="marker">6 · Speakers</span><p>Six featured speakers with photo, name, title and organization. Links to the Speakers page. <span class="flag">2026 speakers as stand-ins.</span></p></li>
+          <li><span class="marker">7 · Recap video</span><p>The 2026 recap. Plays only when clicked.</p></li>
+          <li><span class="marker">8 · Photo carousel</span><p>Nine 2026 event photos. Moves only with the arrows or a swipe, never on its own.</p></li>
+          <li><span class="marker">9 · Funders</span><p>Government of Canada, Government of Ontario and CIFAR logos at equal height.</p></li>
+          <li><span class="marker">10 · Footer</span><p>Ontario funding credit, event contact, #Remarkable2027, social links, Vector site links, privacy and recording notice. Same on every page.</p></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="panel" role="tabpanel" id="agenda" aria-labelledby="tab-agenda" hidden>
+      <div class="stage">
+        <div class="stage-bar">
+          <p>Numbers on the wireframe match the notes.</p>
+          <div class="seg" role="group" aria-label="Screen size">
+            <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-view="mobile" aria-pressed="false">Mobile</button>
+          </div>
+        </div>
+        <div class="frame"><img src="wireframe-agenda-desktop.png" data-desktop="wireframe-agenda-desktop.png" data-mobile="wireframe-agenda-mobile.png" width="1440" height="4435" alt="Agenda page wireframe: nav, page header, day tabs with session lists, footer" loading="lazy"></div>
+      </div>
+      <aside class="notes" aria-label="Agenda page notes">
+        <h2>Agenda</h2>
+        <p class="lede">The full program for both days.</p>
+        <ol>
+          <li><span class="marker">1 · Nav</span><p>Same as Home, with Agenda marked as the current page.</p></li>
+          <li><span class="marker">2 · Page header</span><p>Event name, dates and venue, the page title and a one-paragraph intro. Every inner page opens this way.</p></li>
+          <li><span class="marker">3 · Day tabs and sessions</span><p>Day 1 / Day 2 tabs jump to each day. Each day opens with its description from the copy doc, then the sessions: time, type, title, short description, speakers and room, with a Livestreamed tag on main-stage sessions. Breaks and meals are quieter rows.</p><p class="flag">Sample program: session titles, times, rooms and speakers are placeholders.</p></li>
+          <li><span class="marker">4 · Footer</span><p>Same as Home.</p></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="panel" role="tabpanel" id="speakers" aria-labelledby="tab-speakers" hidden>
+      <div class="stage">
+        <div class="stage-bar">
+          <p>Numbers on the wireframe match the notes.</p>
+          <div class="seg" role="group" aria-label="Screen size">
+            <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-view="mobile" aria-pressed="false">Mobile</button>
+          </div>
+        </div>
+        <div class="frame"><img src="wireframe-speakers-desktop.png" data-desktop="wireframe-speakers-desktop.png" data-mobile="wireframe-speakers-mobile.png" width="1440" height="2075" alt="Speakers page wireframe: nav, page header, speaker list with bios, footer" loading="lazy"></div>
+      </div>
+      <aside class="notes" aria-label="Speakers page notes">
+        <h2>Speakers</h2>
+        <p class="lede">Everyone on the program, with enough detail to decide which sessions to attend.</p>
+        <ol>
+          <li><span class="marker">1 · Nav</span><p>Same as Home, with Speakers marked as the current page.</p></li>
+          <li><span class="marker">2 · Page header</span><p>Title and a short intro.</p></li>
+          <li><span class="marker">3 · Speaker list</span><p>Circular photo, then the speaker's session, name, title, organization and a short bio. Two columns on desktop, one on mobile. Ends with "More speakers to be announced soon!"</p><p class="flag">2026 speakers as stand-ins; bios are placeholders.</p></li>
+          <li><span class="marker">4 · Footer</span><p>Same as Home.</p></li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="panel" role="tabpanel" id="faq" aria-labelledby="tab-faq" hidden>
+      <div class="stage">
+        <div class="stage-bar">
+          <p>Numbers on the wireframe match the notes.</p>
+          <div class="seg" role="group" aria-label="Screen size">
+            <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-view="mobile" aria-pressed="false">Mobile</button>
+          </div>
+        </div>
+        <div class="frame"><img src="wireframe-faq-desktop.png" data-desktop="wireframe-faq-desktop.png" data-mobile="wireframe-faq-mobile.png" width="1440" height="3069" alt="FAQ page wireframe: nav, page header, four groups of questions, footer" loading="lazy"></div>
+      </div>
+      <aside class="notes" aria-label="FAQ page notes">
+        <h2>FAQ</h2>
+        <p class="lede">Answers to the questions the events inbox gets most, so attendees can help themselves.</p>
+        <ol>
+          <li><span class="marker">1 · Nav</span><p>Same as Home, with FAQ marked as the current page.</p></li>
+          <li><span class="marker">2 · Page header</span><p>Title, plus a line pointing to events@vectorinstitute.ai for anything not covered.</p></li>
+          <li><span class="marker">3 · FAQ groups</span><p>Ten questions in four groups: Registration, Program, Venue and travel, Privacy. Each question opens and closes; they're shown open here so the answers can be reviewed.</p><p class="flag">To confirm: transit directions, the accessibility answer and the registration-email steps.</p></li>
+          <li><span class="marker">4 · Footer</span><p>Same as Home.</p></li>
+        </ol>
+      </aside>
+    </section>
+  </div>
+
+  <p class="next">Next step: once the structure is agreed, the same four pages get styled in three visual directions (A Gradient Stage, B Arrow Split, C Open Canvas), each with an email banner, for one to be chosen and rebuilt on Swoogo.</p>
+</div>
+
+<script>
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+  const ids = panels.map((p) => p.id);
+
+  function show(id, focus) {
+    tabs.forEach((t) => {
+      const on = t.getAttribute("aria-controls") === id;
+      t.setAttribute("aria-selected", on);
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    panels.forEach((p) => (p.hidden = p.id !== id));
+  }
+
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => { show(t.getAttribute("aria-controls")); history.replaceState(null, "", "#" + t.getAttribute("aria-controls")); });
+    t.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+      show(next.getAttribute("aria-controls"), true);
+    });
+  });
+
+  document.querySelectorAll(".seg").forEach((seg) => {
+    const img = seg.closest(".stage").querySelector(".frame img");
+    const frame = img.parentElement;
+    seg.querySelectorAll("button").forEach((b) =>
+      b.addEventListener("click", () => {
+        const view = b.dataset.view;
+        seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+        img.src = img.dataset[view];
+        img.loading = "eager";
+        frame.classList.toggle("is-mobile", view === "mobile");
+        img.removeAttribute("height");
+        img.width = view === "mobile" ? 390 : 1440;
+      })
+    );
+  });
+
+  const start = location.hash.slice(1);
+  if (start === "all") {
+    document.documentElement.classList.add("show-all");
+    panels.forEach((p) => p.querySelector("img").loading = "eager");
+  } else if (ids.includes(start)) {
+    show(start);
+  }
+</script>

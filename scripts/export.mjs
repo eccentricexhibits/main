@@ -6,6 +6,7 @@
 //                                              + exports/remarkable-2027-concepts-review.pdf
 //   node scripts/export.mjs concept-a       -> only the frames whose name starts with "concept-a"
 //   node scripts/export.mjs skeleton        -> shared skeleton preview (not part of the deliverables)
+//   OUT_DIR=exports/wireframe node scripts/export.mjs wireframe   -> greyscale wireframe of all four pages
 //   OUT_DIR=some/dir node scripts/export.mjs ...   -> write PNGs somewhere else
 
 import { createServer } from "node:http";
@@ -48,7 +49,7 @@ const FRAMES = CONCEPTS.flatMap((c) => [
   { name: `concept-${c.id}-banner`, url: `mockups/concept-${c.id}/banner.html`, viewport: BANNER, fullPage: false, concept: c, label: "Email banner · 1478 × 300" },
 ]);
 
-const EXTRA = pageFrames("skeleton", "skeleton");
+const EXTRA = [...pageFrames("skeleton", "skeleton"), ...pageFrames("wireframe", "wireframe")];
 
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
