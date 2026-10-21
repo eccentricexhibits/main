@@ -1,0 +1,12 @@
+{
+  "name": "remarkable-2027-mockups",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export": "node scripts/export.mjs"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.56.1"
+  }
+}

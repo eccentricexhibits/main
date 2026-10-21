@@ -1,0 +1,54 @@
+/* Remarkable 2027: brand tokens
+   Source: Vector Institute Brand Guidelines 2026 (6.29.26), pp. 18-25, 33-38.
+   Use these variables everywhere. Do not introduce other colours. */
+
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap");
+
+/* Karbon is Vector's licensed heading font (Karbon Medium for headings).
+   Karbon OTFs (supplied with the brief) are loaded from /fonts for the mockups.
+   Delete this block if web use isn't licensed: headings then fall back to Open Sans Semibold (p.22). */
+@font-face { font-family: "Karbon"; src: url("../fonts/Karbon-Regular.otf") format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Karbon"; src: url("../fonts/Karbon-Medium.otf") format("opentype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Karbon"; src: url("../fonts/Karbon-Semibold.otf") format("opentype"); font-weight: 600; font-display: swap; }
+
+:root {
+  /* Primary palette (p.18) */
+  --vi-magenta: #EB088A;   /* RGB 235,8,138 - primary accent, buttons, highlights */
+  --vi-grey:    #E9E8E8;   /* RGB 233,232,232 - quiet section backgrounds */
+  --vi-black:   #000000;   /* text. Do NOT use as large background fills (client feedback) */
+  --vi-white:   #FFFFFF;
+
+  /* Secondary palette (p.18) - accents only, max 2 colours per layout */
+  --vi-cobalt:    #313CFF; /* gradient partner; also = Broader Public Sector */
+  --vi-violet:    #8A25C9; /* Industry */
+  --vi-turquoise: #48C0D9; /* Academic Institutions */
+  --vi-tangerine: #FF9E00;
+  --vi-lime:      #CFF933;
+
+  /* Primary gradient (p.19): magenta -> cobalt. Pick ONE direction for the whole page. */
+  --vi-gradient: linear-gradient(90deg, var(--vi-magenta) 0%, var(--vi-cobalt) 100%);
+  --vi-gradient-vertical: linear-gradient(180deg, var(--vi-magenta) 0%, var(--vi-cobalt) 100%);
+  /* Approved shape gradient for arrows (p.23) */
+  --vi-gradient-shape: linear-gradient(135deg, var(--vi-magenta) 0%, var(--vi-violet) 50%, var(--vi-cobalt) 100%);
+
+  /* Overlay box for text on gradients (p.25, p.38) */
+  --vi-overlay-fill: rgba(255, 255, 255, 0.20);
+  --vi-overlay-radius: 24px;           /* 0.25in */
+
+  /* Image containers (p.31): rounded corners on placed images; none on full-bleed */
+  --vi-image-radius: 16px;
+
+  /* Type (pp.20-22) */
+  --font-heading: "Karbon", "Open Sans", system-ui, sans-serif;  /* Karbon Medium; fallback Open Sans 600 */
+  --font-body: "Open Sans", system-ui, sans-serif;
+  --weight-heading: 500;  /* Karbon Medium (600 if falling back to Open Sans) */
+  --weight-subhead: 700;
+  --weight-body: 400;
+
+  /* Spacing scale (8px base) */
+  --space-1: 8px;  --space-2: 16px; --space-3: 24px; --space-4: 32px;
+  --space-6: 48px; --space-8: 64px; --space-12: 96px; --space-16: 128px;
+
+  --content-max: 1200px;
+  --radius-button: 999px;
+}
