@@ -1,8 +1,9 @@
 /* Concept A, "Gradient Stage".
    Colour plan, section by section (max two brand colours each):
-     nav + hero, page headers, speakers teaser ... horizontal magenta->cobalt gradient, white type
+     nav + hero, page headers ................... horizontal magenta->cobalt gradient, white type
      stats ...................................... cobalt, white numbers (solid, never gradient)
-     days, speakers page, funders ............... grey with white cards / keylines, magenta accents
+     days + speakers teaser ..................... one continuous gradient "stage": white day cards, white keylines
+     speakers page, funders ..................... grey with white keylines, magenta / cobalt accents
      agenda, faq, recap, gallery ................ white with magenta / cobalt accents
      footer ..................................... cobalt (from base)
    Graphic elements: the 2026 "AI" letterform (hero only) and the plus pattern (corners of gradient bands only).
@@ -24,9 +25,11 @@
 
 /* ---------- Home hero ---------- */
 .hero { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
-.hero::before { /* faint 2026 "AI" letterform, white, behind and to the right */
-  content: ""; position: absolute; right: -4%; top: -12%; width: 64%; height: 128%;
-  background: url("../../assets/brand-elements/ai-letterform-2026.png") no-repeat 70% 50% / cover;
+.hero::before { /* faint 2026 "AI" letterform, white, filling the hero behind the wordmark (as on the 2026 title slide).
+                   The glyphs sit at 44% across the PNG, so the box is shifted to centre them. */
+  content: ""; position: absolute; left: 50%; top: 50%; width: 1760px; aspect-ratio: 2500 / 1406;
+  transform: translate(-44%, -50%);
+  background: url("../../assets/brand-elements/ai-letterform-2026.png") no-repeat center / contain;
   filter: brightness(0) invert(1); opacity: 0.12; pointer-events: none;
 }
 .hero::after { /* plus pattern, left cluster, bottom-left corner */
@@ -34,24 +37,25 @@
   background: var(--a-plus) no-repeat 0 calc(-554px * var(--s)) / calc(2500px * var(--s)) auto;
   filter: brightness(0) invert(1); opacity: 0.35; pointer-events: none;
 }
-.a-hero__inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: var(--space-8); padding-bottom: var(--space-12); }
+.a-hero__inner { position: relative; z-index: 1; min-height: 820px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-top: var(--space-6); padding-bottom: var(--space-12); }
 .a-hero__eyebrow { margin-bottom: var(--space-4); }
 .a-box {
-  position: relative; width: 100%; max-width: 940px;
-  padding: var(--space-8) var(--space-8) var(--space-6);
+  position: relative; width: 100%;
+  padding: var(--space-12) var(--space-6) var(--space-8);
   background: var(--vi-overlay-fill); border-radius: var(--vi-overlay-radius);
   display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
 }
 /* Letter-spaced wordmark, as on the 2026 stage and title slides. Trailing tracking is cancelled so it centres. */
 .a-wordmark { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; line-height: 1; }
-.a-wordmark__name { font-size: 76px; letter-spacing: 0.5em; margin-right: -0.5em; }
-.a-wordmark__year { font-size: 40px; letter-spacing: 0.6em; margin-right: -0.6em; font-weight: 500; }
-.a-box__tagline { font: 400 28px/1.3 var(--font-body); margin-top: var(--space-2); }
+.a-wordmark { gap: var(--space-3); }
+.a-wordmark__name { font-size: 104px; letter-spacing: 0.5em; margin-right: -0.5em; }
+.a-wordmark__year { font-size: 64px; letter-spacing: 0.6em; margin-right: -0.6em; font-weight: 500; }
+.a-box__tagline { font: 400 32px/1.3 var(--font-body); margin-top: var(--space-3); }
 .a-box .hero__meta { margin: 0; font-size: 24px; }
 .a-box .cta-row { justify-content: center; margin-top: var(--space-2); }
 .a-hero__fine { margin-top: var(--space-3); font-size: 16px; }
 /* 10th-anniversary mark: empty dashed circle on the box's top-right corner */
-.a-anniv { position: absolute; top: -56px; right: -56px; width: 136px; border-radius: 50%; border-color: var(--vi-white); color: var(--vi-white); align-items: center; opacity: 1; }
+.a-anniv { position: absolute; top: -64px; right: -24px; width: 148px; border-radius: 50%; border-color: var(--vi-white); color: var(--vi-white); align-items: center; opacity: 1; }
 .a-anniv .anniv__label { padding: 0 14px; text-align: center; line-height: 1.3; }
 
 /* ---------- Inner-page header band ---------- */
@@ -72,10 +76,12 @@
 .stat__value { font-size: 88px; }
 .stat { border-left: 1px solid rgba(255, 255, 255, 0.45); padding-left: var(--space-3); }
 
-/* ---------- Day cards: white on grey ---------- */
-.days { background: var(--vi-grey); }
-.day { background: var(--vi-white); }
+/* ---------- Day cards: solid white cards on the gradient (20% overlay cards would fail AA for body text) ---------- */
+.days { background: var(--vi-gradient); color: var(--vi-white); padding-bottom: var(--space-8); }
+.day { background: var(--vi-white); color: var(--vi-black); }
 .day__label { color: var(--vi-magenta); }
+.days .more-link .arrow-icon { color: var(--vi-white); }
+.days + .speakers--teaser { padding-top: var(--space-8); } /* the two bands read as one stage */
 
 /* ---------- Speakers teaser: gradient band, white keylines ---------- */
 .speakers--teaser { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
@@ -111,13 +117,14 @@
 
 /* ---------- Mobile ---------- */
 @media (max-width: 640px) {
-  .hero::before { right: -30%; top: 2%; width: 120%; height: 60%; }
+  .hero::before { width: 860px; top: 46%; }
   .hero::after { display: none; } /* no free corner on a 390 hero; the letterform carries it */
-  .a-hero__inner { padding-top: var(--space-4); padding-bottom: var(--space-8); }
+  .a-hero__inner { min-height: 680px; padding-top: var(--space-4); padding-bottom: var(--space-8); }
   .a-hero__eyebrow { margin-bottom: var(--space-6); font-size: 13px; }
-  .a-box { padding: var(--space-8) var(--space-3) var(--space-4); gap: var(--space-2); }
-  .a-wordmark__name { font-size: 25px; letter-spacing: 0.4em; margin-right: -0.4em; }
-  .a-wordmark__year { font-size: 24px; letter-spacing: 0.5em; margin-right: -0.5em; }
+  .a-box { padding: var(--space-8) var(--space-2) var(--space-4); gap: var(--space-2); }
+  .a-wordmark { gap: var(--space-2); }
+  .a-wordmark__name { font-size: 29px; letter-spacing: 0.32em; margin-right: -0.32em; }
+  .a-wordmark__year { font-size: 34px; letter-spacing: 0.45em; margin-right: -0.45em; }
   .a-box__tagline { font-size: 24px; }
   .a-box .hero__meta { font-size: 20px; }
   .a-box .cta-row { width: 100%; }
