@@ -1,5 +1,5 @@
 {
-  "_note": "PLACEHOLDER COPY. Home-page and agenda text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy); every edit is listed in content/COPY-CHANGES.md. Stats, themes-free structure, recap and funders come from the original handoff. Speaker bios are fictitious placeholders written for layout only; replace with speaker-approved text before anything is shared externally. Final copy comes from Nadia. Use identical copy in all three concepts.",
+  "_note": "PLACEHOLDER COPY. Home-page intro and agenda day text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy). Agenda sessions, speaker sessions and bios, FAQ answers and page intros were written for the mockups and are placeholders. Every source and edit is listed in content/COPY-CHANGES.md. Final copy comes from Nadia. Use identical copy in all three concepts.",
   "nav": [
     "Home",
     "Agenda",
@@ -7,6 +7,12 @@
     "FAQ"
   ],
   "nav_cta": "Register",
+  "language": {
+    "current": "EN",
+    "other": "FR",
+    "label": "Language",
+    "other_name": "Français"
+  },
   "hero": {
     "eyebrow": "Vector Institute presents",
     "event_name": "Remarkable 2027",
@@ -64,55 +70,80 @@
     }
   ],
   "agenda_note": "Agenda subject to change",
+  "home_links": {
+    "agenda": "View the full agenda",
+    "speakers": "See all speakers"
+  },
   "speakers_heading": "Featured speakers",
-  "speakers_note": "2026 speakers used as stand-ins; bios are placeholder text",
+  "speakers_note": "2026 speakers used as stand-ins",
   "speakers": [
     {
       "name": "Nick Frosst",
       "title": "Co-founder",
       "org": "Cohere",
       "photo": "assets/speakers/nick-frosst.png",
-      "bio": "Nick Frosst is Co-founder of Cohere, which builds large language models for enterprise use. At Remarkable, Nick will share what it takes to move generative AI from prototype to production."
+      "bio": "Nick Frosst is Co-founder of Cohere, which builds large language models for enterprise use. At Remarkable, Nick will share what it takes to move generative AI from prototype to production.",
+      "session": "Day 1 · Keynote"
     },
     {
       "name": "Priyank Jaini",
       "title": "Research Scientist",
       "org": "Google DeepMind",
       "photo": "assets/speakers/priyank-jaini.jpg",
-      "bio": "Priyank Jaini is a Research Scientist at Google DeepMind working on machine learning research. Priyank's talk will look at how new modelling approaches can make AI systems more reliable."
+      "bio": "Priyank Jaini is a Research Scientist at Google DeepMind working on machine learning research. Priyank's talk will look at how new modelling approaches can make AI systems more reliable.",
+      "session": "Day 1 · Research talks: Agentic AI"
     },
     {
       "name": "Ankita Upadhyay",
       "title": "Senior Director, AI Enablement",
       "org": "Thomson Reuters",
       "photo": "assets/speakers/ankita-upadhyay.png",
-      "bio": "Ankita Upadhyay leads AI enablement at Thomson Reuters, helping teams put AI to work across products and operations. Ankita will cover practical lessons from scaling AI inside a global company."
+      "bio": "Ankita Upadhyay leads AI enablement at Thomson Reuters, helping teams put AI to work across products and operations. Ankita will cover practical lessons from scaling AI inside a global company.",
+      "session": "Day 1 · Panel"
     },
     {
       "name": "Chris Maddison",
       "title": "Faculty Member",
       "org": "Vector Institute",
       "photo": "assets/speakers/chris-maddison.jpg",
-      "bio": "Chris Maddison is a Faculty Member at the Vector Institute whose research focuses on machine learning methods. Chris will discuss open questions at the frontier of AI research."
+      "bio": "Chris Maddison is a Faculty Member at the Vector Institute whose research focuses on machine learning methods. Chris will discuss open questions at the frontier of AI research.",
+      "session": "Day 1 · Research talks: LLMs & Inference"
     },
     {
       "name": "Alán Aspuru-Guzik",
       "title": "Faculty Member",
       "org": "Vector Institute",
       "photo": "assets/speakers/alan-aspuru-guzik.jpg",
-      "bio": "Alán Aspuru-Guzik is a Faculty Member at the Vector Institute working where AI meets chemistry and materials science. Alán's talk will explore how AI-driven labs can speed up discovery."
+      "bio": "Alán Aspuru-Guzik is a Faculty Member at the Vector Institute working where AI meets chemistry and materials science. Alán's talk will explore how AI-driven labs can speed up discovery.",
+      "session": "Day 1 · Fireside chat"
     },
     {
       "name": "Glenda Crisp",
       "title": "President & CEO",
       "org": "Vector Institute",
       "photo": "assets/speakers/glenda-crisp.jpg",
-      "bio": "Glenda Crisp is President and CEO of the Vector Institute. Glenda will open Remarkable 2027 with a look at Canada's AI ecosystem and where it goes next."
+      "bio": "Glenda Crisp is President and CEO of the Vector Institute. Glenda will open Remarkable 2027 with a look at Canada's AI ecosystem and where it goes next.",
+      "session": "Day 1 · Opening remarks"
     }
   ],
   "recap": {
     "heading": "Watch the Remarkable 2026 recap",
     "thumbnail": "assets/photos-2026/auditorium-wide-stage.jpg"
+  },
+  "gallery": {
+    "heading": "Remarkable 2026 in photos",
+    "note": "Highlights from last year’s conference",
+    "photos": [
+      "assets/photos-2026/auditorium-crowd.jpg",
+      "assets/photos-2026/posters-conversation.jpg",
+      "assets/photos-2026/executive-breakfast-networking.jpg",
+      "assets/photos-2026/workshop-room.jpg",
+      "assets/photos-2026/registration-desk.jpg",
+      "assets/photos-2026/attendees-group-photo.jpg",
+      "assets/photos-2026/executive-breakfast-panel.jpg",
+      "assets/photos-2026/networking-hallway.jpg",
+      "assets/photos-2026/audience-listening.jpg"
+    ]
   },
   "funders_heading": "Thank you to our funders",
   "funders": [
@@ -120,6 +151,237 @@
     "assets/funders/ontario.png",
     "assets/funders/cifar.png"
   ],
+  "agenda_page": {
+    "title": "Agenda",
+    "intro": "Two days, one program: a full day of keynotes and research talks on the main stage, followed by a half day of hands-on workshops, lightning talks and poster sessions. Main-stage sessions are livestreamed for virtual attendees.",
+    "note": "Sample program for layout. Session titles, times and speakers are placeholders until the program is confirmed. Agenda subject to change.",
+    "livestream_label": "Livestreamed",
+    "days": [
+      {
+        "sessions": [
+          {
+            "time": "8:00 AM",
+            "type": "Arrivals",
+            "title": "Registration and breakfast",
+            "body": "Pick up your badge and connect with fellow attendees before the program begins.",
+            "speakers": "",
+            "where": "Ballroom foyer",
+            "livestream": false
+          },
+          {
+            "time": "9:00 AM",
+            "type": "Welcome",
+            "title": "Opening remarks",
+            "body": "",
+            "speakers": "Glenda Crisp, Vector Institute",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "9:20 AM",
+            "type": "Keynote",
+            "title": "From prototype to production",
+            "body": "What it takes to move generative AI out of the lab and into products people rely on.",
+            "speakers": "Nick Frosst, Cohere",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "10:00 AM",
+            "type": "Research talks",
+            "title": "Agentic AI",
+            "body": "Bridging autonomous AI research and practical deployment.",
+            "speakers": "Priyank Jaini, Google DeepMind, and Vector researchers",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "11:00 AM",
+            "type": "Break",
+            "title": "Networking break",
+            "body": "",
+            "speakers": "",
+            "where": "Ballroom foyer",
+            "livestream": false
+          },
+          {
+            "time": "11:30 AM",
+            "type": "Fireside chat",
+            "title": "AI-driven labs and the pace of discovery",
+            "body": "How AI is changing the way science gets done, from hypothesis to experiment.",
+            "speakers": "Alán Aspuru-Guzik, Vector Institute",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "12:15 PM",
+            "type": "Lunch",
+            "title": "Lunch and poster preview",
+            "body": "",
+            "speakers": "",
+            "where": "Ballroom foyer",
+            "livestream": false
+          },
+          {
+            "time": "1:30 PM",
+            "type": "Research talks",
+            "title": "LLMs & Inference",
+            "body": "Moving from LLM experimentation to production-ready systems.",
+            "speakers": "Chris Maddison, Vector Institute, and Vector researchers",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "2:45 PM",
+            "type": "Panel",
+            "title": "Scaling AI inside the enterprise",
+            "body": "Practical lessons from teams putting AI to work across products and operations.",
+            "speakers": "Ankita Upadhyay, Thomson Reuters, and panellists to be announced",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "3:45 PM",
+            "type": "Research talks",
+            "title": "Privacy & Security",
+            "body": "Building trustworthy AI with privacy-enhancing technologies.",
+            "speakers": "Vector researchers",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "4:45 PM",
+            "type": "Reception",
+            "title": "Closing remarks and reception",
+            "body": "",
+            "speakers": "",
+            "where": "Ballroom foyer",
+            "livestream": false
+          }
+        ]
+      },
+      {
+        "sessions": [
+          {
+            "time": "8:30 AM",
+            "type": "Arrivals",
+            "title": "Breakfast",
+            "body": "",
+            "speakers": "",
+            "where": "Ballroom foyer",
+            "livestream": false
+          },
+          {
+            "time": "9:00 AM",
+            "type": "Workshops",
+            "title": "Hands-on workshops",
+            "body": "Small-group sessions led by implementation experts. Choose one track when you register.",
+            "speakers": "Workshop leads to be announced",
+            "where": "Workshop rooms",
+            "livestream": false
+          },
+          {
+            "time": "10:30 AM",
+            "type": "Lightning talks",
+            "title": "Research to real-world impact",
+            "body": "Rapid-fire talks from emerging researchers and industry teams.",
+            "speakers": "Speakers to be announced",
+            "where": "Main stage",
+            "livestream": true
+          },
+          {
+            "time": "11:15 AM",
+            "type": "Posters",
+            "title": "Poster session and networking",
+            "body": "Meet the researchers behind this year’s posters.",
+            "speakers": "",
+            "where": "Poster hall",
+            "livestream": false
+          },
+          {
+            "time": "12:30 PM",
+            "type": "Close",
+            "title": "Event close",
+            "body": "",
+            "speakers": "",
+            "where": "",
+            "livestream": false
+          }
+        ]
+      }
+    ]
+  },
+  "speakers_page": {
+    "title": "Speakers",
+    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. Profiles shown are 2026 speakers used as stand-ins, with placeholder bios.",
+    "more": "More speakers to be announced soon!"
+  },
+  "faq_page": {
+    "title": "Frequently asked questions",
+    "intro": "Answers to common questions about attending Remarkable 2027. Can’t find what you need? Email events@vectorinstitute.ai.",
+    "groups": [
+      {
+        "heading": "Registration",
+        "items": [
+          {
+            "q": "Who can attend Remarkable 2027 in person?",
+            "a": "In-person attendance is by invitation only. If you received an invitation, choose Register in person and use the email address your invitation was sent to."
+          },
+          {
+            "q": "Can I attend virtually?",
+            "a": "Yes. The virtual livestream is open to everyone. Choose Join virtually to register, and viewing details will be emailed to you before the event."
+          },
+          {
+            "q": "Can I change or cancel my registration?",
+            "a": "Yes. Use the link in your confirmation email to update or cancel your registration, or contact events@vectorinstitute.ai."
+          }
+        ]
+      },
+      {
+        "heading": "Program",
+        "items": [
+          {
+            "q": "What happens on each day?",
+            "a": "Day 1 (Thursday, February 18) is a full day of keynotes and research talks. Day 2 (Friday, February 19) is a half day of hands-on workshops, lightning talks and poster sessions."
+          },
+          {
+            "q": "Will sessions be recorded?",
+            "a": "Yes. This event will be audio- and video-recorded, and main-stage sessions are livestreamed for virtual attendees."
+          },
+          {
+            "q": "What language is the event in?",
+            "a": "Remarkable 2027 is conducted in English only."
+          }
+        ]
+      },
+      {
+        "heading": "Venue and travel",
+        "items": [
+          {
+            "q": "Where is Remarkable 2027 held?",
+            "a": "Hilton Toronto, 145 Richmond St W, Toronto, ON."
+          },
+          {
+            "q": "How do I get there?",
+            "a": "The hotel is in Toronto’s Financial District, a short walk from Osgoode station on TTC Line 1."
+          },
+          {
+            "q": "Is the venue accessible?",
+            "a": "Accessibility details will be confirmed with the venue. To request an accommodation, email events@vectorinstitute.ai and our team will follow up."
+          }
+        ]
+      },
+      {
+        "heading": "Privacy",
+        "items": [
+          {
+            "q": "How is my personal information used?",
+            "a": "In registering for our events, the personal data we collect, including contact information such as name, title, and email address, as well as feedback relating to projects and events, may be shared with the organizers of this event and may be disclosed to your employer for tracking purposes. Your name may also be mentioned publicly in Vector’s marketing materials."
+          }
+        ]
+      }
+    ]
+  },
   "footer": {
     "ontario_credit": "Funding provided by the Government of Ontario",
     "contact_line": "Questions about this event? Contact us at",

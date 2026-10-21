@@ -17,7 +17,18 @@ anniversary wording). Everything else is verbatim.
 | Agenda | Agenda: February 19 / 20, 2026 | Day 1 Thursday, February 18 / Day 2 Friday, February 19 | 2027 dates |
 | Legal | Doc privacy paragraph | Doc privacy paragraph + the recording / English-only / produced-by sentences from the original handoff | Kept both |
 
-Not from the doc:
+Not from the doc (sources):
 - Stats, recap heading, funders heading, day titles ("Research & keynotes", "From research to real-world impact"): original handoff `copy.json`.
 - Footer "Questions about this event? Contact us at", "Find us on socials" and the Vector link list (Research … All Policies): the AI Summit 2026 Swoogo page.
 - Speaker bios: fictitious placeholders written for layout only.
+
+## Written for the mockups (placeholders: replace before anything is shared externally)
+
+| Where | What | Grounded in |
+|---|---|---|
+| Nav | EN / FR language switch | AI Summit 2026 Swoogo nav (Language: English / Français) |
+| Home | "Remarkable 2026 in photos" carousel heading and "Highlights from last year’s conference" | New |
+| Home | "View the full agenda", "See all speakers" links | New |
+| Agenda page | Intro paragraph, every session (times, titles, descriptions, speakers, rooms), "Livestreamed" tags, placeholder note | Session topics reuse the 2026 themes from the original handoff (Agentic AI, LLMs & Inference, Privacy & Security); day structure from BRIEF.md §2. Times, rooms and speaker assignments are invented |
+| Speakers page | Intro, session line per speaker, "More speakers to be announced soon!" | Last line follows the AI Summit page; the rest is new |
+| FAQ page | All questions and answers | Facts reused from BRIEF.md §2 and the legal copy (invitation-only, public livestream, Hilton address, recorded, English only, privacy paragraph). Process details (confirmation-email link, viewing details by email), the Osgoode station directions and the accessibility answer are placeholders to confirm |

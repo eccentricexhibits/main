@@ -2,7 +2,8 @@
 // Serves the repo root, screenshots every frame with Playwright, checks each page
 // (broken images, horizontal overflow) and builds the review PDF.
 //
-//   node scripts/export.mjs                 -> all 9 PNGs + exports/remarkable-2027-concepts-review.pdf
+//   node scripts/export.mjs                 -> every concept frame (4 pages x desktop/mobile + banner, per concept)
+//                                              + exports/remarkable-2027-concepts-review.pdf
 //   node scripts/export.mjs concept-a       -> only the frames whose name starts with "concept-a"
 //   node scripts/export.mjs skeleton        -> shared skeleton preview (not part of the deliverables)
 //   OUT_DIR=some/dir node scripts/export.mjs ...   -> write PNGs somewhere else
@@ -29,16 +30,25 @@ const CONCEPTS = [
   { id: "c", name: "Concept C — Open Canvas", rationale: "Modern editorial — white space and bold type, with colour used only as an accent." },
 ];
 
+const PAGES = [
+  { file: "index", key: "home", title: "Home" },
+  { file: "agenda", key: "agenda", title: "Agenda" },
+  { file: "speakers", key: "speakers", title: "Speakers" },
+  { file: "faq", key: "faq", title: "FAQ" },
+];
+
+const pageFrames = (folder, prefix, extra = {}) =>
+  PAGES.flatMap((p) => [
+    { name: `${prefix}-${p.key}-desktop`, url: `mockups/${folder}/${p.file}.html`, viewport: DESKTOP, fullPage: true, label: `${p.title} · desktop 1440 px`, ...extra },
+    { name: `${prefix}-${p.key}-mobile`, url: `mockups/${folder}/${p.file}.html`, viewport: MOBILE, fullPage: true, label: `${p.title} · mobile 390 px`, ...extra },
+  ]);
+
 const FRAMES = CONCEPTS.flatMap((c) => [
-  { name: `concept-${c.id}-desktop`, url: `mockups/concept-${c.id}/index.html`, viewport: DESKTOP, fullPage: true, concept: c, label: "Desktop · 1440 px" },
-  { name: `concept-${c.id}-mobile`, url: `mockups/concept-${c.id}/index.html`, viewport: MOBILE, fullPage: true, concept: c, label: "Mobile · 390 px" },
+  ...pageFrames(`concept-${c.id}`, `concept-${c.id}`, { concept: c }),
   { name: `concept-${c.id}-banner`, url: `mockups/concept-${c.id}/banner.html`, viewport: BANNER, fullPage: false, concept: c, label: "Email banner · 1478 × 300" },
 ]);
 
-const EXTRA = [
-  { name: "skeleton-desktop", url: "mockups/shared/skeleton.html", viewport: DESKTOP, fullPage: true },
-  { name: "skeleton-mobile", url: "mockups/shared/skeleton.html", viewport: MOBILE, fullPage: true },
-];
+const EXTRA = pageFrames("skeleton", "skeleton");
 
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
@@ -126,7 +136,7 @@ async function buildPdf(browser, base) {
     </style></head><body><div class="bar"></div><div class="cover">
       <img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur">
       <h1>Remarkable 2027 — Registration site concepts — internal draft — ${REVIEW_DATE}</h1>
-      <p class="sub">Three home-page directions · desktop 1440 px, mobile 390 px and a 1478 × 300 email banner for each · placeholder copy</p>
+      <p class="sub">Three registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px, plus a 1478 × 300 email banner for each · placeholder copy</p>
       <ul>${list}</ul>
       <p class="foot">Frames follow in order A, B, C. Speakers, themes and photos are 2026 stand-ins.</p>
     </div></body></html>`,
@@ -139,7 +149,7 @@ async function buildPdf(browser, base) {
     const png = join(OUT, `${f.name}.png`);
     const buf = await readFile(png);
     const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
-    const first = f.name.endsWith("-desktop");
+    const first = f.name.endsWith("-home-desktop");
     const headH = first ? 168 : 112;
     const width = Math.max(w + 96, 1200);
     await add(
