@@ -1,0 +1,202 @@
+/* Concept D, "Spotlight".
+   Colour plan, section by section (max two brand colours each):
+     nav + hero, page headers ............ black, white type, magenta "2027", magenta Vector arrow; gradient rule below
+     intro, stats ........................ white, cobalt eyebrow, magenta "+" on stats (solid, never gradient)
+     days + speakers teaser .............. one grey "program" band: photo left, day panels right, speakers below a rule
+     recap + gallery ..................... black band, magenta play button
+     funders, agenda, speakers page, faq . white with magenta / cobalt accents
+     footer .............................. black
+   Type: Karbon Semibold headings with tight tracking; Open Sans body at the shared sizes (16 px minimum).
+   Buttons: square-cornered magenta with black labels (4.9:1, passes AA at any size) and a small arrow.
+   Note: the black hero, photo band and footer go against the earlier "no large black fills" client feedback;
+   kept because the requester chose this design. */
+
+:root {
+  --d-muted-dark: #bdbdbd;  /* secondary text on black (11:1) */
+  --d-radius: 4px;          /* button corners, from the design */
+  --d-arrow-ne: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 13 13 3M5 3h8v8' fill='none' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E");
+}
+
+/* ---------- Type ---------- */
+.eyebrow { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; text-transform: uppercase; }
+.section-title { font-size: 62px; line-height: 1; letter-spacing: -0.025em; }
+.page-hero__title, .d-hero__tagline, .agenda-day__title { letter-spacing: -0.02em; }
+
+/* ---------- Buttons and links: square corners, black label, a north-east arrow ---------- */
+.btn { border-radius: var(--d-radius); font-family: var(--font-heading); font-weight: var(--weight-heading); gap: 24px; }
+.btn--primary { color: var(--vi-black); }
+.btn::after { content: ""; width: 15px; height: 15px; flex: none; background: currentColor; -webkit-mask: var(--d-arrow-ne) center / contain no-repeat; mask: var(--d-arrow-ne) center / contain no-repeat; }
+.btn--secondary { min-height: 0; padding: 10px 0 7px; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; background: none; }
+.cta-row { align-items: center; gap: var(--space-4); }
+.more-link { font-family: var(--font-heading); font-weight: var(--weight-heading); font-size: 20px; border-bottom-width: 1px; gap: 20px; }
+
+/* ---------- Nav: black bar ---------- */
+.nav { background: var(--vi-black); color: var(--vi-white); border-bottom: 1px solid #333; }
+.nav__links a { font: var(--weight-heading) 17px/1 var(--font-heading); letter-spacing: 0; text-transform: none; }
+.nav__links a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--vi-magenta); }
+.nav__logo .logo { height: 44px; }
+
+/* ---------- Home hero: black stage ---------- */
+.hero { background: var(--vi-black); color: var(--vi-white); }
+.d-hero { padding-top: var(--space-4); }
+.d-masthead { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-3); }
+.d-masthead__title { flex: 1; display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); line-height: 0.85; }
+.d-masthead__name { font-size: 126px; text-transform: uppercase; letter-spacing: 0.035em; }
+.d-masthead__year { font-size: 112px; letter-spacing: -0.03em; color: var(--vi-magenta); } /* magenta on black is 4.9:1 */
+/* The agency's mark on a white disc (as in Concept A): its black "10" would vanish on black */
+.d-anniv { flex: none; width: 128px; aspect-ratio: 1; border-radius: 50%; background: var(--vi-white); display: grid; place-items: center; }
+.d-anniv img { width: 60%; height: auto; transform: translateY(-2%); }
+
+.d-hero__grid { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; margin-top: var(--space-8); }
+.d-hero__copy { padding-top: var(--space-2); }
+.d-hero__tagline { font: var(--weight-heading) 56px/1.02 var(--font-heading); max-width: 380px; text-wrap: balance; }
+.d-hero__copy .cta-row { margin-top: var(--space-4); }
+.hero .btn--secondary { color: var(--vi-white); }
+.hero .small-print { color: var(--d-muted-dark); }
+.d-hero__media { position: relative; }
+.d-hero__photo { width: 100%; height: 420px; object-fit: cover; object-position: 50% 55%; border-radius: var(--vi-image-radius); }
+/* Official magenta arrow (not recoloured, no shadow) breaking out of the photo's top-right corner */
+.d-arrow { position: absolute; right: -44px; top: -48px; width: 140px; height: auto; pointer-events: none; } /* clears the anniversary disc above */
+
+.d-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-8); margin-top: var(--space-6); padding: var(--space-3) 0; border-top: 1px solid #3a3a3a; }
+.d-details strong { font: var(--weight-heading) 28px/1.3 var(--font-heading); }
+.d-details__venue span { margin-left: var(--space-1); color: var(--d-muted-dark); font-size: 18px; }
+.d-rule { height: 7px; background: var(--vi-gradient); }
+
+/* ---------- Inner-page header: black band ---------- */
+.page-hero { background: var(--vi-black); color: var(--vi-white); }
+.page-hero__title { font-size: 88px; line-height: 1; }
+.page-hero__intro { color: var(--d-muted-dark); }
+
+/* ---------- Intro: lead left, text right ---------- */
+.intro__body { max-width: none; margin-left: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3) var(--space-12); }
+.intro__lead { grid-row: 1 / span 4; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; }
+.intro__text, .intro__closer { grid-column: 2; }
+.intro__text { color: #333; }
+
+/* ---------- Stats: rules and dividers, cobalt caption ---------- */
+.stats { padding-top: 0 !important; }
+.stats__caption { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: var(--vi-cobalt); margin-bottom: var(--space-3); }
+.stats__grid { grid-template-columns: 1.25fr 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--vi-black); padding-top: var(--space-3); }
+.stat { padding: 0 var(--space-4); border-left: 1px solid var(--rule); }
+.stat:first-child { padding-left: 0; border-left: 0; }
+.stat__value { font-size: 80px; letter-spacing: -0.025em; }
+.d-plus { color: var(--vi-magenta); }
+.stat__label { color: #444; }
+
+/* ---------- Days: the grey "program" band, photo left and both days right ---------- */
+.days { background: var(--vi-grey); padding-bottom: var(--space-8) !important; }
+.days .container { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-8); }
+.d-days__photo { grid-row: 1 / span 2; width: 100%; height: 100%; min-height: 440px; object-fit: cover; border-radius: var(--vi-image-radius); }
+.days__grid { grid-template-columns: 1fr; gap: 0; }
+.day { border-radius: 0; border-top: 1px solid #b7b7b7; }
+.day:first-child { border-top-color: var(--vi-black); }
+.day__body { padding: var(--space-4) 0; gap: var(--space-1); }
+.day__label { font-size: 28px; color: var(--vi-black); }
+.day__meta { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: #555; }
+.day__title { font: var(--weight-heading) 38px/1.05 var(--font-heading); letter-spacing: -0.015em; }
+.day__text { color: #333; margin-top: var(--space-1); }
+.days__foot { margin-top: var(--space-2); align-items: baseline; }
+.days__note { color: #555; }
+
+/* ---------- Speakers teaser: still on grey, below a rule ---------- */
+.speakers--teaser { background: var(--vi-grey); padding-top: 0 !important; }
+.speakers--teaser > .container::before { content: ""; display: block; border-top: 1px solid #b7b7b7; margin-bottom: var(--space-8); }
+.speaker__name { font-family: var(--font-heading); font-weight: var(--weight-heading); font-size: 22px; }
+.speaker__session { color: var(--vi-cobalt); }
+
+/* ---------- Recap and gallery: one black band ---------- */
+.recap, .gallery { background: var(--vi-black); color: var(--vi-white); }
+.recap { padding-bottom: var(--space-6) !important; }
+.gallery { padding-top: var(--space-6) !important; }
+.gallery .section-note { color: var(--d-muted-dark); }
+.gallery__btn { color: var(--vi-white); }
+.gallery__dot { background: #555; }
+.gallery__dot.is-active { background: var(--vi-white); }
+.recap__play { background: var(--vi-magenta); color: var(--vi-black); }
+
+/* ---------- Funders on white ---------- */
+.funders__title { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: var(--vi-cobalt); }
+
+/* ---------- Agenda ---------- */
+.day-tabs { border-bottom: 1px solid #b7b7b7; }
+.day-tabs__tab { border-bottom-width: 3px; }
+.day-tabs__tab.is-active { border-bottom-color: var(--vi-magenta); }
+.day-tabs__label { font-size: 28px; }
+.agenda .day__label { font-size: 28px; }
+.agenda-day__title { font-size: 48px; line-height: 1.05; }
+.sessions { border-top-width: 1px; }
+.session__time { font-family: var(--font-heading); font-weight: var(--weight-heading); color: var(--vi-cobalt); }
+.session__type { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: #555; }
+.tag--live { color: var(--vi-cobalt); }
+
+/* ---------- Speakers page ---------- */
+.speakers--full .speaker__name { font-size: 26px; }
+
+/* ---------- FAQ ---------- */
+.faq-group { border-top-width: 1px; }
+.faq__q { font: var(--weight-heading) 24px/1.25 var(--font-heading); }
+.faq__icon { color: var(--vi-magenta); margin-top: 2px; }
+.faq__a { color: #333; }
+
+/* ---------- Footer: black ---------- */
+.footer { background: var(--vi-black); }
+.footer__bottom { color: var(--d-muted-dark); }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1100px) {
+  .d-masthead__name { font-size: 9vw; }
+  .d-masthead__year { font-size: 8vw; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .eyebrow { font-size: 13px; letter-spacing: 0.12em; }
+  .section-title { font-size: 40px; }
+  .nav__links a { font-size: 17px; }
+  .nav__logo .logo { height: 24px; }
+  .btn--nav::after { display: none; } /* no room for the arrow beside EN | FR and the menu */
+
+  .d-hero { position: relative; padding-top: var(--space-3); }
+  .d-hero__eyebrow { padding-right: 100px; }
+  .d-masthead { margin-top: 64px; } /* starts below the disc */
+  .d-masthead__title { flex-direction: column; align-items: flex-start; gap: var(--space-1); line-height: 0.9; }
+  .d-masthead__name { font-size: 54px; letter-spacing: 0.015em; }
+  .d-masthead__year { font-size: 54px; }
+  .d-anniv { position: absolute; top: 12px; right: 20px; width: 88px; }
+  .d-hero__grid { display: flex; flex-direction: column-reverse; gap: var(--space-4); margin-top: var(--space-4); }
+  .d-hero__photo { height: 220px; }
+  .d-arrow { width: 72px; right: -8px; top: -30px; }
+  .d-hero__tagline { font-size: 40px; }
+  .d-hero__copy { padding-top: 0; }
+  .hero .cta-row { align-items: stretch; gap: var(--space-2); }
+  .hero .btn--secondary { width: auto; align-self: flex-start; }
+  .btn { justify-content: space-between; }
+  .btn--secondary { justify-content: flex-start; }
+  .d-details { flex-direction: column; gap: var(--space-1); margin-top: var(--space-4); }
+  .d-details strong { font-size: 22px; }
+  .d-details__venue span { display: block; margin: 2px 0 0; font-size: 16px; }
+
+  .page-hero__title { font-size: 48px; }
+
+  .intro__body { grid-template-columns: 1fr; }
+  .intro__lead { grid-row: auto; font-size: 30px; }
+  .intro__text, .intro__closer { grid-column: auto; }
+
+  .stats__grid { grid-template-columns: 1fr 1fr; row-gap: var(--space-4); }
+  .stat { padding: 0 0 0 var(--space-2); }
+  .stat:nth-child(odd) { padding-left: 0; border-left: 0; }
+  .stat__value { font-size: 52px; }
+
+  .days .container { grid-template-columns: 1fr; }
+  .d-days__photo { grid-row: auto; min-height: 0; height: 220px; margin-bottom: var(--space-4); }
+  .day__title { font-size: 30px; }
+
+  .speakers--teaser > .container::before { margin-bottom: var(--space-6); }
+  .speaker__name { font-size: 19px; }
+
+  .agenda-day__title { font-size: 32px; }
+  .day-tabs__label { font-size: 22px; }
+  .faq__q { font-size: 20px; }
+  .speakers--full .speaker__name { font-size: 21px; }
+}

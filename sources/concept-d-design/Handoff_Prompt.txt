@@ -1,0 +1,11 @@
+I am continuing a design project for Vector Institute’s Remarkable 2027 event landing page, which will be built in Swoogo. Review the attached full-page mockup and self-contained HTML before proposing changes. The HTML contains the complete markup, CSS, JavaScript, embedded photographs, official brand artwork, and fonts. Preserve its current design as the starting point.
+
+Design direction: a bold black hero; oversized Karbon typography; authentic conference photography; the official Vector arrow and bilingual logo; generous white space; grey program panels; restrained horizontal magenta-to-cobalt gradients; and clear event-registration calls to action.
+
+Brand colours: Magenta #EB088A, black #000000, grey #E9E8E8, cobalt #313CFF, and white. Use Karbon Semibold for headings and Open Sans Regular for body copy. Preserve the official arrow geometry and logo proportions. Keep placed photographs rounded, and use circular crops if confirmed speaker portraits are added.
+
+Content status: February 18–19, 2027, Hilton Toronto, the invitation-only in-person option, and the two-day program outline come from the draft mockups and still need final confirmation. The 2027 speakers have not been confirmed. All event photographs and the 1,500+ attendees / 39 countries / 20 speakers / 50+ posters figures are historical 2026 material; do not present them as 2027 facts. Registration controls are design placeholders. The funders are carried over from the reference materials and need confirmation for 2027.
+
+Please first summarize your understanding of the design. Then make the following changes while preserving the brand: [INSERT MY REQUEST HERE].
+
+For a final production build or new brand decisions, I can also attach the original Vector brand guidelines and 2026 recap brochure.

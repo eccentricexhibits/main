@@ -33,7 +33,10 @@ const CONCEPTS = [
   { id: "a", name: "Concept A — Gradient Stage", rationale: "Continuity — the 2026 stage look, rebuilt in the new magenta-to-cobalt brand gradient." },
   { id: "b", name: "Concept B — Arrow Split", rationale: "Momentum — the brand arrow cuts through real Remarkable photos; the most energetic option." },
   { id: "c", name: "Concept C — Open Canvas", rationale: "Modern editorial — white space and bold type, with colour used only as an accent." },
+  { id: "d", name: "Concept D — Spotlight", rationale: "Bold contrast — a black stage, oversized Karbon type and real Remarkable photography, lit by the magenta arrow." },
 ];
+const LETTERS = CONCEPTS.map((c) => c.id.toUpperCase());
+const NUMBER_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six"];
 
 const PAGES = [
   { file: "index", key: "home", title: "Home" },
@@ -131,18 +134,18 @@ async function buildPdf(browser, base) {
   await add(
     `<html><head><base href="${base}/"><style>${PAGE_CSS}
       body { width: 1536px; height: 960px; position: relative; background: #fff; }
-      .cover { padding: 120px 120px 0; }
+      .cover { padding: 96px 120px 0; }
       .cover h1 { font-size: 64px; margin: 24px 0 16px; }
       .cover .sub { font-size: 24px; margin: 0 0 64px; }
       .cover ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 28px; font-size: 20px; max-width: 1100px; }
       .cover img { height: 52px; }
-      .foot { position: absolute; left: 120px; bottom: 64px; font-size: 16px; color: #444; }
+      .foot { margin: 48px 0 0; font-size: 16px; color: #444; max-width: 1100px; }
     </style></head><body><div class="bar"></div><div class="cover">
       <img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur">
       <h1>Remarkable 2027 — Registration site concepts — internal draft — ${REVIEW_DATE}</h1>
-      <p class="sub">Three registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
+      <p class="sub">${NUMBER_WORDS[CONCEPTS.length]} registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
       <ul>${list}</ul>
-      <p class="foot">Frames follow in order A, B, C. All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
+      <p class="foot">Frames follow in order ${LETTERS.join(", ")}. All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
     </div></body></html>`,
     1536,
     960
@@ -174,7 +177,9 @@ async function buildPdf(browser, base) {
 }
 
 const filters = process.argv.slice(2);
-const targets = filters.length ? [...FRAMES, ...EXTRA].filter((f) => filters.some((x) => f.name.startsWith(x))) : FRAMES;
+// A banner renders only when the filter names it ("concept-a-banner"), not for a concept prefix ("concept-a")
+const matches = (f, x) => f.name.startsWith(x) && (!f.name.endsWith("-banner") || x.endsWith("-banner"));
+const targets = filters.length ? [...FRAMES, ...EXTRA].filter((f) => filters.some((x) => matches(f, x))) : FRAMES;
 
 await mkdir(OUT, { recursive: true });
 await mkdir(PDF_IMAGES, { recursive: true });

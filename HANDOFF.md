@@ -6,13 +6,13 @@ brief, and how to rebuild the exports. Where this file and `BRIEF.md` disagree, 
 starting point, and the decisions below came later from the requester.
 
 Last updated: October 22, 2026 (stock portraits and matching names; anniversary mark in Concept A; Karbon
-Semibold headings; scope narrowed to the four pages).
+Semibold headings; scope narrowed to the four pages; Concept D added).
 
 ---
 
 ## 1. What this is
 
-Three high-fidelity visual concepts for the registration site of **Remarkable 2027**, the Vector Institute's annual
+Four high-fidelity visual concepts for the registration site of **Remarkable 2027**, the Vector Institute's annual
 AI conference (**February 18–19, 2027, Hilton Toronto**, 145 Richmond St W). Two reviewers, Danielle and Marcie,
 pick one direction; Swoogo's team then rebuilds the chosen one on their platform. These are **design mockups, not
 production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
@@ -22,17 +22,19 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | **A, Gradient Stage** (continuity) | The 2026 stage look rebuilt in the new gradient: a full-height hero with the letter-spaced R E M A R K A B L E / 2 0 2 7 in a 20% white overlay box over a faint "AI" letterform, then one long gradient "stage" band for the day cards and speakers. |
 | **B, Arrow Split** (the splashiest) | The brand's extended magenta arrow cuts diagonally through two real 2026 photos, with the photo edges following the arrow's exact angle (brand guide pp. 39–40). |
 | **C, Open Canvas** (editorial) | Mostly white with a huge black "Remarkable", "2027" on a gradient band, thin gradient rules and magenta accents; colour is used only as an accent. |
+| **D, Spotlight** (bold contrast) | A black stage: an oversized REMARKABLE with a magenta "2027", a rounded 2026 photo with the magenta Vector arrow breaking out of its corner, a gradient rule, a grey program band and a black photo band. Adapted from a design made in a separate AI chat (decision 15). |
 
 ### Status: complete, awaiting review
 
-- All three concepts are built across **four pages** (Home, Agenda, Speakers, FAQ) at **1440 px desktop and 390 px
+- All four concepts are built across **four pages** (Home, Agenda, Speakers, FAQ) at **1440 px desktop and 390 px
   mobile**. These four pages are the only deliverables now (decision 14).
-- `exports/` holds 24 page PNGs and `remarkable-2027-concepts-review.pdf` (cover plus 24 frames, A, B, C). The three
+- `exports/` holds 32 page PNGs and `remarkable-2027-concepts-review.pdf` (cover plus 32 frames, A, B, C, D). The three
   `concept-*-banner.png` files are from the earlier scope and are no longer updated.
 - `exports/wireframe/` holds a greyscale wireframe of the four pages, its review page and a 5-page PDF, made for
   the manager to sign off the structure before visual design. The review page was also published as a private
   Claude artifact (https://claude.ai/artifact/5uVSWQSJ6K96EySJwGZi54); only its owner can open or share it.
-- Git branch: `claude/remarkable-2027-homepage-pvevfp` in `eccentricexhibits/main`.
+- Git branch: `claude/wonderful-ritchie-ox7y3z` in `eccentricexhibits/main` (continues
+  `claude/remarkable-2027-homepage-pvevfp`, where A–C were built).
 
 ---
 
@@ -50,7 +52,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `mockups/shared/render.js` | The one renderer: loads `copy.json` and builds the nav, page content and footer for `<body data-page="home|agenda|speakers|faq">`. |
 | `mockups/shared/base.css` | Shared structure, grids and responsive rules for every concept. |
 | `mockups/shared/banner.js` | Fills banner copy from `copy.json` (banners are parked, see decision 14). |
-| `mockups/concept-{a,b,c}/` | `concept.js` (hero and page-header markup, options), `concept.css` (all styling), `banner.html`, and four generated page shells. |
+| `mockups/concept-{a,b,c,d}/` | `concept.js` (hero and page-header markup, options), `concept.css` (all styling), four generated page shells, and (A–C only) a parked `banner.html`. |
 | `mockups/skeleton/` | The unstyled shared structure. |
 | `mockups/wireframe/` | The greyscale wireframe concept: images become crossed boxes, sections get numbered markers. |
 | `scripts/export.mjs` | Serves the repo, screenshots every frame, checks for broken images, missing alt text and horizontal overflow, and builds the review PDF. |
@@ -59,7 +61,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `scripts/package-handoff.sh` | Builds upload-sized zips of this whole package (section 9). |
 | `exports/` | Generated PNGs and PDFs. Regenerate rather than edit. |
 | `reference/` | Brand-guide pages 13–41 and 2026 materials (banners, slides, badges, recap pages) as images. Look, don't embed. |
-| `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, the original handoff README and prompt, and the agency's 10th-anniversary mark preview. |
+| `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, the original handoff README and prompt, the agency's 10th-anniversary mark preview, and `concept-d-design/` (the AI-chat design D was adapted from: full-page PNG, page text, HTML/CSS/JS; its photos, fonts and the 5 MB standalone HTML were left out). |
 | Repo root PDFs, PNGs, SVGs | Earlier uploads by the requester (brand quick-reference PDF, "Frame" and badge images, official logo and arrow SVGs). Not used by the mockups; kept as they were. |
 
 ---
@@ -69,7 +71,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 ```bash
 npm install                                   # playwright 1.56.1 + pdf-lib
 npx playwright install chromium               # only if Chromium isn't already available
-npm run export                                # all 24 page PNGs + exports/remarkable-2027-concepts-review.pdf
+npm run export                                # all 32 page PNGs + exports/remarkable-2027-concepts-review.pdf
 node scripts/export.mjs concept-b             # only frames whose name starts with "concept-b"
 node scripts/export.mjs concept-a-home        # e.g. just Concept A's home page, both widths
 node scripts/export.mjs skeleton              # unstyled skeleton preview
@@ -130,6 +132,23 @@ In the order they were made:
 14. **Scope: the four pages only** (Home, Agenda, Speakers, FAQ) for every concept from now on. Email banners and
     other formats are out of scope: they're left out of `npm run export` and the review PDF. Their HTML is kept and
     can still be rendered by name (`node scripts/export.mjs concept-a-banner`).
+15. **Concept D, Spotlight**, added from a design the requester had made in a separate AI chat
+    (`sources/concept-d-design/`). The requester liked its look but not its font sizes, rewritten copy or single
+    long page, so D keeps the **look** and follows our **layout**:
+    - Kept: black nav and hero, the oversized uppercase REMARKABLE with a magenta "2027", the rounded hero photo
+      with the magenta Vector arrow on its top-right corner, the gradient rule under black bands, Karbon headings
+      with tight tracking, square-cornered magenta buttons with black labels and a north-east arrow, underlined
+      text-link secondary buttons, the grey program band (photo left, days right), stats with dividers and a
+      magenta "+", a black photo band, magenta plus/minus FAQ icons and a black footer.
+    - Replaced with ours: every line of copy (all from `copy.json`; nothing from the chat's rewrite), the four
+      pages and their section order, the six speakers (the chat had "to be announced"), the recap video and the
+      nine-photo carousel (the chat had a three-photo grid), the full footer, our photos and logo files, and the
+      type sizes (the chat set body text at 12–15 px and captions at 8–11 px; D uses the shared 18/16 px body
+      and 14 px minimum for labels).
+    - Removed: "Celebrating 10 years of Vector" (anniversary wording; the agency's mark sits on a white disc
+      instead, as in A), the arrow's drop shadow, the closing gradient "Be part of what comes next" band and the
+      When/Where labels (copy that isn't ours), the "01 / …" section eyebrows, photo captions, and the
+      registration and gallery pop-ups. Placed photos use the brand's 16 px corners, not the chat's 8 px.
 
 ---
 
@@ -152,6 +171,8 @@ photos; alt text on every image; nothing autoplays.
 | C's day columns: a horizontal gradient rule above both columns and a thin grey line between them, instead of the brief's "gradient vertical divider" | A gradient running down a vertical line would be a second direction. The brief contradicts itself here. |
 | A's "AI" letterform is shown as a white silhouette at 12% | The PNG carries its own vertical gradient. The 2026 slides also showed it as a light shape. |
 | A's 10th-anniversary mark sits on a white disc, not directly on the gradient | The mark is black and magenta; its arrow vanishes into the magenta end of the gradient. The disc keeps the agency's colours instead of recolouring the mark. A white knockout version would need the agency's sign-off. |
+| D uses large black fills (nav, hero, page headers, the recap and photo band, footer) | Goes against the earlier client feedback against large black areas. Kept because the requester chose this design; raise it with Danielle and Marcie. |
+| D's magenta buttons have black labels | Black on magenta is 4.9:1 and passes AA at any size (white is 4.3:1). It's the design's look. |
 | A's hero box doesn't repeat the logo | The nav logo sits on the gradient directly above; two logos within about 200 px looked wrong. |
 | Hero primary buttons on a gradient are white with magenta text (A and B) | A magenta button disappears into the magenta end of the gradient. |
 | A's day cards are solid white on the gradient, not 20% white overlay cards | White body text on a 20% overlay reaches only about 3.8:1 at the magenta end, which fails AA. |
@@ -211,6 +232,16 @@ photos; alt text on every image; nothing autoplays.
 - The pixel pattern sits above the photo's top edge, never on it.
 - Desktop sections have 128 px of vertical padding.
 
+**D, Spotlight** (`mockups/concept-d/`)
+- The hero's `<h1>` is a flex row (REMARKABLE left, 2027 right) followed by the anniversary disc. On mobile the
+  disc moves to the eyebrow line (absolute, top right) and the masthead starts 64 px lower so they don't touch.
+- The arrow is `assets/brand-elements/vector-arrow-magenta.svg` (the same geometry as the chat's arrow), placed
+  over the photo's top-right corner at `top: -48px` so it clears the disc above.
+- `after()` in `concept.js` adds the photo to the grey days band and wraps a trailing "+" on stats in a magenta
+  span; neither is in the shared markup.
+- The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the
+  content width.
+
 **Two CSS gotchas hit during the build**
 - The wireframe PDF script hides panels with a doubled class (`.pdf-hide.pdf-hide`), because the review page's
   own `!important` rule was more specific.
@@ -234,7 +265,7 @@ photos; alt text on every image; nothing autoplays.
 6. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px). Swap in the final
    artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
    tall on mobile), and place it in B and C if they stay in play.
-7. **Danielle and Marcie** choose a direction. The chosen concept then goes to Swoogo with the PNGs, this file and
+7. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 
 ---

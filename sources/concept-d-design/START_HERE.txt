@@ -1,0 +1,11 @@
+REMARKABLE 2027 — AI CHAT HANDOFF
+
+1. Upload Remarkable_2027_Full_Page.png and Handoff_Prompt.txt to the new chat. The image shows the full desktop design; the text transfers the brief and content status.
+2. If the new AI chat accepts HTML files, also upload Remarkable_2027_Standalone.html. It is one complete file with embedded fonts, photographs, artwork, styles and interactions. It can be opened locally in a browser with no supporting files.
+3. Page_Text.txt contains the readable page copy and section structure if the destination chat cannot inspect the HTML.
+4. Replace [INSERT MY REQUEST HERE] in the handoff prompt with the next change you want.
+5. For detailed source work, the source folder contains the original separate HTML, CSS, JavaScript and assets.
+
+A private preview URL may require your account, so uploaded files are the portable reference. HTML attachment and rendering support differs between AI chat products. If a chat does not accept HTML or ZIP files, upload the PNG and prompt, and use its supported code-file workflow for the source.
+
+The visual export shows the desktop layout with Day 1 selected and the first FAQ open. The HTML also includes the mobile layout, Day 2 program, expandable FAQs, photo gallery and registration-preview dialog. This is a design concept, not an active event registration page. It has not modified the Swoogo event.
