@@ -18,7 +18,9 @@ pack() { # pack <zip name> <paths...>
 pack 1-core HANDOFF.md CLAUDE.md BRIEF.md package.json package-lock.json .gitignore \
   brand content fonts assets mockups scripts reference
 pack 2-review-pdfs exports/remarkable-2027-concepts-review.pdf exports/wireframe
-pack 3-exports-png 'exports/concept-*.png'
+# PNG frames in two zips (all four concepts in one would pass 25 MB)
+pack 3a-exports-png-a-b 'exports/concept-[ab]-*.png'
+pack 3b-exports-png-c-d 'exports/concept-[cd]-*.png'
 pack 4-sources sources
 # Everything else tracked at the repo root: the requester's earlier uploads
 git ls-files | grep -v -e '^\(assets\|brand\|content\|fonts\|mockups\|scripts\|reference\|sources\|exports\)/' \

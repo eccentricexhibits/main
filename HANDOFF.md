@@ -314,15 +314,16 @@ What I'd like to do next: <describe the next task>
 
 ## 9. Moving this package
 
-- **To another Claude Code session:** open this repository on the branch `claude/remarkable-2027-homepage-pvevfp`.
+- **To another Claude Code session:** open this repository on the branch `claude/wonderful-ritchie-ox7y3z`.
   Everything is committed, and `CLAUDE.md` points the session to this file.
-- **To a Claude chat window (about 30 MB per upload):** run `bash scripts/package-handoff.sh`. It writes five zips
+- **To a Claude chat window (about 30 MB per upload):** run `bash scripts/package-handoff.sh`. It writes six zips
   of under 25 MB each into `handoff-zips/` (ignored by git):
 
   | Zip | Contents | Upload when |
   |---|---|---|
   | `1-core` | HANDOFF, BRIEF, brand, content, fonts, assets, mockups, scripts, reference, package files | Always. Enough to understand and rebuild everything. |
   | `2-review-pdfs` | Concepts review PDF and the wireframe folder | To review or discuss the designs |
-  | `3-exports-png` | All PNG frames | To inspect individual frames |
-  | `4-sources` | Brand guidelines, recap PDF, copy doc, AI Summit page, full Karbon family | For brand or copy questions |
+  | `3a-exports-png-a-b` | PNG frames of Concepts A and B (plus their parked banners) | To inspect those frames |
+  | `3b-exports-png-c-d` | PNG frames of Concepts C and D (plus C's parked banner) | To inspect those frames |
+  | `4-sources` | Brand guidelines, recap PDF, copy doc, AI Summit page, full Karbon family, anniversary-mark preview, the AI-chat design D came from | For brand, copy or Concept D background questions |
   | `5-earlier-uploads` | The requester's earlier repo-root files | Only if those materials matter |
