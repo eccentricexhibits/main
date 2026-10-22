@@ -305,9 +305,11 @@ photos; alt text on every image; nothing autoplays.
   the text. The previous hero is `heroStage`, selected by `D_HERO`; its CSS (`.d-hero`, `.d-masthead`, `.d-arrow`)
   is kept. Its notes: REMARKABLE and 2027 at 145 px, measured to fill the 1200 px column, trailing letter-spacing
   cancelled; the photo was 312 px so it fit 1440 × 900.
-- Phone buttons: D overrides the shared full-width mobile buttons: on phones they keep their natural width,
-  stacked and left-aligned, with the arrow beside the label (still 48 px tall). The shared stretch suits A–C's
-  boxed buttons; next to D's text-link "Join virtually" it made "Register in person" look oversized.
+- Button pair: "Join virtually" is now the same button as "Register in person" (same height, padding, 4 px
+  corners, type and arrow), black with a white outline; it replaced the design's underlined text link at the
+  requester's request, so the two line up. Measured: 52 px tall on desktop, side by side; on phones they stack at
+  one shared width (the wider button's, 227 px), labels aligned left and arrows right, instead of the shared
+  layout's full-width buttons. Still 48 px tall on phones.
 - Buttons: Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is lifted
   2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
 - Stage hero (kept): the arrow is `assets/brand-elements/vector-arrow-magenta.svg` (the same geometry as the chat's arrow), placed

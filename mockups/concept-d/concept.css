@@ -7,7 +7,8 @@
      funders, agenda, speakers page, faq . white with magenta / cobalt accents
      footer .............................. black
    Type: Karbon Semibold headings with tight tracking; Open Sans body at the shared sizes (16 px minimum).
-   Buttons: square-cornered magenta with black labels (4.9:1, passes AA at any size) and a small arrow.
+   Buttons: square-cornered magenta with black labels (4.9:1, passes AA at any size) and a small arrow; the secondary
+   is the same button in black with a white outline.
    Note: the black hero, photo band and footer go against the earlier "no large black fills" client feedback;
    kept because the requester chose this design. */
 
@@ -27,7 +28,8 @@
 .btn { border-radius: var(--d-radius); font-family: var(--font-heading); font-weight: var(--weight-heading); gap: 24px; padding-top: 5px; }
 .btn--primary { color: var(--vi-black); }
 .btn::after { content: ""; width: 15px; height: 15px; flex: none; transform: translateY(-2.5px); background: currentColor; -webkit-mask: var(--d-arrow-ne) center / contain no-repeat; mask: var(--d-arrow-ne) center / contain no-repeat; }
-.btn--secondary { min-height: 0; padding: 10px 0 7px; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; background: none; }
+/* Secondary: the same button as the primary (size, padding, corners, type, arrow), black with a white outline */
+.btn--secondary { background: var(--vi-black); color: var(--vi-white); border-color: var(--vi-white); }
 .cta-row { align-items: center; gap: var(--space-4); }
 .more-link { font-family: var(--font-heading); font-weight: var(--weight-heading); font-size: 20px; border-bottom-width: 1px; gap: 20px; }
 
@@ -189,10 +191,10 @@
   .d-arrow { width: 72px; right: -8px; top: -30px; }
   .d-hero__tagline { font-size: 40px; }
   .d-hero__copy { padding-top: 0; }
-  /* Buttons keep their natural width (the shared layout stretches them to full width), stacked and left-aligned,
-     so the arrow sits beside its label as on desktop */
-  .cta-row { align-items: flex-start; gap: var(--space-2); }
-  .cta-row .btn { width: auto; }
+  /* Buttons stack at one shared width, that of the wider one, instead of the shared layout's full width: labels
+     line up on the left and arrows on the right */
+  .cta-row { display: inline-flex; flex-direction: column; align-items: stretch; gap: var(--space-2); }
+  .cta-row .btn { width: auto; justify-content: space-between; }
   .d-details { flex-direction: column; align-items: flex-start; gap: var(--space-1); margin-top: var(--space-4); }
   .d-details strong { font-size: 22px; }
   .d-details__address { display: block; margin: 2px 0 0; font-size: 16px; }
