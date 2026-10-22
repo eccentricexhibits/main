@@ -189,10 +189,10 @@
   .d-arrow { width: 72px; right: -8px; top: -30px; }
   .d-hero__tagline { font-size: 40px; }
   .d-hero__copy { padding-top: 0; }
-  .hero .cta-row { align-items: stretch; gap: var(--space-2); }
-  .hero .btn--secondary { width: auto; align-self: flex-start; }
-  .btn { justify-content: space-between; }
-  .btn--secondary { justify-content: flex-start; }
+  /* Buttons keep their natural width (the shared layout stretches them to full width), stacked and left-aligned,
+     so the arrow sits beside its label as on desktop */
+  .cta-row { align-items: flex-start; gap: var(--space-2); }
+  .cta-row .btn { width: auto; }
   .d-details { flex-direction: column; align-items: flex-start; gap: var(--space-1); margin-top: var(--space-4); }
   .d-details strong { font-size: 22px; }
   .d-details__address { display: block; margin: 2px 0 0; font-size: 16px; }
