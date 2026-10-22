@@ -152,10 +152,15 @@ function nav(copy, variant, page) {
 /* Arrow geometry, measured from vector-arrow-extended-magenta.svg (rendered height = 1, width = 0.5244):
    the shaft's centre line sits at x = 0.080 + ARROW_K * (0.9 - y), so it leans right by ARROW_K per unit of height. */
 const ARROW_K = 0.4017;
+const ARROW_INK_TOP = 0.024; // the arrow's tip sits 2.4% of its height below the top of the file (its tail ends at 97.3%)
 
-function arrowSplit({ W, H, photos, seam, pattern }) {
-  const Ha = H * 1.05;                                   // arrow slightly taller than the frame, so its tail runs off the bottom
-  const Ax = seam - 0.08 * Ha - ARROW_K * (0.9 * Ha - H);      // places the shaft centre at x = seam on the bottom edge
+/* touchTop: lift the arrow by its built-in top padding so the tip touches the frame's top edge (D). The arrow is made
+   8% taller than the frame so its tail still runs off the bottom, and moved right by ARROW_K x the lift so the shaft
+   stays on the seam. */
+function arrowSplit({ W, H, photos, seam, pattern, touchTop = false }) {
+  const Ha = H * (touchTop ? 1.08 : 1.05);               // arrow taller than the frame, so its tail runs off the bottom
+  const lift = touchTop ? ARROW_INK_TOP * Ha : 0;        // how far the arrow image is raised above the frame
+  const Ax = seam - 0.08 * Ha - ARROW_K * (0.9 * Ha - H - lift); // places the shaft centre at x = seam on the bottom edge
   const top = (x) => x + ARROW_K * H;                          // where a line through (x, bottom) meets the top edge
   const regions = [];
   if (photos.length === 2) {
@@ -169,7 +174,7 @@ function arrowSplit({ W, H, photos, seam, pattern }) {
     <defs>${regions.map((r, i) => `<clipPath id="c${id}${i}"><polygon points="${r.pts.map((p) => p.join(",")).join(" ")}"/></clipPath>`).join("")}</defs>
     ${regions.map((r, i) => `<image href="${ROOT}${r.p.src}" x="${r.x}" y="0" width="${r.w}" height="${H}" preserveAspectRatio="${r.p.align || "xMidYMid"} slice" clip-path="url(#c${id}${i})"/>`).join("")}
     ${pattern ? `<image class="arrow-split__pattern" href="${ROOT}assets/brand-elements/pixel-pattern-magenta.svg" x="${pattern.x}" y="${pattern.y}" width="${pattern.w}" height="${pattern.w * 175 / 185}"/>` : ""}
-    <image href="${ROOT}assets/brand-elements/vector-arrow-extended-magenta.svg" x="${Ax}" y="0" width="${Ha * 0.5244}" height="${Ha}"/>
+    <image href="${ROOT}assets/brand-elements/vector-arrow-extended-magenta.svg" x="${Ax}" y="${-lift}" width="${Ha * 0.5244}" height="${Ha}"/>
   </svg>`;
 }
 

@@ -171,11 +171,13 @@ In the order they were made:
       hero copy or spacing changes.
     - Home speakers row: 48 px between columns (24 px on mobile) and 20 px names, so neighbouring names and titles
       don't run together.
-    - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen**, after brand guide p. 6 ("Brand
-      Narrative"): black with the title and intro on the left, a 2026 photo on the right half cut along the
-      extended magenta arrow, whose head rises off the top edge and whose tail runs off the bottom. Photos:
-      Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker at the Vector podium; FAQ,
-      attendees talking at a poster (none of them used in B's headers). On mobile the split sits below the text.
+    - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen** on desktop, after brand guide p. 6 ("Brand
+      Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
+      magenta arrow, whose tip touches the top edge of the section and whose tail runs off the bottom. The split
+      starts 60 px left of centre. Photos: Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker
+      at the Vector podium; FAQ, attendees talking at a poster (none of them used in B's headers).
+    - **On phones there is no split:** the photo sits below the text and fades in from black (a black-to-clear
+      fade over the photo's top 42%), so the title and intro read on black and flow into the image.
 
 ---
 
@@ -204,6 +206,7 @@ photos; alt text on every image; nothing autoplays.
 | Hero primary buttons on a gradient are white with magenta text (A and B) | A magenta button disappears into the magenta end of the gradient. |
 | A's day cards are solid white on the gradient, not 20% white overlay cards | White body text on a 20% overlay reaches only about 3.8:1 at the magenta end, which fails AA. |
 | B's hero gradient runs magenta→cobalt across the text panel only (0–58%) | So the magenta pixel pattern sits on cobalt and shows up. Still the same horizontal gradient. |
+| D's phone headers fade the photo in from black | A black-to-clear fade over the top of the photo, so the header text sits on black and flows into the image (requester's request). It isn't the brand gradient, which stays off photos. |
 | Small accent text (session labels, Livestreamed tags) is cobalt, not magenta | Magenta is 4.26:1 on white, which fails AA for small text. Cobalt is 6.5:1. |
 | Patterns are left out on phone widths where no corner is free of text (A's hero and page headers; B's hero and page headers) | They would run under text. |
 | The page has 9 sections instead of the brief's 10 | Themes was removed at the requester's request. |
@@ -230,7 +233,7 @@ photos; alt text on every image; nothing autoplays.
 - **Arrow split** (`arrowSplit` helper): photos clipped to diagonals parallel to the extended magenta arrow's shaft,
   with the official arrow laid over the seam. It was B's `split()`; it moved to `render.js` so D's page headers
   could use it too (B's frames were checked pixel-identical after the move). The geometry notes under B below
-  still apply.
+  still apply. Option `touchTop` (D only) lifts the arrow so its tip touches the frame's top edge; B doesn't use it.
 - **The 10th-anniversary slot** (`anniversarySlot`) is a dashed outline labelled only "10th anniversary mark", still
   used by B and C. `anniversaryMark` places the agency's mark (path and alt text in `copy.json` →
   `hero.anniversary_mark`) on a white disc; A uses it. Never add anniversary or "Nth year" wording to the copy.
@@ -264,9 +267,16 @@ photos; alt text on every image; nothing autoplays.
 - Desktop sections have 128 px of vertical padding.
 
 **D, Spotlight** (`mockups/concept-d/`)
-- Inner-page headers: `arrowSplit` with a 720 × 480 frame and `seam: 160` in `.d-split`, the right half of the
-  header (`left: 50%`, above the gradient rule), so at 1440 px the arrow keeps its full height. Photos and crops
-  are in `D_PAGE_PHOTOS`. Header text is capped at 620 px to stay clear of the arrowhead.
+- Inner-page headers: `arrowSplit` with a 780 × 480 frame, `seam: 160` and `touchTop: true`, in `.d-split`, which runs from
+  60 px left of centre to the right edge, above the gradient rule (`left: calc(50% - 60px)`), so at 1440 px the
+  frame is exactly 780 × 480 and nothing is cropped. `touchTop` lifts the arrow by its file's built-in top padding
+  (2.4% of its height) so the tip touches the section's top edge, makes it 8% taller than the frame so the tail
+  still runs off the bottom, and shifts it so the shaft stays on the photo's edge. Measured at 1440: tip on the
+  top row, tail across the bottom row, shaft about 70 px clear of the text. Photos and crops are in
+  `D_PAGE_PHOTOS` (`align` for the desktop crop, `phone` for the phone crop); change `seam` and the photos,
+  never the coordinates. Header text is capped at 620 px. On phones `.d-split` is hidden and `.d-fade` (an
+  `<img>` of the same photo, 320 px tall, pulled 40 px up under the text) shows instead, with a black-to-clear
+  fade over its top.
 - The hero's `<h1>` is a flex row: REMARKABLE and 2027 share one font size (145 px, measured to fill the 1200 px
   column; 8.4vw on tablet), with the trailing letter-spacing after "2027" cancelled so it ends on the column edge.
   If the copy or tracking changes, re-measure; it must not exceed the column.

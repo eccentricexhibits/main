@@ -115,11 +115,13 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
    - "Remarkable 2026 by the numbers" is a **section heading** (40 px desktop / 28 px mobile).
    - Home speakers row: 48 px between columns (24 px on mobile).
    - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked.
-   - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen**, after brand guide p. 6 ("Brand
-     Narrative"): black with the title and intro on the left, a 2026 photo on the right half cut along the
-     extended magenta arrow, whose head rises off the top edge and whose tail runs off the bottom. Photos:
-     Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker at the Vector podium; FAQ,
-     attendees talking at a poster (none of them used in B's headers). On mobile the split sits below the text.
+   - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen** on desktop, after brand guide p. 6 ("Brand
+     Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
+     magenta arrow, whose tip touches the top edge of the section and whose tail runs off the bottom. The split
+     starts 60 px left of centre. Photos: Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker
+     at the Vector podium; FAQ, attendees talking at a poster (none of them used in B's headers).
+   - **On phones there is no split:** the photo sits below the text and fades in from black (a black-to-clear
+     fade over the photo's top 42%), so the title and intro read on black and flow into the image.
 
 ---
 
@@ -139,6 +141,7 @@ image; nothing autoplays.
 |---|---|
 | Large black fills: nav, hero, page headers, the recap and photo band, footer | Goes against earlier client feedback against large black areas. Kept because the requester chose this design; raise it with Danielle and Marcie. |
 | Magenta buttons have black labels | Black on magenta is 4.9:1 and passes AA at any size (white on magenta is only 4.3:1). It's the design's look. |
+| Phone headers fade the photo in from black | A black-to-clear fade over the top of the photo, so the header text sits on black and flows into the image (requester's request). It isn't the brand gradient, which stays off photos. |
 | Small accent text (session times, session labels, Livestreamed tags) is cobalt, not magenta | Magenta is 4.26:1 on white, which fails AA for small text; cobalt is 6.5:1. |
 
 Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11:1.
@@ -165,13 +168,18 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
 - **Buttons:** Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is
   lifted 2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
 - **Arrow:** `assets/brand-elements/vector-arrow-magenta.svg`, over the photo's top-right corner at `top: -40px`.
-- **Split headers:** `pageHeader` calls the shared `arrowSplit` helper (in `render.js`) with a 720 × 480 frame and
-  `seam: 160`; `.d-split` fills the right half of the header (`left: 50%`, stopping above the gradient rule), so at
-  1440 px the frame is exactly 720 × 480 and the arrow keeps its full height. The photo is clipped to a line
-  parallel to the arrow's shaft, measured from `vector-arrow-extended-magenta.svg` (it leans right 0.4017 per unit
-  of height); change `seam` and the photos in `D_PAGE_PHOTOS`, never the coordinates. Each photo can take an
-  `align` (Agenda uses `xMaxYMid` to keep the speaker clear of the edge). The header text is capped at 620 px so
-  it stays clear of the arrowhead.
+- **Split headers:** `pageHeader` calls the shared `arrowSplit` with a 780 × 480 frame, `seam: 160` and `touchTop: true`, in `.d-split`, which runs from
+  60 px left of centre to the right edge, above the gradient rule (`left: calc(50% - 60px)`), so at 1440 px the
+  frame is exactly 780 × 480 and nothing is cropped. `touchTop` lifts the arrow by its file's built-in top padding
+  (2.4% of its height) so the tip touches the section's top edge, makes it 8% taller than the frame so the tail
+  still runs off the bottom, and shifts it so the shaft stays on the photo's edge. Measured at 1440: tip on the
+  top row, tail across the bottom row, shaft about 70 px clear of the text. Photos and crops are in
+  `D_PAGE_PHOTOS` (`align` for the desktop crop, `phone` for the phone crop); change `seam` and the photos,
+  never the coordinates. Header text is capped at 620 px. On phones `.d-split` is hidden and `.d-fade` (an
+  `<img>` of the same photo, 320 px tall, pulled 40 px up under the text) shows instead, with a black-to-clear
+  fade over its top.
+  The photo is clipped to a line parallel to the arrow's shaft, measured from `vector-arrow-extended-magenta.svg`
+  (it leans right 0.4017 per unit of height).
 - **`after()`** adds the photo to the grey days band and wraps a trailing "+" on stats in a magenta span; neither
   is in the shared markup.
 - The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the

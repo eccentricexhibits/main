@@ -5,11 +5,13 @@
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
 const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
-// Inner-page headers: one photo on the right, cut along the magenta arrow (brand guide p. 6). Not the photos B uses.
+// Inner-page headers: one photo on the right, cut along the magenta arrow (brand guide p. 6); on a phone, the photo
+// below the text instead, faded in from black. Not the photos B uses.
 const D_PAGE_PHOTOS = {
-  agenda: { src: "assets/photos-2026/stage-remarkable-backdrop.jpg", align: "xMaxYMid" }, // keeps the speaker clear of the edge
-  speakers: { src: "assets/photos-2026/speaker-at-podium.jpg" },
-  faq: { src: "assets/photos-2026/posters-discussion.jpg" },
+  // align: the desktop crop (agenda keeps the speaker clear of the edge); phone: the phone crop (object-position)
+  agenda: { src: "assets/photos-2026/stage-remarkable-backdrop.jpg", align: "xMaxYMid", phone: "65% 50%" },
+  speakers: { src: "assets/photos-2026/speaker-at-podium.jpg", phone: "50% 0%" }, // her face is near the top
+  faq: { src: "assets/photos-2026/posters-discussion.jpg", phone: "50% 20%" },
 };
 
 window.CONCEPT = {
@@ -54,7 +56,8 @@ window.CONCEPT = {
       <h1 class="page-hero__title">${h.esc(pc.title)}</h1>
       <p class="page-hero__intro">${h.esc(pc.intro)}</p>
     </div>
-    <div class="d-split">${h.arrowSplit({ W: 720, H: 480, seam: 160, photos: [D_PAGE_PHOTOS[page]] })}</div>
+    <div class="d-split">${h.arrowSplit({ W: 780, H: 480, seam: 160, photos: [D_PAGE_PHOTOS[page]], touchTop: true })}</div>
+    <div class="d-fade"><img src="${h.asset(D_PAGE_PHOTOS[page].src)}" alt="${h.esc(h.photoAlt(D_PAGE_PHOTOS[page].src))}" style="object-position: ${D_PAGE_PHOTOS[page].phone}"></div>
     <div class="d-rule" aria-hidden="true"></div>`;
   },
 
