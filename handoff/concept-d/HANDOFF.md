@@ -49,7 +49,6 @@ split screen: a photo on the right half, cut along the extended magenta arrow (b
 | `exports/` | Generated PNGs and the review PDF. Regenerate rather than edit. `exports/archive/` holds the home page with the previous ("stage") hero. |
 | `sources/Vector_BrandGuidelines_6.29.26.pdf` | The Vector brand guide. |
 | `sources/Remarkable_2027_Current_Website_copy.docx` | The reg-site copy doc the copy came from (it still holds the 2026 text). |
-| `sources/AI_Summit_2026_Website_Reference.zip` | The Swoogo page whose structure the layout follows. |
 | `sources/concept-d-design/` | The design from a separate AI chat that D was adapted from (full-page PNG, page text, HTML/CSS/JS). Background only; see section 4. |
 
 ---
@@ -77,7 +76,7 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
 **Shared with the other concepts**
 1. **Left-aligned** text throughout. In D nothing is indented: intros line up with their titles.
 2. **Nav:** Home · Agenda · Speakers · FAQ, an **EN | FR** switch, and **Register**.
-3. **Structure follows the AI Summit 2026 Swoogo page:** full-width sections in one content column, a speaker
+3. **Structure follows the AI Summit 2026 Swoogo page** (in the full four-concept package, `sources/`): full-width sections in one content column, a speaker
    list with photo left and details right, a full footer (contact line, socials, Vector links, privacy text).
 4. **Copy comes from the reg-site doc**, edited only to make it true for 2027 (no "Nth year" or anniversary
    wording). Every edit is in `content/COPY-CHANGES.md`. Final copy comes from Nadia.

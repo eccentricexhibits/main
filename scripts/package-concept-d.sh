@@ -34,7 +34,7 @@ FILES=(
   assets/photos-2026/{networking-hallway,posters-conversation,registration-desk,stage-fireside-chat,workshop-room}.jpg
   assets/photos-2026/{stage-remarkable-backdrop,speaker-at-podium,posters-discussion}.jpg
   sources/Vector_BrandGuidelines_6.29.26.pdf sources/Remarkable_2027_Current_Website_copy.docx
-  sources/AI_Summit_2026_Website_Reference.zip sources/concept-d-design
+  sources/concept-d-design   # (the AI Summit 2026 page reference stays in the full package, to keep this zip under 25 MB)
 )
 for f in "${FILES[@]}"; do
   [ -e "$f" ] || { echo "!! missing $f"; exit 1; }
