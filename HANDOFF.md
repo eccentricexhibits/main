@@ -157,9 +157,13 @@ In the order they were made:
     - The "Remarkable 2026 by the numbers" caption is larger (18 px).
     - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked
       (`agendaTabs: true`; A–C still show both days and can switch it on the same way).
-    - The intro paragraph under each inner-page title (Agenda, Speakers, FAQ) has no indent, so it lines up with
-      the title. The day description on the agenda still has the indent.
-    - Pending: the Hilton logo beside "Hilton Toronto" in the hero (the SVG didn't arrive; see section 7).
+    - The intro paragraph under each inner-page title (Agenda, Speakers, FAQ), and the day description on the
+      agenda, have no indent, so they line up with the titles.
+    - The Hilton logo (`assets/logos/hilton-white.svg`, supplied by the requester) sits before "Hilton Toronto" in
+      the hero's details row. It's decorative (`alt=""`) because the name is written beside it.
+    - The hero was opened up after it felt cramped under the full-width wordmark: more space above and below the
+      wordmark (96 px to the tagline and photo), a smaller arrow (116 px) that no longer reaches toward the
+      wordmark, a 400 px photo and more padding around the details row. The wordmark keeps its size.
 
 ---
 
@@ -282,8 +286,8 @@ photos; alt text on every image; nothing autoplays.
    at the requester's request. Swap in the final
    artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
    tall on mobile), and place it in B and C if they stay in play.
-7. **Hilton logo** for D's hero, beside "Hilton Toronto": the requester is sending an SVG. Check the Hilton
-   brand rules for a white version on black and for clear space.
+7. **Hilton logo** in D's hero: check Hilton's brand rules on use by a third party, the white version on black,
+   and clear space.
 8. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 

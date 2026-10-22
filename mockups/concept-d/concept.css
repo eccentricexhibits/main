@@ -39,27 +39,29 @@
 
 /* ---------- Home hero: black stage ---------- */
 .hero { background: var(--vi-black); color: var(--vi-white); }
-.d-hero { padding-top: var(--space-4); }
+.d-hero { padding-top: var(--space-6); }
 /* REMARKABLE and 2027 at one size, side by side on one baseline, together filling the content width */
-.d-masthead { margin-top: var(--space-3); }
+.d-masthead { margin-top: var(--space-4); }
 .d-masthead__title { display: flex; align-items: baseline; gap: 0.25em; font-size: 145px; line-height: 0.85; letter-spacing: 0.035em; } /* 145 px spans the 1200 px column */
 .d-masthead__name { text-transform: uppercase; }
 .d-masthead__year { margin-right: -0.035em; color: var(--vi-magenta); } /* trailing tracking cancelled so "7" ends on the column edge; magenta on black is 4.9:1 */
 
-.d-hero__grid { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; margin-top: var(--space-8); }
+.d-hero__grid { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; margin-top: var(--space-12); } /* room for the wordmark to breathe, and for the arrow */
 .d-hero__copy { padding-top: var(--space-2); }
 .d-hero__tagline { font: var(--weight-heading) 56px/1.02 var(--font-heading); max-width: 380px; text-wrap: balance; }
 .d-hero__copy .cta-row { margin-top: var(--space-4); }
 .hero .btn--secondary { color: var(--vi-white); }
 .hero .small-print { color: var(--d-muted-dark); }
 .d-hero__media { position: relative; }
-.d-hero__photo { width: 100%; height: 420px; object-fit: cover; object-position: 50% 55%; border-radius: var(--vi-image-radius); }
+.d-hero__photo { width: 100%; height: 400px; object-fit: cover; object-position: 50% 55%; border-radius: var(--vi-image-radius); }
 /* Official magenta arrow (not recoloured, no shadow) breaking out of the photo's top-right corner */
-.d-arrow { position: absolute; right: -44px; top: -48px; width: 140px; height: auto; pointer-events: none; }
+.d-arrow { position: absolute; right: -36px; top: -40px; width: 116px; height: auto; pointer-events: none; }
 
-.d-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-8); margin-top: var(--space-6); padding: var(--space-3) 0; border-top: 1px solid #3a3a3a; }
+.d-details { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-8); margin-top: var(--space-8); padding: var(--space-4) 0 var(--space-6); border-top: 1px solid #3a3a3a; }
 .d-details strong { font: var(--weight-heading) 28px/1.3 var(--font-heading); }
-.d-details__venue span { margin-left: var(--space-1); color: var(--d-muted-dark); font-size: 18px; }
+.d-details__venue { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 var(--space-2); }
+.d-hilton { height: 36px; width: auto; }
+.d-details__address { color: var(--d-muted-dark); font-size: 18px; }
 .d-rule { height: 7px; background: var(--vi-gradient); }
 
 /* ---------- Inner-page header: black band ---------- */
@@ -124,6 +126,7 @@
 .day-tabs__label { font-size: 28px; }
 .agenda .day__label { font-size: 28px; }
 .agenda-day__title { font-size: 48px; line-height: 1.05; }
+.agenda-day__text { margin-left: 0; } /* aligned with the title, no indent */
 .sessions { border-top-width: 1px; }
 .session__time { font-family: var(--font-heading); font-weight: var(--weight-heading); color: var(--vi-cobalt); }
 .session__type { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: #555; }
@@ -167,9 +170,11 @@
   .hero .btn--secondary { width: auto; align-self: flex-start; }
   .btn { justify-content: space-between; }
   .btn--secondary { justify-content: flex-start; }
-  .d-details { flex-direction: column; gap: var(--space-1); margin-top: var(--space-4); }
+  .d-details { flex-direction: column; align-items: flex-start; gap: var(--space-1); margin-top: var(--space-4); }
   .d-details strong { font-size: 22px; }
-  .d-details__venue span { display: block; margin: 2px 0 0; font-size: 16px; }
+  .d-details__venue { gap: 0 12px; }
+  .d-hilton { height: 30px; }
+  .d-details__address { flex-basis: 100%; margin-top: 2px; font-size: 16px; }
 
   .page-hero__title { font-size: 48px; }
 

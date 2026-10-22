@@ -5,6 +5,7 @@
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
 const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
+const D_HILTON = "assets/logos/hilton-white.svg"; // 1137 x 422; decorative, as "Hilton Toronto" is written beside it
 
 window.CONCEPT = {
   letter: "D",
@@ -35,7 +36,7 @@ window.CONCEPT = {
       </div>
       <p class="d-details">
         <strong class="nowrap">${h.esc(hero.dates)}</strong>
-        <span class="d-details__venue"><strong class="nowrap">${h.esc(hero.venue)}</strong> <span class="nowrap">${h.esc(hero.venue_address)}</span></span>
+        <span class="d-details__venue"><img class="d-hilton" src="${h.asset(D_HILTON)}" alt="" width="1137" height="422"><strong class="nowrap">${h.esc(hero.venue)}</strong> <span class="d-details__address nowrap">${h.esc(hero.venue_address)}</span></span>
       </p>
     </div>
     <div class="d-rule" aria-hidden="true"></div>`;
