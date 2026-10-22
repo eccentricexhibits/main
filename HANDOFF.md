@@ -59,6 +59,8 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `scripts/pages.mjs` | Writes the four page shells into every `mockups/*/` folder that has a `concept.js`. |
 | `scripts/wireframe-pdf.mjs` | Builds the wireframe PDF from `exports/wireframe/index.html`. |
 | `scripts/package-handoff.sh` | Builds upload-sized zips of this whole package (section 9). |
+| `scripts/package-concept-d.sh` | Builds a standalone zip of Concept D only (section 9). |
+| `handoff/concept-d/` | The `HANDOFF.md` and `CLAUDE.md` that go into the Concept D package. Update them with any change to D. |
 | `exports/` | Generated PNGs and PDFs. Regenerate rather than edit. |
 | `reference/` | Brand-guide pages 13–41 and 2026 materials (banners, slides, badges, recap pages) as images. Look, don't embed. |
 | `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, the original handoff README and prompt, the agency's 10th-anniversary mark preview, and `concept-d-design/` (the AI-chat design D was adapted from: full-page PNG, page text, HTML/CSS/JS; its photos, fonts and the 5 MB standalone HTML were left out). |
@@ -321,9 +323,16 @@ What I'd like to do next: <describe the next task>
 
   | Zip | Contents | Upload when |
   |---|---|---|
-  | `1-core` | HANDOFF, BRIEF, brand, content, fonts, assets, mockups, scripts, reference, package files | Always. Enough to understand and rebuild everything. |
+  | `1-core` | HANDOFF, BRIEF, brand, content, fonts, assets, mockups, scripts, reference, the Concept D handoff notes, package files | Always. Enough to understand and rebuild everything. |
   | `2-review-pdfs` | Concepts review PDF and the wireframe folder | To review or discuss the designs |
   | `3a-exports-png-a-b` | PNG frames of Concepts A and B (plus their parked banners) | To inspect those frames |
   | `3b-exports-png-c-d` | PNG frames of Concepts C and D (plus C's parked banner) | To inspect those frames |
   | `4-sources` | Brand guidelines, recap PDF, copy doc, AI Summit page, full Karbon family, anniversary-mark preview, the AI-chat design D came from | For brand, copy or Concept D background questions |
   | `5-earlier-uploads` | The requester's earlier repo-root files | Only if those materials matter |
+
+- **Concept D on its own:** run `bash scripts/package-concept-d.sh`. It writes
+  `handoff-zips/remarkable-2027-concept-d.zip` (about 20 MB): only the files D needs, its 8 PNGs, a D-only review
+  PDF, the brand guide, copy doc, AI Summit page and the AI-chat design D came from, with its own `HANDOFF.md`
+  and `CLAUDE.md` from `handoff/concept-d/`. The script rebuilds the PNGs and PDF inside the staged package and
+  fails unless the PNGs match `exports/`, so the zip is proven to rebuild on its own. `export.mjs` exports only
+  the concepts present in `mockups/`, which is what lets a single-concept package build its own PDF.

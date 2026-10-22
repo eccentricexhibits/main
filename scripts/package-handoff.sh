@@ -16,14 +16,14 @@ pack() { # pack <zip name> <paths...>
 }
 
 pack 1-core HANDOFF.md CLAUDE.md BRIEF.md package.json package-lock.json .gitignore \
-  brand content fonts assets mockups scripts reference
+  brand content fonts assets mockups scripts reference handoff
 pack 2-review-pdfs exports/remarkable-2027-concepts-review.pdf exports/wireframe
 # PNG frames in two zips (all four concepts in one would pass 25 MB)
 pack 3a-exports-png-a-b 'exports/concept-[ab]-*.png'
 pack 3b-exports-png-c-d 'exports/concept-[cd]-*.png'
 pack 4-sources sources
 # Everything else tracked at the repo root: the requester's earlier uploads
-git ls-files | grep -v -e '^\(assets\|brand\|content\|fonts\|mockups\|scripts\|reference\|sources\|exports\)/' \
+git ls-files | grep -v -e '^\(assets\|brand\|content\|fonts\|mockups\|scripts\|reference\|handoff\|sources\|exports\)/' \
   -e '^\(HANDOFF\|CLAUDE\|BRIEF\)\.md$' -e '^package' -e '^\.gitignore$' \
   | zip -q -X "$OUT/remarkable-2027-5-earlier-uploads.zip" -@
 

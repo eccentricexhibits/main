@@ -12,6 +12,7 @@
 
 import { createServer } from "node:http";
 import { readFile, mkdir, writeFile, access, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -29,12 +30,14 @@ const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
 const BANNER = { width: 1478, height: 300 };
 
-const CONCEPTS = [
+const ALL_CONCEPTS = [
   { id: "a", name: "Concept A — Gradient Stage", rationale: "Continuity — the 2026 stage look, rebuilt in the new magenta-to-cobalt brand gradient." },
   { id: "b", name: "Concept B — Arrow Split", rationale: "Momentum — the brand arrow cuts through real Remarkable photos; the most energetic option." },
   { id: "c", name: "Concept C — Open Canvas", rationale: "Modern editorial — white space and bold type, with colour used only as an accent." },
   { id: "d", name: "Concept D — Spotlight", rationale: "Bold contrast — a black stage, oversized Karbon type and real Remarkable photography, lit by the magenta arrow." },
 ];
+// Only the concepts present in mockups/, so a single-concept package exports and builds its PDF on its own
+const CONCEPTS = ALL_CONCEPTS.filter((c) => existsSync(resolve(ROOT, `mockups/concept-${c.id}/concept.js`)));
 const LETTERS = CONCEPTS.map((c) => c.id.toUpperCase());
 const NUMBER_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six"];
 
@@ -142,10 +145,10 @@ async function buildPdf(browser, base) {
       .foot { margin: 48px 0 0; font-size: 16px; color: #444; max-width: 1100px; }
     </style></head><body><div class="bar"></div><div class="cover">
       <img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur">
-      <h1>Remarkable 2027 — Registration site concepts — internal draft — ${REVIEW_DATE}</h1>
-      <p class="sub">${NUMBER_WORDS[CONCEPTS.length]} registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
+      <h1>Remarkable 2027 — Registration site concept${CONCEPTS.length === 1 ? "" : "s"} — internal draft — ${REVIEW_DATE}</h1>
+      <p class="sub">${NUMBER_WORDS[CONCEPTS.length]} registration-site direction${CONCEPTS.length === 1 ? "" : "s"} · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
       <ul>${list}</ul>
-      <p class="foot">Frames follow in order ${LETTERS.join(", ")}. All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
+      <p class="foot">${CONCEPTS.length > 1 ? `Frames follow in order ${LETTERS.join(", ")}. ` : ""}All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
     </div></body></html>`,
     1536,
     960
