@@ -5,7 +5,7 @@ before changing anything. It records what was built, every decision made with th
 brief, and how to rebuild the exports. Where this file and `BRIEF.md` disagree, **this file wins**: the brief is the
 starting point, and the decisions below came later from the requester.
 
-Last updated: October 22, 2026.
+Last updated: October 22, 2026 (stock portraits in all concepts; anniversary mark placed in Concept A).
 
 ---
 
@@ -43,7 +43,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `brand/tokens.css` | The only colours, gradients and fonts allowed. The Karbon `@font-face` block is enabled (see section 7). |
 | `content/copy.json` | All copy, shared by every concept and page. Never hard-code copy in a concept. |
 | `content/COPY-CHANGES.md` | Where every line of copy came from, every edit to the source doc, and what is placeholder or fictitious. |
-| `assets/` | Logos, brand arrows and patterns, gradient backgrounds, 19 photos from 2026, 6 speaker headshots, funder logos, social icons. Funder PNGs were trimmed of transparent padding so they sit at equal height. |
+| `assets/` | Logos (including the 10th-anniversary mark), brand arrows and patterns, gradient backgrounds, 19 photos from 2026, 6 stock speaker headshots, funder logos, social icons. Funder PNGs were trimmed of transparent padding so they sit at equal height. |
 | `fonts/` | Karbon Regular, Medium and Semibold OTF, used by the mockups. The full family is in `sources/Karbon_Font_full_family.zip`. |
 | `mockups/shared/render.js` | The one renderer: loads `copy.json` and builds the nav, page content and footer for `<body data-page="home|agenda|speakers|faq">`. |
 | `mockups/shared/base.css` | Shared structure, grids and responsive rules for every concept. |
@@ -57,7 +57,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `scripts/package-handoff.sh` | Builds upload-sized zips of this whole package (section 9). |
 | `exports/` | Generated PNGs and PDFs. Regenerate rather than edit. |
 | `reference/` | Brand-guide pages 13–41 and 2026 materials (banners, slides, badges, recap pages) as images. Look, don't embed. |
-| `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, and the original handoff README and prompt. |
+| `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, the original handoff README and prompt, and the agency's 10th-anniversary mark preview. |
 | Repo root PDFs, PNGs, SVGs | Earlier uploads by the requester (brand quick-reference PDF, "Frame" and badge images, official logo and arrow SVGs). Not used by the mockups; kept as they were. |
 
 ---
@@ -107,13 +107,18 @@ In the order they were made:
 7. **Photo carousel** on Home ("Remarkable 2026 in photos"): nine photos, moved only by the arrow buttons or
    scrolling, never automatically. **EN | FR switch** in the nav.
 8. **No 2027 speakers or sessions are confirmed**, so every speaker, company, bio and agenda session is
-   **fictitious**. The six fictitious speakers use gender-neutral first names and **temporary portraits**: the
-   2026 headshots, which show real people. The requester will supply stock portraits.
+   **fictitious**. The six fictitious speakers use gender-neutral first names. Their portraits are the
+   requester's **stock headshots** (`assets/speakers/stock-headshot-01…06.jpg`, in speaker order); the 2026
+   headshots of real people that stood in before were removed.
 9. **Concept A got a "splashier" pass** after Danielle asked for something splashier: a full-height hero, a
    larger wordmark, the "AI" letterform enlarged to fill the hero, and the day cards moved onto the gradient. B is
    still the brief's designated "splashiest" option.
 10. **Karbon** (supplied by the requester) is used for all headings, and Open Sans for body text.
 11. **Wireframe first:** a greyscale wireframe went to the manager before the visual concepts (`exports/wireframe/`).
+12. **10th-anniversary mark placed in Concept A** (hero and banner). The agency's preview file
+    (`sources/vector-10th-anniversary-preview.png`, black "10" with a magenta arrow on white) was cut out to a
+    transparent PNG, `assets/logos/anniversary-10-years-colour.png`, and set full colour on a white disc. B and C
+    still show the dashed placeholder slot.
 
 ---
 
@@ -135,6 +140,7 @@ photos; alt text on every image; nothing autoplays.
 | B's speaker rings use the horizontal gradient, not the diagonal `--vi-gradient-shape` | The same one-direction rule. Agreed with the requester at the start. |
 | C's day columns: a horizontal gradient rule above both columns and a thin grey line between them, instead of the brief's "gradient vertical divider" | A gradient running down a vertical line would be a second direction. The brief contradicts itself here. |
 | A's "AI" letterform is shown as a white silhouette at 12% | The PNG carries its own vertical gradient. The 2026 slides also showed it as a light shape. |
+| A's 10th-anniversary mark sits on a white disc, not directly on the gradient | The mark is black and magenta; its arrow vanishes into the magenta end of the gradient. The disc keeps the agency's colours instead of recolouring the mark. A white knockout version would need the agency's sign-off. |
 | A's hero box doesn't repeat the logo | The nav logo sits on the gradient directly above; two logos within about 200 px looked wrong. |
 | Hero primary buttons on a gradient are white with magenta text (A and B) | A magenta button disappears into the magenta end of the gradient. |
 | A's day cards are solid white on the gradient, not 20% white overlay cards | White body text on a 20% overlay reaches only about 3.8:1 at the magenta end, which fails AA. |
@@ -162,13 +168,16 @@ photos; alt text on every image; nothing autoplays.
   `meta`, `esc`, `photoAlt` and `ROOT`.
 - When fonts and images have loaded, the page sets `<html data-ready="true">`, and the export waits for it.
   `data-broken` lists any image that failed to load.
-- **The 10th-anniversary slot** is a dashed outline labelled only "10th anniversary mark", left empty for the
-  agency's mark. Never add anniversary or "Nth year" wording.
+- **The 10th-anniversary slot** (`anniversarySlot`) is a dashed outline labelled only "10th anniversary mark", still
+  used by B and C. `anniversaryMark` places the agency's mark (path and alt text in `copy.json` →
+  `hero.anniversary_mark`) on a white disc; A uses it. Never add anniversary or "Nth year" wording to the copy.
 - The fixed review label in the top-left ("Concept A — internal draft — placeholder copy") shows on page frames
   only, not on banners.
 
 **A, Gradient Stage** (`mockups/concept-a/`)
 - The nav sits on the gradient with the white knockout logo.
+- The anniversary disc is 176 px on desktop (108 px on mobile) and overlaps the hero box's top-right corner. On
+  mobile the eyebrow has 64 px below it so the disc doesn't touch it. The banner uses the same disc at 176 px.
 - The "AI" letterform is positioned with `translate(-44%, -50%)`, because the glyphs sit 44% of the way across
   the PNG.
 - **The plus-pattern PNG holds two clusters:** left at x 0–1072, y 554–963, and right at x 1428–2500, y 538–970
@@ -200,9 +209,8 @@ photos; alt text on every image; nothing autoplays.
 
 ## 7. Open items before anything leaves the team
 
-1. **Portraits:** replace the files in `assets/speakers/` with the stock portraits, keeping the filenames or
-   updating the `photo` paths in `copy.json`. The current images are **real 2026 speakers shown with fictitious
-   names and bios**, so they must be swapped before anything is shared outside the team.
+1. **Portraits:** done. Stock headshots replaced the 2026 portraits in every concept. Confirm the stock licence
+   covers this use.
 2. **Fictitious company and university names** (Lumenfold AI, Halcyon Labs, Northbridge Financial Group, Lakeview
    Institute of Technology, Cobalt Ridge Materials, Meridian Health Network, plus the panellists' companies on the
    agenda) haven't been checked against real organizations.
@@ -211,8 +219,9 @@ photos; alt text on every image; nothing autoplays.
 4. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
    `brand/tokens.css`; headings then fall back to Open Sans 600, as the brand guide allows.
 5. **The intro indent** is estimated; compare it with vectorinstitute.ai.
-6. **The 10th-anniversary mark** from the agency goes into the dashed `.anniv` slots: hero and banner in each
-   concept.
+6. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px). Swap in the final
+   artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
+   tall on mobile), and place it in B and C if they stay in play.
 7. **Danielle and Marcie** choose a direction. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 

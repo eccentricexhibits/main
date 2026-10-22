@@ -54,9 +54,11 @@
 .a-box .hero__meta { margin: 0; font-size: 24px; }
 .a-box .cta-row { justify-content: center; margin-top: var(--space-2); }
 .a-hero__fine { margin-top: var(--space-3); font-size: 16px; }
-/* 10th-anniversary mark: empty dashed circle on the box's top-right corner */
-.a-anniv { position: absolute; top: -64px; right: -24px; width: 148px; border-radius: 50%; border-color: var(--vi-white); color: var(--vi-white); align-items: center; opacity: 1; }
-.a-anniv .anniv__label { padding: 0 14px; text-align: center; line-height: 1.3; }
+/* 10th-anniversary mark: the agency's full-colour mark on a white disc, on the box's top-right corner.
+   The mark isn't recoloured; the disc keeps its black "10" and magenta arrow legible at both ends of the gradient. */
+.a-anniv { position: absolute; top: -80px; right: -32px; width: 176px; aspect-ratio: 1; border-radius: 50%;
+  background: var(--vi-white); display: grid; place-items: center; }
+.a-anniv img { width: 60%; height: auto; transform: translateY(-2%); }
 
 /* ---------- Inner-page header band ---------- */
 .page-hero { position: relative; overflow: hidden; background: var(--vi-gradient); color: var(--vi-white); }
@@ -120,7 +122,7 @@
   .hero::before { width: 860px; top: 46%; }
   .hero::after { display: none; } /* no free corner on a 390 hero; the letterform carries it */
   .a-hero__inner { min-height: 680px; padding-top: var(--space-4); padding-bottom: var(--space-8); }
-  .a-hero__eyebrow { margin-bottom: var(--space-6); font-size: 13px; }
+  .a-hero__eyebrow { margin-bottom: var(--space-8); font-size: 13px; } /* clears the anniversary disc */
   .a-box { padding: var(--space-8) var(--space-2) var(--space-4); gap: var(--space-2); }
   .a-wordmark { gap: var(--space-2); }
   .a-wordmark__name { font-size: 29px; letter-spacing: 0.32em; margin-right: -0.32em; }
@@ -130,8 +132,7 @@
   .a-box .cta-row { width: 100%; }
   .a-hero__fine .sep { display: none; }
   .a-hero__fine .nowrap { display: block; }
-  .a-anniv { top: -40px; right: -6px; width: 92px; }
-  .a-anniv .anniv__label { font-size: 9px; padding: 0 8px; }
+  .a-anniv { top: -52px; right: -6px; width: 108px; }
 
   .page-hero__inner { padding-bottom: var(--space-8); }
   .page-hero__title { font-size: 34px; letter-spacing: 0.2em; }

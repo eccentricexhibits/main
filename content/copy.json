@@ -23,6 +23,10 @@
     "cta_secondary": "Join virtually",
     "small_print": "In-person attendance to this event is by invitation only.",
     "anniversary_slot": "[10th-anniversary mark — reserved space, supplied later by agency]",
+    "anniversary_mark": {
+      "src": "assets/logos/anniversary-10-years-colour.png",
+      "alt": "Vector Institute 10th anniversary mark: 10 Years | Ans"
+    },
     "venue_address": "145 Richmond St W, Toronto, ON"
   },
   "intro": [
@@ -75,13 +79,13 @@
     "speakers": "See all speakers"
   },
   "speakers_heading": "Featured speakers",
-  "speakers_note": "Fictitious speakers for layout; portraits are temporary",
+  "speakers_note": "Fictitious speakers for layout; portraits are stock images",
   "speakers": [
     {
       "name": "Rowan Achterberg",
       "title": "Co-founder & CEO",
       "org": "Lumenfold AI",
-      "photo": "assets/speakers/nick-frosst.png",
+      "photo": "assets/speakers/stock-headshot-01.jpg",
       "session": "Day 1 · Keynote",
       "bio": "Rowan Achterberg co-founded Lumenfold AI, which builds language-model tools for regulated industries, after a decade in applied machine learning research. Rowan's keynote looks at what it takes to move generative AI from a promising prototype to a product that thousands of people rely on every day."
     },
@@ -89,7 +93,7 @@
       "name": "Avery Nakamura-Shah",
       "title": "Principal Research Scientist",
       "org": "Halcyon Labs",
-      "photo": "assets/speakers/priyank-jaini.jpg",
+      "photo": "assets/speakers/stock-headshot-02.jpg",
       "session": "Day 1 · Research talks: Agentic AI",
       "bio": "Avery Nakamura-Shah leads Halcyon Labs' work on planning and tool use in AI agents. Avery's talk covers how agents can break long tasks into steps they can check, and why evaluation is the hardest part of building them."
     },
@@ -97,7 +101,7 @@
       "name": "Morgan Adeyemi",
       "title": "Vice-President, Applied AI",
       "org": "Northbridge Financial Group",
-      "photo": "assets/speakers/ankita-upadhyay.png",
+      "photo": "assets/speakers/stock-headshot-03.jpg",
       "session": "Day 1 · Panel moderator",
       "bio": "Morgan Adeyemi runs the applied AI team at Northbridge Financial Group, taking models from pilot to production across lending, fraud and customer service. Morgan moderates the panel on scaling AI inside large organizations."
     },
@@ -105,7 +109,7 @@
       "name": "Jordan Castellano",
       "title": "Associate Professor, Computer Science",
       "org": "Lakeview Institute of Technology",
-      "photo": "assets/speakers/chris-maddison.jpg",
+      "photo": "assets/speakers/stock-headshot-04.jpg",
       "session": "Day 1 · Research talks: LLMs & Inference",
       "bio": "Jordan Castellano studies how to make large language models faster and cheaper to run without losing accuracy. Jordan's talk walks through recent results on efficient inference and what they mean for teams deploying models at scale."
     },
@@ -113,7 +117,7 @@
       "name": "Sam Okonkwo-Reid",
       "title": "Director, Autonomous Discovery Lab",
       "org": "Cobalt Ridge Materials",
-      "photo": "assets/speakers/alan-aspuru-guzik.jpg",
+      "photo": "assets/speakers/stock-headshot-05.jpg",
       "session": "Day 1 · Fireside chat",
       "bio": "Sam Okonkwo-Reid directs a self-driving laboratory where AI designs experiments and robots run them. In the fireside chat, Sam shares what changes when the time from hypothesis to result drops from months to days."
     },
@@ -121,7 +125,7 @@
       "name": "Riley Fontaine",
       "title": "Chief Privacy Officer",
       "org": "Meridian Health Network",
-      "photo": "assets/speakers/glenda-crisp.jpg",
+      "photo": "assets/speakers/stock-headshot-06.jpg",
       "session": "Day 1 · Research talks: Privacy & Security",
       "bio": "Riley Fontaine oversees privacy and data governance for a network of hospitals and clinics. Riley's talk covers privacy-enhancing technologies that let health data power AI research while staying protected."
     }
@@ -313,7 +317,7 @@
   },
   "speakers_page": {
     "title": "Speakers",
-    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. All speakers shown are fictitious, written for layout; portraits are temporary stand-ins.",
+    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. All speakers shown are fictitious, written for layout; portraits are stock images.",
     "more": "More speakers to be announced soon!"
   },
   "faq_page": {

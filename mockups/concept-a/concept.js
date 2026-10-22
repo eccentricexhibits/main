@@ -10,7 +10,7 @@ window.CONCEPT = {
     return `<div class="container a-hero__inner">
       <p class="eyebrow a-hero__eyebrow">${h.esc(hero.eyebrow)}</p>
       <div class="a-box">
-        ${h.anniversarySlot(copy, "a-anniv")}
+        ${h.anniversaryMark(copy, "a-anniv")}
         <h1 class="a-wordmark" aria-label="${h.esc(hero.event_name)}">
           <span class="a-wordmark__name" aria-hidden="true">${h.esc(name)}</span>
           <span class="a-wordmark__year" aria-hidden="true">${h.esc(year)}</span>

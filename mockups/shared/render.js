@@ -71,6 +71,12 @@ function anniversarySlot(copy, cls = "") {
   return `<div class="anniv ${cls}" role="img" aria-label="${esc(copy.hero.anniversary_slot)}"><span class="anniv__label">10th anniversary mark</span></div>`;
 }
 
+/* The agency's 10th-anniversary mark, full colour on a white disc (it is black and magenta, so it can't sit on the gradient directly) */
+function anniversaryMark(copy, cls = "") {
+  const m = copy.hero.anniversary_mark;
+  return `<div class="anniv-mark ${cls}"><img src="${asset(m.src)}" alt="${esc(m.alt)}" width="620" height="646"></div>`;
+}
+
 /* Dates | venue, each kept on one line */
 function meta(copy) {
   return `<span class="nowrap">${esc(copy.hero.dates)}</span> <span class="sep" aria-hidden="true">|</span> <span class="nowrap">${esc(copy.hero.venue)}</span>`;
@@ -388,7 +394,7 @@ function faqPage(copy, C) {
   <section class="faqs"><div class="container">${groups}</div></section>`;
 }
 
-const helpers = { logo, anniversarySlot, ctas, meta, intro, moreLink, esc, asset, photoAlt, ROOT };
+const helpers = { logo, anniversarySlot, anniversaryMark, ctas, meta, intro, moreLink, esc, asset, photoAlt, ROOT };
 
 async function waitForAssets() {
   await document.fonts.ready;
