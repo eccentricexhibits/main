@@ -171,6 +171,11 @@ In the order they were made:
       hero copy or spacing changes.
     - Home speakers row: 48 px between columns (24 px on mobile) and 20 px names, so neighbouring names and titles
       don't run together.
+    - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen**, after brand guide p. 6 ("Brand
+      Narrative"): black with the title and intro on the left, a 2026 photo on the right half cut along the
+      extended magenta arrow, whose head rises off the top edge and whose tail runs off the bottom. Photos:
+      Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker at the Vector podium; FAQ,
+      attendees talking at a poster (none of them used in B's headers). On mobile the split sits below the text.
 
 ---
 
@@ -222,6 +227,10 @@ photos; alt text on every image; nothing autoplays.
   `meta`, `esc`, `photoAlt` and `ROOT`.
 - When fonts and images have loaded, the page sets `<html data-ready="true">`, and the export waits for it.
   `data-broken` lists any image that failed to load.
+- **Arrow split** (`arrowSplit` helper): photos clipped to diagonals parallel to the extended magenta arrow's shaft,
+  with the official arrow laid over the seam. It was B's `split()`; it moved to `render.js` so D's page headers
+  could use it too (B's frames were checked pixel-identical after the move). The geometry notes under B below
+  still apply.
 - **The 10th-anniversary slot** (`anniversarySlot`) is a dashed outline labelled only "10th anniversary mark", still
   used by B and C. `anniversaryMark` places the agency's mark (path and alt text in `copy.json` →
   `hero.anniversary_mark`) on a white disc; A uses it. Never add anniversary or "Nth year" wording to the copy.
@@ -243,7 +252,7 @@ photos; alt text on every image; nothing autoplays.
 - **The arrow geometry was measured from `vector-arrow-extended-magenta.svg`:** the shaft leans right by
   **K = 0.4017** per unit of height. At a rendered height of 1, the width is 0.5244 and the shaft's centre line is
   at x = 0.080 + K × (0.9 − y).
-- `split()` in `concept.js` draws the photos clipped to lines parallel to the shaft, places the arrow 1.05× the
+- `arrowSplit` (in `render.js`) draws the photos clipped to lines parallel to the shaft, places the arrow 1.05× the
   frame height so its tail runs off the bottom, and lines the shaft up with the seam. Change `seam` and the photo
   widths there; don't hand-edit coordinates.
 - The banner uses the same maths, written out in `banner.html`.
@@ -255,6 +264,9 @@ photos; alt text on every image; nothing autoplays.
 - Desktop sections have 128 px of vertical padding.
 
 **D, Spotlight** (`mockups/concept-d/`)
+- Inner-page headers: `arrowSplit` with a 720 × 480 frame and `seam: 160` in `.d-split`, the right half of the
+  header (`left: 50%`, above the gradient rule), so at 1440 px the arrow keeps its full height. Photos and crops
+  are in `D_PAGE_PHOTOS`. Header text is capped at 620 px to stay clear of the arrowhead.
 - The hero's `<h1>` is a flex row: REMARKABLE and 2027 share one font size (145 px, measured to fill the 1200 px
   column; 8.4vw on tablet), with the trailing letter-spacing after "2027" cancelled so it ends on the column edge.
   If the copy or tracking changes, re-measure; it must not exceed the column.

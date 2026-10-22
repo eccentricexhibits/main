@@ -147,6 +147,32 @@ function nav(copy, variant, page) {
   </header>`;
 }
 
+/* ---------- Arrow split: photos cut along the extended magenta arrow (brand guide p. 6 and pp. 39–40); used by B and D ---------- */
+
+/* Arrow geometry, measured from vector-arrow-extended-magenta.svg (rendered height = 1, width = 0.5244):
+   the shaft's centre line sits at x = 0.080 + ARROW_K * (0.9 - y), so it leans right by ARROW_K per unit of height. */
+const ARROW_K = 0.4017;
+
+function arrowSplit({ W, H, photos, seam, pattern }) {
+  const Ha = H * 1.05;                                   // arrow slightly taller than the frame, so its tail runs off the bottom
+  const Ax = seam - 0.08 * Ha - ARROW_K * (0.9 * Ha - H);      // places the shaft centre at x = seam on the bottom edge
+  const top = (x) => x + ARROW_K * H;                          // where a line through (x, bottom) meets the top edge
+  const regions = [];
+  if (photos.length === 2) {
+    const left = seam - photos[0].width;
+    regions.push({ p: photos[0], pts: [[left, H], [top(left), 0], [top(seam), 0], [seam, H]], x: left, w: top(seam) - left });
+  }
+  regions.push({ p: photos.at(-1), pts: [[seam, H], [top(seam), 0], [W, 0], [W, H]], x: seam, w: W - seam });
+  const id = Math.random().toString(36).slice(2, 7);
+  const label = photos.map((p) => photoAlt(p.src)).join(". ");
+  return `<svg class="arrow-split" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid slice" role="img" aria-label="${esc(label)}">
+    <defs>${regions.map((r, i) => `<clipPath id="c${id}${i}"><polygon points="${r.pts.map((p) => p.join(",")).join(" ")}"/></clipPath>`).join("")}</defs>
+    ${regions.map((r, i) => `<image href="${ROOT}${r.p.src}" x="${r.x}" y="0" width="${r.w}" height="${H}" preserveAspectRatio="${r.p.align || "xMidYMid"} slice" clip-path="url(#c${id}${i})"/>`).join("")}
+    ${pattern ? `<image class="arrow-split__pattern" href="${ROOT}assets/brand-elements/pixel-pattern-magenta.svg" x="${pattern.x}" y="${pattern.y}" width="${pattern.w}" height="${pattern.w * 175 / 185}"/>` : ""}
+    <image href="${ROOT}assets/brand-elements/vector-arrow-extended-magenta.svg" x="${Ax}" y="0" width="${Ha * 0.5244}" height="${Ha}"/>
+  </svg>`;
+}
+
 /* ---------- Shared blocks ---------- */
 
 function dayCards(copy, C, withLink) {
@@ -428,7 +454,7 @@ function faqPage(copy, C) {
   <section class="faqs"><div class="container">${groups}</div></section>`;
 }
 
-const helpers = { logo, anniversarySlot, anniversaryMark, ctas, meta, intro, moreLink, esc, asset, photoAlt, ROOT };
+const helpers = { logo, anniversarySlot, anniversaryMark, arrowSplit, ctas, meta, intro, moreLink, esc, asset, photoAlt, ROOT };
 
 async function waitForAssets() {
   await document.fonts.ready;

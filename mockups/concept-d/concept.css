@@ -63,8 +63,13 @@
 .d-details__address { margin-left: var(--space-1); color: var(--d-muted-dark); font-size: 18px; }
 .d-rule { height: 7px; background: var(--vi-gradient); }
 
-/* ---------- Inner-page header: black band ---------- */
-.page-hero { background: var(--vi-black); color: var(--vi-white); }
+/* ---------- Inner-page header: black band, split by the magenta arrow into a photo on the right (brand guide p. 6) ---------- */
+.page-hero { position: relative; overflow: hidden; background: var(--vi-black); color: var(--vi-white); }
+.page-hero__inner { position: relative; z-index: 2; min-height: 480px; display: flex; flex-direction: column; justify-content: center; }
+.page-hero__inner > * { max-width: 620px; }
+/* The right half: 720 x 480 at 1440, matching the split's viewBox, so the arrow keeps its full height */
+.d-split { position: absolute; z-index: 1; top: 0; bottom: 7px; right: 0; left: 50%; } /* stops at the gradient rule */
+.d-split .arrow-split { display: block; width: 100%; height: 100%; }
 .page-hero__title { font-size: 88px; line-height: 1; }
 .page-hero__intro { margin-left: 0; color: var(--d-muted-dark); } /* aligned with the title, no indent */
 
@@ -176,6 +181,8 @@
   .d-details__address { display: block; margin: 2px 0 0; font-size: 16px; }
 
   .page-hero__title { font-size: 48px; }
+  .page-hero__inner { min-height: 0; }
+  .d-split { position: relative; left: 0; bottom: auto; height: 240px; } /* below the text on a phone */
 
   .intro__body { grid-template-columns: 1fr; }
   .intro__lead { grid-row: auto; font-size: 30px; }

@@ -32,7 +32,7 @@
 
 /* Photo split: full-bleed to the right, top and bottom edges (so no rounded corners) */
 .b-split { position: absolute; z-index: 1; top: 0; bottom: 0; right: 0; left: calc(50% - 80px); }
-.b-split__svg { display: block; width: 100%; height: 100%; }
+.b-split .arrow-split { display: block; width: 100%; height: 100%; }
 
 /* ---------- Inner-page header: gradient panel + one photo framed by the arrow ---------- */
 .page-hero { position: relative; overflow: hidden; color: var(--vi-white);
@@ -81,7 +81,7 @@
   .b-lockup__name { font-size: 24px; }
   .b-lockup .hero__meta { font-size: 17px; }
   .b-split { position: relative; left: 0; height: 340px; }
-  .b-split .b-pixels { display: none; }
+  .b-split .arrow-split__pattern { display: none; }
 
   .page-hero { background: var(--vi-gradient); }
   .page-hero__inner { min-height: 0; padding-top: var(--space-6); padding-bottom: var(--space-6); }

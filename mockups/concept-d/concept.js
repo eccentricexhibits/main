@@ -5,6 +5,12 @@
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
 const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
+// Inner-page headers: one photo on the right, cut along the magenta arrow (brand guide p. 6). Not the photos B uses.
+const D_PAGE_PHOTOS = {
+  agenda: { src: "assets/photos-2026/stage-remarkable-backdrop.jpg", align: "xMaxYMid" }, // keeps the speaker clear of the edge
+  speakers: { src: "assets/photos-2026/speaker-at-podium.jpg" },
+  faq: { src: "assets/photos-2026/posters-discussion.jpg" },
+};
 
 window.CONCEPT = {
   letter: "D",
@@ -48,6 +54,7 @@ window.CONCEPT = {
       <h1 class="page-hero__title">${h.esc(pc.title)}</h1>
       <p class="page-hero__intro">${h.esc(pc.intro)}</p>
     </div>
+    <div class="d-split">${h.arrowSplit({ W: 720, H: 480, seam: 160, photos: [D_PAGE_PHOTOS[page]] })}</div>
     <div class="d-rule" aria-hidden="true"></div>`;
   },
 

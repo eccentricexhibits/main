@@ -21,7 +21,7 @@ FILES=(
   mockups/concept-d/concept.js mockups/concept-d/concept.css
   mockups/concept-d/index.html mockups/concept-d/agenda.html mockups/concept-d/speakers.html mockups/concept-d/faq.html
   # Every asset D's pages load (collected by rendering all four pages at both widths), plus the colour logo for the PDF cover
-  assets/brand-elements/vector-arrow-magenta.svg
+  assets/brand-elements/vector-arrow-magenta.svg assets/brand-elements/vector-arrow-extended-magenta.svg
   assets/logos/logo-bilingual-knockout-white.png assets/logos/logo-bilingual-colour.png
   assets/funders/canada.png assets/funders/ontario.png assets/funders/cifar.png
   assets/social-icons/x-white.png assets/social-icons/bluesky-white.png
@@ -29,6 +29,7 @@ FILES=(
   assets/photos-2026/{attendees-group-photo,audience-listening,auditorium-crowd,auditorium-fireside-screens}.jpg
   assets/photos-2026/{auditorium-wide-stage,executive-breakfast-networking,executive-breakfast-panel}.jpg
   assets/photos-2026/{networking-hallway,posters-conversation,registration-desk,stage-fireside-chat,workshop-room}.jpg
+  assets/photos-2026/{stage-remarkable-backdrop,speaker-at-podium,posters-discussion}.jpg
   sources/Vector_BrandGuidelines_6.29.26.pdf sources/Remarkable_2027_Current_Website_copy.docx
   sources/AI_Summit_2026_Website_Reference.zip sources/concept-d-design
 )

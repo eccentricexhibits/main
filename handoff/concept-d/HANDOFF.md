@@ -20,7 +20,8 @@ are **design mockups, not production code**: plain HTML/CSS, rendered to PNG and
 **Concept D, Spotlight** (bold contrast): a black stage. An oversized REMARKABLE 2027 ("2027" in magenta) spans
 the content column; a rounded 2026 photo has the magenta Vector arrow breaking out of its top-right corner; a
 magenta-to-cobalt gradient rule closes each black band; a grey "program" band holds the two days and the
-speakers; a black band holds the recap video and the photo carousel.
+speakers; a black band holds the recap video and the photo carousel. The Agenda, Speakers and FAQ headers are a
+split screen: a photo on the right half, cut along the extended magenta arrow (brand guide p. 6).
 
 ### Status: refined with the requester, awaiting review
 
@@ -38,7 +39,7 @@ speakers; a black band holds the recap video and the photo carousel.
 | `brand/tokens.css` | The only colours, gradients and fonts allowed, plus the Karbon `@font-face` rules. |
 | `content/copy.json` | All copy. Never hard-code copy in the concept. It also holds keys used only by the other concepts (`banner`, `hero.anniversary_slot`, `hero.anniversary_mark`); leave them. |
 | `content/COPY-CHANGES.md` | Where every line of copy came from, every edit, and what is placeholder or fictitious. It covers all four concepts. |
-| `assets/` | Only what D uses: the white Vector logo (and the colour one for the PDF cover), the magenta Vector arrow, 12 photos from 2026, 6 stock speaker portraits, funder logos, social icons. |
+| `assets/` | Only what D uses: the white Vector logo (and the colour one for the PDF cover), the magenta Vector arrow and the extended arrow, 15 photos from 2026, 6 stock speaker portraits, funder logos, social icons. |
 | `fonts/` | Karbon Regular, Medium and Semibold (D uses Semibold). |
 | `mockups/shared/render.js` | The renderer: loads `copy.json` and builds the nav, page content and footer for `<body data-page="home\|agenda\|speakers\|faq">`. |
 | `mockups/shared/base.css` | Shared structure, grids and responsive rules. |
@@ -114,6 +115,11 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
    - "Remarkable 2026 by the numbers" is a **section heading** (40 px desktop / 28 px mobile).
    - Home speakers row: 48 px between columns (24 px on mobile).
    - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked.
+   - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen**, after brand guide p. 6 ("Brand
+     Narrative"): black with the title and intro on the left, a 2026 photo on the right half cut along the
+     extended magenta arrow, whose head rises off the top edge and whose tail runs off the bottom. Photos:
+     Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker at the Vector podium; FAQ,
+     attendees talking at a poster (none of them used in B's headers). On mobile the split sits below the text.
 
 ---
 
@@ -159,6 +165,13 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
 - **Buttons:** Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is
   lifted 2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
 - **Arrow:** `assets/brand-elements/vector-arrow-magenta.svg`, over the photo's top-right corner at `top: -40px`.
+- **Split headers:** `pageHeader` calls the shared `arrowSplit` helper (in `render.js`) with a 720 × 480 frame and
+  `seam: 160`; `.d-split` fills the right half of the header (`left: 50%`, stopping above the gradient rule), so at
+  1440 px the frame is exactly 720 × 480 and the arrow keeps its full height. The photo is clipped to a line
+  parallel to the arrow's shaft, measured from `vector-arrow-extended-magenta.svg` (it leans right 0.4017 per unit
+  of height); change `seam` and the photos in `D_PAGE_PHOTOS`, never the coordinates. Each photo can take an
+  `align` (Agenda uses `xMaxYMid` to keep the speaker clear of the edge). The header text is capped at 620 px so
+  it stays clear of the arrowhead.
 - **`after()`** adds the photo to the grey days band and wraps a trailing "+" on stats in a magenta span; neither
   is in the shared markup.
 - The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the
