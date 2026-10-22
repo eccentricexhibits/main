@@ -4,7 +4,7 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap");
 
-/* Karbon is Vector's licensed heading font (Karbon Medium for headings).
+/* Karbon is Vector's licensed heading font (Karbon Semibold for headings, at the requester's request).
    Karbon OTFs (supplied with the brief) are loaded from /fonts for the mockups.
    Delete this block if web use isn't licensed: headings then fall back to Open Sans Semibold (p.22). */
 @font-face { font-family: "Karbon"; src: url("../fonts/Karbon-Regular.otf") format("opentype"); font-weight: 400; font-display: swap; }
@@ -39,9 +39,9 @@
   --vi-image-radius: 16px;
 
   /* Type (pp.20-22) */
-  --font-heading: "Karbon", "Open Sans", system-ui, sans-serif;  /* Karbon Medium; fallback Open Sans 600 */
+  --font-heading: "Karbon", "Open Sans", system-ui, sans-serif;  /* Karbon Semibold; fallback Open Sans 600 */
   --font-body: "Open Sans", system-ui, sans-serif;
-  --weight-heading: 500;  /* Karbon Medium (600 if falling back to Open Sans) */
+  --weight-heading: 600;  /* Karbon Semibold (also Open Sans 600 if Karbon is dropped) */
   --weight-subhead: 700;
   --weight-body: 400;
 

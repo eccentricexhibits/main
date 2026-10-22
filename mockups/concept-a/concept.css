@@ -46,17 +46,17 @@
   display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
 }
 /* Letter-spaced wordmark, as on the 2026 stage and title slides. Trailing tracking is cancelled so it centres. */
-.a-wordmark { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; line-height: 1; }
+.a-wordmark { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); font-family: var(--font-heading); font-weight: var(--weight-heading); text-transform: uppercase; line-height: 1; }
 .a-wordmark { gap: var(--space-3); }
 .a-wordmark__name { font-size: 104px; letter-spacing: 0.5em; margin-right: -0.5em; }
-.a-wordmark__year { font-size: 64px; letter-spacing: 0.6em; margin-right: -0.6em; font-weight: 500; }
+.a-wordmark__year { font-size: 64px; letter-spacing: 0.6em; margin-right: -0.6em; }
 .a-box__tagline { font: 400 32px/1.3 var(--font-body); margin-top: var(--space-3); }
 .a-box .hero__meta { margin: 0; font-size: 24px; }
 .a-box .cta-row { justify-content: center; margin-top: var(--space-2); }
 .a-hero__fine { margin-top: var(--space-3); font-size: 16px; }
 /* 10th-anniversary mark: the agency's full-colour mark on a white disc, on the box's top-right corner.
    The mark isn't recoloured; the disc keeps its black "10" and magenta arrow legible at both ends of the gradient. */
-.a-anniv { position: absolute; top: -80px; right: -32px; width: 176px; aspect-ratio: 1; border-radius: 50%;
+.a-anniv { position: absolute; top: -88px; right: -32px; width: 176px; aspect-ratio: 1; border-radius: 50%;
   background: var(--vi-white); display: grid; place-items: center; }
 .a-anniv img { width: 60%; height: auto; transform: translateY(-2%); }
 
@@ -68,7 +68,7 @@
   filter: brightness(0) invert(1); opacity: 0.35; pointer-events: none;
 }
 .page-hero__inner { position: relative; z-index: 1; padding-top: var(--space-8); padding-bottom: var(--space-12); }
-.page-hero__title { font-weight: 400; text-transform: uppercase; letter-spacing: 0.3em; font-size: 64px; }
+.page-hero__title { text-transform: uppercase; letter-spacing: 0.3em; font-size: 64px; }
 
 /* ---------- Intro ---------- */
 .intro__lead { color: var(--vi-black); }

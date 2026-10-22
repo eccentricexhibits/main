@@ -82,52 +82,52 @@
   "speakers_note": "Fictitious speakers for layout; portraits are stock images",
   "speakers": [
     {
-      "name": "Rowan Achterberg",
+      "name": "Hannah Achterberg",
       "title": "Co-founder & CEO",
       "org": "Lumenfold AI",
       "photo": "assets/speakers/stock-headshot-01.jpg",
       "session": "Day 1 · Keynote",
-      "bio": "Rowan Achterberg co-founded Lumenfold AI, which builds language-model tools for regulated industries, after a decade in applied machine learning research. Rowan's keynote looks at what it takes to move generative AI from a promising prototype to a product that thousands of people rely on every day."
+      "bio": "Hannah Achterberg co-founded Lumenfold AI, which builds language-model tools for regulated industries, after a decade in applied machine learning research. Hannah's keynote looks at what it takes to move generative AI from a promising prototype to a product that thousands of people rely on every day."
     },
     {
-      "name": "Avery Nakamura-Shah",
+      "name": "Arjun Nakamura-Shah",
       "title": "Principal Research Scientist",
       "org": "Halcyon Labs",
       "photo": "assets/speakers/stock-headshot-02.jpg",
       "session": "Day 1 · Research talks: Agentic AI",
-      "bio": "Avery Nakamura-Shah leads Halcyon Labs' work on planning and tool use in AI agents. Avery's talk covers how agents can break long tasks into steps they can check, and why evaluation is the hardest part of building them."
+      "bio": "Arjun Nakamura-Shah leads Halcyon Labs' work on planning and tool use in AI agents. Arjun's talk covers how agents can break long tasks into steps they can check, and why evaluation is the hardest part of building them."
     },
     {
-      "name": "Morgan Adeyemi",
+      "name": "David Adeyemi",
       "title": "Vice-President, Applied AI",
       "org": "Northbridge Financial Group",
       "photo": "assets/speakers/stock-headshot-03.jpg",
       "session": "Day 1 · Panel moderator",
-      "bio": "Morgan Adeyemi runs the applied AI team at Northbridge Financial Group, taking models from pilot to production across lending, fraud and customer service. Morgan moderates the panel on scaling AI inside large organizations."
+      "bio": "David Adeyemi runs the applied AI team at Northbridge Financial Group, taking models from pilot to production across lending, fraud and customer service. David moderates the panel on scaling AI inside large organizations."
     },
     {
-      "name": "Jordan Castellano",
+      "name": "Mei Castellano",
       "title": "Associate Professor, Computer Science",
       "org": "Lakeview Institute of Technology",
       "photo": "assets/speakers/stock-headshot-04.jpg",
       "session": "Day 1 · Research talks: LLMs & Inference",
-      "bio": "Jordan Castellano studies how to make large language models faster and cheaper to run without losing accuracy. Jordan's talk walks through recent results on efficient inference and what they mean for teams deploying models at scale."
+      "bio": "Mei Castellano studies how to make large language models faster and cheaper to run without losing accuracy. Mei's talk walks through recent results on efficient inference and what they mean for teams deploying models at scale."
     },
     {
-      "name": "Sam Okonkwo-Reid",
+      "name": "Marcus Okonkwo-Reid",
       "title": "Director, Autonomous Discovery Lab",
       "org": "Cobalt Ridge Materials",
       "photo": "assets/speakers/stock-headshot-05.jpg",
       "session": "Day 1 · Fireside chat",
-      "bio": "Sam Okonkwo-Reid directs a self-driving laboratory where AI designs experiments and robots run them. In the fireside chat, Sam shares what changes when the time from hypothesis to result drops from months to days."
+      "bio": "Marcus Okonkwo-Reid directs a self-driving laboratory where AI designs experiments and robots run them. In the fireside chat, Marcus shares what changes when the time from hypothesis to result drops from months to days."
     },
     {
-      "name": "Riley Fontaine",
+      "name": "Amara Fontaine",
       "title": "Chief Privacy Officer",
       "org": "Meridian Health Network",
       "photo": "assets/speakers/stock-headshot-06.jpg",
       "session": "Day 1 · Research talks: Privacy & Security",
-      "bio": "Riley Fontaine oversees privacy and data governance for a network of hospitals and clinics. Riley's talk covers privacy-enhancing technologies that let health data power AI research while staying protected."
+      "bio": "Amara Fontaine oversees privacy and data governance for a network of hospitals and clinics. Amara's talk covers privacy-enhancing technologies that let health data power AI research while staying protected."
     }
   ],
   "recap": {
@@ -186,7 +186,7 @@
             "type": "Keynote",
             "title": "From prototype to production",
             "body": "What it takes to move generative AI out of the lab and into products people rely on, and the lessons learned along the way.",
-            "speakers": "Rowan Achterberg, Lumenfold AI",
+            "speakers": "Hannah Achterberg, Lumenfold AI",
             "where": "Main stage",
             "livestream": true
           },
@@ -195,7 +195,7 @@
             "type": "Research talks",
             "title": "Agentic AI: agents you can check",
             "body": "Three short talks on planning, tool use and evaluation for AI agents that carry out long, multi-step tasks.",
-            "speakers": "Avery Nakamura-Shah, Halcyon Labs; Theo Marchand, Vector Institute; Ines Varga-Holm, Brightwater University",
+            "speakers": "Arjun Nakamura-Shah, Halcyon Labs; Theo Marchand, Vector Institute; Ines Varga-Holm, Brightwater University",
             "where": "Main stage",
             "livestream": true
           },
@@ -213,7 +213,7 @@
             "type": "Fireside chat",
             "title": "When the lab runs itself",
             "body": "How AI-designed experiments and robotic labs are shortening the path from hypothesis to discovery.",
-            "speakers": "Sam Okonkwo-Reid, Cobalt Ridge Materials, in conversation with Dana Whitlock, Vector Institute",
+            "speakers": "Marcus Okonkwo-Reid, Cobalt Ridge Materials, in conversation with Dana Whitlock, Vector Institute",
             "where": "Main stage",
             "livestream": true
           },
@@ -231,7 +231,7 @@
             "type": "Research talks",
             "title": "LLMs & Inference: doing more with less",
             "body": "New methods for faster, cheaper inference, and how to choose the right model size for the job.",
-            "speakers": "Jordan Castellano, Lakeview Institute of Technology; Mira Solberg, Fernway Cloud",
+            "speakers": "Mei Castellano, Lakeview Institute of Technology; Mira Solberg, Fernway Cloud",
             "where": "Main stage",
             "livestream": true
           },
@@ -240,7 +240,7 @@
             "type": "Panel",
             "title": "Scaling AI inside the enterprise",
             "body": "Leaders from finance, logistics and retail compare notes on moving from pilots to production, and what they would do differently.",
-            "speakers": "Moderated by Morgan Adeyemi, Northbridge Financial Group, with Elliot Varga, Tidewater Logistics, and Noor Siddiqui-Laurent, Brightwell Retail",
+            "speakers": "Moderated by David Adeyemi, Northbridge Financial Group, with Elliot Varga, Tidewater Logistics, and Noor Siddiqui-Laurent, Brightwell Retail",
             "where": "Main stage",
             "livestream": true
           },
@@ -249,7 +249,7 @@
             "type": "Research talks",
             "title": "Privacy & Security: trustworthy by design",
             "body": "Privacy-enhancing technologies that let sensitive data power AI while staying protected.",
-            "speakers": "Riley Fontaine, Meridian Health Network; Kai Lindgren, Vector Institute",
+            "speakers": "Amara Fontaine, Meridian Health Network; Kai Lindgren, Vector Institute",
             "where": "Main stage",
             "livestream": true
           },
@@ -280,7 +280,7 @@
             "type": "Workshops",
             "title": "Hands-on workshops",
             "body": "Choose one of three small-group tracks when you register: Building evaluation sets for agents; Fine-tuning on a budget; Privacy reviews for AI projects.",
-            "speakers": "Led by Avery Nakamura-Shah, Mira Solberg and Riley Fontaine",
+            "speakers": "Led by Arjun Nakamura-Shah, Mira Solberg and Amara Fontaine",
             "where": "Workshop rooms",
             "livestream": false
           },

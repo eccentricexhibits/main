@@ -5,7 +5,8 @@ before changing anything. It records what was built, every decision made with th
 brief, and how to rebuild the exports. Where this file and `BRIEF.md` disagree, **this file wins**: the brief is the
 starting point, and the decisions below came later from the requester.
 
-Last updated: October 22, 2026 (stock portraits in all concepts; anniversary mark placed in Concept A).
+Last updated: October 22, 2026 (stock portraits and matching names; anniversary mark in Concept A; Karbon
+Semibold headings; scope narrowed to the four pages).
 
 ---
 
@@ -25,8 +26,9 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 ### Status: complete, awaiting review
 
 - All three concepts are built across **four pages** (Home, Agenda, Speakers, FAQ) at **1440 px desktop and 390 px
-  mobile**, plus a **1478 × 300 email banner** each.
-- `exports/` holds 27 PNGs and `remarkable-2027-concepts-review.pdf` (cover plus 27 frames, A, B, C).
+  mobile**. These four pages are the only deliverables now (decision 14).
+- `exports/` holds 24 page PNGs and `remarkable-2027-concepts-review.pdf` (cover plus 24 frames, A, B, C). The three
+  `concept-*-banner.png` files are from the earlier scope and are no longer updated.
 - `exports/wireframe/` holds a greyscale wireframe of the four pages, its review page and a 5-page PDF, made for
   the manager to sign off the structure before visual design. The review page was also published as a private
   Claude artifact (https://claude.ai/artifact/5uVSWQSJ6K96EySJwGZi54); only its owner can open or share it.
@@ -47,7 +49,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `fonts/` | Karbon Regular, Medium and Semibold OTF, used by the mockups. The full family is in `sources/Karbon_Font_full_family.zip`. |
 | `mockups/shared/render.js` | The one renderer: loads `copy.json` and builds the nav, page content and footer for `<body data-page="home|agenda|speakers|faq">`. |
 | `mockups/shared/base.css` | Shared structure, grids and responsive rules for every concept. |
-| `mockups/shared/banner.js` | Fills banner copy from `copy.json`. |
+| `mockups/shared/banner.js` | Fills banner copy from `copy.json` (banners are parked, see decision 14). |
 | `mockups/concept-{a,b,c}/` | `concept.js` (hero and page-header markup, options), `concept.css` (all styling), `banner.html`, and four generated page shells. |
 | `mockups/skeleton/` | The unstyled shared structure. |
 | `mockups/wireframe/` | The greyscale wireframe concept: images become crossed boxes, sections get numbered markers. |
@@ -67,7 +69,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 ```bash
 npm install                                   # playwright 1.56.1 + pdf-lib
 npx playwright install chromium               # only if Chromium isn't already available
-npm run export                                # all 27 PNGs + exports/remarkable-2027-concepts-review.pdf
+npm run export                                # all 24 page PNGs + exports/remarkable-2027-concepts-review.pdf
 node scripts/export.mjs concept-b             # only frames whose name starts with "concept-b"
 node scripts/export.mjs concept-a-home        # e.g. just Concept A's home page, both widths
 node scripts/export.mjs skeleton              # unstyled skeleton preview
@@ -107,9 +109,11 @@ In the order they were made:
 7. **Photo carousel** on Home ("Remarkable 2026 in photos"): nine photos, moved only by the arrow buttons or
    scrolling, never automatically. **EN | FR switch** in the nav.
 8. **No 2027 speakers or sessions are confirmed**, so every speaker, company, bio and agenda session is
-   **fictitious**. The six fictitious speakers use gender-neutral first names. Their portraits are the
-   requester's **stock headshots** (`assets/speakers/stock-headshot-01…06.jpg`, in speaker order); the 2026
-   headshots of real people that stood in before were removed.
+   **fictitious**. Their portraits are the requester's **stock headshots**
+   (`assets/speakers/stock-headshot-01…06.jpg`, in speaker order); the 2026 headshots of real people that stood in
+   before were removed. At the requester's request the first names match the gender shown in each portrait
+   (Hannah, Arjun, David, Mei, Marcus, Amara); surnames, roles and bios are unchanged. Bios refer to speakers by
+   name, never by pronoun.
 9. **Concept A got a "splashier" pass** after Danielle asked for something splashier: a full-height hero, a
    larger wordmark, the "AI" letterform enlarged to fill the hero, and the day cards moved onto the gradient. B is
    still the brief's designated "splashiest" option.
@@ -119,6 +123,13 @@ In the order they were made:
     (`sources/vector-10th-anniversary-preview.png`, black "10" with a magenta arrow on white) was cut out to a
     transparent PNG, `assets/logos/anniversary-10-years-colour.png`, and set full colour on a white disc. B and C
     still show the dashed placeholder slot.
+13. **Karbon Semibold (600) for every heading**, replacing Karbon Medium (the brand guide's default) at the
+    requester's request. `--weight-heading` in `brand/tokens.css` drives it; A's letter-spaced wordmark and page
+    titles, which were Regular, now use it too. Small all-caps labels (eyebrows, stats caption, funders title) stay
+    in Open Sans Bold.
+14. **Scope: the four pages only** (Home, Agenda, Speakers, FAQ) for every concept from now on. Email banners and
+    other formats are out of scope: they're left out of `npm run export` and the review PDF. Their HTML is kept and
+    can still be rendered by name (`node scripts/export.mjs concept-a-banner`).
 
 ---
 
@@ -176,8 +187,9 @@ photos; alt text on every image; nothing autoplays.
 
 **A, Gradient Stage** (`mockups/concept-a/`)
 - The nav sits on the gradient with the white knockout logo.
-- The anniversary disc is 176 px on desktop (108 px on mobile) and overlaps the hero box's top-right corner. On
-  mobile the eyebrow has 64 px below it so the disc doesn't touch it. The banner uses the same disc at 176 px.
+- The anniversary disc is 176 px on desktop (108 px on mobile) and overlaps the hero box's top-right corner. It sits
+  at `top: -88px` so it clears the last "E" of the Semibold wordmark; on mobile the eyebrow has 64 px below it so
+  the disc doesn't touch it.
 - The "AI" letterform is positioned with `translate(-44%, -50%)`, because the glyphs sit 44% of the way across
   the PNG.
 - **The plus-pattern PNG holds two clusters:** left at x 0–1072, y 554–963, and right at x 1428–2500, y 538–970
@@ -254,6 +266,6 @@ What I'd like to do next: <describe the next task>
   |---|---|---|
   | `1-core` | HANDOFF, BRIEF, brand, content, fonts, assets, mockups, scripts, reference, package files | Always. Enough to understand and rebuild everything. |
   | `2-review-pdfs` | Concepts review PDF and the wireframe folder | To review or discuss the designs |
-  | `3-exports-png` | All 27 PNG frames | To inspect individual frames |
+  | `3-exports-png` | All PNG frames | To inspect individual frames |
   | `4-sources` | Brand guidelines, recap PDF, copy doc, AI Summit page, full Karbon family | For brand or copy questions |
   | `5-earlier-uploads` | The requester's earlier repo-root files | Only if those materials matter |

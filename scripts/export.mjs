@@ -2,10 +2,11 @@
 // Serves the repo root, screenshots every frame with Playwright, checks each page
 // (broken images, horizontal overflow) and builds the review PDF.
 //
-//   node scripts/export.mjs                 -> every concept frame (4 pages x desktop/mobile + banner, per concept)
+//   node scripts/export.mjs                 -> every concept frame (4 pages x desktop/mobile, per concept)
 //                                              + exports/remarkable-2027-concepts-review.pdf
 //   node scripts/export.mjs concept-a       -> only the frames whose name starts with "concept-a"
 //   node scripts/export.mjs skeleton        -> shared skeleton preview (not part of the deliverables)
+//   node scripts/export.mjs concept-a-banner -> an email banner (out of scope since Oct 22, 2026; not in the default run or PDF)
 //   OUT_DIR=exports/wireframe node scripts/export.mjs wireframe   -> greyscale wireframe of all four pages
 //   OUT_DIR=some/dir node scripts/export.mjs ...   -> write PNGs somewhere else
 
@@ -47,12 +48,10 @@ const pageFrames = (folder, prefix, extra = {}) =>
     { name: `${prefix}-${p.key}-mobile`, url: `mockups/${folder}/${p.file}.html`, viewport: MOBILE, fullPage: true, label: `${p.title} · mobile 390 px`, ...extra },
   ]);
 
-const FRAMES = CONCEPTS.flatMap((c) => [
-  ...pageFrames(`concept-${c.id}`, `concept-${c.id}`, { concept: c }),
-  { name: `concept-${c.id}-banner`, url: `mockups/concept-${c.id}/banner.html`, viewport: BANNER, fullPage: false, concept: c, label: "Email banner · 1478 × 300" },
-]);
+const FRAMES = CONCEPTS.flatMap((c) => pageFrames(`concept-${c.id}`, `concept-${c.id}`, { concept: c }));
 
-const EXTRA = [...pageFrames("skeleton", "skeleton"), ...pageFrames("wireframe", "wireframe")];
+const BANNERS = CONCEPTS.map((c) => ({ name: `concept-${c.id}-banner`, url: `mockups/concept-${c.id}/banner.html`, viewport: BANNER, fullPage: false, concept: c, label: "Email banner · 1478 × 300" }));
+const EXTRA = [...pageFrames("skeleton", "skeleton"), ...pageFrames("wireframe", "wireframe"), ...BANNERS];
 
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
@@ -103,12 +102,12 @@ async function shoot(browser, base, f) {
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 const PAGE_CSS = `
   @import url("${"https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap"}");
-  @font-face { font-family: Karbon; src: url("/fonts/Karbon-Medium.otf"); font-weight: 500; }
+  @font-face { font-family: Karbon; src: url("/fonts/Karbon-Semibold.otf"); font-weight: 600; }
   html, body { margin: 0; background: #E9E8E8; font-family: "Open Sans", sans-serif; color: #000; }
   .head { padding: 40px 48px 32px; }
   .bar { height: 6px; background: linear-gradient(90deg, #EB088A, #313CFF); }
   .k { font: 700 13px/1.4 "Open Sans"; letter-spacing: .12em; text-transform: uppercase; color: #444; }
-  h1 { font: 500 44px/1.15 Karbon, "Open Sans"; margin: 8px 0 6px; }
+  h1 { font: 600 44px/1.15 Karbon, "Open Sans"; margin: 8px 0 6px; }
   .r { font-size: 20px; margin: 0; }
   .frame { padding: 0 48px 48px; }
   .frame img { display: block; background: #fff; }
@@ -141,9 +140,9 @@ async function buildPdf(browser, base) {
     </style></head><body><div class="bar"></div><div class="cover">
       <img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur">
       <h1>Remarkable 2027 — Registration site concepts — internal draft — ${REVIEW_DATE}</h1>
-      <p class="sub">Three registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px, plus a 1478 × 300 email banner for each · placeholder copy</p>
+      <p class="sub">Three registration-site directions · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
       <ul>${list}</ul>
-      <p class="foot">Frames follow in order A, B, C. All speakers, companies and sessions are fictitious; portraits and event photos are from Remarkable 2026 and are temporary.</p>
+      <p class="foot">Frames follow in order A, B, C. All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
     </div></body></html>`,
     1536,
     960
