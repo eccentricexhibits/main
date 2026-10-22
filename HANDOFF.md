@@ -154,16 +154,21 @@ In the order they were made:
       (stacked on mobile, as before).
     - Button labels are optically centred (see section 6), with the arrow on the same centre line.
     - The 10th-anniversary mark is **removed from D** (A still shows it).
-    - The "Remarkable 2026 by the numbers" caption is larger (18 px).
+    - The "Remarkable 2026 by the numbers" caption is a section heading: Karbon Semibold, 40 px desktop / 28 px
+      mobile, sentence case, black (it was a small cobalt all-caps label).
     - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked
       (`agendaTabs: true`; A–C still show both days and can switch it on the same way).
     - The intro paragraph under each inner-page title (Agenda, Speakers, FAQ), and the day description on the
       agenda, have no indent, so they line up with the titles.
-    - The Hilton logo (`assets/logos/hilton-white.svg`, supplied by the requester) sits before "Hilton Toronto" in
-      the hero's details row. It's decorative (`alt=""`) because the name is written beside it.
+    - A Hilton logo was tried beside "Hilton Toronto" and then removed at the requester's request (the SVG is in
+      git history, commit 9d21eca, as `assets/logos/hilton-white.svg`).
     - The hero was opened up after it felt cramped under the full-width wordmark: more space above and below the
-      wordmark (96 px to the tagline and photo), a smaller arrow (116 px) that no longer reaches toward the
-      wordmark, a 400 px photo and more padding around the details row. The wordmark keeps its size.
+      wordmark (96 px to the tagline and photo) and a smaller arrow (116 px). The wordmark keeps its size.
+    - **The hero fits one 1440 × 900 screen**: nav, hero and gradient rule end at 893 px. The photo is 312 px tall
+      (the height of the tagline column beside it) and the details row has 24/32 px padding. Re-measure if any
+      hero copy or spacing changes.
+    - Home speakers row: 48 px between columns (24 px on mobile) and 20 px names, so neighbouring names and titles
+      don't run together.
 
 ---
 
@@ -286,9 +291,7 @@ photos; alt text on every image; nothing autoplays.
    at the requester's request. Swap in the final
    artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
    tall on mobile), and place it in B and C if they stay in play.
-7. **Hilton logo** in D's hero: check Hilton's brand rules on use by a third party, the white version on black,
-   and clear space.
-8. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
+7. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 
 ---
