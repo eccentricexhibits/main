@@ -88,9 +88,15 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
    (Hannah, Arjun, David, Mei, Marcus, Amara). Bios refer to speakers by name, never by pronoun.
 7. **Karbon Semibold** for every heading; Open Sans for body text (18 px desktop, 16 px mobile; nothing under
    14 px except the footer's legal text).
+8. **No on-page notices** (requester's request, so the mockups read as real pages; the requester tells reviewers in
+   the covering email): the "fictitious speakers / stock portraits" notes, the agenda's "sample program" note and
+   the top-left review label ("Concept X — internal draft — placeholder copy") are gone from every concept, and the
+   review PDF's cover no longer says "placeholder copy" or that content is fictitious. The content is still
+   fictitious (speakers, companies, sessions) and the portraits are stock images: never send frames outside the
+   team without saying so.
 
 **D itself**
-8. **Origin:** the requester liked a design made in a separate AI chat (`sources/concept-d-design/`), but not
+9. **Origin:** the requester liked a design made in a separate AI chat (`sources/concept-d-design/`), but not
    its font sizes, rewritten copy or single long page. D keeps its **look** and follows the shared **layout**:
    - Kept: black nav and hero, the oversized uppercase REMARKABLE with a magenta "2027", the rounded hero photo
      with the magenta arrow on its corner, gradient rules under black bands, Karbon headings with tight
@@ -103,7 +109,7 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
    - Removed: "Celebrating 10 years of Vector", the arrow's drop shadow, the closing gradient "Be part of what
      comes next" band and the When/Where labels (copy that isn't ours), the "01 / …" section eyebrows, photo
      captions, and the registration and gallery pop-ups. Photos use the brand's 16 px corners, not 8 px.
-9. **Refinements from the requester's review:**
+10. **Refinements from the requester's review:**
    - REMARKABLE and 2027 are **one size (145 px), side by side on one baseline**, filling the 1200 px column
      (stacked on mobile).
    - **The hero fits one 1440 × 900 screen** (nav, hero and gradient rule end at 893 px): 96 px between the
@@ -155,7 +161,8 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
   `navLogo` ("knockout"), `agendaTabs` (true), `hero(copy, helpers)`, `pageHeader(copy, page, helpers)` and
   `after(copy, page)`.
 - When fonts and images have loaded, the page sets `<html data-ready="true">`; the export waits for it.
-- The fixed review label in the top-left ("Concept D — internal draft — placeholder copy") is for review only.
+- There is no review label in the top-left: `frame_label` in `copy.json` is empty so the pages read as real ones.
+  Restore "Concept {X} — internal draft — placeholder copy" to bring it back.
 - **Agenda tabs** (`agendaTabs`): real `role="tab"` buttons; the other day's panel has `hidden`. Click or the
   left/right arrow keys switch days. The export shows Day 1.
 
@@ -199,17 +206,19 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
 
 ## 8. Open items before anything leaves the team
 
-1. **Black fills:** confirm with Danielle and Marcie that they're acceptable (section 5).
-2. **Fictitious company and university names** (Lumenfold AI, Halcyon Labs, Northbridge Financial Group, Lakeview
+1. **The pages carry no notice that content is fictitious** (section 4). Say so in the covering message, and
+   replace the speakers, companies and sessions before anything is public.
+2. **Black fills:** confirm with Danielle and Marcie that they're acceptable (section 5).
+3. **Fictitious company and university names** (Lumenfold AI, Halcyon Labs, Northbridge Financial Group, Lakeview
    Institute of Technology, Cobalt Ridge Materials, Meridian Health Network, plus the panellists' companies on the
    agenda) haven't been checked against real organizations.
-3. **Stock portraits:** confirm the licence covers this use.
-4. **Final copy** comes from Nadia. FAQ answers to confirm: the Osgoode-station directions, the accessibility
+4. **Stock portraits:** confirm the licence covers this use.
+5. **Final copy** comes from Nadia. FAQ answers to confirm: the Osgoode-station directions, the accessibility
    answer, and the registration-email steps.
-5. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
+6. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
    `brand/tokens.css`; headings then fall back to Open Sans 600, as the brand guide allows. Re-measure the
    masthead afterwards (section 6).
-6. **Funders** (Canada, Ontario, CIFAR) are carried over from 2026; confirm them for 2027.
+7. **Funders** (Canada, Ontario, CIFAR) are carried over from 2026; confirm them for 2027.
 
 ---
 

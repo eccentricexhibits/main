@@ -1,5 +1,5 @@
 {
-  "_note": "PLACEHOLDER COPY. Home-page intro and agenda day text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy). No 2027 speakers or sessions are confirmed: every speaker, company, bio and session below is FICTITIOUS, written for layout only. Portraits are temporary stand-ins (2026 headshots) until stock images are supplied. Every source and edit is listed in content/COPY-CHANGES.md. Final copy comes from Nadia. Use identical copy in every concept.",
+  "_note": "PLACEHOLDER COPY. Home-page intro and agenda day text adapted from Remarkable_2027_Current_Website_copy.docx (which still holds the 2026 reg-site copy). No 2027 speakers or sessions are confirmed: every speaker, company, bio and session below is FICTITIOUS, written for layout only, and the portraits are stock images. At the requester's request the pages carry no notice saying so (speakers_note and frame_label are empty), so tell reviewers separately. Every source and edit is listed in content/COPY-CHANGES.md. Final copy comes from Nadia. Use identical copy in every concept.",
   "nav": [
     "Home",
     "Agenda",
@@ -79,7 +79,7 @@
     "speakers": "See all speakers"
   },
   "speakers_heading": "Featured speakers",
-  "speakers_note": "Fictitious speakers for layout; portraits are stock images",
+  "speakers_note": "",
   "speakers": [
     {
       "name": "Hannah Achterberg",
@@ -158,7 +158,7 @@
   "agenda_page": {
     "title": "Agenda",
     "intro": "Two days, one program: a full day of keynotes and research talks on the main stage, followed by a half day of hands-on workshops, lightning talks and poster sessions. Main-stage sessions are livestreamed for virtual attendees.",
-    "note": "Sample program for layout. All sessions and speakers are fictitious. Agenda subject to change.",
+    "note": "Agenda subject to change.",
     "livestream_label": "Livestreamed",
     "days": [
       {
@@ -317,7 +317,7 @@
   },
   "speakers_page": {
     "title": "Speakers",
-    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage. All speakers shown are fictitious, written for layout; portraits are stock images.",
+    "intro": "Meet the researchers, founders and industry leaders taking the Remarkable stage.",
     "more": "More speakers to be announced soon!"
   },
   "faq_page": {
@@ -420,7 +420,7 @@
     "legal": "Please note that in registering for our events, the personal data we collect, including contact information such as name, title, and email address, as well as feedback relating to projects and events, may be shared with the organizers of this event and may be disclosed to your employer for tracking purposes. Your name may also be mentioned publicly in Vector's marketing materials. This event will be audio- and video-recorded. Please note this event is conducted in English only. Remarkable 2027 is produced by the Vector Institute, Toronto, Canada.",
     "copyright": "© Vector Institute"
   },
-  "frame_label": "Concept {X} — internal draft — placeholder copy",
+  "frame_label": "",
   "banner": {
     "headline": "Remarkable 2027",
     "subline": "February 18–19, 2027 | Hilton Toronto"

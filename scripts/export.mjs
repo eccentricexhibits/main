@@ -146,9 +146,9 @@ async function buildPdf(browser, base) {
     </style></head><body><div class="bar"></div><div class="cover">
       <img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur">
       <h1>Remarkable 2027 — Registration site concept${CONCEPTS.length === 1 ? "" : "s"} — internal draft — ${REVIEW_DATE}</h1>
-      <p class="sub">${NUMBER_WORDS[CONCEPTS.length]} registration-site direction${CONCEPTS.length === 1 ? "" : "s"} · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px · placeholder copy</p>
+      <p class="sub">${NUMBER_WORDS[CONCEPTS.length]} registration-site direction${CONCEPTS.length === 1 ? "" : "s"} · Home, Agenda, Speakers and FAQ pages at desktop 1440 px and mobile 390 px</p>
       <ul>${list}</ul>
-      <p class="foot">${CONCEPTS.length > 1 ? `Frames follow in order ${LETTERS.join(", ")}. ` : ""}All speakers, companies and sessions are fictitious; speaker portraits are stock images and event photos are from Remarkable 2026.</p>
+      ${CONCEPTS.length > 1 ? `<p class="foot">Frames follow in order ${LETTERS.join(", ")}.</p>` : ""}
     </div></body></html>`,
     1536,
     960

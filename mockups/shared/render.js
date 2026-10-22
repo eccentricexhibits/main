@@ -354,7 +354,7 @@ function homePage(copy, C, h) {
     <div class="container">
       <div class="section-head">
         <h2 class="section-title" id="speakers-h">${esc(copy.speakers_heading)}</h2>
-        <p class="section-note">${esc(copy.speakers_note)}</p>
+        ${copy.speakers_note ? `<p class="section-note">${esc(copy.speakers_note)}</p>` : ""}
       </div>
       <ul class="speakers__grid">${copy.speakers.map((sp) => speakerCard(sp, false)).join("")}</ul>
       <div class="section-foot">${moreLink("speakers.html", copy.home_links.speakers)}</div>
@@ -474,12 +474,14 @@ async function render() {
   const C = window.CONCEPT || {};
   const page = document.body.dataset.page || "home";
   const copy = await fetch(ROOT + "content/copy.json").then((r) => r.json());
-  const label = (C.label || copy.frame_label.replace("{X}", C.letter || "?")) + (page === "home" ? "" : ` · ${PAGE_OF[page]}`);
+  // Review label in the top-left: only when there is one (the wireframe's; the concepts' frame_label is empty so they read as real pages)
+  const base = C.label || copy.frame_label.replace("{X}", C.letter || "?");
+  const label = base ? base + (page === "home" ? "" : ` · ${PAGE_OF[page]}`) : "";
   const content = { home: homePage, agenda: agendaPage, speakers: speakersPage, faq: faqPage }[page](copy, C, helpers);
   document.body.classList.add(`page-${page}`);
   document.body.insertAdjacentHTML(
     "afterbegin",
-    `<p class="frame-label">${esc(label)}</p>${nav(copy, C.navLogo || "colour", page)}<main>${content}</main>${footer(copy)}`
+    `${label ? `<p class="frame-label">${esc(label)}</p>` : ""}${nav(copy, C.navLogo || "colour", page)}<main>${content}</main>${footer(copy)}`
   );
   wireGallery();
   wireAgendaTabs();

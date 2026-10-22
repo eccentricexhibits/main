@@ -179,6 +179,12 @@ In the order they were made:
     - **On phones there is no split:** the photo sits below the text and fades in from black (a black-to-clear
       fade over the photo's top 42%), so the title and intro read on black and flow into the image.
 
+17. **No on-page notices** (requester's request, so the mockups read as real pages; the requester tells reviewers in
+    the covering email): the "fictitious speakers / stock portraits" notes, the agenda's "sample program" note and
+    the top-left review label ("Concept X — internal draft — placeholder copy") are gone from every concept, and the
+    review PDF's cover no longer says "placeholder copy" or that content is fictitious. The content is still
+    fictitious (speakers, companies, sessions) and the portraits are stock images: never send frames outside the
+    team without saying so.
 ---
 
 ## 5. Brand rules: how they are met, and the deliberate deviations
@@ -237,8 +243,9 @@ photos; alt text on every image; nothing autoplays.
 - **The 10th-anniversary slot** (`anniversarySlot`) is a dashed outline labelled only "10th anniversary mark", still
   used by B and C. `anniversaryMark` places the agency's mark (path and alt text in `copy.json` →
   `hero.anniversary_mark`) on a white disc; A uses it. Never add anniversary or "Nth year" wording to the copy.
-- The fixed review label in the top-left ("Concept A — internal draft — placeholder copy") shows on page frames
-  only, not on banners.
+- The fixed review label in the top-left shows only when there is label text: the concepts' `frame_label` in
+  `copy.json` is empty (decision 17), so only the wireframe (its own `label`) shows one. Restore the text
+  "Concept {X} — internal draft — placeholder copy" to bring it back.
 
 **A, Gradient Stage** (`mockups/concept-a/`)
 - The nav sits on the gradient with the white knockout logo.
@@ -301,21 +308,23 @@ photos; alt text on every image; nothing autoplays.
 
 ## 7. Open items before anything leaves the team
 
-1. **Portraits:** done. Stock headshots replaced the 2026 portraits in every concept. Confirm the stock licence
+1. **The pages carry no notice that content is fictitious** (decision 17). Whoever sends frames must say so in the
+   covering message, and replace the speakers, companies and sessions before anything is public.
+2. **Portraits:** done. Stock headshots replaced the 2026 portraits in every concept. Confirm the stock licence
    covers this use.
-2. **Fictitious company and university names** (Lumenfold AI, Halcyon Labs, Northbridge Financial Group, Lakeview
+3. **Fictitious company and university names** (Lumenfold AI, Halcyon Labs, Northbridge Financial Group, Lakeview
    Institute of Technology, Cobalt Ridge Materials, Meridian Health Network, plus the panellists' companies on the
    agenda) haven't been checked against real organizations.
-3. **Final copy** comes from Nadia. FAQ answers to confirm: the Osgoode-station directions, the accessibility
+4. **Final copy** comes from Nadia. FAQ answers to confirm: the Osgoode-station directions, the accessibility
    answer, and the registration-email steps.
-4. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
+5. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
    `brand/tokens.css`; headings then fall back to Open Sans 600, as the brand guide allows.
-5. **The intro indent** is estimated; compare it with vectorinstitute.ai.
-6. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px); removed from D
+6. **The intro indent** is estimated; compare it with vectorinstitute.ai.
+7. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px); removed from D
    at the requester's request. Swap in the final
    artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
    tall on mobile), and place it in B and C if they stay in play.
-7. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
+8. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 
 ---
