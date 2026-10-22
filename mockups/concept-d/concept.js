@@ -9,6 +9,7 @@ const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
 window.CONCEPT = {
   letter: "D",
   navLogo: "knockout",
+  agendaTabs: true,
 
   hero(copy, h) {
     const hero = copy.hero;
@@ -20,7 +21,6 @@ window.CONCEPT = {
           <span class="d-masthead__name" aria-hidden="true">${h.esc(name)}</span>
           <span class="d-masthead__year" aria-hidden="true">${h.esc(year)}</span>
         </h1>
-        ${h.anniversaryMark(copy, "d-anniv")}
       </div>
       <div class="d-hero__grid">
         <div class="d-hero__copy">

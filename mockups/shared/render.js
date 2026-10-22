@@ -8,6 +8,7 @@
      hero(copy, h)         inner HTML of the home hero (optional)
      pageHeader(copy, page, h)  inner HTML of the header band on agenda/speakers/faq (optional)
      dayPhotos             [{src, alt}, ...]               (optional photo per day card)
+     agendaTabs            true: the agenda shows one day at a time, switched by the Day 1 / Day 2 tabs (optional)
      after(copy)           runs once everything is in the DOM (optional)
    When all fonts and images have loaded, <html data-ready="true"> is set for the export script. */
 
@@ -235,6 +236,30 @@ function wireGallery() {
   });
 }
 
+/* Agenda tabs (concepts with agendaTabs): click, or arrow keys between tabs, shows one day and hides the other */
+function wireAgendaTabs() {
+  const tabs = [...document.querySelectorAll('.day-tabs [role="tab"]')];
+  const select = (tab) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.classList.toggle("is-active", on);
+      t.setAttribute("aria-selected", on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => select(t));
+    t.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (!step) return;
+      const next = tabs[(i + step + tabs.length) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+}
+
 function footer(copy) {
   const f = copy.footer;
   const socials = f.socials
@@ -323,7 +348,15 @@ function homePage(copy, C, h) {
 
 function agendaPage(copy, C) {
   const ap = copy.agenda_page;
-  const tabs = copy.days.map((d, i) => `<a class="day-tabs__tab${i === 0 ? " is-active" : ""}" href="#day-${i + 1}"${i === 0 ? ' aria-current="true"' : ""}><span class="day-tabs__label">${esc(d.label)}</span><span class="day-tabs__date">${esc(d.date)}</span></a>`).join("");
+  const tabInner = (d) => `<span class="day-tabs__label">${esc(d.label)}</span><span class="day-tabs__date">${esc(d.date)}</span>`;
+  // Tabbed: real tabs, only Day 1 visible until another tab is chosen. Otherwise: anchor links to both visible days.
+  const tabs = copy.days
+    .map((d, i) =>
+      C.agendaTabs
+        ? `<button class="day-tabs__tab${i === 0 ? " is-active" : ""}" type="button" role="tab" id="day-${i + 1}-tab" aria-controls="day-${i + 1}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${tabInner(d)}</button>`
+        : `<a class="day-tabs__tab${i === 0 ? " is-active" : ""}" href="#day-${i + 1}"${i === 0 ? ' aria-current="true"' : ""}>${tabInner(d)}</a>`
+    )
+    .join("");
   const days = copy.days
     .map((d, i) => {
       const rows = ap.days[i].sessions
@@ -343,7 +376,8 @@ function agendaPage(copy, C) {
         </li>`
         )
         .join("");
-      return `<section class="agenda-day" id="day-${i + 1}" aria-labelledby="day-${i + 1}-h">
+      const panel = C.agendaTabs ? ` role="tabpanel" tabindex="0"${i === 0 ? "" : " hidden"}` : "";
+      return `<section class="agenda-day" id="day-${i + 1}" aria-labelledby="day-${i + 1}-h"${panel}>
         <header class="agenda-day__head">
           <p class="day__label">${esc(d.label)}</p>
           <p class="day__meta"><span class="nowrap">${esc(d.date)}<span class="sep" aria-hidden="true">·</span></span> <span class="nowrap">${esc(d.length)}</span></p>
@@ -358,7 +392,7 @@ function agendaPage(copy, C) {
   <section class="page-hero">${C.pageHeader ? C.pageHeader(copy, "agenda", helpers) : defaultPageHeader(copy, "agenda")}</section>
   <section class="agenda">
     <div class="container">
-      <nav class="day-tabs" aria-label="Agenda days">${tabs}</nav>
+      ${C.agendaTabs ? `<div class="day-tabs" role="tablist" aria-label="Agenda days">${tabs}</div>` : `<nav class="day-tabs" aria-label="Agenda days">${tabs}</nav>`}
       <p class="agenda__note">${esc(ap.note)}</p>
       ${days}
     </div>
@@ -417,6 +451,7 @@ async function render() {
     `<p class="frame-label">${esc(label)}</p>${nav(copy, C.navLogo || "colour", page)}<main>${content}</main>${footer(copy)}`
   );
   wireGallery();
+  wireAgendaTabs();
   if (C.after) C.after(copy, page);
   await waitForAssets();
   document.documentElement.dataset.ready = "true";

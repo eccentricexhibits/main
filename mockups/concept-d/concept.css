@@ -23,9 +23,10 @@
 .page-hero__title, .d-hero__tagline, .agenda-day__title { letter-spacing: -0.02em; }
 
 /* ---------- Buttons and links: square corners, black label, a north-east arrow ---------- */
-.btn { border-radius: var(--d-radius); font-family: var(--font-heading); font-weight: var(--weight-heading); gap: 24px; }
+/* Karbon sits high in its line box: 5 px of top padding centres the capitals, and the arrow is lifted back by half */
+.btn { border-radius: var(--d-radius); font-family: var(--font-heading); font-weight: var(--weight-heading); gap: 24px; padding-top: 5px; }
 .btn--primary { color: var(--vi-black); }
-.btn::after { content: ""; width: 15px; height: 15px; flex: none; background: currentColor; -webkit-mask: var(--d-arrow-ne) center / contain no-repeat; mask: var(--d-arrow-ne) center / contain no-repeat; }
+.btn::after { content: ""; width: 15px; height: 15px; flex: none; transform: translateY(-2.5px); background: currentColor; -webkit-mask: var(--d-arrow-ne) center / contain no-repeat; mask: var(--d-arrow-ne) center / contain no-repeat; }
 .btn--secondary { min-height: 0; padding: 10px 0 7px; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; background: none; }
 .cta-row { align-items: center; gap: var(--space-4); }
 .more-link { font-family: var(--font-heading); font-weight: var(--weight-heading); font-size: 20px; border-bottom-width: 1px; gap: 20px; }
@@ -39,13 +40,11 @@
 /* ---------- Home hero: black stage ---------- */
 .hero { background: var(--vi-black); color: var(--vi-white); }
 .d-hero { padding-top: var(--space-4); }
-.d-masthead { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-3); }
-.d-masthead__title { flex: 1; display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); line-height: 0.85; }
-.d-masthead__name { font-size: 126px; text-transform: uppercase; letter-spacing: 0.035em; }
-.d-masthead__year { font-size: 112px; letter-spacing: -0.03em; color: var(--vi-magenta); } /* magenta on black is 4.9:1 */
-/* The agency's mark on a white disc (as in Concept A): its black "10" would vanish on black */
-.d-anniv { flex: none; width: 128px; aspect-ratio: 1; border-radius: 50%; background: var(--vi-white); display: grid; place-items: center; }
-.d-anniv img { width: 60%; height: auto; transform: translateY(-2%); }
+/* REMARKABLE and 2027 at one size, side by side on one baseline, together filling the content width */
+.d-masthead { margin-top: var(--space-3); }
+.d-masthead__title { display: flex; align-items: baseline; gap: 0.25em; font-size: 145px; line-height: 0.85; letter-spacing: 0.035em; } /* 145 px spans the 1200 px column */
+.d-masthead__name { text-transform: uppercase; }
+.d-masthead__year { margin-right: -0.035em; color: var(--vi-magenta); } /* trailing tracking cancelled so "7" ends on the column edge; magenta on black is 4.9:1 */
 
 .d-hero__grid { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; margin-top: var(--space-8); }
 .d-hero__copy { padding-top: var(--space-2); }
@@ -56,7 +55,7 @@
 .d-hero__media { position: relative; }
 .d-hero__photo { width: 100%; height: 420px; object-fit: cover; object-position: 50% 55%; border-radius: var(--vi-image-radius); }
 /* Official magenta arrow (not recoloured, no shadow) breaking out of the photo's top-right corner */
-.d-arrow { position: absolute; right: -44px; top: -48px; width: 140px; height: auto; pointer-events: none; } /* clears the anniversary disc above */
+.d-arrow { position: absolute; right: -44px; top: -48px; width: 140px; height: auto; pointer-events: none; }
 
 .d-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-8); margin-top: var(--space-6); padding: var(--space-3) 0; border-top: 1px solid #3a3a3a; }
 .d-details strong { font: var(--weight-heading) 28px/1.3 var(--font-heading); }
@@ -66,7 +65,7 @@
 /* ---------- Inner-page header: black band ---------- */
 .page-hero { background: var(--vi-black); color: var(--vi-white); }
 .page-hero__title { font-size: 88px; line-height: 1; }
-.page-hero__intro { color: var(--d-muted-dark); }
+.page-hero__intro { margin-left: 0; color: var(--d-muted-dark); } /* aligned with the title, no indent */
 
 /* ---------- Intro: lead left, text right ---------- */
 .intro__body { max-width: none; margin-left: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3) var(--space-12); }
@@ -76,7 +75,7 @@
 
 /* ---------- Stats: rules and dividers, cobalt caption ---------- */
 .stats { padding-top: 0 !important; }
-.stats__caption { font: var(--weight-heading) 14px/1.4 var(--font-heading); letter-spacing: 0.16em; color: var(--vi-cobalt); margin-bottom: var(--space-3); }
+.stats__caption { font: var(--weight-heading) 18px/1.4 var(--font-heading); letter-spacing: 0.14em; color: var(--vi-cobalt); margin-bottom: var(--space-3); }
 .stats__grid { grid-template-columns: 1.25fr 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--vi-black); padding-top: var(--space-3); }
 .stat { padding: 0 var(--space-4); border-left: 1px solid var(--rule); }
 .stat:first-child { padding-left: 0; border-left: 0; }
@@ -145,8 +144,7 @@
 
 /* ---------- Tablet ---------- */
 @media (max-width: 1100px) {
-  .d-masthead__name { font-size: 9vw; }
-  .d-masthead__year { font-size: 8vw; }
+  .d-masthead__title { font-size: 8.4vw; }
 }
 
 /* ---------- Mobile ---------- */
@@ -158,12 +156,8 @@
   .btn--nav::after { display: none; } /* no room for the arrow beside EN | FR and the menu */
 
   .d-hero { position: relative; padding-top: var(--space-3); }
-  .d-hero__eyebrow { padding-right: 100px; }
-  .d-masthead { margin-top: 64px; } /* starts below the disc */
-  .d-masthead__title { flex-direction: column; align-items: flex-start; gap: var(--space-1); line-height: 0.9; }
-  .d-masthead__name { font-size: 54px; letter-spacing: 0.015em; }
-  .d-masthead__year { font-size: 54px; }
-  .d-anniv { position: absolute; top: 12px; right: 20px; width: 88px; }
+  .d-masthead { margin-top: var(--space-2); }
+  .d-masthead__title { flex-direction: column; align-items: flex-start; gap: var(--space-1); font-size: 54px; line-height: 0.9; letter-spacing: 0.015em; }
   .d-hero__grid { display: flex; flex-direction: column-reverse; gap: var(--space-4); margin-top: var(--space-4); }
   .d-hero__photo { height: 220px; }
   .d-arrow { width: 72px; right: -8px; top: -30px; }

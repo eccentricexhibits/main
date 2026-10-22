@@ -192,6 +192,7 @@ main > section.hero, main > section.page-hero { padding: 0; }
 .day-tabs { display: flex; gap: var(--space-1); border-bottom: 2px solid var(--rule); }
 .day-tabs__tab { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2) var(--space-4) var(--space-2) 0; margin-right: var(--space-4); text-decoration: none; margin-bottom: -2px; border-bottom: 4px solid transparent; }
 .day-tabs__tab.is-active { border-bottom-color: currentColor; }
+button.day-tabs__tab { background: none; border-top: 0; border-left: 0; border-right: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .day-tabs__label { font: var(--weight-heading) 24px/1.2 var(--font-heading); }
 .day-tabs__date { font-size: 16px; }
 .agenda__note { margin: var(--space-3) 0 0; font-size: 16px; font-style: italic; color: var(--muted); }

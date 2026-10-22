@@ -6,7 +6,7 @@ brief, and how to rebuild the exports. Where this file and `BRIEF.md` disagree, 
 starting point, and the decisions below came later from the requester.
 
 Last updated: October 22, 2026 (stock portraits and matching names; anniversary mark in Concept A; Karbon
-Semibold headings; scope narrowed to the four pages; Concept D added).
+Semibold headings; scope narrowed to the four pages; Concept D added and refined).
 
 ---
 
@@ -22,7 +22,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | **A, Gradient Stage** (continuity) | The 2026 stage look rebuilt in the new gradient: a full-height hero with the letter-spaced R E M A R K A B L E / 2 0 2 7 in a 20% white overlay box over a faint "AI" letterform, then one long gradient "stage" band for the day cards and speakers. |
 | **B, Arrow Split** (the splashiest) | The brand's extended magenta arrow cuts diagonally through two real 2026 photos, with the photo edges following the arrow's exact angle (brand guide pp. 39–40). |
 | **C, Open Canvas** (editorial) | Mostly white with a huge black "Remarkable", "2027" on a gradient band, thin gradient rules and magenta accents; colour is used only as an accent. |
-| **D, Spotlight** (bold contrast) | A black stage: an oversized REMARKABLE with a magenta "2027", a rounded 2026 photo with the magenta Vector arrow breaking out of its corner, a gradient rule, a grey program band and a black photo band. Adapted from a design made in a separate AI chat (decision 15). |
+| **D, Spotlight** (bold contrast) | A black stage: an oversized REMARKABLE 2027 ("2027" in magenta) spanning the column, a rounded 2026 photo with the magenta Vector arrow breaking out of its corner, a gradient rule, a grey program band and a black photo band. Adapted from a design made in a separate AI chat (decision 15). |
 
 ### Status: complete, awaiting review
 
@@ -149,6 +149,17 @@ In the order they were made:
       instead, as in A), the arrow's drop shadow, the closing gradient "Be part of what comes next" band and the
       When/Where labels (copy that isn't ours), the "01 / …" section eyebrows, photo captions, and the
       registration and gallery pop-ups. Placed photos use the brand's 16 px corners, not the chat's 8 px.
+16. **Concept D refinements** (requester's review):
+    - REMARKABLE and 2027 are one size (145 px), side by side on one baseline, filling the 1200 px column
+      (stacked on mobile, as before).
+    - Button labels are optically centred (see section 6), with the arrow on the same centre line.
+    - The 10th-anniversary mark is **removed from D** (A still shows it).
+    - The "Remarkable 2026 by the numbers" caption is larger (18 px).
+    - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked
+      (`agendaTabs: true`; A–C still show both days and can switch it on the same way).
+    - The intro paragraph under each inner-page title (Agenda, Speakers, FAQ) has no indent, so it lines up with
+      the title. The day description on the agenda still has the indent.
+    - Pending: the Hilton logo beside "Hilton Toronto" in the hero (the SVG didn't arrive; see section 7).
 
 ---
 
@@ -233,10 +244,15 @@ photos; alt text on every image; nothing autoplays.
 - Desktop sections have 128 px of vertical padding.
 
 **D, Spotlight** (`mockups/concept-d/`)
-- The hero's `<h1>` is a flex row (REMARKABLE left, 2027 right) followed by the anniversary disc. On mobile the
-  disc moves to the eyebrow line (absolute, top right) and the masthead starts 64 px lower so they don't touch.
+- The hero's `<h1>` is a flex row: REMARKABLE and 2027 share one font size (145 px, measured to fill the 1200 px
+  column; 8.4vw on tablet), with the trailing letter-spacing after "2027" cancelled so it ends on the column edge.
+  If the copy or tracking changes, re-measure; it must not exceed the column.
+- Buttons: Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is lifted
+  2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
 - The arrow is `assets/brand-elements/vector-arrow-magenta.svg` (the same geometry as the chat's arrow), placed
-  over the photo's top-right corner at `top: -48px` so it clears the disc above.
+  over the photo's top-right corner at `top: -48px`.
+- Agenda tabs (`agendaTabs` in `render.js`): real `role="tab"` buttons; the other day's panel has `hidden`.
+  Click or the left/right arrow keys switch days. The export shows Day 1.
 - `after()` in `concept.js` adds the photo to the grey days band and wraps a trailing "+" on stats in a magenta
   span; neither is in the shared markup.
 - The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the
@@ -262,10 +278,13 @@ photos; alt text on every image; nothing autoplays.
 4. **Karbon web licence:** confirm it. If web use isn't licensed, delete the three `@font-face` lines in
    `brand/tokens.css`; headings then fall back to Open Sans 600, as the brand guide allows.
 5. **The intro indent** is estimated; compare it with vectorinstitute.ai.
-6. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px). Swap in the final
+6. **The 10th-anniversary mark:** placed in Concept A from the agency's *preview* file (700 px); removed from D
+   at the requester's request. Swap in the final
    artwork (ideally SVG) when it arrives, confirm a minimum size with the agency ("YEARS | ANS" is about 9 px
    tall on mobile), and place it in B and C if they stay in play.
-7. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
+7. **Hilton logo** for D's hero, beside "Hilton Toronto": the requester is sending an SVG. Check the Hilton
+   brand rules for a white version on black and for clear space.
+8. **Danielle and Marcie** choose a direction from the four concepts. The chosen concept then goes to Swoogo with the PNGs, this file and
    `content/COPY-CHANGES.md`.
 
 ---
