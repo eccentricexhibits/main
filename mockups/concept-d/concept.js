@@ -7,6 +7,10 @@ const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
 const D_PIXELS = "assets/brand-elements/pixel-pattern-magenta.svg";
 const D_HERO = "split"; // home hero: "split" (current) or "stage" (the previous version, kept on file)
+// Split hero frame: 700 px tall; the photo's edge meets the bottom 70 px into the frame. The frame's width follows the
+// screen (see after()), so the arrow keeps its full height and the photo its edge at any width.
+const D_SPLIT = { H: 700, seam: 70 };
+let dArrowSplit = null; // the shared arrowSplit helper, kept by heroSplit for after()
 // Inner-page headers: one photo on the right, cut along the magenta arrow (brand guide p. 6); on a phone, the photo
 // below the text instead, faded in from black. Not the photos B uses.
 const D_PAGE_PHOTOS = {
@@ -52,6 +56,7 @@ function heroStage(copy, h) {
    on the right a 2026 photo running to the edge, cut along the extended magenta arrow, whose tip touches the top.
    Phones: no split; the photo follows the text and fades in from black, as on the inner pages. */
 function heroSplit(copy, h) {
+  dArrowSplit = h.arrowSplit;
   const hero = copy.hero;
   const [, name, year] = hero.event_name.match(/^(.*?)\s*(\d{4})$/);
   return `<div class="d-sh">
@@ -67,7 +72,7 @@ function heroSplit(copy, h) {
           <p class="small-print">${h.esc(hero.small_print)}</p>
         </div>
       </div>
-      <div class="d-sh__split">${h.arrowSplit({ W: 720, H: 640, seam: 80, photos: [{ src: D_HERO_PHOTO }], touchTop: true })}</div>
+      <div class="d-sh__split">${h.arrowSplit({ W: 820, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO }], touchTop: true })}</div>
     </div>
     <div class="d-fade d-sh__fade"><img src="${h.asset(D_HERO_PHOTO)}" alt="${h.esc(h.photoAlt(D_HERO_PHOTO))}"></div>
     <div class="container">
@@ -102,6 +107,18 @@ window.CONCEPT = {
 
   after(copy, page) {
     if (page !== "home") return;
+    // Split hero: redraw the frame at the region's real proportions (820 x 700 at 1440; wider on bigger screens)
+    const split = document.querySelector(".d-sh__split");
+    if (split && dArrowSplit) {
+      const fit = () => {
+        const r = split.getBoundingClientRect();
+        if (!r.height) return; // phones: the split is hidden
+        const W = Math.round((r.width * D_SPLIT.H) / r.height);
+        split.innerHTML = dArrowSplit({ W, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO }], touchTop: true });
+      };
+      fit();
+      window.addEventListener("resize", fit);
+    }
     // Photo beside the two day panels (the grey "program" band of the design)
     document.querySelector(".days .container").insertAdjacentHTML(
       "afterbegin",

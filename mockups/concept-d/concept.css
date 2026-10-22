@@ -64,19 +64,18 @@
 .d-rule { height: 7px; background: var(--vi-gradient); }
 
 /* ---------- Home hero, "split" (current; the "stage" rules above are kept for D_HERO = "stage") ----------
-   A 640 px band: text on black on the left, and from the centre to the right edge a 720 x 640 photo frame cut along
-   the extended magenta arrow (arrowSplit, viewBox 720 x 640 so nothing is cropped at 1440). REMARKABLE and 2027 are
-   stacked at one size and stop well short of the arrowhead. */
-.d-sh { position: relative; height: 640px; }
+   A 700 px band: text on black on the left; from 100 px left of centre to the right edge, a photo frame cut along the
+   extended magenta arrow (arrowSplit; concept.js redraws it at the region's real proportions, so nothing is cropped
+   at any width). "Remarkable" over a much larger magenta "2027", with the pixel pattern beside it. */
+.d-sh { position: relative; height: 700px; }
 .d-sh__inner { position: relative; z-index: 2; height: 100%; display: flex; align-items: center; }
-.d-sh__copy { max-width: 580px; }
-.d-sh__title { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-3); font-size: 104px; line-height: 0.9; letter-spacing: 0.035em; }
-.d-sh__name { text-transform: uppercase; }
-.d-sh__year { display: flex; align-items: center; gap: var(--space-6); color: var(--vi-magenta); }
-.d-sh__pixels { height: 92px; width: auto; } /* the magenta pixel pattern, on black only: never under text or photos */
-.d-sh__tagline { margin-top: var(--space-6); max-width: 500px; font: var(--weight-heading) 44px/1.08 var(--font-heading); letter-spacing: -0.02em; text-wrap: balance; }
+.d-sh__copy { max-width: 600px; }
+.d-sh__title { display: flex; flex-direction: column; margin-top: var(--space-3); font-size: 112px; line-height: 0.9; letter-spacing: -0.01em; }
+.d-sh__year { display: flex; align-items: center; gap: var(--space-6); font-size: 1.6em; line-height: 0.85; letter-spacing: -0.035em; color: var(--vi-magenta); }
+.d-sh__pixels { height: 0.74em; width: auto; } /* the magenta pixel pattern, on black only: never under text or photos */
+.d-sh__tagline { margin-top: var(--space-4); max-width: 480px; font: var(--weight-heading) 40px/1.1 var(--font-heading); letter-spacing: -0.015em; text-wrap: balance; }
 .d-sh__copy .cta-row { margin-top: var(--space-4); }
-.d-sh__split { position: absolute; z-index: 1; top: 0; bottom: 0; right: 0; left: 50%; }
+.d-sh__split { position: absolute; z-index: 1; top: 0; bottom: 0; right: 0; left: calc(50% - 100px); }
 .d-sh__split .arrow-split { display: block; width: 100%; height: 100%; }
 .d-sh__fade + .container .d-details { margin-top: 0; border-top: 0; }
 
@@ -203,10 +202,9 @@
 
   .d-sh { height: auto; }
   .d-sh__inner { padding-top: var(--space-4); padding-bottom: var(--space-6); }
-  .d-sh__title { font-size: 54px; letter-spacing: 0.015em; margin-top: var(--space-2); }
+  .d-sh__title { font-size: 64px; margin-top: var(--space-2); }
   .d-sh__year { gap: var(--space-3); }
-  .d-sh__pixels { height: 48px; }
-  .d-sh__tagline { margin-top: var(--space-4); font-size: 36px; }
+  .d-sh__tagline { margin-top: var(--space-4); font-size: 34px; }
   .d-sh__split { display: none; } /* phones: the photo fades in below the text instead (.d-sh__fade) */
   .d-sh__fade { margin-top: -24px; }
   .page-hero__inner { min-height: 0; }

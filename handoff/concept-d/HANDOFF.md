@@ -120,7 +120,8 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
    - "Remarkable 2026 by the numbers" is a **section heading** (40 px desktop / 28 px mobile).
    - Home speakers row: 48 px between columns (24 px on mobile).
    - **Home hero is a split screen** (adapted from the requester's separate "Karbon and pixels" mockup, in D's
-     colours): text on black on the left (eyebrow; REMARKABLE over a magenta 2027 at one size, 104 px, with the
+     colours): text on black on the left (eyebrow; "Remarkable" at 112 px over a much larger magenta "2027" (180 px),
+     matching the proportions the requester preferred in that mockup, with the
      magenta pixel pattern beside 2027; the tagline; the buttons; the small print). From the centre to the right
      edge a 2026 photo is cut along the extended magenta arrow, whose tip touches the top of the section. The
      dates and venue sit in a row below, then the gradient rule. Phones: no split; the photo fades in from black
@@ -176,10 +177,12 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
   left/right arrow keys switch days. The export shows Day 1.
 
 **D (`mockups/concept-d/`)**
-- **Home hero (`heroSplit`):** a 640 px band; `.d-sh__split` runs from the centre to the right edge and holds
-  `arrowSplit` with a 720 × 640 frame, `seam: 80` and `touchTop: true` (exactly 720 × 640 at 1440, so nothing is
-  cropped). Measured at 1440 × 900: the hero ends at 836 px, the arrow's tip is on the section's top row and the
-  arrow stays 83 px clear of REMARKABLE. On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
+- **Home hero (`heroSplit`):** a 700 px band; `.d-sh__split` runs from 100 px left of centre to the right edge and
+  holds `arrowSplit` with `H: 700`, `seam: 70` and `touchTop: true` (`D_SPLIT`). `after()` redraws the frame at the
+  region's real proportions (820 × 700 at 1440, 1100 × 700 at 2000) and again on resize, so the arrow keeps its
+  full height and nothing is cropped at any width. Measured at 1440 and 2000 wide: the hero (details row and
+  gradient rule included) ends at 896 px, the arrow's tip is on the section's top row, and the arrow stays 211 px
+  clear of "Remarkable" and 190 px clear of the pixel pattern. On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
   the text. The previous hero is `heroStage`, selected by `D_HERO`; its CSS (`.d-hero`, `.d-masthead`, `.d-arrow`)
   is kept. Its notes: REMARKABLE and 2027 at 145 px, measured to fill the 1200 px column, trailing letter-spacing
   cancelled; the photo was 312 px so it fit 1440 × 900.
