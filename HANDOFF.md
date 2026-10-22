@@ -173,12 +173,13 @@ In the order they were made:
       don't run together.
     - **Home hero is a split screen** (adapted from the requester's separate "Karbon and pixels" mockup, in D's
       colours): text on black on the left (eyebrow; "Remarkable" at 112 px over a much larger magenta "2027" (180 px),
-      matching the proportions the requester preferred in that mockup, with the
-      magenta pixel pattern beside 2027; the tagline; the buttons; the small print). From the centre to the right
+      matching the proportions the requester preferred in that mockup; the
+      tagline; the buttons; the small print). From the centre to the right
       edge a 2026 photo is cut along the extended magenta arrow, whose tip touches the top of the section. The
       dates and venue sit in a row below, then the gradient rule. Phones: no split; the photo fades in from black
       below the text, as on the inner pages. Not taken from that mockup: its purple gradient background, white pill
-      buttons, all-Karbon body text and the "Remarkable 2026" photo tag.
+      buttons, all-Karbon body text, the "Remarkable 2026" photo tag and (at the requester's request) its pixel
+      symbol.
     - **The previous hero is kept on file:** the full-width REMARKABLE 2027 above the tagline and a rounded photo
       with the arrow on its corner. `const D_HERO = "stage"` in `concept.js` brings it back (checked
       pixel-identical to the archived PNGs in `exports/archive/`).
@@ -300,7 +301,7 @@ photos; alt text on every image; nothing autoplays.
   region's real proportions (820 × 700 at 1440, 1100 × 700 at 2000) and again on resize, so the arrow keeps its
   full height and nothing is cropped at any width. Measured at 1440 and 2000 wide: the hero (details row and
   gradient rule included) ends at 896 px, the arrow's tip is on the section's top row, and the arrow stays 211 px
-  clear of "Remarkable" and 190 px clear of the pixel pattern. On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
+  clear of "Remarkable". On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
   the text. The previous hero is `heroStage`, selected by `D_HERO`; its CSS (`.d-hero`, `.d-masthead`, `.d-arrow`)
   is kept. Its notes: REMARKABLE and 2027 at 145 px, measured to fill the 1200 px column, trailing letter-spacing
   cancelled; the photo was 312 px so it fit 1440 × 900.

@@ -5,7 +5,6 @@
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
 const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
-const D_PIXELS = "assets/brand-elements/pixel-pattern-magenta.svg";
 const D_HERO = "split"; // home hero: "split" (current) or "stage" (the previous version, kept on file)
 // Split hero frame: 700 px tall; the photo's edge meets the bottom 70 px into the frame. The frame's width follows the
 // screen (see after()), so the arrow keeps its full height and the photo its edge at any width.
@@ -65,7 +64,7 @@ function heroSplit(copy, h) {
           <p class="eyebrow">${h.esc(hero.eyebrow)}</p>
           <h1 class="d-sh__title" aria-label="${h.esc(hero.event_name)}">
             <span class="d-sh__name" aria-hidden="true">${h.esc(name)}</span>
-            <span class="d-sh__year" aria-hidden="true">${h.esc(year)}<img class="d-sh__pixels" src="${h.asset(D_PIXELS)}" alt=""></span>
+            <span class="d-sh__year" aria-hidden="true">${h.esc(year)}</span>
           </h1>
           <p class="d-sh__tagline">${h.esc(hero.tagline)}</p>
           ${h.ctas(copy)}
