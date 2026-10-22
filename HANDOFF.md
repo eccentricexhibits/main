@@ -22,7 +22,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | **A, Gradient Stage** (continuity) | The 2026 stage look rebuilt in the new gradient: a full-height hero with the letter-spaced R E M A R K A B L E / 2 0 2 7 in a 20% white overlay box over a faint "AI" letterform, then one long gradient "stage" band for the day cards and speakers. |
 | **B, Arrow Split** (the splashiest) | The brand's extended magenta arrow cuts diagonally through two real 2026 photos, with the photo edges following the arrow's exact angle (brand guide pp. 39–40). |
 | **C, Open Canvas** (editorial) | Mostly white with a huge black "Remarkable", "2027" on a gradient band, thin gradient rules and magenta accents; colour is used only as an accent. |
-| **D, Spotlight** (bold contrast) | A black stage: an oversized REMARKABLE 2027 ("2027" in magenta) spanning the column, a rounded 2026 photo with the magenta Vector arrow breaking out of its corner, a gradient rule, a grey program band and a black photo band. Adapted from a design made in a separate AI chat (decision 15). |
+| **D, Spotlight** (bold contrast) | A black stage: a split-screen home hero (REMARKABLE over a magenta 2027 on the left, a 2026 photo cut along the long magenta arrow on the right), split-screen page headers, a gradient rule, a grey program band and a black photo band. Adapted from a design made in a separate AI chat (decision 15). |
 
 ### Status: complete, awaiting review
 
@@ -61,7 +61,7 @@ production code**: plain HTML/CSS rendered to PNG and PDF with Playwright.
 | `scripts/package-handoff.sh` | Builds upload-sized zips of this whole package (section 9). |
 | `scripts/package-concept-d.sh` | Builds a standalone zip of Concept D only (section 9). |
 | `handoff/concept-d/` | The `HANDOFF.md` and `CLAUDE.md` that go into the Concept D package. Update them with any change to D. |
-| `exports/` | Generated PNGs and PDFs. Regenerate rather than edit. |
+| `exports/` | Generated PNGs and PDFs. Regenerate rather than edit. `exports/archive/` keeps PNGs of designs set aside (Concept D's previous home hero). |
 | `reference/` | Brand-guide pages 13–41 and 2026 materials (banners, slides, badges, recap pages) as images. Look, don't embed. |
 | `sources/` | The original files: Vector Brand Guidelines PDF (6.29.26), the 2026 event-recap PDF, the reg-site copy doc, the AI Summit 2026 Swoogo page, the full Karbon family, the original handoff README and prompt, the agency's 10th-anniversary mark preview, and `concept-d-design/` (the AI-chat design D was adapted from: full-page PNG, page text, HTML/CSS/JS; its photos, fonts and the 5 MB standalone HTML were left out). |
 | Repo root PDFs, PNGs, SVGs | Earlier uploads by the requester (brand quick-reference PDF, "Frame" and badge images, official logo and arrow SVGs). Not used by the mockups; kept as they were. |
@@ -171,6 +171,16 @@ In the order they were made:
       hero copy or spacing changes.
     - Home speakers row: 48 px between columns (24 px on mobile) and 20 px names, so neighbouring names and titles
       don't run together.
+    - **Home hero is a split screen** (adapted from the requester's separate "Karbon and pixels" mockup, in D's
+      colours): text on black on the left (eyebrow; REMARKABLE over a magenta 2027 at one size, 104 px, with the
+      magenta pixel pattern beside 2027; the tagline; the buttons; the small print). From the centre to the right
+      edge a 2026 photo is cut along the extended magenta arrow, whose tip touches the top of the section. The
+      dates and venue sit in a row below, then the gradient rule. Phones: no split; the photo fades in from black
+      below the text, as on the inner pages. Not taken from that mockup: its purple gradient background, white pill
+      buttons, all-Karbon body text and the "Remarkable 2026" photo tag.
+    - **The previous hero is kept on file:** the full-width REMARKABLE 2027 above the tagline and a rounded photo
+      with the arrow on its corner. `const D_HERO = "stage"` in `concept.js` brings it back (checked
+      pixel-identical to the archived PNGs in `exports/archive/`).
     - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen** on desktop, after brand guide p. 6 ("Brand
       Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
       magenta arrow, whose tip touches the top edge of the section and whose tail runs off the bottom. The split
@@ -284,12 +294,16 @@ photos; alt text on every image; nothing autoplays.
   never the coordinates. Header text is capped at 620 px. On phones `.d-split` is hidden and `.d-fade` (an
   `<img>` of the same photo, 320 px tall, pulled 40 px up under the text) shows instead, with a black-to-clear
   fade over its top.
-- The hero's `<h1>` is a flex row: REMARKABLE and 2027 share one font size (145 px, measured to fill the 1200 px
-  column; 8.4vw on tablet), with the trailing letter-spacing after "2027" cancelled so it ends on the column edge.
-  If the copy or tracking changes, re-measure; it must not exceed the column.
+- **Home hero (`heroSplit`):** a 640 px band; `.d-sh__split` runs from the centre to the right edge and holds
+  `arrowSplit` with a 720 × 640 frame, `seam: 80` and `touchTop: true` (exactly 720 × 640 at 1440, so nothing is
+  cropped). Measured at 1440 × 900: the hero ends at 836 px, the arrow's tip is on the section's top row and the
+  arrow stays 83 px clear of REMARKABLE. On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
+  the text. The previous hero is `heroStage`, selected by `D_HERO`; its CSS (`.d-hero`, `.d-masthead`, `.d-arrow`)
+  is kept. Its notes: REMARKABLE and 2027 at 145 px, measured to fill the 1200 px column, trailing letter-spacing
+  cancelled; the photo was 312 px so it fit 1440 × 900.
 - Buttons: Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is lifted
   2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
-- The arrow is `assets/brand-elements/vector-arrow-magenta.svg` (the same geometry as the chat's arrow), placed
+- Stage hero (kept): the arrow is `assets/brand-elements/vector-arrow-magenta.svg` (the same geometry as the chat's arrow), placed
   over the photo's top-right corner at `top: -48px`.
 - Agenda tabs (`agendaTabs` in `render.js`): real `role="tab"` buttons; the other day's panel has `hidden`.
   Click or the left/right arrow keys switch days. The export shows Day 1.
@@ -357,7 +371,7 @@ What I'd like to do next: <describe the next task>
   | `1-core` | HANDOFF, BRIEF, brand, content, fonts, assets, mockups, scripts, reference, the Concept D handoff notes, package files | Always. Enough to understand and rebuild everything. |
   | `2-review-pdfs` | Concepts review PDF and the wireframe folder | To review or discuss the designs |
   | `3a-exports-png-a-b` | PNG frames of Concepts A and B (plus their parked banners) | To inspect those frames |
-  | `3b-exports-png-c-d` | PNG frames of Concepts C and D (plus C's parked banner) | To inspect those frames |
+  | `3b-exports-png-c-d` | PNG frames of Concepts C and D (plus C's parked banner and the archived D home hero) | To inspect those frames |
   | `4-sources` | Brand guidelines, recap PDF, copy doc, AI Summit page, full Karbon family, anniversary-mark preview, the AI-chat design D came from | For brand, copy or Concept D background questions |
   | `5-earlier-uploads` | The requester's earlier repo-root files | Only if those materials matter |
 

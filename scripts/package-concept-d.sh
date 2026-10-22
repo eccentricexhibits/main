@@ -22,6 +22,9 @@ FILES=(
   mockups/concept-d/index.html mockups/concept-d/agenda.html mockups/concept-d/speakers.html mockups/concept-d/faq.html
   # Every asset D's pages load (collected by rendering all four pages at both widths), plus the colour logo for the PDF cover
   assets/brand-elements/vector-arrow-magenta.svg assets/brand-elements/vector-arrow-extended-magenta.svg
+  assets/brand-elements/pixel-pattern-magenta.svg
+  # The home page with the previous ("stage") hero, kept on file
+  exports/archive/concept-d-home-desktop-stage-hero.png exports/archive/concept-d-home-mobile-stage-hero.png
   assets/logos/logo-bilingual-knockout-white.png assets/logos/logo-bilingual-colour.png
   assets/funders/canada.png assets/funders/ontario.png assets/funders/cifar.png
   assets/social-icons/x-white.png assets/social-icons/bluesky-white.png

@@ -17,8 +17,8 @@ lightning talks and posters. In-person attendance is by invitation; a virtual li
 Two reviewers, Danielle and Marcie, choose a direction; Swoogo's team then rebuilds it on their platform. These
 are **design mockups, not production code**: plain HTML/CSS, rendered to PNG and PDF with Playwright.
 
-**Concept D, Spotlight** (bold contrast): a black stage. An oversized REMARKABLE 2027 ("2027" in magenta) spans
-the content column; a rounded 2026 photo has the magenta Vector arrow breaking out of its top-right corner; a
+**Concept D, Spotlight** (bold contrast): a black stage. The home page opens on a split screen: REMARKABLE over a
+magenta 2027 on the left, and a 2026 photo on the right cut along the long magenta arrow; a
 magenta-to-cobalt gradient rule closes each black band; a grey "program" band holds the two days and the
 speakers; a black band holds the recap video and the photo carousel. The Agenda, Speakers and FAQ headers are a
 split screen: a photo on the right half, cut along the extended magenta arrow (brand guide p. 6).
@@ -46,7 +46,7 @@ split screen: a photo on the right half, cut along the extended magenta arrow (b
 | `mockups/concept-d/` | `concept.js` (hero and page-header markup, options), `concept.css` (all of D's styling) and four generated page shells. |
 | `scripts/export.mjs` | Serves the folder, screenshots every frame, checks for broken images, missing alt text and horizontal overflow, and builds the review PDF. |
 | `scripts/pages.mjs` | Rewrites the four page shells. |
-| `exports/` | Generated PNGs and the review PDF. Regenerate rather than edit. |
+| `exports/` | Generated PNGs and the review PDF. Regenerate rather than edit. `exports/archive/` holds the home page with the previous ("stage") hero. |
 | `sources/Vector_BrandGuidelines_6.29.26.pdf` | The Vector brand guide. |
 | `sources/Remarkable_2027_Current_Website_copy.docx` | The reg-site copy doc the copy came from (it still holds the 2026 text). |
 | `sources/AI_Summit_2026_Website_Reference.zip` | The Swoogo page whose structure the layout follows. |
@@ -120,6 +120,16 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
      request).
    - "Remarkable 2026 by the numbers" is a **section heading** (40 px desktop / 28 px mobile).
    - Home speakers row: 48 px between columns (24 px on mobile).
+   - **Home hero is a split screen** (adapted from the requester's separate "Karbon and pixels" mockup, in D's
+     colours): text on black on the left (eyebrow; REMARKABLE over a magenta 2027 at one size, 104 px, with the
+     magenta pixel pattern beside 2027; the tagline; the buttons; the small print). From the centre to the right
+     edge a 2026 photo is cut along the extended magenta arrow, whose tip touches the top of the section. The
+     dates and venue sit in a row below, then the gradient rule. Phones: no split; the photo fades in from black
+     below the text, as on the inner pages. Not taken from that mockup: its purple gradient background, white pill
+     buttons, all-Karbon body text and the "Remarkable 2026" photo tag.
+   - **The previous hero is kept on file:** the full-width REMARKABLE 2027 above the tagline and a rounded photo
+     with the arrow on its corner. `const D_HERO = "stage"` in `concept.js` brings it back (checked
+     pixel-identical to the archived PNGs in `exports/archive/`).
    - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked.
    - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen** on desktop, after brand guide p. 6 ("Brand
      Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
@@ -167,14 +177,16 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
   left/right arrow keys switch days. The export shows Day 1.
 
 **D (`mockups/concept-d/`)**
-- **Masthead:** the `<h1>` is a flex row; REMARKABLE and 2027 share one font size, 145 px, measured to fill the
-  1200 px column (8.4vw on tablet). The trailing letter-spacing after "2027" is cancelled so it ends on the column
-  edge. If the copy or tracking changes, re-measure: it must not exceed the column.
-- **Hero height:** the photo is 312 px and the details row has 24/32 px padding so the hero fits 1440 × 900.
-  Re-measure if any hero copy or spacing changes.
+- **Home hero (`heroSplit`):** a 640 px band; `.d-sh__split` runs from the centre to the right edge and holds
+  `arrowSplit` with a 720 × 640 frame, `seam: 80` and `touchTop: true` (exactly 720 × 640 at 1440, so nothing is
+  cropped). Measured at 1440 × 900: the hero ends at 836 px, the arrow's tip is on the section's top row and the
+  arrow stays 83 px clear of REMARKABLE. On phones `.d-sh__split` is hidden and `.d-sh__fade` shows the photo below
+  the text. The previous hero is `heroStage`, selected by `D_HERO`; its CSS (`.d-hero`, `.d-masthead`, `.d-arrow`)
+  is kept. Its notes: REMARKABLE and 2027 at 145 px, measured to fill the 1200 px column, trailing letter-spacing
+  cancelled; the photo was 312 px so it fit 1440 × 900.
 - **Buttons:** Karbon sits high in its line box, so `.btn` has 5 px of top padding and its arrow (`::after`) is
   lifted 2.5 px. Measured: capitals and arrow both centre within 0.5 px of the button's centre.
-- **Arrow:** `assets/brand-elements/vector-arrow-magenta.svg`, over the photo's top-right corner at `top: -40px`.
+- **Arrow (stage hero, kept):** `assets/brand-elements/vector-arrow-magenta.svg`, over the photo's top-right corner at `top: -40px`.
 - **Split headers:** `pageHeader` calls the shared `arrowSplit` with a 780 × 480 frame, `seam: 160` and `touchTop: true`, in `.d-split`, which runs from
   60 px left of centre to the right edge, above the gradient rule (`left: calc(50% - 60px)`), so at 1440 px the
   frame is exactly 780 × 480 and nothing is cropped. `touchTop` lifts the arrow by its file's built-in top padding
