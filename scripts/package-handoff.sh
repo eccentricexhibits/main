@@ -6,7 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 OUT=handoff-zips
 LIMIT_MB=25
-rm -rf "$OUT" && mkdir -p "$OUT"
+# Replace only this script's numbered zips; other packages in $OUT (e.g. the Concept D zip) stay
+mkdir -p "$OUT" && rm -f "$OUT"/remarkable-2027-[0-9]*.zip
 
 # Only files tracked by git, so nothing local or generated-but-uncommitted slips in.
 tracked() { git ls-files -- "$@"; }
@@ -29,10 +30,10 @@ git ls-files | grep -v -e '^\(assets\|brand\|content\|fonts\|mockups\|scripts\|r
 
 # Every tracked file must be in exactly one zip
 total=$(git ls-files | wc -l)
-packed=$(for z in "$OUT"/*.zip; do zipinfo -1 "$z"; done | sort | uniq | wc -l)
+packed=$(for z in "$OUT"/remarkable-2027-[0-9]*.zip; do zipinfo -1 "$z"; done | sort | uniq | wc -l)
 [ "$total" -eq "$packed" ] || { echo "!! $packed of $total tracked files packed"; exit 1; }
 
-for z in "$OUT"/*.zip; do
+for z in "$OUT"/remarkable-2027-[0-9]*.zip; do
   mb=$(( $(stat -c %s "$z") / 1048576 ))
   flag=ok; [ "$mb" -lt "$LIMIT_MB" ] || flag="!! over ${LIMIT_MB} MB"
   printf '%-4s %-48s %3s MB  %4s files\n' "$flag" "$(basename "$z")" "$mb" "$(zipinfo -1 "$z" | wc -l)"
