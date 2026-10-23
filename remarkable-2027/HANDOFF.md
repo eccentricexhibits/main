@@ -1,8 +1,20 @@
-# Remarkable 2027 — Karbon and pixels handoff
+# Remarkable 2027 — Rounded panels handoff
 
-Updated October 22, 2026 from the supplied event package, brand guide, recap reference, Karbon Font archive and Symbol Compilation for Swoogo PDF.
+Updated October 23, 2026. Builds on the October 22, 2026 Karbon and pixels revision, from the supplied event package, brand guide, recap reference, Karbon Font archive and Symbol Compilation for Swoogo PDF.
 
-## Current revision
+## Current revision: rounded panels
+
+1. **One rounded-rectangle system.** Every surface is a rounded panel, card or pill. The radius scale is in `brand/tokens.css`: 40 px for opening panels, section panels and the footer; 28 px for cards; 20 px for placed images and inner tiles. Nested shapes use outer radius minus padding so the corners stay concentric. On mobile the scale steps down to 28/22/16 px.
+2. **Inset opening panels.** The home hero and the inner-page banners are rounded gradient panels inset 16 px from the viewport (10 px on mobile). The diagonal photo split, extended arrow and top-anchored arrow tip are unchanged; the split now starts at 50% and the copy column is sized from the measured split (`--copy-max`).
+3. **Event details as glass pills.** Date and venue sit inside the opening panels as frosted pills (white 16% fill, after the brand guide's overlay box), replacing the separate strip under the hero. On mobile they stack as grey pills under the actions.
+4. **Pixel Design drawn inline.** `render.js` draws the exact 34 cells of `vector-pixel-design.svg` as inline SVG, so each use takes `currentColor` (white on gradients and cobalt, magenta or cobalt elsewhere). Cells reveal bottom-left to top-right when they scroll into view; with reduced motion they appear immediately. A three-cell step from the same grid marks intro cards and stat tiles.
+5. **Section treatments.** Intro paragraphs become grey cards with a cobalt closing banner. Statistics sit in white tiles on a grey panel. Day cards carry an inset photo, a magenta or cobalt day badge and a whole-card link to that day of the agenda. Speakers sit in white cards on a grey panel with rounded-square portraits. The recap uses a full-bleed rounded photo with a frosted heading card. Funder logos sit on white tiles. The footer is a single inset grey panel with a white contact card.
+6. **Inner pages.** Agenda day tabs are a segmented control. Featured sessions, program sessions, speaker profiles and FAQ items are all rounded cards. Livestream labels are magenta pills. The FAQ topics list is a sticky rounded card on desktop and a pill row on smaller screens. Only the first FAQ in each topic now opens by default.
+7. **Palette note.** Large quiet panels use `--vi-grey-light` (#F4F3F3), a 50% tint of brand grey #E9E8E8, so cards and white tiles can sit on it. Everything else stays white, grey, black, magenta or cobalt, and mixed gradient colours remain confined to the opening panels.
+
+No event copy changed in this revision; `content/copy.json` and `copy.js` are untouched.
+
+## Previous revision: Karbon and pixels
 
 1. **Karbon throughout.** Earlier headings used Karbon while body text and controls used Open Sans. All visible type now uses the supplied Karbon family: Regular (400), Medium (500), Semibold (600) and Bold (700+). The supplied OTFs are preserved, with matching WOFF versions for browser loading. No synthetic font weight is needed.
 2. **Correct, larger pixel symbols.** The earlier motif was the Plus Design. The new `vector-pixel-design.svg` preserves the exact 34 rectangles and arrangement of the PDF’s Pixel Design. White opening accents and magenta/cobalt content accents are larger and fully opaque. Small-screen layouts keep symbols where there is clear space.
@@ -42,6 +54,6 @@ Edit `dist/content/copy.json`, then run `python3 tools/sync-copy.py` to regenera
 
 ## Verification
 
-Browser review covers desktop, 768 px tablet and mobile down to 320 px. All four pages fit without horizontal page overflow, use Karbon and show no editorial placeholder notes. Opening arrow tips remain exactly at the section top. FAQ arrows, new event-detail hierarchy and prominent pixel motifs are visually reviewed. Day switching and mobile-menu Escape dismissal pass.
+Browser review of the rounded-panels revision covers 1440 px desktop, 768 px tablet, 390 px and 320 px mobile. All four pages fit without horizontal page overflow, use Karbon and show no editorial placeholder notes. Opening arrow tips remain exactly at the section top. FAQ arrows, new event-detail hierarchy and prominent pixel motifs are visually reviewed. Day switching (click, arrow keys and session deep links), gallery paging, mobile-menu Escape dismissal and the pixel reveal pass.
 
 Source checks verify one main heading per page, unique IDs, local assets, featured-session destinations, the four intended JSON edits and synchronized offline copy. The four supplied OTFs match the archive byte-for-byte, their WOFF glyph outlines match, and the pixel SVG contains the exact 34 cells extracted from the PDF.

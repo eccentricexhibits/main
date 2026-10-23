@@ -55,3 +55,7 @@ Event JSON and all event wording are unchanged. This design-only revision aligns
 ## Karbon and pixels refinement — October 22, 2026
 
 Per the requester, removed visible internal-preview, fictitious-speaker, sample-program and video-source notes. The speaker page intro retains its first sentence. The video accessible label is now “Remarkable 2026 recap video”; destination tooltips are removed and portrait alt text uses speaker names. Only `speakers_note`, `speakers_page.intro`, `agenda_page.note` and `ui.video_placeholder` change in JSON. All event descriptions, session content, speaker profiles and logistics remain unchanged. Content status is retained in the handoff.
+
+## Rounded panels — October 23, 2026
+
+Design-only revision. Event JSON and all event wording are unchanged. Added UI-only labels: “Topics” above the FAQ topic list. The date and venue now appear as pills inside the opening panels rather than in a strip below the hero.

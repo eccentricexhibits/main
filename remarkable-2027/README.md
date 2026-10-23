@@ -1,4 +1,4 @@
-# Remarkable 2027 — Karbon and pixels
+# Remarkable 2027 — Rounded panels
 
 A four-page Vector Institute event mockup prepared for Swoogo implementation. The handoff records the status of the sample content and unfinished destinations.
 
@@ -7,6 +7,9 @@ A four-page Vector Institute event mockup prepared for Swoogo implementation. Th
 Unzip the package and open `dist/index.html` in a browser. Home, Agenda, Speakers and FAQ work from the local folder. Keep all folders together. No install, build or server is required.
 
 ## Visual direction
+
+The October 23, 2026 revision rebuilds the layout as a system of rounded rectangles: inset gradient opening panels, grey section panels, white cards and pill controls on one radius scale. The official Pixel Design is drawn inline so it can take brand colours and reveal cell by cell. See `HANDOFF.md` for details.
+
 
 The hero keeps its diagonal photo split and official extended Vector arrow, with the tip touching the section top. All typography now uses the supplied Karbon family, including body text and controls.
 
@@ -17,12 +20,12 @@ Agenda, Speakers and FAQ place the event name above the page title, with date an
 ## Files
 
 - `dist/index.html`, `agenda.html`, `speakers.html`, `faq.html`: page entry points.
-- `dist/styles.css`: responsive layout and colour treatment.
-- `dist/brand/tokens.css`: brand colours and supplied Karbon face declarations.
+- `dist/styles.css`: responsive rounded-panel layout and colour treatment.
+- `dist/brand/tokens.css`: brand colours, radius scale and supplied Karbon face declarations.
 - `dist/fonts/`: supplied OTFs and matching WOFF versions.
 - `dist/assets/brand-elements/vector-pixel-design.svg`: exact 34-cell block design from the supplied PDF.
 - `dist/assets/brand-elements/vector-arrow-compact.svg`: compact official arrow from the supplied PDF.
-- `dist/render.js`: shared renderer, hero geometry and interactions.
+- `dist/render.js`: shared renderer, inline Pixel Design, hero geometry and interactions.
 - `dist/content/copy.json`: authoritative event copy.
 - `dist/content/copy.js`: generated offline copy.
 - `tools/sync-copy.py`: regenerates copy.js after JSON edits.

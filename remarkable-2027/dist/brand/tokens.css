@@ -35,6 +35,13 @@
   /* Image containers (p.31): rounded corners on placed images; none on full-bleed */
   --vi-image-radius: 16px;
 
+  /* Rounded-rectangle system. Panels nest: an inner radius = outer radius - padding. */
+  --radius-xl: 40px;   /* opening panels, full-width section panels, footer */
+  --radius-lg: 28px;   /* cards */
+  --radius-md: 20px;   /* placed images, inner tiles */
+  --radius-sm: 12px;   /* small thumbnails */
+  --vi-grey-light: #F4F3F3; /* 50% tint of --vi-grey for large quiet panels */
+
   /* Type (pp.20-22) */
   --font-heading: "Karbon", Arial, sans-serif;  /* Supplied Karbon Medium / Semibold hierarchy */
   --font-body: "Karbon", Arial, sans-serif;
