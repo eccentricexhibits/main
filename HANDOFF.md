@@ -320,7 +320,8 @@ photos; alt text on every image; nothing autoplays.
 - Agenda tabs (`agendaTabs` in `render.js`): real `role="tab"` buttons; the other day's panel has `hidden`.
   Click or the left/right arrow keys switch days. The export shows Day 1.
 - `after()` in `concept.js` adds the photo to the grey days band (cropped at `object-position: 80% 50%` so the two
-  fireside speakers are centred in its tall desktop frame) and wraps a trailing "+" on stats in a magenta
+  fireside speakers are centred in its tall desktop frame; phones show a separate tighter crop of the same photo,
+  `stage-fireside-chat-phone.jpg`, centred on the pair, swapped in by CSS) and wraps a trailing "+" on stats in a magenta
   span; neither is in the shared markup.
 - The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the
   content width.

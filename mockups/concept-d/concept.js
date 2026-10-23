@@ -5,6 +5,8 @@
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
 const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
 const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
+// Phones: a tighter crop of the same photo, centred on the two speakers (the full shot leaves them small, top right)
+const D_DAYS_PHOTO_PHONE = "assets/photos-2026/stage-fireside-chat-phone.jpg";
 const D_HERO = "split"; // home hero: "split" (current) or "stage" (the previous version, kept on file)
 // Split hero frame: 700 px tall; the photo's edge meets the bottom 70 px into the frame. The frame's width follows the
 // screen (see after()), so the arrow keeps its full height and the photo its edge at any width.
@@ -126,7 +128,7 @@ window.CONCEPT = {
     // Photo beside the two day panels (the grey "program" band of the design)
     document.querySelector(".days .container").insertAdjacentHTML(
       "afterbegin",
-      `<img class="d-days__photo" src="../../${D_DAYS_PHOTO}" alt="Two speakers in a fireside chat in front of the Remarkable backdrop">`
+      `<img class="d-days__photo" src="../../${D_DAYS_PHOTO}" alt="Two speakers in a fireside chat in front of the Remarkable backdrop"><img class="d-days__photo d-days__photo--phone" src="../../${D_DAYS_PHOTO_PHONE}" alt="Two speakers in a fireside chat in front of the Remarkable backdrop">`
     );
     // A trailing "+" on a stat is set in magenta (solid colour, never gradient)
     document.querySelectorAll(".stat__value").forEach((el) => {
