@@ -30,6 +30,7 @@ const PHOTO_ALT = {
   "posters-discussion.jpg": "Researchers discussing a poster at the Remarkable 2026 poster session",
   "registration-desk.jpg": "Staff handing out name badges at the registration desk",
   "speaker-at-podium.jpg": "Speaker addressing the audience from the Vector podium",
+  "speaker-at-podium-headroom.jpg": "Speaker addressing the audience from the Vector podium",
   "stage-fireside-chat.jpg": "Two speakers in a fireside chat in front of the Remarkable backdrop",
   "stage-remarkable-backdrop.jpg": "Speaker presenting in front of the Remarkable backdrop",
   "workshop-room.jpg": "Attendees seated in a full workshop room",

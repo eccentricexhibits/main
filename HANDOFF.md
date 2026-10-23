@@ -187,7 +187,10 @@ In the order they were made:
       Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
       magenta arrow, whose tip touches the top edge of the section and whose tail runs off the bottom. The split
       starts 60 px left of centre. Photos: Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker
-      at the Vector podium; FAQ, attendees talking at a poster (none of them used in B's headers).
+      at the Vector podium; FAQ, attendees talking at a poster (none of them used in B's headers). Note:
+      the Speakers photo is a wider frame of the same moment (event photo ER627089-2, cropped to
+      `speaker-at-podium-headroom.jpg`) because the earlier file cut off at her hairline; on phones it sits under 40 px
+      of black with a shorter fade so her head stays clear. Swap in the full-resolution original before anything is final.
     - **On phones there is no split:** the photo sits below the text and fades in from black (a black-to-clear
       fade over the photo's top 42%), so the title and intro read on black and flow into the image.
 
