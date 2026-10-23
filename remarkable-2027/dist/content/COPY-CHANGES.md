@@ -63,3 +63,7 @@ Design-only revision. Event JSON and all event wording are unchanged. Added UI-o
 ## Arrow seam — October 23, 2026
 
 Design-only revision. Event JSON and all event wording are unchanged. Inner-page banner photos are decorative and carry empty alternative text.
+
+## Official-pattern tapestry and colour — October 23, 2026
+
+Design-only revision. Event JSON and all event wording are unchanged.

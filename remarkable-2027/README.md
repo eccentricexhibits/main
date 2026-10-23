@@ -8,7 +8,7 @@ Unzip the package and open `dist/index.html` in a browser. Home, Agenda, Speaker
 
 ## Visual direction
 
-The October 23, 2026 revision rebuilds the layout as a system of rounded rectangles: inset gradient opening panels, grey section panels, white cards and pill controls on one radius scale. Pixels follow one rule: they appear only where the official arrow cuts through a photo, and the photo breaks apart along the cut, on the home hero, every inner-page banner and the recap. See `HANDOFF.md` for details.
+The October 23, 2026 revision rebuilds the layout as a system of rounded rectangles: inset gradient opening panels, grey section panels, white cards and pill controls on one radius scale. Pixels follow one rule: they appear only where the official arrow cuts through a photo, as a tapestry of whole copies of the official Pixel Design, on the home hero, every inner-page banner and the recap. Turquoise and tangerine join magenta and cobalt in the tapestries, statistics and agenda. See `HANDOFF.md` for details.
 
 
 The hero keeps its diagonal photo split and official extended Vector arrow, with the tip touching the section top. All typography now uses the supplied Karbon family, including body text and controls.
@@ -25,7 +25,7 @@ Agenda, Speakers and FAQ place the event name above the page title, with date an
 - `dist/fonts/`: supplied OTFs and matching WOFF versions.
 - `dist/assets/brand-elements/vector-pixel-design.svg`: exact 34-cell block design from the supplied PDF.
 - `dist/assets/brand-elements/vector-arrow-compact.svg`: compact official arrow from the supplied PDF.
-- `dist/render.js`: shared renderer, arrow geometry, pixel seam and interactions.
+- `dist/render.js`: shared renderer, arrow geometry, official-pattern tapestry and interactions.
 - `dist/content/copy.json`: authoritative event copy.
 - `dist/content/copy.js`: generated offline copy.
 - `tools/sync-copy.py`: regenerates copy.js after JSON edits.

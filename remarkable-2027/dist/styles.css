@@ -36,6 +36,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 /* Chips, buttons and links: every control is a pill */
 .chip{display:inline-flex;align-items:center;gap:8px;width:fit-content;border-radius:99px;background:var(--line);padding:5px 12px;font-size:13px;font-weight:600;line-height:1.4;letter-spacing:.01em}
 .chip--magenta{background:var(--vi-magenta);color:white}
+.chip--dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--tone)}
+[data-tone=magenta]{--tone:var(--vi-magenta)}[data-tone=cobalt]{--tone:var(--vi-cobalt)}[data-tone=turquoise]{--tone:var(--vi-turquoise)}[data-tone=tangerine]{--tone:var(--vi-tangerine)}
 .btn{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-height:52px;border:1.5px solid transparent;border-radius:99px;padding:12px 16px 12px 24px;font-size:16px;font-weight:600;line-height:1.3;white-space:nowrap;transition:background .2s,color .2s,border-color .2s,transform .2s var(--ease)}
 .btn .ui-arrow{width:30px;height:30px;padding:6px;border-radius:50%;background:currentColor}
 .btn .ui-arrow path{stroke:var(--btn-fill)}
@@ -116,8 +118,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 .stats-caption{font:600 14px/1.4 var(--font-body);letter-spacing:.09em;text-transform:uppercase;margin-bottom:28px}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .stat{position:relative;background:white;border-radius:var(--radius-lg);padding:28px 28px 26px}
+.stat:nth-child(1){background:var(--vi-magenta)}
+.stat:nth-child(2){background:var(--vi-cobalt);color:white}
+.stat:nth-child(3){background:var(--vi-turquoise)}
+.stat:nth-child(4){background:var(--vi-tangerine)}
 .stat-value{font-family:var(--font-heading);font-size:clamp(56px,6vw,88px);font-weight:500;line-height:1;letter-spacing:-.05em}
-.stat-label{font-size:16px;color:var(--muted);margin-top:10px}
+.stat-label{font-size:16px;font-weight:500;margin-top:10px}
 
 /* Section heads */
 .section-head{display:flex;align-items:end;justify-content:space-between;gap:36px;margin-bottom:44px}
@@ -206,6 +212,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 /* Inner page banner */
 .page-header{padding-inline:var(--gutter)}
 .page-banner{max-width:1760px;margin-inline:auto;background:var(--event-gradient);color:white}
+.page-banner .seam-photo{object-position:25% 50%}
 .page-heading{display:flex;align-items:center;width:min(1280px,calc(100% + 2 * var(--gutter) - 96px));margin-inline:auto;min-height:380px;padding-block:56px}
 .page-copy{width:var(--copy-max);max-width:760px}
 .page-kicker{font:600 14px/1.4 var(--font-body);letter-spacing:.09em;text-transform:uppercase}
@@ -250,7 +257,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visi
 .session-speakers{font-size:14px;font-weight:600;margin-top:12px;color:var(--muted)}
 .session-place{display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-size:14px;text-align:right}
 .livestream{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:4px 12px;background:var(--vi-magenta);color:white;font-size:12px;font-weight:600}
-.livestream::before{content:"";width:7px;height:7px;border-radius:2px;background:white}
+.livestream::before{content:"";width:7px;height:7px;border-radius:50%;background:white}
 
 /* Speakers page */
 .profiles{display:flex;flex-direction:column;gap:16px}

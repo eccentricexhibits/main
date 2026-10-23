@@ -1,13 +1,28 @@
 # Remarkable 2027 — Rounded panels handoff
 
-Updated October 23, 2026 (rounded panels, then the arrow seam). Builds on the October 22, 2026 Karbon and pixels revision, from the supplied event package, brand guide, recap reference, Karbon Font archive and Symbol Compilation for Swoogo PDF.
+Updated October 23, 2026 (rounded panels, arrow seam, then official-pattern tapestry and colour). Builds on the October 22, 2026 Karbon and pixels revision, from the supplied event package, brand guide, recap reference, Karbon Font archive and Symbol Compilation for Swoogo PDF.
 
-## Current revision: the arrow seam
+## Current revision: official-pattern tapestry and colour
+
+Scope is the four Swoogo pages (Home, Agenda, Speakers, FAQ) on desktop and mobile. The email-banner fields left in `copy.json` from earlier concepts are untouched and unused.
+
+1. **Only the official Pixel Design.** Every pixel shape on the pages is now a whole copy of the Pixel Design in the Symbol Compilation for Swoogo PDF: the same 34 cells in the same arrangement, only scaled and coloured. Copies are never rotated, mirrored, cropped or broken apart, never overlap each other and never cross the cut where they would be seen. (Page 11 of the brand guide shows the pattern mirrored; the Swoogo PDF orientation is used.) The generated cells from the previous revision are gone.
+2. **Tapestry along the arrow.** The arrow-seam rule stays: pixels appear only where the arrow cuts a photo. A seeded stream of small copies hugs the cut and thins out away from it. Most are white, with turquoise and tangerine accents; white copies fade slightly with distance. On the photo side, about a quarter of the copies are knocked out of the photo to show the colour field. One larger tangerine copy sits over the top of the photo, away from the people in it. Copies may tuck under the arrow but never sit on copy text or the arrowhead.
+3. **More brand colour.** Turquoise (#48C0D9) and tangerine (#FF9E00) join magenta and cobalt:
+   - in the pixel tapestries (brand guide p.11 shows the pattern in every brand colour);
+   - in the four statistics tiles: magenta, cobalt, turquoise and tangerine, with black or white text chosen for at least 4.5:1 contrast;
+   - as session-format dots on the agenda: magenta for main-stage formats, cobalt for talks, turquoise for workshops and posters, tangerine for arrivals, breaks, meals and the reception.
+   Mixed gradient colours remain confined to the opening panels.
+4. **Banner photos** are framed from the left (`object-position: 25% 50%`) so people sit farther from the cut.
+
+The tapestry is drawn by `buildSeam` and `paintSeam` in `render.js`. `PIXEL_CELLS` holds the 34 cells from `vector-pixel-design.svg`; `TAPESTRY` holds the art-directed copy; the stream is seeded (`seededRandom(2027)`), so it is identical on every visit and rescales with the panel. Each seam panel declares `data-palette` for its copy colours.
+
+## Previous revision: the arrow seam
 
 The pixel motif now follows one rule taken from the brand references, where pixels always travel with arrows: **pixels appear only where the official arrow cuts through a photo, and the photo breaks apart along that cut.** The free-standing pixel clusters, stair-step markers and heading accents are gone.
 
 - **Where it appears.** Three places share the same construction of colour field, photo, arrow and pixel seam: the home hero (gradient), every inner-page banner (gradient, with a page photo: Agenda `stage-fireside-chat.jpg`, Speakers `audience-listening.jpg`, FAQ `registration-desk.jpg`) and the recap block (cobalt). Content sections between them stay clean.
-- **How the cells behave.** All cells sit on one square grid sized from the panel height (12-24 px). On the photo side, cells within about three cells of the arrow are knocked out of the image and show the colour field through it. On the open side, broken-off cells thin out with distance and favour steps up and to the right, like the Pixel Design and the arrow. Cells near the cut take colours sampled from the photo; farther out they become fading white. Cells keep 14 px clear of all copy, buttons and the photo caption. Cell choice is seeded by grid position, so the pattern is stable and redraws without reshuffling on resize.
+- **How the cells behaved (replaced).** All cells sat on one square grid sized from the panel height (12-24 px). On the photo side, cells within about three cells of the arrow are knocked out of the image and show the colour field through it. On the open side, broken-off cells thin out with distance and favour steps up and to the right, like the Pixel Design and the arrow. Cells near the cut take colours sampled from the photo; farther out they become fading white. Cells keep 14 px clear of all copy, buttons and the photo caption. Cell choice is seeded by grid position, so the pattern is stable and redraws without reshuffling on resize.
 - **Motion.** Cells grow outward from the cut over about one second the first time each panel scrolls into view. With reduced motion they appear immediately.
 - **Mobile.** The hero and recap keep the photo, so the full seam runs on phones. Inner-page banners hide their photo on phones and keep the small top-right arrow, so only the white broken-off cells remain beside it.
 - **Implementation.** `render.js` draws each seam on a `<canvas class="seam-pixels">` between the photo and the arrow (`buildSeam`, `paintSeam`, `wireSeams`). Each seam panel declares its split position (`data-split`) and colour field (`data-field`, either a gradient's two stops or a solid colour). Photo colours are taken by drawing the image into a small canvas, so the effect never reads pixel data and works from the local folder. In Swoogo, keep the photo, canvas and arrow stacking order and the shared arrow geometry.
