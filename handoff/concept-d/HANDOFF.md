@@ -39,7 +39,7 @@ split screen: a photo on the right half, cut along the extended magenta arrow (b
 | `brand/tokens.css` | The only colours, gradients and fonts allowed, plus the Karbon `@font-face` rules. |
 | `content/copy.json` | All copy. Never hard-code copy in the concept. It also holds keys used only by the other concepts (`banner`, `hero.anniversary_slot`, `hero.anniversary_mark`); leave them. |
 | `content/COPY-CHANGES.md` | Where every line of copy came from, every edit, and what is placeholder or fictitious. It covers all four concepts. |
-| `assets/` | Only what D uses: the white Vector logo (and the colour one for the PDF cover), the magenta Vector arrow and the extended arrow, 15 photos from 2026, 6 stock speaker portraits, funder logos, social icons. |
+| `assets/` | Only what D uses: the white Vector logo (and the colour one for the PDF cover), the magenta Vector arrow and the extended arrow, 16 photos from 2026 (5 picked from the full event set), 6 stock speaker portraits, funder logos, social icons. |
 | `fonts/` | Karbon Regular, Medium and Semibold (D uses Semibold). |
 | `mockups/shared/render.js` | The renderer: loads `copy.json` and builds the nav, page content and footer for `<body data-page="home\|agenda\|speakers\|faq">`. |
 | `mockups/shared/base.css` | Shared structure, grids and responsive rules. |
@@ -132,13 +132,24 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
      symbol.
    - **The previous hero is kept on file:** the full-width REMARKABLE 2027 above the tagline and a rounded photo
      with the arrow on its corner. `const D_HERO = "stage"` in `concept.js` brings it back (checked
-     pixel-identical to the archived PNGs in `exports/archive/`).
+     the archived PNGs in `exports/archive/` show exactly what it renders).
+   - **Photos (Oct 23, 2026):** the requester supplied the full 2026 event set (925 small JPEGs, 600 × 400 or 400 × 600)
+     and asked for the most dynamic shots everywhere except the photo carousel and the recap video. Chosen, with the
+     original file names so full-resolution versions can be swapped in:
+     - Home hero: `stage-speaker-gesture.jpg` (ER629159), a speaker mid-gesture on the REMARKABLE stage.
+     - Home, beside the two days: `speaker-arm-raised.jpg` (ER629379), a presenter raising an arm by a Vector banner.
+     - Agenda header: `audience-question.jpg` (ER629116), an attendee asking a question into a mic.
+     - Speakers header: `fireside-guest-gesture.jpg` (ER626921-2), a fireside guest mid-gesture against magenta.
+     - FAQ header: `registration-lanyard.jpg` (EBR66841), an attendee laughing with her lanyard at registration.
+     These are the small files, enlarged up to 1.75× in the hero, so they're slightly soft: **replace them with the
+     full-resolution originals** (same file names in `assets/photos-2026/`) before anything is final. The previous
+     ("stage") hero keeps its earlier photo, `auditorium-fireside-screens.jpg`.
    - The agenda shows **one day at a time**: Day 2 is in the page but hidden until its tab is clicked.
    - **Inner-page headers (Agenda, Speakers, FAQ) are a split screen** on desktop, after brand guide p. 6 ("Brand
      Narrative"): black with the title and intro on the left, a 2026 photo on the right cut along the extended
      magenta arrow, whose tip touches the top edge of the section and whose tail runs off the bottom. The split
-     starts 60 px left of centre. Photos: Agenda, a speaker in front of the Remarkable backdrop; Speakers, a speaker
-     at the Vector podium; FAQ, attendees talking at a poster (none of them used in B's headers).
+     starts 60 px left of centre. Photos: Agenda, an attendee asking a question; Speakers, a fireside guest
+     mid-gesture; FAQ, an attendee at registration (see the photos note below).
    - **On phones there is no split:** the photo sits below the text and fades in from black (a black-to-clear
      fade over the photo's top 42%), so the title and intro read on black and flow into the image.
 

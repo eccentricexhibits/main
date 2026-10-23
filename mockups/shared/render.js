@@ -34,6 +34,11 @@ const PHOTO_ALT = {
   "stage-remarkable-backdrop.jpg": "Speaker presenting in front of the Remarkable backdrop",
   "workshop-room.jpg": "Attendees seated in a full workshop room",
   "workshop-speaker-smiling.jpg": "Smiling workshop presenter at Remarkable 2026",
+  "stage-speaker-gesture.jpg": "Speaker gesturing to the audience on the Remarkable 2026 main stage",
+  "speaker-arm-raised.jpg": "Presenter raising an arm mid-talk beside a Vector Institute banner",
+  "audience-question.jpg": "Attendee asking a question into a microphone from a packed audience",
+  "fireside-guest-gesture.jpg": "Fireside chat guest gesturing as he talks on the Remarkable stage",
+  "registration-lanyard.jpg": "Attendee laughing as she puts on her Remarkable lanyard at registration",
 };
 
 const PAGES = { Home: "index.html", Agenda: "agenda.html", Speakers: "speakers.html", FAQ: "faq.html" };
