@@ -212,7 +212,8 @@ Magenta "2027" on black is 4.9:1; secondary grey text on black (`#bdbdbd`) is 11
   fade over its top.
   The photo is clipped to a line parallel to the arrow's shaft, measured from `vector-arrow-extended-magenta.svg`
   (it leans right 0.4017 per unit of height).
-- **`after()`** adds the photo to the grey days band and wraps a trailing "+" on stats in a magenta span; neither
+- **`after()`** adds the photo to the grey days band (cropped at `object-position: 80% 50%` so the two
+  fireside speakers are centred in its tall desktop frame) and wraps a trailing "+" on stats in a magenta span; neither
   is in the shared markup.
 - The speakers teaser continues the grey band; its divider is a `::before` on the container so it matches the
   content width.
