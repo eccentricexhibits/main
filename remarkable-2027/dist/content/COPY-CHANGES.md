@@ -59,3 +59,7 @@ Per the requester, removed visible internal-preview, fictitious-speaker, sample-
 ## Rounded panels — October 23, 2026
 
 Design-only revision. Event JSON and all event wording are unchanged. Added UI-only labels: “Topics” above the FAQ topic list. The date and venue now appear as pills inside the opening panels rather than in a strip below the hero.
+
+## Arrow seam — October 23, 2026
+
+Design-only revision. Event JSON and all event wording are unchanged. Inner-page banner photos are decorative and carry empty alternative text.
