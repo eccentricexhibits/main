@@ -3,11 +3,8 @@
    but the structure, copy and type sizes follow the shared four-page layout like A, B and C. */
 
 const D_ARROW = "assets/brand-elements/vector-arrow-magenta.svg";
-// Event photos chosen from the full 2026 set for energy (small 600 px JPEGs for now; swap in full-resolution
-// originals, listed in HANDOFF.md, before anything is final)
-const D_HERO_PHOTO = "assets/photos-2026/stage-speaker-gesture.jpg";
-const D_STAGE_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg"; // the previous ("stage") hero keeps its photo
-const D_DAYS_PHOTO = "assets/photos-2026/speaker-arm-raised.jpg";
+const D_HERO_PHOTO = "assets/photos-2026/auditorium-fireside-screens.jpg";
+const D_DAYS_PHOTO = "assets/photos-2026/stage-fireside-chat.jpg";
 const D_HERO = "split"; // home hero: "split" (current) or "stage" (the previous version, kept on file)
 // Split hero frame: 700 px tall; the photo's edge meets the bottom 70 px into the frame. The frame's width follows the
 // screen (see after()), so the arrow keeps its full height and the photo its edge at any width.
@@ -17,10 +14,9 @@ let dArrowSplit = null; // the shared arrowSplit helper, kept by heroSplit for a
 // below the text instead, faded in from black. Not the photos B uses.
 const D_PAGE_PHOTOS = {
   // align: the desktop crop (agenda keeps the speaker clear of the edge); phone: the phone crop (object-position)
-  // xMinYMid: show the photo's left side, so subjects near its left edge stay clear of the arrow
-  agenda: { src: "assets/photos-2026/audience-question.jpg", align: "xMinYMid", phone: "50% 30%" },
-  speakers: { src: "assets/photos-2026/fireside-guest-gesture.jpg", align: "xMinYMid", phone: "30% 30%" },
-  faq: { src: "assets/photos-2026/registration-lanyard.jpg", phone: "50% 30%" },
+  agenda: { src: "assets/photos-2026/stage-remarkable-backdrop.jpg", align: "xMaxYMid", phone: "65% 50%" },
+  speakers: { src: "assets/photos-2026/speaker-at-podium.jpg", phone: "50% 0%" }, // her face is near the top
+  faq: { src: "assets/photos-2026/posters-discussion.jpg", phone: "50% 20%" },
 };
 
 /* Home hero, "stage" (previous, kept on file): the full-width REMARKABLE 2027 wordmark above the tagline and a
@@ -43,7 +39,7 @@ function heroStage(copy, h) {
         <p class="small-print">${h.esc(hero.small_print)}</p>
       </div>
       <div class="d-hero__media">
-        <img class="d-hero__photo" src="${h.asset(D_STAGE_PHOTO)}" alt="${h.esc(h.photoAlt(D_STAGE_PHOTO))}">
+        <img class="d-hero__photo" src="${h.asset(D_HERO_PHOTO)}" alt="${h.esc(h.photoAlt(D_HERO_PHOTO))}">
         <img class="d-arrow" src="${h.asset(D_ARROW)}" alt="">
       </div>
     </div>
@@ -75,7 +71,7 @@ function heroSplit(copy, h) {
           <p class="small-print">${h.esc(hero.small_print)}</p>
         </div>
       </div>
-      <div class="d-sh__split">${h.arrowSplit({ W: 820, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO, align: "xMinYMid" }], touchTop: true })}</div>
+      <div class="d-sh__split">${h.arrowSplit({ W: 820, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO }], touchTop: true })}</div>
     </div>
     <div class="d-fade d-sh__fade"><img src="${h.asset(D_HERO_PHOTO)}" alt="${h.esc(h.photoAlt(D_HERO_PHOTO))}"></div>
     <div class="container">
@@ -117,7 +113,7 @@ window.CONCEPT = {
         const r = split.getBoundingClientRect();
         if (!r.height) return; // phones: the split is hidden
         const W = Math.round((r.width * D_SPLIT.H) / r.height);
-        split.innerHTML = dArrowSplit({ W, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO, align: "xMinYMid" }], touchTop: true });
+        split.innerHTML = dArrowSplit({ W, H: D_SPLIT.H, seam: D_SPLIT.seam, photos: [{ src: D_HERO_PHOTO }], touchTop: true });
       };
       fit();
       window.addEventListener("resize", fit);
@@ -125,7 +121,7 @@ window.CONCEPT = {
     // Photo beside the two day panels (the grey "program" band of the design)
     document.querySelector(".days .container").insertAdjacentHTML(
       "afterbegin",
-      `<img class="d-days__photo" src="../../${D_DAYS_PHOTO}" alt="Presenter raising an arm mid-talk beside a Vector Institute banner">`
+      `<img class="d-days__photo" src="../../${D_DAYS_PHOTO}" alt="Two speakers in a fireside chat in front of the Remarkable backdrop">`
     );
     // A trailing "+" on a stat is set in magenta (solid colour, never gradient)
     document.querySelectorAll(".stat__value").forEach((el) => {

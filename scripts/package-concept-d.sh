@@ -30,9 +30,8 @@ FILES=(
   assets/speakers/stock-headshot-0{1,2,3,4,5,6}.jpg
   assets/photos-2026/{attendees-group-photo,audience-listening,auditorium-crowd,auditorium-fireside-screens}.jpg
   assets/photos-2026/{auditorium-wide-stage,executive-breakfast-networking,executive-breakfast-panel}.jpg
-  assets/photos-2026/{networking-hallway,posters-conversation,registration-desk,workshop-room}.jpg
-  # Photos picked from the full 2026 set (hero, days band, page headers); the previous hero's photo stays for D_HERO = "stage"
-  assets/photos-2026/{stage-speaker-gesture,speaker-arm-raised,audience-question,fireside-guest-gesture,registration-lanyard}.jpg
+  assets/photos-2026/{networking-hallway,posters-conversation,registration-desk,stage-fireside-chat,workshop-room}.jpg
+  assets/photos-2026/{stage-remarkable-backdrop,speaker-at-podium,posters-discussion}.jpg
   sources/Vector_BrandGuidelines_6.29.26.pdf sources/Remarkable_2027_Current_Website_copy.docx
   sources/concept-d-design   # (the AI Summit 2026 page reference stays in the full package, to keep this zip under 25 MB)
 )
