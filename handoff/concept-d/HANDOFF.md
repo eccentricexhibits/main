@@ -4,7 +4,7 @@ This package holds **one** design concept for the Remarkable 2027 registration s
 and everything needed to review, discuss or rebuild it. It was cut from a larger project with four concepts
 (A, B, C and D); A–C and their material aren't included. Read this file in full before changing anything.
 
-Last updated: October 22, 2026.
+Last updated: October 23, 2026.
 
 ---
 
@@ -101,7 +101,8 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
      with the magenta arrow on its corner, gradient rules under black bands, Karbon headings with tight
      tracking, square-cornered magenta buttons with black labels and a north-east arrow, underlined text-link
      secondary buttons, the grey program band (photo left, days right), stats with dividers and a magenta "+",
-     a black photo band, magenta plus/minus FAQ icons and a black footer.
+     a black photo band, magenta plus/minus FAQ icons and a black footer. (The hero and the text-link secondary
+     button were later replaced; see 10.)
    - Replaced: every line of copy (all from `copy.json`), the page structure (four pages), the speakers (the
      chat had "to be announced"), the photos (the chat had a three-photo grid and no recap video), the footer,
      and the type sizes (the chat had 12–15 px body text and 8–11 px captions).
@@ -109,12 +110,13 @@ overflow. Still **open every PNG and look at it**: the checks don't catch overla
      comes next" band and the When/Where labels (copy that isn't ours), the "01 / …" section eyebrows, photo
      captions, and the registration and gallery pop-ups. Photos use the brand's 16 px corners, not 8 px.
 10. **Refinements from the requester's review:**
-   - REMARKABLE and 2027 are **one size (145 px), side by side on one baseline**, filling the 1200 px column
-     (stacked on mobile).
-   - **The hero fits one 1440 × 900 screen** (nav, hero and gradient rule end at 893 px): 96 px between the
-     wordmark and the tagline/photo, a 116 px arrow, a 312 px photo (the height of the tagline column beside
-     it).
-   - Button labels are **optically centred**, with the arrow on the same centre line.
+   - (Previous hero, now kept on file) REMARKABLE and 2027 at one size (145 px), side by side, filling the
+     1200 px column; it fit one 1440 × 900 screen with a 312 px photo.
+   - **The home hero fits one 1440 × 900 screen**: the split hero, its dates row and the gradient rule end at
+     896 px.
+   - Button labels are **optically centred**, with the arrow on the same centre line. **"Join virtually" is the
+     same button as "Register in person"**, black with a white outline (it replaced an underlined text link);
+     on phones the two stack at one shared width.
    - **No 10th-anniversary mark** in D, and **no Hilton logo** (both tried, then removed at the requester's
      request).
    - "Remarkable 2026 by the numbers" is a **section heading** (40 px desktop / 28 px mobile).
