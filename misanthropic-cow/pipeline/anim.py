@@ -163,12 +163,23 @@ class Dance:
                 best = np.minimum(best, D.udder_sdf(q))
         return best
 
-    def arm_cost(self, G, sh, elbow, wrist):
-        u = np.linspace(.30, 1, 6)[:, None]
-        pu = sh + (elbow - sh) * u
+    def arm_samples(self, sh, elbow, wrist):
+        pu = sh + (elbow - sh) * np.linspace(.30, 1, 6)[:, None]
         pf = elbow + (wrist - elbow) * np.linspace(0, 1, 7)[:, None]
-        d = self.clearance(G, np.vstack([pu, pf]))
-        r = np.r_[np.full(len(pu), .074), np.full(len(pf), .062)]
+        return np.vstack([pu, pf])
+
+    def arm_cost(self, G, sh, elbow, wrist):
+        d = self.clearance(G, self.arm_samples(sh, elbow, wrist))
+        r = np.r_[np.full(6, .074), np.full(7, .062)]
+        # the relaxed arms already rest against the padded body: only count contact deeper than at rest
+        side = 'L' if sh[0] > 0 else 'R'
+        if not hasattr(self, '_rest_clear'):
+            Gb = np.tile(np.eye(4), (RG.NB, 1, 1)); Gb[:, :3, 3] = self.B
+            self._rest_clear = {}
+            for sd in 'LR':
+                a = RG.ARM[sd]
+                self._rest_clear[sd] = self.clearance(Gb, self.arm_samples(self.B[a['upper']], self.B[a['fore']], self.B[a['hand']]))
+        r = np.minimum(r, self._rest_clear[side])
         return float(np.sum(np.maximum(0, r - d) ** 2))
 
     def solve_swivel(self, fps=FPS):
@@ -242,6 +253,23 @@ class Dance:
                     G[j, :3, :3] = align(Rc @ self.teat_dir[j], dyn['teat'][j]) @ Rc
         at(RG.NECK, RG.CHEST, Rc @ euler(p['neck']))
         at(RG.HEAD, RG.NECK, G[RG.NECK, :3, :3] @ euler(p['head']))
+        # legs first, so a hand can be placed relative to a knee
+        for side in 'LR':
+            L = RG.LEG[side]
+            hip = G[RG.HIPS, :3, :3] @ (B[L['thigh']] - B[RG.HIPS]) + G[RG.HIPS, :3, 3]
+            ft = (p.get('feet') or {}).get(side)
+            if ft is None:
+                ankle, Rfoot = B[L['foot']].copy(), np.eye(3)
+            else:
+                ankle = np.asarray(ft['pos'], float)
+                Rfoot = rot([0, 1, 0], ft.get('yaw', 0.)) @ rot([1, 0, 0], ft.get('pitch', 0.))
+            l1 = np.linalg.norm(B[L['shin']] - B[L['thigh']]); l2 = np.linalg.norm(B[L['foot']] - B[L['shin']])
+            knee_dir = np.asarray((ft or {}).get('knee', (0, -.35, .8)), float)   # (0, .8, .35) for knees up when seated
+            knee_pole = hip + rot([0, 1, 0], (ft or {}).get('yaw', 0.)) @ knee_dir
+            knee, ankle = ik(hip, ankle, l1, l2, knee_pole)
+            for j, st, en, rest in [(L['thigh'], hip, knee, B[L['shin']] - B[L['thigh']]), (L['shin'], knee, ankle, B[L['foot']] - B[L['shin']])]:
+                G[j, :3, :3] = align(rest, en - st); G[j, :3, 3] = st
+            G[L['foot'], :3, :3] = Rfoot; G[L['foot'], :3, 3] = ankle
         arm_in = {}
         for side, s in [('L', 1), ('R', -1)]:
             a = RG.ARM[side]
@@ -266,6 +294,16 @@ class Dance:
             else:
                 target = Rc @ (p['hand'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
                 pole = Rc @ (p['pole'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
+            if side in p.get('hand_joint', {}):
+                # hand placed on a joint (e.g. resting on a knee): (joint, world offset, world pole, weight)
+                j, off, pole_w, w = p['hand_joint'][side]
+                target = target * (1 - w) + (G[j, :3, 3] + off) * w
+                pole = pole * (1 - w) + np.asarray(pole_w, float) * w
+            if side in p.get('hand_world', {}):
+                # world-space hand target (e.g. a hoof on the floor), blended in by world_w
+                w = p.get('world_w', {}).get(side, 1.)
+                target = target * (1 - w) + np.asarray(p['hand_world'][side], float) * w
+                pole = pole * (1 - w) + np.asarray(p['pole_world'][side], float) * w
             arm_in[side] = (sh, target, l1, l2, pole)
             elbow, wrist = ik(sh, target, l1, l2, pole, self.swivel_at(t, side))
             bu = B[a['fore']] - B[a['upper']]; bf = B[a['hand']] - B[a['fore']]
@@ -305,21 +343,6 @@ class Dance:
         for j, parent in zip(RG.SHAG, RG.SHAG_PARENTS):
             pi = RG.NAMES.index(parent)
             at(j, pi, G[pi, :3, :3])
-        for side in 'LR':
-            L = RG.LEG[side]
-            hip = G[RG.HIPS, :3, :3] @ (B[L['thigh']] - B[RG.HIPS]) + G[RG.HIPS, :3, 3]
-            ft = (p.get('feet') or {}).get(side)
-            if ft is None:
-                ankle, Rfoot = B[L['foot']].copy(), np.eye(3)
-            else:
-                ankle = np.asarray(ft['pos'], float)
-                Rfoot = rot([0, 1, 0], ft.get('yaw', 0.)) @ rot([1, 0, 0], ft.get('pitch', 0.))
-            l1 = np.linalg.norm(B[L['shin']] - B[L['thigh']]); l2 = np.linalg.norm(B[L['foot']] - B[L['shin']])
-            knee_pole = hip + rot([0, 1, 0], (ft or {}).get('yaw', 0.)) @ np.array([0, -.35, .8])
-            knee, ankle = ik(hip, ankle, l1, l2, knee_pole)
-            for j, st, en, rest in [(L['thigh'], hip, knee, B[L['shin']] - B[L['thigh']]), (L['shin'], knee, ankle, B[L['foot']] - B[L['shin']])]:
-                G[j, :3, :3] = align(rest, en - st); G[j, :3, 3] = st
-            G[L['foot'], :3, :3] = Rfoot; G[L['foot'], :3, 3] = ankle
         if solve:
             return G, arm_in
         return G
@@ -346,6 +369,9 @@ class Dance:
         springs = {RG.BELLY: (110., 9., .55, .020), RG.UDDER['L']: (150., 8., .6, .016), RG.UDDER['R']: (150., 8., .6, .016)}
         for j in RG.SHAG:
             springs[j] = (70., 5.5, .9, .022)
+        # heavier clips (the alt set) use softer, slower springs that swing a little further
+        ks, gs = getattr(self, 'spring_k', 1.), getattr(self, 'spring_gain', 1.)
+        springs = {j: (k * ks, c * np.sqrt(ks), g * gs, lim * gs) for j, (k, c, g, lim) in springs.items()}
         base = [self.pose(t) for t in tt]
         trans_hist = {}
         for j, (k, c, gain, lim) in springs.items():
@@ -380,7 +406,7 @@ class Dance:
                         q = b0 + dvec * L * frac
                         qb = (q - g[RG.SPINE, :3, 3]) @ g[RG.SPINE, :3, :3] + self.B[RG.SPINE]
                         dist = D.torso_sdf(qb[None])[0]
-                        need = .013
+                        need = .017          # teat radius (~1.5 cm) plus a little
                         if dist < need:
                             e = 1e-3
                             grad = np.array([D.torso_sdf((qb + dd)[None])[0] - D.torso_sdf((qb - dd)[None])[0] for dd in np.eye(3) * e]) / (2 * e)

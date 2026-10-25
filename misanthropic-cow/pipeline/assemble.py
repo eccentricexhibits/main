@@ -34,9 +34,11 @@ def tinted_tile(tile, colour):
     return np.clip(t * np.asarray(colour), 0, 1)
 
 
-def tuft_cards(v, f, n, m, cells, density=1.6e3, seed=7):
-    """Hanging tuft cards (alpha-cut photos of black shag tufts) rooted on the patch areas.
-    Each card hangs down along the surface and lifts away from it toward the tip.
+def tuft_cards(v, f, n, m, cells, density=3.0e3, seed=7):
+    """Hanging lock cards (alpha-cut photos of long black shag locks) rooted on the patch areas.
+    Each card lies along the surface, hanging down, and only its tip lifts a few millimetres, so
+    the overlapping locks read as one shaggy mat rather than as separate scales or feathers.
+    A small random roll about the hang direction keeps neighbouring locks from lining up flat.
     Returns verts, faces, normals, uv, t-along (0 root..1 tip), card id, roots, source face, barycentrics."""
     rng = np.random.default_rng(seed)
     a, b, c = v[f[:, 0]], v[f[:, 1]], v[f[:, 2]]
@@ -55,20 +57,22 @@ def tuft_cards(v, f, n, m, cells, density=1.6e3, seed=7):
     hang[bad] = np.cross(nr[bad], [1, 0, 0])
     hang /= np.linalg.norm(hang, axis=1, keepdims=True)
     side = np.cross(nr, hang)
+    roll = rng.normal(0, .22, count)
+    side_r = side * np.cos(roll)[:, None] + nr * np.sin(roll)[:, None]
     cell = rng.integers(0, len(cells), count)
     C = np.asarray(cells)[cell]
     aspect = (C[:, 3] - C[:, 1]) / (C[:, 2] - C[:, 0])
-    L = rng.uniform(.040, .062, count)
+    L = rng.uniform(.050, .076, count)
     W = L / aspect
     flip = rng.random(count) < .5
     segs = 3
     ts = np.linspace(0, 1, segs + 1)
     verts, uvs = [], []
     for t in ts:
-        lift = .010 + .022 * t * t            # tip lifts off the fur
-        ctr = root + hang * (L * t)[:, None] + nr * (lift - .006)
+        lift = -.002 + .011 * t ** 1.5          # root tucked into the pile, tip lifts slightly
+        ctr = root + hang * (L * t)[:, None] + nr * lift
         for sgn in (-1, 1):
-            verts.append(ctr + side * (sgn * W / 2)[:, None])
+            verts.append(ctr + side_r * (sgn * W / 2)[:, None])
             uu = np.where(flip, 1 - (sgn + 1) / 2, (sgn + 1) / 2)
             uvs.append(np.stack([C[:, 0] + uu * (C[:, 2] - C[:, 0]), C[:, 1] + t * (C[:, 3] - C[:, 1])], 1))
     V = np.stack(verts, 1).reshape(-1, 3)
@@ -126,8 +130,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     for k in range(3):
         sel = piece == k
         m_face[sel] = T.shag_mask(cen[sel], allowed[k])
-    atlas_png, cells = T.tuft_atlas(Path(__file__).resolve().parent.parent / 'textures' / 'black_shag_tufts_sheet.png')
-    sv2, sf2, sn2, tuv, tco, sid, roots, rface, rbc = tuft_cards(sv, sf, sn, m_face, cells, density=(.9e3 if quick else 1.6e3))
+    atlas_png, cells = T.tuft_atlas(Path(__file__).resolve().parent.parent / 'textures' / 'black_shag_locks_sheet.png')
+    sv2, sf2, sn2, tuv, tco, sid, roots, rface, rbc = tuft_cards(sv, sf, sn, m_face, cells, density=(1.7e3 if quick else 3.0e3))
     # strand roots follow the face they grew from; tips swing with that piece's own patch spring bone
     W_root = np.einsum('ij,ijk->ik', rbc, W_suit[sf[rface]])
     pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
@@ -141,7 +145,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[patch[sid]]] = 1
     W_strand = W_strand * (1 - k) + tipw * k
     tuft_img = model.add_image(atlas_png, 'image/png')
-    shag_mat = model.add_material({'name': 'Black_shag_tuft_cards', 'doubleSided': True, 'alphaMode': 'MASK', 'alphaCutoff': .42,
+    shag_mat = model.add_material({'name': 'Black_shag_tuft_cards', 'doubleSided': True, 'alphaMode': 'MASK', 'alphaCutoff': .35,
                                    'pbrMetallicRoughness': {'baseColorTexture': {'image': tuft_img, 'texCoord': 0},
                                                             'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 0, 'roughnessFactor': .6},
                                    'extensions': SHEEN(.05, .5)})

@@ -17,8 +17,8 @@ SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-
 
 def arm_points(s, d=None):
     d = d or {}
-    sh = np.array([s * .172, 1.335, -.032])
-    up_angle = np.deg2rad(d.get('arm_abduction', 17.0))
+    sh = np.array([s * .172, 1.320, -.032])
+    up_angle = np.deg2rad(d.get('arm_abduction', 18.0))
     elbow = sh + .275 * np.array([s * np.sin(up_angle), -np.cos(up_angle), .07])
     fa = np.deg2rad(d.get('forearm_abduction', 11.0))
     wrist = elbow + .232 * np.array([s * np.sin(fa), -np.cos(fa), .30])
@@ -45,7 +45,10 @@ for s, side in [(1, 'L'), (-1, 'R')]:
 HEAD_CENTER = np.array([0, 1.525, -.005])
 MASK_SCALE = .75           # scanned mask -> real size (0.21 m wide)
 MASK_OLD_ANCHOR = np.array([0, 1.73, .070])     # eye height on the mask's back plane (v09 units)
-MASK_NEW_ANCHOR = np.array([0, 1.512, .080])
+# The mask, its horn tube and horns move as one rigid piece.  MASK_SEAT pushes that piece back
+# onto the hood so its rim sits on the cheeks instead of floating in front of the face.
+MASK_SEAT = np.array([0, 0, -.025])
+MASK_NEW_ANCHOR = np.array([0, 1.512, .080]) + MASK_SEAT
 
 
 
@@ -55,11 +58,37 @@ def mask_transform(v):
 
 # The fur-covered cardboard tube that joins the two horns across the top of the head
 # (v09's "crown block" stood in for it). Horns keep their scanned positions at its ends.
-TUBE_C_SCAN = np.array([0, 1.6325, .0615])     # where the scanned horns expect the tube
-TUBE_C = np.array([0, 1.640, .040])            # rests on the mask's top edge (it is part of the mask)
+TUBE_C_SCAN = np.array([0, 1.6325, .0615]) + MASK_SEAT     # where the scanned horns expect the tube
+TUBE_C = np.array([0, 1.640, .040]) + MASK_SEAT            # rests on the mask's top edge (part of the mask)
 HORN_SHIFT = TUBE_C - TUBE_C_SCAN
 TUBE_HALF, TUBE_R = .066, .037
-MASK_BACK_Z = .080          # the scanned mask shell's back plane after mask_transform
+MASK_BACK_Z = .080 + MASK_SEAT[2]     # the scanned mask shell's back plane (its rim) after mask_transform
+# Outline of the mask rim in the XY plane, as a polar radius around MASK_RIM_C (Fourier fit of the
+# scanned shell's outermost rim points, rms error 1.3 mm): [a0, cos1, sin1, cos2, sin2, ...]
+MASK_RIM_C = np.array([0, 1.4775])
+MASK_RIM_F = [.1115, .0007, .0055, -.0076, .0014, -.001, -.0024, -.0025, .0003, -.0007, -.0058, -.0015, .0005]
+
+
+def mask_rim_radius(theta):
+    r = np.full_like(theta, MASK_RIM_F[0])
+    for k in range(1, (len(MASK_RIM_F) - 1) // 2 + 1):
+        r += MASK_RIM_F[2 * k - 1] * np.cos(k * theta) + MASK_RIM_F[2 * k] * np.sin(k * theta)
+    return r
+
+
+def hood_face(p):
+    """The hood's padded face opening: fills the mask's outline so the rim rests on fur all the way
+    round.  Just inside the rim it is 2 mm inside the outline; its rounded front edge tucks ~3 mm into
+    the shell, well clear of the inner wall; behind the rim it tapers back into the head."""
+    q = p[..., :2] - MASK_RIM_C
+    r = np.linalg.norm(q, axis=-1)
+    R = mask_rim_radius(np.arctan2(q[..., 1], q[..., 0]))
+    u = (MASK_BACK_Z + .003) - p[..., 2]            # depth behind the front face of the fill
+    front = np.clip(1 - u / .009, 0, 1)
+    back = np.clip((u - .009) / .075, 0, 1)
+    inset = .002 + .012 * front ** 2 + .055 * back ** 2
+    d = r - (R - inset)
+    return np.maximum(d, np.maximum(-u, u - .09))
 
 
 # ------------------------------------------------------------------ fur suit + hood
@@ -86,12 +115,15 @@ def suit_parts(p, torso_only=False):
     x, z = p[..., 0], p[..., 2]
     hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2
     torso = S.smax(torso, hem - p[..., 1], .08)
-    out['torso'] = torso
+    out['torso'] = torso          # the trunk: what the arms are kept clear of
     if torso_only:
         return out
+    out['torso'] = with_deltoids(p, torso)
     for s, side in [(1, 'L'), (-1, 'R')]:
         sh, el, wr = arm_points(s)
-        upper = S.round_cone(p, sh, el, .070, .060)
+        # a narrow round head that turns inside the shoulder cap, widening to the upper arm below it
+        mid = sh + .10 * (el - sh) / np.linalg.norm(el - sh)
+        upper = S.smin(S.round_cone(p, sh, mid, .056, .066), S.round_cone(p, mid, el, .066, .060), .02)
         fore = S.round_cone(p, el, wr, .059, .048)
         arm = S.smin(upper, fore, .025)
         d = (wr - el) / np.linalg.norm(wr - el)
@@ -102,17 +134,39 @@ def suit_parts(p, torso_only=False):
     head = S.ellipsoid(p, (0, 1.523, -.022), (.094, .124, .112))
     hood_neck = S.round_cone(p, (0, 1.355, -.030), (0, 1.47, -.022), .060, .064)
     hood = S.smin(head, hood_neck, .04)
-    hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z - .004), .008)   # behind the mask
+    hood = S.smin(hood, hood_face(p), .03)
+    hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z + .003), .004)   # ends just inside the mask shell
     # the fur-covered tube that carries the horns is part of the mask, resting on its top edge
     out['tube'] = S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)
     out['hood'] = hood
     return out
 
 
+def deltoid(p, s):
+    """Padded shoulder: the torso garment rounds over the top and outside of the sleeve head, so
+    the arm grows out of the body rather than plugging into it.  It is a ball centred on the
+    shoulder pivot and the sleeve head is a smaller ball on the same centre, so however the arm
+    swings, the sleeve turns inside the cap like a ball in a socket and never pokes through it.
+    Only the outer half: the armpit side stays open so it cannot web."""
+    sh, el, _ = arm_points(s)
+    du = (el - sh) / np.linalg.norm(el - sh)
+    out_dir = s * np.array([-du[1], du[0], 0.])      # perpendicular to the arm, outward/up
+    out_dir = out_dir / np.linalg.norm(out_dir)
+    cap = S.sphere(p, sh, .071)
+    return S.smax(cap, -((p - sh) @ out_dir + .015), .025)
+
+
+def with_deltoids(p, torso):
+    for s in SIDES:
+        torso = S.smin(torso, deltoid(p, s), .065)
+    return torso
+
+
 def suit_sdf(p):
-    """The torso garment only.  Sleeves are separate tubes set into the shoulder (as the costume is
-    sewn), so the chest never fuses with the inner arm; the hood and the horn tube are separate too."""
-    return torso_sdf(p)
+    """The torso garment only (with its shoulder caps).  Sleeves are separate tubes set into the
+    shoulder (as the costume is sewn), so the chest never fuses with the inner arm; the hood and the
+    horn tube are separate too."""
+    return with_deltoids(p, torso_sdf(p))
 
 
 def hood_sdf(p):

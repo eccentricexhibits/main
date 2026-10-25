@@ -126,8 +126,8 @@ def smooth_weights(W, f, iters, lock=None):
 
 
 def suit_weights(v, f, face_labels):
-    """Torso/hood vertices never take arm weights (only the clavicle on the shoulder top);
-    sleeve vertices take only the arm chain (+ clavicle at the sleeve head)."""
+    """Torso/hood vertices never take arm weights (only the clavicle and the half-rotation helper on
+    the shoulder cap); sleeve vertices take only the arm chain (+ the helper at the sleeve head)."""
     vl = np.zeros(len(v), int)
     for k in range(3):
         vl[f[:, k]] = face_labels
@@ -155,9 +155,10 @@ def suit_weights(v, f, face_labels):
     hw = np.zeros((len(v), NB)); hw[:, NECK] = 1 - head; hw[:, HEAD] = head
     W[hood] = hw[hood]
     for side, s in [('L', 1), ('R', -1)]:
-        # torso around the sleeve head follows the arm a little, so the shoulder does not poke through
+        # the shoulder cap is a ball round the arm's pivot, so it can follow the half-rotation helper
+        # (a turn about its own centre) and keep the sleeve head inside it as the arm rises
         sh = D.arm_points(s)[0]
-        k = .40 * ss(.10, .035, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.22, 1.29, y)
+        k = .55 * ss(.12, .06, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.20, 1.27, y)
         W *= (1 - k)[:, None]; W[:, ROOT_HALF[side]] += k
     torso_mask = ~(sleeve['L'] | sleeve['R'] | (vl == 4))
     ft = f[np.all(torso_mask[f], axis=1)]

@@ -51,14 +51,41 @@ def video(data, out, size=(720, 960), angle=-14):
     p.stdin.close(); assert p.wait() == 0
 
 
-def showcase(data, out, size=(720, 960), angle=-24):
-    """One video of every clip in turn (a few loops each), labelled."""
-    plan = [('Idle', 1), ('Walk', 4), ('Run', 5), ('Sneak', 2), ('Jumping Jacks', 1), ('Look Around', 1), ('Chicken Dance', 1)]
-    model = data['model']
+SHOWCASE = [('Idle', 1), ('Walk', 3), ('Run', 4), ('Sneak', 2), ('Jumping Jacks', 1), ('Look Around', 1), ('Chicken Dance', 1),
+            ('Depressed Walk', 3), ('Crouch and Sit', 1), ('Crying', 1), ('Exasperated', 1)]
+ALT_PLAN = [('Idle', 1), ('Walk', 3), ('Run', 4), ('Sneak', 2), ('Jumping Jacks', 1), ('Look Around', 1), ('Chicken Dance', 1)]
+
+
+def encoder(out, size, crf=21):
     cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pixel_format', 'rgb24', '-video_size', f'{size[0]}x{size[1]}',
-           '-framerate', str(AN.FPS), '-i', 'pipe:0', '-an', '-c:v', 'libx264', '-preset', 'medium', '-crf', '21',
+           '-framerate', str(AN.FPS), '-i', 'pipe:0', '-an', '-c:v', 'libx264', '-preset', 'medium', '-crf', str(crf),
            '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(out)]
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    return subprocess.Popen(cmd, stdin=subprocess.PIPE)
+
+
+def alt_compare(data, out, size=(540, 720), angle=-24):
+    """Each original clip beside its alt (lumbering) version, both in real time, for the alt's loops."""
+    model = data['model']
+    p = encoder(out, (2 * size[0], size[1]))
+    t0 = time.time()
+    for name, loops in ALT_PLAN:
+        a, b = data['clips'][name], data['clips'][name + ' (alt)']
+        fa, fb = len(a['times']) - 1, len(b['times']) - 1
+        for k in range(fb * loops):
+            frame = Image.new('RGB', (2 * size[0], size[1]))
+            frame.paste(frame_image(model, a['mats'][k % fa], angle, 4, size, center=(0, .92, .04), height=2.0,
+                                    title='Standard', sub=name.upper()), (0, 0))
+            frame.paste(frame_image(model, b['mats'][k % fb], angle, 4, size, center=(0, .92, .04), height=2.0,
+                                    title='Alt (lumbering)', sub=name.upper()), (size[0], 0))
+            p.stdin.write(frame.tobytes())
+        print(f'{name}: {time.time()-t0:.0f}s', flush=True)
+    p.stdin.close(); assert p.wait() == 0
+
+
+def showcase(data, out, size=(720, 960), angle=-24, plan=SHOWCASE):
+    """One video of every clip in turn (a few loops each), labelled."""
+    model = data['model']
+    p = encoder(out, size)
     t0 = time.time(); n = 0
     for name, loops in plan:
         c = data['clips'][name]
@@ -99,5 +126,11 @@ if __name__ == '__main__':
         video(data, sys.argv[3])
     elif mode == 'showcase':
         showcase(data, sys.argv[3])
+    elif mode == 'alt':
+        alt_compare(data, sys.argv[3])
     elif mode == 'sheet':
         clip_sheet(data, sys.argv[3], ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around'])
+    elif mode == 'moodsheet':
+        clip_sheet(data, sys.argv[3], ['Depressed Walk', 'Crouch and Sit', 'Crying', 'Exasperated'], per=6)
+    elif mode == 'altsheet':
+        clip_sheet(data, sys.argv[3], [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']])

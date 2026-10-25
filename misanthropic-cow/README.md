@@ -8,15 +8,17 @@ Later v10 passes added:
 - clipping fixes at the arms and teats;
 - light baked physics;
 - a rounded belly underside;
-- an animation library: Idle, Walk, Run, Sneak, Jumping Jacks, Look Around and the Chicken Dance.
+- an animation library: Idle, Walk, Run, Sneak, Jumping Jacks, Look Around and the Chicken Dance;
+- the mask seated on the hood, shoulders that grow out of the body, and the shag tufts rebuilt from the user's long-lock sheet;
+- four mood animations (Depressed Walk, Crouch and Sit, Crying, Exasperated) and an "alt" set that plays the first seven heavy, awkward and slumped.
 
 | File | What it is |
 |---|---|
 | `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 626k triangles, real-world scale in metres, all textures embedded. |
-| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 40-joint skin and seven looping animations at 30 fps, all with baked physics. |
-| `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheet, the dance pose sheet, the showcase video and the validation JSON. |
-| `viewer/` | A three.js web viewer with an animation picker, a Default pose button, camera presets and a clay toggle. |
-| `textures/` | The user-supplied black shag swatch and tuft sheet. |
+| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 40-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
+| `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the showcase video, the standard-vs-alt video and the validation JSON. |
+| `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
+| `textures/` | The user-supplied black shag swatch, the first tuft sheet and the long-lock sheet the tufts now use. |
 | `pipeline/` | The Python sources that generate everything above. |
 
 Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
@@ -32,7 +34,7 @@ The wearer is built at about 1.60 m. v09 had scaled the whole figure to fit an o
 
 **Head.** The head is built as the costume is worn, following the mask and hood photos (`IMG_2003`–`2034`, `0006`, `0013`, `0014`, `Nathan 32`). There are three separate pieces:
 - **Hood.** A snug fur balaclava, about 2 cm of fur over a 1.6 m wearer's head. Its neck tucks into the torso garment's neckline, which stops at the base of the neck. The head is skinned only to the Head and Neck bones, so it turns freely without dragging the torso up into a hump.
-- **Mask.** The scanned papier-mâché mask covers the hood's whole front.
+- **Mask.** The scanned papier-mâché mask covers the hood's whole front, and its rim sits on the hood all the way round. The mask, tube and horns were pushed 2.5 cm back as one rigid piece, so the tube and horns keep exactly their size and placement relative to the mask. The hood has a padded face opening shaped to the mask's outline: the outline is a Fourier fit to the scanned rim, with an rms error of 1.3 mm. Just behind the rim the opening is 2 mm inside that outline, and it tapers back into the head. Earlier the rim floated 2–7 cm in front of a plain egg-shaped hood, which showed as a gap from the side.
 - **Tube and horns.** The fur-covered cardboard tube that joins the horns belongs to the mask and rests on the mask's top edge. The scanned horns ride on its ends in their original positions relative to it.
 
 The white paint in the mask photo gets a lift; the eyes, the muzzle and the weathered grey wash keep their colour.
@@ -45,13 +47,22 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - both elbows;
   - upper back right and lower back left.
 - The shag uses the user's black shag swatch (`textures/black_shag_tile.jpg`) as its base, with edges that break into hanging tufts.
-- On top of the base sit hanging tuft cards (4–6 cm): alpha-cut tufts from the user's tuft sheet (`textures/black_shag_tufts_sheet.png`). The white background becomes transparency, and each card uses one of the 12 tufts.
+- On top of the base sit hanging lock cards (5–7.6 cm long, about 2.5 cm wide). They are alpha-cut from the user's long-lock sheet (`textures/black_shag_locks_sheet.png`): the white background becomes transparency, and each card uses one of the 12 locks. The cards lie along the fur and only their tips lift, by about 1 cm. They overlap densely (about 3,000 per m² of patch) and are rolled slightly at random. Together this reads as one shaggy mat. The previous cards were short, wide and lifted 2–3 cm at the tip, so each one stood out like a feather.
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
 - The hoof caps are glossy black, as in every photo. v08 had them mid grey-teal.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
+
+**Shoulders.** Earlier passes plugged the round top of each sleeve tube into the side of the torso, so the shoulders read as tubes. Now the torso garment carries a padded shoulder cap that blends broadly into the trapezius and chest, and the sleeve comes out from under it. The setup works like a ball and socket:
+- The cap is a ball centred on the arm's pivot.
+- The sleeve's head is a narrower ball on the same centre.
+- However the arm swings, the sleeve head turns inside the cap and never pokes through.
+- Because the cap only ever turns about its own centre, it can follow the half-rotation helper without tearing the torso. The torso stretch in Jumping Jacks stays at 2.0×, against 1.8× before.
+- Only the outer half of the cap exists, so the armpit stays open and cannot web.
+
+The shoulder pivot moved 1.5 cm lower and the arms hang 1° wider (18°).
 
 **Hands that don't connect (fixed).** Each glove tucks 3.5 cm up inside its sleeve end. The sleeve and the glove are weighted by the same function of position along the forearm, so they move as one. In the wing pose the fists follow the forearm instead of being bent 90° at the wrist. v08's flared cuff ring and its halo strands were removed, because at this scale they z-fought with the sleeve.
 
@@ -68,7 +79,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 
 ## Animations
 
-All seven animations loop seamlessly and play in place, with no root travel.
+All 18 animations loop seamlessly and play in place, with no root travel.
 
 | Animation | Length | What it does |
 |---|---|---|
@@ -79,6 +90,21 @@ All seven animations loop seamlessly and play in place, with no root travel.
 | Jumping Jacks | 4.0 s (4 jacks) | Airborne between the open and closed positions; arms overhead; knees bend on landing. |
 | Look Around | 6.0 s | Looks left and then right with the near-side hoof shading the eyes, leans in to peer, looks up, then settles. |
 | Chicken Dance | 12.0 s | Beaks, Wings, Wiggle, Claps (3 s each, four moves each). |
+| Depressed Walk | 1.6 s cycle | Head hung low, shoulders dropped, a 24 cm shuffle with the feet barely lifting, the arms hanging plumb and the head nodding with each heavy step. |
+| Crouch and Sit | 11.0 s | Crouches with the hooves on the outside of the knees, reaches back and sits down heavily on the floor, and stretches the legs out. Then slumps with the hooves on the knees and sighs. Finally pulls the feet in, pushes up to a crouch and stands. |
+| Crying | 7.0 s | Hunches over and brings both hooves up to the mask's eyes. Sobs with shaking shoulders and catches its breath, then lowers the hooves. |
+| Exasperated | 6.5 s | Flings both arms out palms-up with the head thrown back, then drops them heavily onto the hips and shakes its head. Finishes with a face-palm and a slow head shake inside the hoof. |
+
+**Alt set.** Each of the first seven has an alt version, named `<Animation> (alt)`. The alt versions play the character as it is: heavy, awkward, lumbering and a bit depressed, without going overboard. One function (`lumbering` in `clips.py`) re-voices the original choreography:
+- It plays 25 % slower.
+- The lower spine slumps forward and the head hangs lower with a slight tilt. The shoulders drop.
+- The weight shifts further side to side and the hips roll more. The body sags a little lower and breathes.
+- The chest, neck and head trail the hips by 0.07 s, so the upper body follows through.
+- The arms swing less and hang plumb.
+- The feet lift 38 % less and point 25 % less, so they drag; jumps are lower.
+- The belly, cups and shag springs are slightly softer and swing a little further.
+
+The four mood animations are already written in that style, so they have no alt version.
 
 The **default pose** is the rest pose: arms relaxed and down at the sides. In the viewer the Default pose button resets the skeleton to it, and the static master is exported in it.
 
@@ -88,33 +114,44 @@ All depths are the 99.5th percentile over every frame.
 
 | Animation | Arms into cups or torso | Teats into belly | Gloves into body | Lowest slipper point |
 |---|---|---|---|---|
-| Idle | 0.6 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Walk | 1.7 mm | 0 mm | 0 mm | 1.2 mm above floor |
-| Run | 0 mm | 0.8 mm | 0 mm | 1.4 mm above floor |
+| Idle | 1.3 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Walk | 2.8 mm | 0 mm | 0 mm | 1.2 mm above floor |
+| Run | 0 mm | 0 mm | 0 mm | 1.4 mm above floor |
 | Sneak | 0 mm | 0 mm | 0 mm | 2.6 mm above floor |
 | Jumping Jacks | 0 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Look Around | 8.6 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Chicken Dance | 0 mm | 2.4 mm | 0 mm | 6.0 mm above floor |
+| Look Around | 10.2 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Chicken Dance | 0 mm | 1.7 mm | 0 mm | 6.0 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 1.1 mm above floor |
+| Crouch and Sit | 27.5 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Crying | 10.2 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Exasperated | 10.6 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 1.1 mm above floor |
+| Run (alt) | 0 mm | 2.8 mm | 0 mm | 1.4 mm above floor |
+| Sneak (alt) | 0 mm | 1.3 mm | 0 mm | 2.1 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 4.8 mm above floor |
+| Look Around (alt) | 12.0 mm | 0 mm | 0 mm | 6.0 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.0 mm | 0 mm | 6.0 mm above floor |
 
-The Look Around figure is the relaxed arm pressing into the plush chest side while the body twists.
+The figures of about 10 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 27.5 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The alt Chicken Dance's slump puts the teats 5 mm into the belly at the bottom of the Wiggle squat. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it.
 
-In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 1.3 mm.
+In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 1.0 mm.
 
 ## Measured over the dance
 
 | Check | v09 | v10 |
 |---|---|---|
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
-| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.4 mm at the bottom of the Wiggle squat |
-| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.73× |
-| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.81× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 15.8 mm and 16.0 mm |
+| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 1.7 mm at the bottom of the Wiggle squat |
+| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.91× |
+| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.84× |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 15.4 mm and 16.0 mm |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
 | Clap contact gap | not measured | 0.3 mm |
 | Loop seam error | 0 | 0 |
 | Planted-foot drift | ~0 | 0.05 mm |
 
-Most of the remaining sleeve stretch is on the outside of the elbow at the top of each wing flap. That is the usual limit of linear-blend skinning on a sharply bent elbow. The torso stretch is higher than in the first v10 pass (1.40×) because the shoulder now follows the arm a little; that trade removes the poke-through at the sleeve head. The full numbers are in `reviews/validation_v10.json`. `reviews/v09_same_metrics.json` has the same metric run on the v09 rig.
+Most of the remaining sleeve stretch is on the outside of the elbow at the top of each wing flap. That is the usual limit of linear-blend skinning on a sharply bent elbow. The torso stretch is higher than in the first v10 pass (1.40×) because the shoulder cap follows the arm's half-rotation helper; that keeps the sleeve head inside the cap. The full numbers are in `reviews/validation_v10.json`. `reviews/v09_same_metrics.json` has the same metric run on the v09 rig.
 
 ## The rig
 
@@ -159,11 +196,14 @@ python build_v10.py <handoff>/project/dist/assets/geometry-v09.glb \
 python render_reviews.py ../build/rigged.pkl ../reviews <geometry-v09.glb> <shoot photos...> --head=<head photo folder>
 python render_dance.py   ../build/rigged.pkl showcase ../reviews/Misanthropic_Cow_v10_Animations.mp4
 python render_dance.py   ../build/rigged.pkl sheet    ../reviews/Animation_Clips_v10.jpg
+python render_dance.py   ../build/rigged.pkl moodsheet ../reviews/Animation_Mood_Clips_v10.jpg
+python render_dance.py   ../build/rigged.pkl altsheet  ../reviews/Animation_Alt_Clips_v10.jpg
+python render_dance.py   ../build/rigged.pkl alt       ../reviews/Misanthropic_Cow_v10_Standard_vs_Alt.mp4
 python compare_v09.py <handoff>/project/dist/assets/cow-dance-test.glb \
                       <handoff>/project/dist/assets/dance-matrices.bin ../reviews/v09_same_metrics.json
 ```
 
-Add `--quick` to `build_v10.py` for a half-resolution build that takes about 3 minutes. The full build takes about 8 minutes; most of that time goes to solving the elbow paths and simulating the physics for all seven animations. `preview_clips.py` poses a few frames of each animation in seconds, for working on the choreography.
+Add `--quick` to `build_v10.py` for a half-resolution build that takes about 5 minutes. The full build takes about 20 minutes; most of that time goes to solving the elbow paths and simulating the physics for all 18 animations. `preview_clips.py` poses a few frames of each animation in seconds, for working on the choreography.
 
 Where things live:
 - `design.py`: proportions, as signed-distance primitives;
@@ -173,7 +213,7 @@ Where things live:
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail).
-- `cow-plain.glb` uses `-kn -km -ke -si 0.4` (a simplified fallback). The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
+- `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 
@@ -181,7 +221,7 @@ To view them locally, run `python3 -m http.server` inside `viewer/` and open the
 
 - The proportions come from photos at an assumed 1.6 m height. Nothing was measured from the costume.
 - The side-jaw photo projection on the mask is still stretched in pure side views, as in v09.
-- The black shag is a texture plus alpha-cut tuft cards, not a simulated groom. Better tuft images would improve it directly.
+- The black shag is a texture plus alpha-cut lock cards, not a simulated groom. In a web viewer the cards use an alpha test, so very thin tips can flicker when the model is small on screen. The viewer lowers the cutoff and turns on anisotropic filtering to reduce this.
 - The physics is baked springs, not live simulation. Only the teats collide with anything (the belly).
 - Locomotion plays in place; feet slide back during stance like a treadmill, so add root motion in your engine.
 - There's no cloth simulation. The suit deforms by skinning only.

@@ -46,6 +46,8 @@ h1 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 
 .controls { display: grid; gap: 12px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .row .label { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); width: 64px; flex: none; }
+.row .note { flex: 1 1 200px; }
+button:disabled { opacity: .45; cursor: default; }
 button { font: 500 14px/1 var(--body); color: var(--ink); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
 button:hover { border-color: var(--ink-soft); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -74,14 +76,14 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 7 animations</span>
+    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (9.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -94,6 +96,17 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-clip="Jumping Jacks">Jumping jacks</button>
         <button data-clip="Look Around">Look around</button>
         <button data-clip="Chicken Dance">Chicken dance</button>
+        <button data-clip="Depressed Walk">Depressed walk</button>
+        <button data-clip="Crouch and Sit">Crouch and sit</button>
+        <button data-clip="Crying">Crying</button>
+        <button data-clip="Exasperated">Exasperated</button>
+      </div>
+
+      <div class="row" id="styles">
+        <span class="label">Style</span>
+        <button data-style="std" aria-pressed="true">Standard</button>
+        <button data-style="alt" aria-pressed="false">Alt &middot; lumbering</button>
+        <span class="note" id="styleNote">Heavier, slower, slumped versions of the first seven.</span>
       </div>
 
       <div class="row">
@@ -134,11 +147,11 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li>The hood is its own snug fur balaclava with a neck that tucks into the torso&rsquo;s neckline, so the head turns freely and the hunch is gone. The fur tube and horns ride on the mask.</li>
-          <li>The belly is round underneath instead of sliced flat.</li>
-          <li>The black shag uses your swatch, with tufts cut from your tuft sheet hanging off each patch.</li>
-          <li>New animations: Idle, Walk, Run, Sneak, Jumping jacks and Look around, plus the Chicken dance. <strong>Default pose</strong> resets to the relaxed rest pose.</li>
-          <li>Teats, shag, belly and udder cups carry baked spring physics in every animation.</li>
+          <li>The mask now sits on the hood: the hood has a padded face opening shaped to the mask&rsquo;s rim. The mask, tube and horns moved back 2.5&nbsp;cm as one piece, so the tube and horns are unchanged relative to the mask.</li>
+          <li>Shoulders: the torso rounds over the top of each arm in a padded cap, and the sleeve comes out from under it, instead of a tube plugged into the side.</li>
+          <li>The shag tufts are cut from your long-lock sheet. They lie flat and overlap densely, so they read as a mat instead of feathers.</li>
+          <li>New animations: <strong>Depressed walk</strong>, <strong>Crouch and sit</strong>, <strong>Crying</strong> and <strong>Exasperated</strong>.</li>
+          <li><strong>Alt</strong> plays the first seven heavy, lumbering and a little depressed: slower, slumped and head-down, with dropped shoulders, more weight shift, dragging feet and a softer jiggle.</li>
         </ul>
       </section>
       <section>
@@ -147,17 +160,28 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <table class="metrics">
           <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Lowest sole</th></tr></thead>
           <tbody>
-            <tr><td>Idle</td><td>0.6 mm</td><td>0 mm</td><td>6 mm</td></tr>
-            <tr><td>Walk</td><td>1.7 mm</td><td>0 mm</td><td>1.2 mm</td></tr>
-            <tr><td>Run</td><td>0 mm</td><td>0.8 mm</td><td>1.4 mm</td></tr>
+            <tr><td>Idle</td><td>1.3 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Walk</td><td>2.8 mm</td><td>0 mm</td><td>1.2 mm</td></tr>
+            <tr><td>Run</td><td>0 mm</td><td>0 mm</td><td>1.4 mm</td></tr>
             <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
-            <tr><td>Jumping jacks</td><td>0 mm</td><td>0 mm</td><td>6 mm</td></tr>
-            <tr><td>Look around</td><td>8.6 mm</td><td>0 mm</td><td>6 mm</td></tr>
-            <tr><td>Chicken dance</td><td>0 mm</td><td>2.4 mm</td><td>6 mm</td></tr>
+            <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Look Around</td><td>10.2 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Chicken Dance</td><td>0 mm</td><td>1.7 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>1.1 mm</td></tr>
+            <tr><td>Crouch and Sit</td><td>27.5 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Crying</td><td>10.2 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Exasperated</td><td>10.6 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>1.1 mm</td></tr>
+            <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>2.8 mm</td><td>1.4 mm</td></tr>
+            <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>1.3 mm</td><td>2.1 mm</td></tr>
+            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>4.8 mm</td></tr>
+            <tr><td>Look Around <span class="note">alt</span></td><td>12.0 mm</td><td>0 mm</td><td>6.0 mm</td></tr>
+            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>5.0 mm</td><td>6.0 mm</td></tr>
           </tbody>
         </table>
         </div>
-        <p class="note">Depths are 99.5th percentiles over every frame. In every animation the gloves never enter the body and stay tucked into the sleeves. The Look around figure is the relaxed arm pressing into the plush chest while the body twists.</p>
+        <p class="note">Depths are 99.5th percentiles over every frame. In every animation the gloves never enter the body and stay tucked into the sleeves. The figures of about 10 mm are the relaxed arms resting against the plush sides. Crouch and sit is higher because at the bottom of the squat the upper arms press into the sides of the soft udder cups.</p>
       </section>
       <figure>
         <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
@@ -237,7 +261,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(stage); resize();
 
-let mixer = null, action = null, playing = true, clipName = 'Chicken Dance';
+let mixer = null, action = null, playing = true, clipName = 'Chicken Dance', baseName = 'Chicken Dance', alt = false;
 const clipMap = {};
 const restPose = [];   // every bone's rest transform, recorded at load (the default pose)
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
@@ -275,7 +299,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (11 MB)...';
+    status.textContent = 'Loading the simplified copy (10.9 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
@@ -286,7 +310,11 @@ async function start() {
       o.userData.mat = o.material;
       meshes.push(o);
       const m = o.material;
-      if (m && m.name && m.name.includes('tuft')) m.side = THREE.DoubleSide;
+      if (m && m.name && m.name.includes('tuft')) {
+        // keep the thin lock tips from dropping out when the texture is minified
+        m.side = THREE.DoubleSide; m.alphaTest = 0.3;
+        if (m.map) m.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      }
     }
   });
   scene.add(root);
@@ -298,12 +326,20 @@ async function start() {
 
 const ticks = document.getElementById('ticks');
 const phaseRow = document.getElementById('phases');
+const styleNote = document.getElementById('styleNote');
+const hasAlt = name => (name + ' (alt)') in clipMap;
 function selectClip(name) {
+  baseName = name;
   document.querySelectorAll('#clips button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.clip === name)));
   if (!mixer) return;
   mixer.stopAllAction();
   const dance = name === 'Chicken Dance';
   ticks.hidden = !dance; phaseRow.hidden = !dance;
+  const altOk = name !== '__pose' && hasAlt(name);
+  styleNote.textContent = name === '__pose' ? 'Heavier, slower, slumped versions of the first seven.'
+    : altOk ? (alt ? 'Playing the heavy, lumbering version.' : 'Heavier, slower, slumped versions of the first seven.')
+    : 'This one is already played heavy; it has no alt version.';
+  if (name !== '__pose' && alt && altOk) name = name + ' (alt)';
   if (name === '__pose') {
     // the relaxed rest pose: arms down at the sides, feet together
     restPose.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
@@ -319,6 +355,11 @@ function selectClip(name) {
   scrub.max = clipMap[name].duration.toFixed(2);
 }
 document.querySelectorAll('#clips button').forEach(b => b.addEventListener('click', () => selectClip(b.dataset.clip)));
+document.querySelectorAll('#styles button').forEach(b => b.addEventListener('click', () => {
+  alt = b.dataset.style === 'alt';
+  document.querySelectorAll('#styles button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  selectClip(baseName);
+}));
 start().catch(err => { status.textContent = 'The model could not be loaded: ' + err.message; });
 
 playBtn.addEventListener('click', () => {
@@ -329,7 +370,8 @@ playBtn.addEventListener('click', () => {
 function seek(t) { if (!mixer || !action) return; action.time = t; mixer.update(0); }
 scrub.addEventListener('input', () => { seek(parseFloat(scrub.value)); });
 document.querySelectorAll('#phases button').forEach(b => b.addEventListener('click', () => {
-  seek(parseFloat(b.dataset.t) + 0.6);
+  const k = clipMap[clipName].duration / 12;          // the alt dance plays slower
+  seek((parseFloat(b.dataset.t) + 0.6) * k);
 }));
 document.querySelectorAll('#views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 const clayBtn = document.getElementById('clay');
@@ -348,7 +390,7 @@ renderer.setAnimationLoop(() => {
     const t = action.time % dur;
     scrub.value = t.toFixed(2);
     timeEl.textContent = t.toFixed(2) + ' s';
-    phaseNow.textContent = clipName === 'Chicken Dance' ? PHASES[Math.min(3, Math.floor(t / 3))] : clipName;
+    phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
   controls.update();
   renderer.render(scene, camera);

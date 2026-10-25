@@ -55,7 +55,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
     sole = []
     foot_idx = [i for i, g in enumerate(groups) if g and g.startswith('foot')]
     v_rest = {i: model.parts[i]['v'] for i in suit_idx}
-    clap_times = [9.375, 10.125, 10.875, 11.625]
+    clap_times = [c * dance.duration / 12.0 for c in (9.375, 10.125, 10.875, 11.625)]   # alt plays slower
     clap_frames = [int(round(t * AN.FPS)) for t in clap_times]
     for k in range(0, len(times), 3):
         P = posed(model, mats[k])
@@ -78,7 +78,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
             dd, ii = tree.query(gv)
             depth = -np.einsum('ij,ij->i', gv - body[ii], bn[ii])
             pen[phase] = max(pen[phase], float(np.percentile(depth, 99.5)))
-    if dance.name == 'Chicken Dance':
+    if dance.name.startswith('Chicken Dance'):
         for k in clap_frames:
             P = posed(model, mats[k])
             gl = np.vstack([P[i]['v'] for i in glove_idx['L']]); gr = np.vstack([P[i]['v'] for i in glove_idx['R']])

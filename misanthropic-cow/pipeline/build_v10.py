@@ -43,7 +43,7 @@ def main():
         times, Gs = clip.bake()
         clips[clip.name] = (clip, times, Gs)
         print('baked', clip.name, Gs.shape, f'{time.time()-t0:.0f}s', flush=True)
-    order = ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']
+    order = CL.ORDER
     model.animations = []
     for nm in order:
         clip, times, Gs = clips[nm]
