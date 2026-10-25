@@ -31,38 +31,49 @@ def main():
             uvn = p['uv1'] if nt.get('texCoord', 0) == 1 else p['uv']
             p['tangent'] = G.tangents(p['v'], p['n'], uvn, p['f'])
     model.skin = {'name': 'Misanthropic_Cow_v10_rig', 'names': RG.NAMES, 'parents': RG.PARENTS, 'bind': B}
-    dance = AN.Dance(B)
-    # calibrate clap contact from glove thickness along the palm normal
-    for side, s in [('L', 1), ('R', -1)]:
-        v = np.vstack([p['v'] for p in gloves[side]])
-        rel = (v - B[RG.ARM[side]['hand']]) @ np.array([-s, 0, 0.])
-        dance.palm_half[side] = float(np.percentile(rel, 99.5))
-    times, Gs = dance.bake()
-    print('dance baked', Gs.shape, f'{time.time()-t0:.0f}s', flush=True)
-    model.animations = [{'name': 'Chicken Dance - Beaks, Wings, Wiggle, Claps', 'times': times,
-                         'tracks': AN.tracks(Gs, RG.PARENTS),
-                         'extras': {'duration_seconds': AN.DURATION, 'phases': [
-                             {'name': n, 'start': 3 * i, 'end': 3 * i + 3} for i, n in enumerate(AN.PHASES)]}}]
+    import clips as CL
+    clips = {}
+    for Cls in CL.ALL:
+        clip = Cls(B)
+        # calibrate clap contact from glove thickness along the palm normal
+        for side, s in [('L', 1), ('R', -1)]:
+            v = np.vstack([p['v'] for p in gloves[side]])
+            rel = (v - B[RG.ARM[side]['hand']]) @ np.array([-s, 0, 0.])
+            clip.palm_half[side] = float(np.percentile(rel, 99.5))
+        times, Gs = clip.bake()
+        clips[clip.name] = (clip, times, Gs)
+        print('baked', clip.name, Gs.shape, f'{time.time()-t0:.0f}s', flush=True)
+    order = ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']
+    model.animations = []
+    for nm in order:
+        clip, times, Gs = clips[nm]
+        model.animations.append({'name': nm, 'times': times, 'tracks': AN.tracks(Gs, RG.PARENTS),
+                                 'extras': {'duration_seconds': clip.duration,
+                                            'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in clip.phases]}})
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
                     'left': '+X (character left)'}
     clean_parts = [{k: v for k, v in p.items() if k not in ('group',)} for p in model.parts]
     groups = [p.get('group') for p in model.parts]
     model.parts = clean_parts
     name = 'Misanthropic_Cow_v10' + ('_quick' if quick else '')
-    size = G.write(model, out / f'{name}_ChickenDance.glb')
+    size = G.write(model, out / f'{name}_Animated.glb')
     import copy
     static = copy.copy(model); static.skin = None; static.animations = []
     G.write(static, out / f'{name}.glb')
     print('wrote rigged glb', size, flush=True)
-    mats = np.stack([AN.skin_matrices(g, B) for g in Gs])
-    metrics = V.validate(model, groups, B, Gs, mats, times, dance)
-    metrics.update(report)
-    metrics['glb_bytes'] = size
+    report['glb_bytes'] = size
+    metrics = {'model': report, 'clips': {}}
+    store = {}
+    for nm in order:
+        clip, times, Gs = clips[nm]
+        mats = np.stack([AN.skin_matrices(g, B) for g in Gs])
+        metrics['clips'][nm] = V.validate(model, groups, B, Gs, mats, times, clip)
+        store[nm] = {'times': times, 'mats': mats.astype(np.float32), 'phases': clip.phases, 'duration': clip.duration}
+        print('validated', nm, json.dumps(metrics['clips'][nm]), flush=True)
     (out / 'validation_v10.json').write_text(json.dumps(metrics, indent=2))
-    print(json.dumps(metrics, indent=1), flush=True)
-    np.save(out / 'skin_matrices.npy', mats.astype(np.float32))
     import pickle
-    pickle.dump({'model': model, 'groups': groups, 'B': B, 'times': times, 'mats': mats}, open(out / 'rigged.pkl', 'wb'))
+    pickle.dump({'model': model, 'groups': groups, 'B': B, 'clips': store,
+                 'times': store['Chicken Dance']['times'], 'mats': store['Chicken Dance']['mats']}, open(out / 'rigged.pkl', 'wb'))
 
 
 if __name__ == '__main__':

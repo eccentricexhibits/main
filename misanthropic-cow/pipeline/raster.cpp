@@ -12,10 +12,12 @@ static void sample(const uint8_t*im,int w,int h,float u,float v,float*out){
  int a1=((a%w)+w)%w,b1=((b%h)+h)%h,c1=(a1+1)%w,d1=(b1+1)%h;
  for(int j=0;j<3;j++)out[j]=((1-fy)*((1-fx)*im[(b1*w+a1)*3+j]+fx*im[(b1*w+c1)*3+j])+fy*((1-fx)*im[(d1*w+a1)*3+j]+fx*im[(d1*w+c1)*3+j]))/255.f;
 }
+static float sample1(const uint8_t*im,int w,int h,float u,float v){
+ u-=std::floor(u);v-=std::floor(v);int x=std::min(w-1,(int)(u*w)),y=std::min(h-1,(int)(v*h));return im[y*w+x]/255.f;}
 extern "C" void raster(int nv,const float*pos,const float*normal,const float*uv,const float*uvn,const float*ao,
  int nf,const int32_t*faces,int w,int h,float scale,float cx,float cy,
  const uint8_t*tex,int tw,int th,const uint8_t*ntex,int nw,int nh,float nscale,
- const float*factor,float rough,float sheen,int clay,float*depth,float*rgb){
+ const float*factor,float rough,float sheen,int clay,float*depth,float*rgb,const uint8_t*alpha,float cutoff){
  const float key[3]={-.42f,.58f,.70f},fill[3]={.72f,.12f,.68f},rim[3]={.2f,.35f,-.9f};
  float kn[3]={key[0],key[1],key[2]},fn[3]={fill[0],fill[1],fill[2]},rn[3]={rim[0],rim[1],rim[2]};nrm(kn);nrm(fn);nrm(rn);
  for(int k=0;k<nf;k++){
@@ -32,7 +34,9 @@ extern "C" void raster(int nv,const float*pos,const float*normal,const float*uv,
    float a=((sy[1]-sy[2])*(x+.5f-sx[2])+(sx[2]-sx[1])*(y+.5f-sy[2]))/det,b=((sy[2]-sy[0])*(x+.5f-sx[2])+(sx[0]-sx[2])*(y+.5f-sy[2]))/det,c=1-a-b;
    if(a<0||b<0||c<0)continue;
    float bc[3]={a,b,c},z=0;for(int i=0;i<3;i++)z+=bc[i]*pos[id[i]*3+2];
-   int at=y*w+x;if(z<=depth[at])continue;depth[at]=z;
+   int at=y*w+x;if(z<=depth[at])continue;
+   if(alpha&&uv){float au=0,av=0;for(int i=0;i<3;i++){au+=bc[i]*uv[id[i]*2];av+=bc[i]*uv[id[i]*2+1];}if(sample1(alpha,tw,th,au,av)<cutoff)continue;}
+   depth[at]=z;
    float N[3]={0,0,0},U[2]={0,0},UN[2]={0,0},A=0;
    for(int i=0;i<3;i++){int q=id[i];A+=bc[i]*(ao?ao[q]:1.f);for(int j=0;j<3;j++)N[j]+=bc[i]*normal[q*3+j];if(uv)for(int j=0;j<2;j++)U[j]+=bc[i]*uv[q*2+j];if(uvn)for(int j=0;j<2;j++)UN[j]+=bc[i]*uvn[q*2+j];}
    nrm(N);if(N[2]<0){for(int j=0;j<3;j++)N[j]=-N[j];}

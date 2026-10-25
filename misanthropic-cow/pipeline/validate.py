@@ -16,18 +16,29 @@ def tri_stretch(v0, v1, f):
     return (e1 / np.maximum(e0, 1e-9)).max(1)
 
 
+def phase_of(clip, t):
+    t = t % clip.duration
+    for name, a, b in clip.phases:
+        if a <= t < b:
+            return name
+    return clip.phases[-1][0]
+
+
 def validate(model, groups, B, Gs, mats, times, dance):
     m = {}
     m['joints'] = len(RG.NAMES)
     m['frames'] = len(times)
     m['fps'] = AN.FPS
-    m['duration_seconds'] = AN.DURATION
+    m['duration_seconds'] = dance.duration
+    PH = [ph[0] for ph in dance.phases]
     m['triangles'] = int(sum(len(p['f']) for p in model.parts))
     m['weights_sum_255'] = bool(all(np.all(p['w'].astype(int).sum(1) == 255) for p in model.parts))
     m['joint_indices_valid'] = bool(all(p['j'].max() < len(RG.NAMES) for p in model.parts))
     m['loop_matrix_max_error'] = float(np.abs(mats[0] - mats[-1]).max())
-    m['planted_feet_max_drift_m'] = float(max(np.abs(Gs[:, RG.LEG[s]['foot'], :3, 3] - B[RG.LEG[s]['foot']]).max() for s in 'LR'))
-    suit_idx = [i for i, g in enumerate(groups) if g == 'suit' and model.parts[i]['name'].startswith('Suit_') and 'strand' not in model.parts[i]['name']]
+    feet_move = not np.allclose(Gs[:, RG.LEG['L']['foot'], :3, 3], B[RG.LEG['L']['foot']], atol=1e-4)
+    if not feet_move:
+        m['planted_feet_max_drift_m'] = float(max(np.abs(Gs[:, RG.LEG[s]['foot'], :3, 3] - B[RG.LEG[s]['foot']]).max() for s in 'LR'))
+    suit_idx = [i for i, g in enumerate(groups) if g == 'suit' and model.parts[i]['name'].startswith(('Suit_', 'Hood_')) and 'strand' not in model.parts[i]['name'] and 'tuft' not in model.parts[i]['name']]
     glove_idx = {s: [i for i, g in enumerate(groups) if g == f'glove_{s}'] for s in 'LR'}
     torso = [i for i in suit_idx if 'torso' in model.parts[i]['name']][0]
     sleeves = {s: [i for i in suit_idx if f'sleeve_{s}' in model.parts[i]['name']][0] for s in 'LR'}
@@ -40,7 +51,9 @@ def validate(model, groups, B, Gs, mats, times, dance):
         t = (sv - B[a['hand']]) @ d
         rings[side] = np.nonzero(t > -.012)[0]
         cuffs[side] = [(i, None) for i in glove_idx[side] if 'hoof_cap' not in model.parts[i]['name']]
-    stretch_torso, stretch_arm, sleeve_gap, overlap, pen, clap = [], [], [], [], {k: 0. for k in AN.PHASES}, []
+    stretch_torso, stretch_arm, sleeve_gap, overlap, pen, clap = [], [], [], [], {k: 0. for k in PH}, []
+    sole = []
+    foot_idx = [i for i, g in enumerate(groups) if g and g.startswith('foot')]
     v_rest = {i: model.parts[i]['v'] for i in suit_idx}
     clap_times = [9.375, 10.125, 10.875, 11.625]
     clap_frames = [int(round(t * AN.FPS)) for t in clap_times]
@@ -49,7 +62,8 @@ def validate(model, groups, B, Gs, mats, times, dance):
         st = tri_stretch(v_rest[torso], P[torso]['v'], model.parts[torso]['f'])
         stretch_torso.append(float(np.percentile(st, 99.9)))
         stretch_arm.append(float(max(np.percentile(tri_stretch(v_rest[sleeves[s]], P[sleeves[s]]['v'], model.parts[sleeves[s]]['f']), 99.9) for s in 'LR')))
-        phase = AN.PHASES[min(3, int((times[k] % AN.DURATION) // 3))]
+        phase = phase_of(dance, times[k])
+        sole.append(float(min(P[i]['v'][:, 1].min() for i in foot_idx)))
         for side in 'LR':
             # the glove palm sits inside its own sleeve by design, so exclude that sleeve
             others = [i for i in suit_idx if i != sleeves[side]]
@@ -64,10 +78,11 @@ def validate(model, groups, B, Gs, mats, times, dance):
             dd, ii = tree.query(gv)
             depth = -np.einsum('ij,ij->i', gv - body[ii], bn[ii])
             pen[phase] = max(pen[phase], float(np.percentile(depth, 99.5)))
-    for k in clap_frames:
-        P = posed(model, mats[k])
-        gl = np.vstack([P[i]['v'] for i in glove_idx['L']]); gr = np.vstack([P[i]['v'] for i in glove_idx['R']])
-        clap.append(float(cKDTree(gl).query(gr)[0].min()))
+    if dance.name == 'Chicken Dance':
+        for k in clap_frames:
+            P = posed(model, mats[k])
+            gl = np.vstack([P[i]['v'] for i in glove_idx['L']]); gr = np.vstack([P[i]['v'] for i in glove_idx['R']])
+            clap.append(float(cKDTree(gl).query(gr)[0].min()))
     # clipping: arm surfaces (away from the sleeve head) and gloves into the cups/torso; teats into the belly
     import design as D
     arm_pts = {}
@@ -83,11 +98,11 @@ def validate(model, groups, B, Gs, mats, times, dance):
         tj = set(RG.TEAT.values())
         isteat = np.isin(p['j'], list(tj)) & (p['w'] > 128)
         teat_v[i] = np.nonzero(isteat.any(1))[0]
-    arm_clip, teat_clip = {k: [] for k in AN.PHASES}, {k: [] for k in AN.PHASES}
+    arm_clip, teat_clip = {k: [] for k in PH}, {k: [] for k in PH}
     for k in range(0, len(times), 2):
         P = posed(model, mats[k])
         G = Gs[k]
-        phase = AN.PHASES[min(3, int((times[k] % AN.DURATION) // 3))]
+        phase = phase_of(dance, times[k])
         pts = np.vstack([P[sleeves[s]]['v'][arm_pts[s]] for s in 'LR'] + [P[i]['v'] for s in 'LR' for i in glove_idx[s]])
         arm_clip[phase].append(float(np.percentile(np.maximum(0, -dance.clearance(G, pts)), 99.5)))
         tv = np.vstack([P[i]['v'][teat_v[i]] for i in udder_idx])
@@ -100,5 +115,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
     m['sleeve_end_to_glove_gap_p95_rest_m'] = sleeve_gap[0]
     m['sleeve_end_to_glove_gap_p95_max_during_dance_m'] = max(sleeve_gap)
     m['glove_into_body_penetration_p995_m'] = pen
-    m['clap_min_glove_distance_m'] = clap
+    if clap:
+        m['clap_min_glove_distance_m'] = clap
+    m['lowest_slipper_point_m'] = min(sole)
     return m

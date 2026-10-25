@@ -106,36 +106,36 @@ def fur_displace(v, n, amp=.0045):
 
 
 def build_suit(step=.0042, target=170000):
-    """Torso+hood surface plus two separate sleeve tubes. Returns unified arrays (for weights/AO)."""
-    v, f = mesh_from(D.suit_sdf, (-.30, .70, -.24), (.30, 1.72, .32), step, int(target * .72))
-    n = S.vertex_normals(v, f)
-    v = fur_displace(v, n)
-    n = S.vertex_normals(v, f)
-    c = v[f].mean(1)
-    parts = D.suit_parts(c)
-    labels = np.where(parts['hood'] - .006 < parts['torso'], 1, 0)
-    labels[(parts['tube'] < parts['hood'] + .004) & (c[:, 1] > 1.585)] = 4
+    """Torso, hood, horn tube and two sleeves as separate surfaces (each piece of the costume is its
+    own garment).  Returns unified arrays (for weights/AO) plus per-piece UV charts.
+    Face labels: 0 torso, 1 hood, 2 sleeve L, 3 sleeve R, 4 horn tube."""
+    V, F, Nn, L, charts = [], [], [], [], []
+    off = 0
     tube_axis = [D.TUBE_C - [.12, 0, 0], D.TUBE_C + [.12, 0, 0]]
-    charts = [make_chart(v, f, labels, 0, lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
-              make_chart(v, f, labels, 1, lambda q: sphere_uv(q, D.HEAD_CENTER + [0, 0, -.03], (0, 0, -1), .13), 'Suit_hood_white_faux_fur'),
-              make_chart(v, f, labels, 4, lambda q: cyl_uv(q, tube_axis, (0, -1, -1), (0, 1, 0), .037, (0, .24)), 'Horn_tube_white_faux_fur')]
-    V, F, Nn, L = [v], [f], [n], [labels]
-    off = len(v)
-    for k, side in [(2, 'L'), (3, 'R')]:
+    pieces = [(0, D.suit_sdf, (-.30, .70, -.24), (.30, 1.45, .32), 1.0, .62,
+               lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
+              (1, D.hood_sdf, (-.12, 1.32, -.16), (.12, 1.67, .09), .7, .10,
+               lambda q: sphere_uv(q, np.array([0, 1.52, -.02]), (0, 0, -1), .10), 'Hood_white_faux_fur'),
+              (4, D.tube_sdf, D.TUBE_C - [.09, .05, .05], D.TUBE_C + [.09, .05, .05], .6, .02,
+               lambda q: cyl_uv(q, tube_axis, (0, -1, -1), (0, 1, 0), .037, (0, .24)), 'Mask_horn_tube_white_faux_fur')]
+    for side, lab in [('L', 2), ('R', 3)]:
         s = 1 if side == 'L' else -1
         sh, el, wr = D.arm_points(s)
-        lo = np.minimum(sh, wr) - .11; hi = np.maximum(sh, wr) + .11
-        av, af = mesh_from(lambda q, sd=side: D.sleeve_sdf(q, sd), lo, hi, step * .9, int(target * .14))
-        an = S.vertex_normals(av, af)
-        av = fur_displace(av, an)
-        an = S.vertex_normals(av, af)
-        al = np.full(len(af), k)
         top = sh + np.array([-s * .03, .05, 0])
-        ch = make_chart(av, af, al, k, lambda q, a=[top, sh, el, wr], s=s: cyl_uv(q, a, (-s * .3, 0, -1), (0, 0, 1), .058, (0, .6)), f'Suit_sleeve_{side}_white_faux_fur')
+        pieces.append((lab, (lambda q, sd=side: D.sleeve_sdf(q, sd)), np.minimum(sh, wr) - .11, np.maximum(sh, wr) + .11, .9, .13,
+                       (lambda q, a=[top, sh, el, wr], s=s: cyl_uv(q, a, (-s * .3, 0, -1), (0, 0, 1), .058, (0, .6))),
+                       f'Suit_sleeve_{side}_white_faux_fur'))
+    for lab, fn, lo, hi, stepk, frac, uvfn, name in pieces:
+        v, f = mesh_from(fn, lo, hi, step * stepk, int(target * frac))
+        n = S.vertex_normals(v, f)
+        v = fur_displace(v, n, .0045 if lab != 4 else .002)
+        n = S.vertex_normals(v, f)
+        lab_f = np.full(len(f), lab)
+        ch = make_chart(v, f, lab_f, lab, uvfn, name)
         ch['src'] = ch['src'] + off
         charts.append(ch)
-        V.append(av); F.append(af + off); Nn.append(an); L.append(al)
-        off += len(av)
+        V.append(v); F.append(f + off); Nn.append(n); L.append(lab_f)
+        off += len(v)
     return {'v': np.vstack(V), 'f': np.vstack(F), 'n': np.vstack(Nn), 'labels': np.concatenate(L), 'charts': charts}
 
 

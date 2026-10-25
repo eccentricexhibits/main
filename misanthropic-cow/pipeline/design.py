@@ -56,7 +56,7 @@ def mask_transform(v):
 # The fur-covered cardboard tube that joins the two horns across the top of the head
 # (v09's "crown block" stood in for it). Horns keep their scanned positions at its ends.
 TUBE_C_SCAN = np.array([0, 1.6325, .0615])     # where the scanned horns expect the tube
-TUBE_C = np.array([0, 1.616, .046])            # seated on the mask's top edge and the hood
+TUBE_C = np.array([0, 1.640, .040])            # rests on the mask's top edge (it is part of the mask)
 HORN_SHIFT = TUBE_C - TUBE_C_SCAN
 TUBE_HALF, TUBE_R = .066, .037
 MASK_BACK_Z = .080          # the scanned mask shell's back plane after mask_transform
@@ -72,17 +72,20 @@ def suit_parts(p, torso_only=False):
     out = {}
     chest = S.ellipsoid(p, (0, 1.19, -.028), (.163, .205, .128))
     shoulders = S.capsule(p, (-.145, 1.318, -.036), (.145, 1.318, -.036), .062)
-    neck = S.round_cone(p, (0, 1.30, -.034), (0, 1.47, -.015), .078, .066)
+    neck = S.round_cone(p, (0, 1.30, -.034), (0, 1.43, -.030), .080, .070)
     belly = S.ellipsoid(p, (0, .905, .058), (.226, .200, .222))
     back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
     torso = S.smin(torso, belly, .10)
     torso = S.smin(torso, neck, .05)
-    # hem: lower at the front under the belly, higher at the back
-    z = p[..., 2]
-    hem = .808 + .030 * np.clip((.05 - z) / .25, 0, 1)
-    torso = S.smax(torso, hem - p[..., 1], .025)
+    # neckline: the torso garment stops at the base of the neck; the hood's neck tucks inside it
+    torso = S.smax(torso, p[..., 1] - 1.405, .02)
+    # underside: a shallow bowl (lowest under the front of the belly, rising to the sides and back),
+    # with a soft fillet, so the padded belly reads round from below instead of sliced flat
+    x, z = p[..., 0], p[..., 2]
+    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2
+    torso = S.smax(torso, hem - p[..., 1], .08)
     out['torso'] = torso
     if torso_only:
         return out
@@ -94,29 +97,30 @@ def suit_parts(p, torso_only=False):
         d = (wr - el) / np.linalg.norm(wr - el)
         arm = S.smax(arm, S.plane(p, wr - .004 * d, d), .012)
         out['arm_' + side] = arm
-    # hood: the mask covers its whole front.  A rounded block with a flat face just behind the
-    # mask's back plane, a large rounded back, and a drape that falls onto the shoulders behind.
-    # Mask outline ~ ellipse centred y=1.4775 (+-0.105 x, +-0.12 y).  The ellipsoid's section at the
-    # mask's back plane is 92 % of that, so the mask overhangs the fur all round; it swells behind.
-    taper = 1 - .24 * np.clip((p[..., 1] - 1.47) / .13, 0, 1)           # narrower toward the crown
-    q = p.copy(); q[..., 0] = p[..., 0] / taper
-    head = S.ellipsoid(q, (0, 1.452, -.018), (.125, .148, .147)) * (.6 + .4 * taper)
-    drape = S.ellipsoid(p, (0, 1.380, -.075), (.140, .085, .120))
-    hood = S.smin(head, drape, .05)
-    hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z - .002), .006)   # never in front of the mask
-    hood = S.smin(hood, neck, .05)
-    tube = S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)
-    out['tube'] = tube
-    hood = S.smin(hood, tube, .012)
+    # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
+    # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
+    head = S.ellipsoid(p, (0, 1.523, -.022), (.094, .124, .112))
+    hood_neck = S.round_cone(p, (0, 1.355, -.030), (0, 1.47, -.022), .060, .064)
+    hood = S.smin(head, hood_neck, .04)
+    hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z - .004), .008)   # behind the mask
+    # the fur-covered tube that carries the horns is part of the mask, resting on its top edge
+    out['tube'] = S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)
     out['hood'] = hood
     return out
 
 
 def suit_sdf(p):
-    """Torso + hood only.  Sleeves are separate tubes set into the shoulder (as the costume is sewn),
-    so the chest side never fuses with the inner arm -- that fusion is what webbed into 'wings'."""
-    c = suit_parts(p)
-    return S.smin(c['torso'], c['hood'], .03)
+    """The torso garment only.  Sleeves are separate tubes set into the shoulder (as the costume is
+    sewn), so the chest never fuses with the inner arm; the hood and the horn tube are separate too."""
+    return torso_sdf(p)
+
+
+def hood_sdf(p):
+    return suit_parts(p)['hood']
+
+
+def tube_sdf(p):
+    return suit_parts(p)['tube']
 
 
 def sleeve_sdf(p, side):
@@ -125,7 +129,7 @@ def sleeve_sdf(p, side):
 
 def body_sdf(p):
     c = suit_parts(p)
-    return np.minimum(S.smin(c['torso'], c['hood'], .03), np.minimum(c['arm_L'], c['arm_R']))
+    return np.minimum.reduce([c['torso'], c['hood'], c['tube'], c['arm_L'], c['arm_R']])
 
 
 # ------------------------------------------------------------------ leggings

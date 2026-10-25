@@ -74,21 +74,33 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 1.6 m wearer</span>
+    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 7 animations</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
-        <div class="phase-now" id="phaseNow">Beaks</div>
+        <div class="phase-now" id="phaseNow">Chicken dance</div>
         <div class="status" id="status">Loading the model (9 MB)&hellip;</div>
+      </div>
+
+      <div class="row" id="clips">
+        <span class="label">Animation</span>
+        <button data-clip="__pose">Default pose</button>
+        <button data-clip="Idle">Idle</button>
+        <button data-clip="Walk">Walk</button>
+        <button data-clip="Run">Run</button>
+        <button data-clip="Sneak">Sneak</button>
+        <button data-clip="Jumping Jacks">Jumping jacks</button>
+        <button data-clip="Look Around">Look around</button>
+        <button data-clip="Chicken Dance">Chicken dance</button>
       </div>
 
       <div class="row">
         <button class="play" id="play" aria-pressed="true">Pause</button>
         <div class="timeline">
-          <input type="range" id="scrub" min="0" max="12" step="0.01" value="0" aria-label="Dance time in seconds">
-          <div class="ticks"><span>Beaks</span><span>Wings</span><span>Wiggle</span><span>Claps</span></div>
+          <input type="range" id="scrub" min="0" max="12" step="0.01" value="0" aria-label="Animation time in seconds">
+          <div class="ticks" id="ticks"><span>Beaks</span><span>Wings</span><span>Wiggle</span><span>Claps</span></div>
         </div>
         <span class="time" id="time">0.00 s</span>
       </div>
@@ -122,27 +134,30 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li>The mask now covers the whole front of the fur hood, which swells out behind it. The fur-covered tube is back across the top, with a horn at each end.</li>
-          <li>The black shag is toned down: short clumped tufts on top of a streaked, hanging-tuft texture.</li>
-          <li>Elbows swing clear of the udder cups, helper joints keep the shoulders and elbows full, and the teats no longer sink into the belly.</li>
-          <li>Light physics, baked into the dance: the teats swing and collide with the belly, and the shag patches, belly and udder cups lag and settle.</li>
-          <li>Body built to the 2012 shoot; sleeves set into the shoulder so the arms never web into "wings"; gloves tucked into the sleeves so the hands stay attached.</li>
+          <li>The hood is its own snug fur balaclava with a neck that tucks into the torso&rsquo;s neckline, so the head turns freely and the hunch is gone. The fur tube and horns ride on the mask.</li>
+          <li>The belly is round underneath instead of sliced flat.</li>
+          <li>The black shag uses your swatch, with tufts cut from your tuft sheet hanging off each patch.</li>
+          <li>New animations: Idle, Walk, Run, Sneak, Jumping jacks and Look around, plus the Chicken dance. <strong>Default pose</strong> resets to the relaxed rest pose.</li>
+          <li>Teats, shag, belly and udder cups carry baked spring physics in every animation.</li>
         </ul>
       </section>
       <section>
-        <h2>Measured over the dance</h2>
+        <h2>Measured per animation</h2>
+        <div style="overflow-x:auto">
         <table class="metrics">
-          <thead><tr><th>Check</th><th>v09</th><th>v10</th></tr></thead>
+          <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Lowest sole</th></tr></thead>
           <tbody>
-            <tr><td>Arms into udder or torso, 99.5th pct</td><td>n/a</td><td class="good">0 mm</td></tr>
-            <tr><td>Teats into belly, 99.5th pct</td><td>n/a</td><td class="good">&le; 2.4 mm</td></tr>
-            <tr><td>Torso edge stretch, 99.9th pct</td><td>4.08&times;</td><td class="good">1.74&times;</td></tr>
-            <tr><td>Sleeve edge stretch, 99.9th pct</td><td>12.85&times;</td><td class="good">2.79&times;</td></tr>
-            <tr><td>Sleeve-to-glove gap, rest &rarr; worst frame</td><td>n/a</td><td class="good">15.8 &rarr; 16.1 mm</td></tr>
-            <tr><td>Teat swing, max</td><td>none</td><td class="good">23&deg;</td></tr>
+            <tr><td>Idle</td><td>0.6 mm</td><td>0 mm</td><td>6 mm</td></tr>
+            <tr><td>Walk</td><td>1.7 mm</td><td>0 mm</td><td>1.2 mm</td></tr>
+            <tr><td>Run</td><td>0 mm</td><td>0.8 mm</td><td>1.4 mm</td></tr>
+            <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
+            <tr><td>Jumping jacks</td><td>0 mm</td><td>0 mm</td><td>6 mm</td></tr>
+            <tr><td>Look around</td><td>8.6 mm</td><td>0 mm</td><td>6 mm</td></tr>
+            <tr><td>Chicken dance</td><td>0 mm</td><td>2.4 mm</td><td>6 mm</td></tr>
           </tbody>
         </table>
-        <p class="note">The teats only touch the belly at the bottom of the Wiggle squat.</p>
+        </div>
+        <p class="note">Depths are 99.5th percentiles over every frame. In every animation the gloves never enter the body and stay tucked into the sleeves. The Look around figure is the relaxed arm pressing into the plush chest while the body twists.</p>
       </section>
       <figure>
         <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
@@ -222,7 +237,8 @@ function resize() {
 }
 new ResizeObserver(resize).observe(stage); resize();
 
-let mixer = null, action = null, playing = true, clip = null;
+let mixer = null, action = null, playing = true, clipName = 'Chicken Dance';
+const clipMap = {};
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
 const meshes = [];
 
@@ -268,15 +284,39 @@ async function start() {
       o.userData.mat = o.material;
       meshes.push(o);
       const m = o.material;
-      if (m && m.name && m.name.includes('strands')) m.side = THREE.DoubleSide;
+      if (m && m.name && m.name.includes('tuft')) m.side = THREE.DoubleSide;
     }
   });
   scene.add(root);
-  clip = gltf.animations[0];
   mixer = new THREE.AnimationMixer(root);
-  action = mixer.clipAction(clip); action.play();
+  gltf.animations.forEach(c => { clipMap[c.name] = c; });
+  selectClip('Chicken Dance');
   status.hidden = true;
 }
+
+const ticks = document.getElementById('ticks');
+const phaseRow = document.getElementById('phases');
+function selectClip(name) {
+  document.querySelectorAll('#clips button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.clip === name)));
+  if (!mixer) return;
+  mixer.stopAllAction();
+  const dance = name === 'Chicken Dance';
+  ticks.hidden = !dance; phaseRow.hidden = !dance;
+  if (name === '__pose') {
+    // the relaxed rest pose: arms down at the sides, feet together
+    meshes.forEach(m => { if (m.isSkinnedMesh) m.skeleton.pose(); });
+    action = null; clipName = name;
+    phaseNow.textContent = 'Default pose';
+    scrub.disabled = true; timeEl.textContent = '';
+    return;
+  }
+  scrub.disabled = false;
+  clipName = name;
+  action = mixer.clipAction(clipMap[name]);
+  action.reset().play();
+  scrub.max = clipMap[name].duration.toFixed(2);
+}
+document.querySelectorAll('#clips button').forEach(b => b.addEventListener('click', () => selectClip(b.dataset.clip)));
 start().catch(err => { status.textContent = 'The model could not be loaded: ' + err.message; });
 
 playBtn.addEventListener('click', () => {
@@ -284,7 +324,7 @@ playBtn.addEventListener('click', () => {
   playBtn.textContent = playing ? 'Pause' : 'Play';
   playBtn.setAttribute('aria-pressed', String(playing));
 });
-function seek(t) { if (!mixer) return; action.time = t; mixer.update(0); }
+function seek(t) { if (!mixer || !action) return; action.time = t; mixer.update(0); }
 scrub.addEventListener('input', () => { seek(parseFloat(scrub.value)); });
 document.querySelectorAll('#phases button').forEach(b => b.addEventListener('click', () => {
   seek(parseFloat(b.dataset.t) + 0.6);
@@ -300,12 +340,13 @@ clayBtn.addEventListener('click', () => {
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
-  if (mixer) {
+  if (mixer && action) {
     if (playing) mixer.update(dt);
-    const t = action.time % 12;
+    const dur = clipMap[clipName].duration;
+    const t = action.time % dur;
     scrub.value = t.toFixed(2);
     timeEl.textContent = t.toFixed(2) + ' s';
-    phaseNow.textContent = PHASES[Math.min(3, Math.floor(t / 3))];
+    phaseNow.textContent = clipName === 'Chicken Dance' ? PHASES[Math.min(3, Math.floor(t / 3))] : clipName;
   }
   controls.update();
   renderer.render(scene, camera);

@@ -7,7 +7,10 @@ import sdf as S, design as D, glb as G, render as R
 def build(step):
     model = G.Model()
     model.add_material({'name': 'clay', 'pbrMetallicRoughness': {'baseColorFactor': [1, 1, 1, 1], 'roughnessFactor': .9}})
-    for name, fn, lo, hi in [('suit', D.suit_sdf, (-.42, .70, -.24), (.42, 1.72, .30)),
+    for name, fn, lo, hi in [('suit', D.suit_sdf, (-.30, .70, -.24), (.30, 1.45, .32)),
+                             ('hood', D.hood_sdf, (-.12, 1.32, -.16), (.12, 1.67, .09)),
+                             ('tube', D.tube_sdf, D.TUBE_C - [.09, .05, .05], D.TUBE_C + [.09, .05, .05]),
+                             ('sleeves', lambda q: np.minimum(D.sleeve_sdf(q, 'L'), D.sleeve_sdf(q, 'R')), (-.45, .75, -.2), (.45, 1.45, .2)),
                              ('leggings', D.legging_sdf, (-.25, .04, -.20), (.25, 1.05, .16)),
                              ('udder', D.udder_sdf, (-.32, .98, -.06), (.32, 1.32, .30))]:
         t = time.time()

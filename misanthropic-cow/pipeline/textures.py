@@ -90,6 +90,8 @@ TORSO_PATCHES, SLEEVE_PATCHES = [0, 1, 2, 3], {'L': [4], 'R': [5]}
 
 
 def patches_for(chart_name):
+    if 'Hood' in chart_name or 'tube' in chart_name:
+        return []
     for side in 'LR':
         if f'sleeve_{side}' in chart_name:
             return SLEEVE_PATCHES[side]
@@ -115,15 +117,14 @@ def shag_detail(p, black):
     streak = N.fbm(p * np.array([75, 10, 75]), 4, seed=41)
     fine = N.fbm(p * np.array([260, 30, 260]), 2, seed=43)
     clump = N.fbm(p * 18, 3, seed=47)
-    shade = .55 + .55 * np.clip(streak * .9 + fine * .35 + .25, 0, 1) - .25 * np.clip(-clump, 0, 1)
-    tips = .06 * np.clip(fine + streak - .3, 0, 1)
-    return np.clip(black * shade[..., None] + tips[..., None], 0, 1)
+    shade = .80 + .35 * np.clip(streak * .9 + fine * .35 + .25, 0, 1) - .20 * np.clip(-clump, 0, 1)
+    return np.clip(black * shade[..., None] * 1.15, 0, 1)
 
 
 def suit_color(p, n, white, black, which=None):
     m = shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
-    bc = shag_detail(p, triplanar(black, p, n, TILE * 1.4))
+    bc = shag_detail(p, triplanar(black, p, n, .22))
     # very slight low-frequency warmth/soil variation in the white plush
     var = 1 + .035 * N.fbm(p * 6, 3, seed=11)[..., None]
     wc = np.clip(wc * var * np.array([1.0, .992, .975]), 0, 1)
@@ -168,3 +169,29 @@ def mild_lift(rgb):
     lift = np.clip((l - .22) / .35, 0, 1) * np.clip(1 - sat * 2.5, 0, 1)   # white paint only, not eyes/muzzle
     out = a + (1 - (1 - a) ** 1.8 - a) * lift
     return out
+
+
+# ----------------------------------------------------------------- tuft cards from a photo sheet
+def tuft_atlas(path, size=1024):
+    """Turn a sheet of black tufts on white into an RGBA atlas (alpha from the white background,
+    colour un-premultiplied) and find each tuft's cell.  Returns (png bytes, [(u0, v0, u1, v1), ...])."""
+    from scipy import ndimage as ndi
+    im = Image.open(path).convert('RGB').resize((size, size), Image.LANCZOS)
+    a = np.asarray(im).astype(np.float32) / 255
+    L = a.mean(-1)
+    alpha = np.clip((.965 - L) / .80, 0, 1) ** .85
+    col = (a - (1 - alpha[..., None])) / np.maximum(alpha[..., None], 1e-3)
+    col = np.clip(col, 0, .12) * .55          # match the near-black shag swatch underneath
+    col[alpha < .12] = .03
+    blob = ndi.binary_closing(ndi.gaussian_filter(alpha, 4) > .18, iterations=6)
+    lab, n = ndi.label(blob)
+    cells = []
+    for sl in ndi.find_objects(lab):
+        h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+        if h * w < (size * .05) ** 2:
+            continue
+        cells.append((sl[1].start / size, sl[0].start / size, sl[1].stop / size, sl[0].stop / size))
+    rgba = np.dstack([col, alpha])
+    b = io.BytesIO()
+    Image.fromarray(np.uint8(np.clip(rgba, 0, 1) * 255 + .5), 'RGBA').save(b, 'PNG', optimize=True)
+    return b.getvalue(), cells

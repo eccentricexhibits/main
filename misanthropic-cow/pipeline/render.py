@@ -24,7 +24,7 @@ def lib():
         L.raster.argtypes = [ctypes.c_int, F, F, vp, vp, vp, ctypes.c_int, I, ctypes.c_int, ctypes.c_int,
                              ctypes.c_float, ctypes.c_float, ctypes.c_float, vp, ctypes.c_int, ctypes.c_int,
                              vp, ctypes.c_int, ctypes.c_int, ctypes.c_float, F, ctypes.c_float, ctypes.c_float,
-                             ctypes.c_int, F, F]
+                             ctypes.c_int, F, F, vp, ctypes.c_float]
         L.skin.argtypes = [ctypes.c_int, F, F, U, U, F, F, F]
         L.bake.argtypes = [ctypes.c_int, I, F, ctypes.c_int, F, ctypes.c_int, ctypes.c_int, F, U]
         _lib = L
@@ -44,6 +44,15 @@ class Renderer:
         if i not in self.cache:
             self.cache[i] = np.ascontiguousarray(G.image_array(self.model, i))
         return self.cache[i]
+
+    def alpha(self, i):
+        key = ('a', i)
+        if key not in self.cache:
+            from PIL import Image
+            import io
+            im = Image.open(io.BytesIO(self.model.images[i][0]))
+            self.cache[key] = np.ascontiguousarray(np.asarray(im.convert('RGBA'))[..., 3]) if 'A' in im.getbands() else None
+        return self.cache[key]
 
     def render(self, angle=0, el=0, size=(1200, 1500), center=(0, .85, 0), height=1.9, clay=False,
                parts=None, bg=True):
@@ -83,7 +92,9 @@ class Renderer:
                      _ptr(ntex), 0 if ntex is None else ntex.shape[1], 0 if ntex is None else ntex.shape[0],
                      float(nt.get('scale', 1)) if nt else 1.0,
                      np.ascontiguousarray(pb.get('baseColorFactor', [1, 1, 1, 1])[:3], np.float32),
-                     float(pb.get('roughnessFactor', .9)), float(sheen), int(clay), depth, rgb)
+                     float(pb.get('roughnessFactor', .9)), float(sheen), int(clay), depth, rgb,
+                     _ptr(self.alpha(bt['image'])) if (bt and ma.get('alphaMode') == 'MASK') else None,
+                     float(ma.get('alphaCutoff', .5)))
         return Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255))
 
 

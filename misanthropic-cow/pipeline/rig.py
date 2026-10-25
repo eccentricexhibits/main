@@ -128,7 +128,6 @@ def smooth_weights(W, f, iters, lock=None):
 def suit_weights(v, f, face_labels):
     """Torso/hood vertices never take arm weights (only the clavicle on the shoulder top);
     sleeve vertices take only the arm chain (+ clavicle at the sleeve head)."""
-    c = D.suit_parts(v)
     vl = np.zeros(len(v), int)
     for k in range(3):
         vl[f[:, k]] = face_labels
@@ -147,17 +146,20 @@ def suit_weights(v, f, face_labels):
         dsh = np.linalg.norm(v - sh, axis=1)
         cl = .55 * ss(.17, .07, dsh) * ss(1.20, 1.30, y)
         W *= (1 - cl)[:, None]; W[:, a['shoulder']] += cl
-    hood = ss(-.012, .012, c['torso'] - c['hood'])
-    hood = np.maximum(hood, ss(1.43, 1.47, y))
-    head = ss(1.425, 1.475, y)
+    # the torso's neckline follows the neck a little
+    nk = .3 * ss(1.36, 1.405, y)
+    W *= (1 - nk)[:, None]; W[:, NECK] += nk
+    # the hood is its own garment on the head and neck; the horn tube is part of the mask (head)
+    hood = (vl == 1) | (vl == 4)
+    head = np.where(vl == 4, 1.0, ss(1.42, 1.47, y))
     hw = np.zeros((len(v), NB)); hw[:, NECK] = 1 - head; hw[:, HEAD] = head
-    W = W * (1 - hood)[:, None] + hw * hood[:, None]
+    W[hood] = hw[hood]
     for side, s in [('L', 1), ('R', -1)]:
         # torso around the sleeve head follows the arm a little, so the shoulder does not poke through
         sh = D.arm_points(s)[0]
         k = .40 * ss(.10, .035, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.22, 1.29, y)
         W *= (1 - k)[:, None]; W[:, ROOT_HALF[side]] += k
-    torso_mask = ~(sleeve['L'] | sleeve['R'])
+    torso_mask = ~(sleeve['L'] | sleeve['R'] | (vl == 4))
     ft = f[np.all(torso_mask[f], axis=1)]
     W[torso_mask] = smooth_weights(W, ft, 6)[torso_mask]
     for side, s in [('L', 1), ('R', -1)]:

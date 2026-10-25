@@ -1,4 +1,7 @@
-"""Chicken Dance v10: Beaks, Wings, Tail-feather wiggle, Claps (12 s loop, 4 x 3 s, 4 moves each)."""
+"""Animation solver for the v10 cow + the Chicken Dance (Beaks, Wings, Wiggle, Claps; 12 s, 4 x 3 s).
+
+`Dance` holds the generic solver (arm IK/FK with elbow swivel, foot IK, half-rotation helpers, baked
+spring physics).  Other clips subclass it and override `sample(t)` (see clips.py)."""
 import numpy as np
 from scipy.spatial.transform import Rotation, Slerp
 import design as D
@@ -49,15 +52,31 @@ def smooth(a, b, x):
 
 
 class Dance:
+    name = 'Chicken Dance'
+    duration = DURATION
+    phases = [(n, 3 * i, 3 * i + 3) for i, n in enumerate(PHASES)]
+    use_swivel = True
+
     def __init__(self, B):
         self.B = np.asarray(B, float)
         self.palm_half = {}
         self.bind_hand = {}
+        self.flex_sign = {}
         for side, s in [('L', 1), ('R', -1)]:
             a = RG.ARM[side]
             df = self.B[a['hand']] - self.B[a['fore']]
+            bu = self.B[a['fore']] - self.B[a['upper']]
             self.bind_hand[side] = frame(df, [-s, 0, 0])
             self.palm_half[side] = .03
+            hinge = np.cross(bu, df); hinge /= np.linalg.norm(hinge)
+            self.flex_sign[side] = 1 if (rot(hinge, .4) @ df)[2] > df[2] else -1
+        # slipper contact points relative to the ankle (heel and toe), for keeping soles on the floor
+        self.heel = np.array([0, -.085, -.075]); self.toe = np.array([0, -.080, .215])
+
+    def ankle_height(self, pitch):
+        """Ankle height that keeps the lowest of heel/toe on the floor for a given foot pitch."""
+        R = rot([1, 0, 0], pitch)
+        return max(-(R @ self.heel)[1], -(R @ self.toe)[1]) + .007
 
     def hand_rot(self, side, finger_dir, palm_normal):
         return frame(finger_dir, palm_normal) @ self.bind_hand[side].T
@@ -123,7 +142,7 @@ class Dance:
         return out
 
     def sample(self, t):
-        t = t % DURATION
+        t = t % self.duration
         stage = int(t // 3); u = (t - stage * 3) / 3
         bl = .35 / 3
         if u < bl:
@@ -155,9 +174,11 @@ class Dance:
     def solve_swivel(self, fps=FPS):
         """Pick, per frame, how far to swing each elbow around the shoulder-wrist line to stay clear
         of the cups and torso; continuity-weighted, then smoothed around the loop."""
-        times = np.arange(0, DURATION, 1 / fps)
-        cand = np.linspace(-1.1, 1.1, 23)
         self.swivel = None
+        if not self.use_swivel:
+            return
+        times = np.arange(0, self.duration, 1 / fps)
+        cand = np.linspace(-1.1, 1.1, 23)
         out = {}
         costs = {s: np.zeros((len(times), len(cand))) for s in 'LR'}
         for i, t in enumerate(times):
@@ -193,7 +214,7 @@ class Dance:
         if getattr(self, 'swivel', None) is None:
             return 0.0
         times, phi = self.swivel
-        return float(np.interp(t % DURATION, np.r_[times, DURATION], np.r_[phi[side], phi[side][0]]))
+        return float(np.interp(t % self.duration, np.r_[times, self.duration], np.r_[phi[side], phi[side][0]]))
 
     # ---------------------------------------------------------------- pose solve
     def pose(self, t, dyn=None, solve=False):
@@ -224,11 +245,27 @@ class Dance:
         arm_in = {}
         for side, s in [('L', 1), ('R', -1)]:
             a = RG.ARM[side]
-            at(a['shoulder'], RG.CHEST, Rc @ rot([0, 0, 1], s * p['clav'][side]))
+            at(a['shoulder'], RG.CHEST, Rc @ rot([0, 0, 1], s * p.get('clav', {}).get(side, 0.)))
             sh = G[a['shoulder'], :3, :3] @ (B[a['upper']] - B[a['shoulder']]) + G[a['shoulder'], :3, 3]
             l1 = np.linalg.norm(B[a['fore']] - B[a['upper']]); l2 = np.linalg.norm(B[a['hand']] - B[a['fore']])
-            target = Rc @ (p['hand'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
-            pole = Rc @ (p['pole'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
+            if side in p.get('fk', {}):
+                # forward kinematics: abduction / forward flexion of the upper arm (chest frame) and
+                # extra elbow bend, turned into an IK target + pole that reproduce it exactly
+                abd, flex, bend = p['fk'][side]
+                bu0 = B[a['fore']] - B[a['upper']]; bf0 = B[a['hand']] - B[a['fore']]
+                hinge0 = np.cross(bu0, bf0); hinge0 /= np.linalg.norm(hinge0)
+                Rl = rot([0, 0, 1], s * abd) @ rot([1, 0, 0], -flex)
+                el_fk = sh + Rc @ Rl @ bu0
+                wr_fk = el_fk + Rc @ Rl @ rot(hinge0, self.flex_sign[side] * bend) @ bf0
+                mid = sh + (wr_fk - sh) * (((el_fk - sh) @ (wr_fk - sh)) / ((wr_fk - sh) @ (wr_fk - sh)))
+                off = el_fk - mid
+                if np.linalg.norm(off) < 2e-3:
+                    off = Rc @ Rl @ np.cross(hinge0, bu0)
+                target = wr_fk
+                pole = el_fk + .3 * off / np.linalg.norm(off)
+            else:
+                target = Rc @ (p['hand'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
+                pole = Rc @ (p['pole'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
             arm_in[side] = (sh, target, l1, l2, pole)
             elbow, wrist = ik(sh, target, l1, l2, pole, self.swivel_at(t, side))
             bu = B[a['fore']] - B[a['upper']]; bf = B[a['hand']] - B[a['fore']]
@@ -271,12 +308,18 @@ class Dance:
         for side in 'LR':
             L = RG.LEG[side]
             hip = G[RG.HIPS, :3, :3] @ (B[L['thigh']] - B[RG.HIPS]) + G[RG.HIPS, :3, 3]
-            ankle = B[L['foot']].copy()
+            ft = (p.get('feet') or {}).get(side)
+            if ft is None:
+                ankle, Rfoot = B[L['foot']].copy(), np.eye(3)
+            else:
+                ankle = np.asarray(ft['pos'], float)
+                Rfoot = rot([0, 1, 0], ft.get('yaw', 0.)) @ rot([1, 0, 0], ft.get('pitch', 0.))
             l1 = np.linalg.norm(B[L['shin']] - B[L['thigh']]); l2 = np.linalg.norm(B[L['foot']] - B[L['shin']])
-            knee, ankle = ik(hip, ankle, l1, l2, B[L['shin']] + [0, 0, .8])
+            knee_pole = hip + rot([0, 1, 0], (ft or {}).get('yaw', 0.)) @ np.array([0, -.35, .8])
+            knee, ankle = ik(hip, ankle, l1, l2, knee_pole)
             for j, st, en, rest in [(L['thigh'], hip, knee, B[L['shin']] - B[L['thigh']]), (L['shin'], knee, ankle, B[L['foot']] - B[L['shin']])]:
                 G[j, :3, :3] = align(rest, en - st); G[j, :3, 3] = st
-            G[L['foot'], :3, :3] = np.eye(3); G[L['foot'], :3, 3] = ankle
+            G[L['foot'], :3, :3] = Rfoot; G[L['foot'], :3, 3] = ankle
         if solve:
             return G, arm_in
         return G
@@ -298,7 +341,8 @@ class Dance:
         Simulated for three loops; the last loop is kept so the animation cycles seamlessly."""
         sub, fps = 8, FPS
         dt = 1 / (fps * sub)
-        tt = np.arange(0, 3 * DURATION, 1 / fps)
+        D_ = self.duration
+        tt = np.arange(0, 3 * D_, 1 / fps)
         springs = {RG.BELLY: (110., 9., .55, .020), RG.UDDER['L']: (150., 8., .6, .016), RG.UDDER['R']: (150., 8., .6, .016)}
         for j in RG.SHAG:
             springs[j] = (70., 5.5, .9, .022)
@@ -346,8 +390,8 @@ class Dance:
                 dirs.append(dvec / np.linalg.norm(dvec))
                 o = tip - rest[i]
             teat_hist[j] = np.array(dirs)
-        last = tt >= 2 * DURATION
-        idx = np.searchsorted(tt[last], (times % DURATION) + 2 * DURATION).clip(0, last.sum() - 1)
+        last = tt >= 2 * D_ - 1e-9
+        idx = np.searchsorted(tt[last], (times % D_) + 2 * D_ - 1e-9).clip(0, last.sum() - 1)
         out = []
         for i in range(len(times)):
             k = np.nonzero(last)[0][idx[i]]
@@ -356,7 +400,7 @@ class Dance:
 
     def bake(self, fps=FPS):
         self.solve_swivel(fps)
-        times = np.linspace(0, DURATION, int(round(DURATION * fps)) + 1)
+        times = np.linspace(0, self.duration, int(round(self.duration * fps)) + 1)
         dyn = self.dynamics(times)
         dyn[-1] = dyn[0]
         Gs = np.stack([self.pose(t, dyn[i]) for i, t in enumerate(times)])
