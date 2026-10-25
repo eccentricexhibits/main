@@ -220,22 +220,40 @@ let mixer = null, action = null, playing = true, clip = null;
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
 const meshes = [];
 
-function load(url, useMeshopt) {
+// Each model ships as a .glb (local copy) and as base64 text (.b64.txt, for hosts that only serve text).
+async function fetchBytes(names) {
+  for (const name of names) {
+    try {
+      const res = await fetch(name);
+      if (!res.ok) continue;
+      if (name.endsWith('.txt')) {
+        const bin = atob((await res.text()).trim());
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes.buffer;
+      }
+      return await res.arrayBuffer();
+    } catch (e) { /* try the next copy */ }
+  }
+  throw new Error('no copy of ' + names[0] + ' could be fetched');
+}
+
+async function load(base, useMeshopt) {
+  const buffer = await fetchBytes([base + '.glb', base + '.b64.txt']);
+  status.textContent = 'Preparing the model...';
   const loader = new GLTFLoader();
   if (useMeshopt) loader.setMeshoptDecoder(MeshoptDecoder);
-  return new Promise((resolve, reject) => loader.load(url, resolve, ev => {
-    if (ev.total) status.textContent = `Loading the model... ${Math.round(100 * ev.loaded / ev.total)}%`;
-  }, reject));
+  return new Promise((resolve, reject) => loader.parse(buffer, '', resolve, reject));
 }
 
 async function start() {
   let gltf;
   try {
     await MeshoptDecoder.ready;
-    gltf = await load('cow-meshopt.glb', true);
+    gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the uncompressed copy (12 MB)...';
-    gltf = await load('cow-plain.glb', false);
+    status.textContent = 'Loading the simplified copy (11 MB)...';
+    gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
   root.traverse(o => {

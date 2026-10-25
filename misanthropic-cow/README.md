@@ -92,7 +92,7 @@ Add `--quick` to `build_v10.py` for a half-resolution build that takes about 45 
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail).
-- `cow-plain.glb` uses `-kn -km -ke -si 0.45` (a simplified fallback).
+- `cow-plain.glb` uses `-kn -km -ke -si 0.4` (a simplified fallback). The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 
