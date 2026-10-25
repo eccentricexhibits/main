@@ -1,0 +1,289 @@
+<title>Misanthropic Cow v10</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a seamless-paper photo stage (like the 2012 gel-lit shoot) with a control strip under it and notes beside it. */
+:root {
+  --paper: #f3e6ec;        /* pale pink seamless */
+  --paper-2: #e8d3dd;
+  --ink: #241820;
+  --ink-soft: #6a5562;
+  --line: #d6bfca;
+  --gold: #b7861a;         /* the mask's gold eyes */
+  --udder: #e7a8b8;
+  --chip: #fff7fa;
+  --stage-top: #f6dbe7;
+  --stage-bottom: #cfa9bc;
+  --display: "Bowlby One SC", "Arial Black", Impact, sans-serif;
+  --body: "Work Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1b1218; --paper-2: #241821; --ink: #f4e9ef; --ink-soft: #b49fac; --line: #3d2b37;
+    --gold: #e3b23c; --udder: #f0b4c4; --chip: #2a1c26; --stage-top: #3a1f33; --stage-bottom: #120b10;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1b1218; --paper-2: #241821; --ink: #f4e9ef; --ink-soft: #b49fac; --line: #3d2b37;
+  --gold: #e3b23c; --udder: #f0b4c4; --chip: #2a1c26; --stage-top: #3a1f33; --stage-bottom: #120b10;
+  color-scheme: dark;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; max-width: 1240px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 46px); line-height: 1; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.tag { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.stage { position: relative; border-radius: 6px; overflow: hidden; background: radial-gradient(120% 90% at 50% 18%, var(--stage-top), var(--stage-bottom)); aspect-ratio: 4 / 5; max-height: 78vh; width: 100%; max-width: 100%; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.status { position: absolute; inset: auto 0 0 0; padding: 10px 14px; font-family: var(--mono); font-size: 12px; color: var(--ink); background: color-mix(in srgb, var(--paper) 72%, transparent); }
+.status[hidden] { display: none; }
+.phase-now { position: absolute; top: 12px; left: 14px; font-family: var(--display); font-size: 22px; color: var(--ink); opacity: .9; pointer-events: none; }
+.controls { display: grid; gap: 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row .label { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); width: 64px; flex: none; }
+button { font: 500 14px/1 var(--body); color: var(--ink); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+button:hover { border-color: var(--ink-soft); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button.play { font-family: var(--display); font-weight: 400; letter-spacing: .03em; padding: 9px 18px; }
+.timeline { flex: 1 1 220px; display: grid; gap: 4px; min-width: 0; }
+.timeline input { width: 100%; accent-color: var(--gold); }
+.ticks { display: grid; grid-template-columns: repeat(4, 1fr); font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+.ticks span { border-left: 1px solid var(--line); padding-left: 4px; }
+.time { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink-soft); width: 72px; text-align: right; }
+aside { display: grid; gap: 18px; min-width: 0; }
+aside h2 { font-family: var(--display); font-weight: 400; font-size: 18px; margin: 0 0 6px; letter-spacing: .02em; }
+aside p, aside li { margin: 0; color: var(--ink); }
+aside ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.metrics { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.metrics th, .metrics td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.metrics th { font-weight: 500; color: var(--ink-soft); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.metrics td.good { color: var(--ink); font-weight: 500; }
+.note { font-size: 13px; color: var(--ink-soft); }
+figure { margin: 0; display: grid; gap: 6px; }
+figure img { width: 100%; border-radius: 4px; border: 1px solid var(--line); }
+figcaption { font-size: 12.5px; color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>The Misanthropic Cow</h1>
+    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 1.6 m wearer</span>
+  </header>
+
+  <div class="main">
+    <section class="controls" aria-label="Viewer">
+      <div class="stage" id="stage">
+        <div class="phase-now" id="phaseNow">Beaks</div>
+        <div class="status" id="status">Loading the model (9.3 MB)&hellip;</div>
+      </div>
+
+      <div class="row">
+        <button class="play" id="play" aria-pressed="true">Pause</button>
+        <div class="timeline">
+          <input type="range" id="scrub" min="0" max="12" step="0.01" value="0" aria-label="Dance time in seconds">
+          <div class="ticks"><span>Beaks</span><span>Wings</span><span>Wiggle</span><span>Claps</span></div>
+        </div>
+        <span class="time" id="time">0.00 s</span>
+      </div>
+
+      <div class="row" id="phases">
+        <span class="label">Jump to</span>
+        <button data-t="0">Beaks</button>
+        <button data-t="3">Wings</button>
+        <button data-t="6">Wiggle</button>
+        <button data-t="9">Claps</button>
+      </div>
+
+      <div class="row" id="views">
+        <span class="label">Camera</span>
+        <button data-view="front">Front</button>
+        <button data-view="quarter">Quarter</button>
+        <button data-view="side">Side</button>
+        <button data-view="back">Back</button>
+        <button data-view="head">Head</button>
+        <button data-view="hands">Hands</button>
+      </div>
+
+      <div class="row">
+        <span class="label">Surface</span>
+        <button id="clay" aria-pressed="false">Clay</button>
+        <span class="note">Drag to orbit, scroll or pinch to zoom.</span>
+      </div>
+    </section>
+
+    <aside>
+      <section>
+        <h2>What changed</h2>
+        <ul>
+          <li>Body rebuilt to the original 2012 shoot: narrow sloped shoulders, a long round belly hanging to the crotch, pink panties showing beneath it.</li>
+          <li>The scanned mask now sits recessed in a fur hood that narrows at the crown, with both horns rooted in the crown tuft.</li>
+          <li>Sleeves are separate tubes set into the shoulder, as on the costume, so lifting the elbows no longer webs the torso into "wings".</li>
+          <li>Each glove tucks 3.5 cm into its sleeve and both share one weight function along the forearm, so the hands stay attached through every move.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Measured over the dance</h2>
+        <table class="metrics">
+          <thead><tr><th>Check</th><th>v09</th><th>v10</th></tr></thead>
+          <tbody>
+            <tr><td>Torso edge stretch, 99.9th pct</td><td>4.08&times;</td><td class="good">1.40&times;</td></tr>
+            <tr><td>Sleeve edge stretch, 99.9th pct</td><td>12.85&times;</td><td class="good">2.95&times;</td></tr>
+            <tr><td>Sleeve-to-glove gap, rest &rarr; worst frame</td><td>n/a</td><td class="good">16.0 &rarr; 16.1 mm</td></tr>
+            <tr><td>Glove into body, 99.5th pct</td><td>n/a</td><td class="good">0 mm</td></tr>
+            <tr><td>Clap contact gap</td><td>n/a</td><td class="good">0.3 mm</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Remaining sleeve stretch is on the outer elbow at the top of each wing flap.</p>
+      </section>
+      <figure>
+        <img src="compare.jpg" alt="Two 2012 shoot photos beside the v09 render and the v10 front and quarter renders">
+        <figcaption>2012 shoot (0120, 0071) &middot; v09 before &middot; v10 after</figcaption>
+      </figure>
+    </aside>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+const stage = document.getElementById('stage');
+const status = document.getElementById('status');
+const phaseNow = document.getElementById('phaseNow');
+const scrub = document.getElementById('scrub');
+const timeEl = document.getElementById('time');
+const playBtn = document.getElementById('play');
+const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+stage.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+const key = new THREE.DirectionalLight(0xfff1e8, 1.6); key.position.set(-1.2, 2.4, 2.2); scene.add(key);
+const rim = new THREE.DirectionalLight(0xffc6dc, 1.1); rim.position.set(1.6, 1.8, -2.0); scene.add(rim);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x6a4a5a, 0.35));
+
+// soft floor shadow
+const sh = document.createElement('canvas'); sh.width = sh.height = 128;
+const g = sh.getContext('2d'); const grd = g.createRadialGradient(64, 64, 4, 64, 64, 64);
+grd.addColorStop(0, 'rgba(20,8,16,0.55)'); grd.addColorStop(1, 'rgba(20,8,16,0)'); g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sh), transparent: true, depthWrite: false }));
+floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; scene.add(floor);
+
+const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.05, 30);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 7;
+const VIEWS = {
+  front:   { pos: [0, 1.05, 4.3], target: [0, 0.88, 0] },
+  quarter: { pos: [2.4, 1.25, 3.5], target: [0, 0.88, 0] },
+  side:    { pos: [4.3, 1.05, 0], target: [0, 0.88, 0] },
+  back:    { pos: [0, 1.15, -4.3], target: [0, 0.88, 0] },
+  head:    { pos: [0.55, 1.58, 1.25], target: [0, 1.5, 0.04] },
+  hands:   { pos: [0.2, 1.15, 1.9], target: [0, 1.05, 0.15] },
+};
+function setView(name) {
+  const v = VIEWS[name]; camera.position.set(...v.pos); controls.target.set(...v.target); controls.update();
+  document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+}
+setView('front');
+
+function resize() {
+  const r = stage.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+
+let mixer = null, action = null, playing = true, clip = null;
+const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
+const meshes = [];
+
+function load(url, useMeshopt) {
+  const loader = new GLTFLoader();
+  if (useMeshopt) loader.setMeshoptDecoder(MeshoptDecoder);
+  return new Promise((resolve, reject) => loader.load(url, resolve, ev => {
+    if (ev.total) status.textContent = `Loading the model... ${Math.round(100 * ev.loaded / ev.total)}%`;
+  }, reject));
+}
+
+async function start() {
+  let gltf;
+  try {
+    await MeshoptDecoder.ready;
+    gltf = await load('cow-meshopt.glb', true);
+  } catch (e) {
+    status.textContent = 'Loading the uncompressed copy (12 MB)...';
+    gltf = await load('cow-plain.glb', false);
+  }
+  const root = gltf.scene;
+  root.traverse(o => {
+    if (o.isMesh) {
+      o.frustumCulled = false;
+      o.userData.mat = o.material;
+      meshes.push(o);
+      const m = o.material;
+      if (m && m.name && m.name.includes('strands')) m.side = THREE.DoubleSide;
+    }
+  });
+  scene.add(root);
+  clip = gltf.animations[0];
+  mixer = new THREE.AnimationMixer(root);
+  action = mixer.clipAction(clip); action.play();
+  status.hidden = true;
+}
+start().catch(err => { status.textContent = 'The model could not be loaded: ' + err.message; });
+
+playBtn.addEventListener('click', () => {
+  playing = !playing;
+  playBtn.textContent = playing ? 'Pause' : 'Play';
+  playBtn.setAttribute('aria-pressed', String(playing));
+});
+function seek(t) { if (!mixer) return; action.time = t; mixer.update(0); }
+scrub.addEventListener('input', () => { seek(parseFloat(scrub.value)); });
+document.querySelectorAll('#phases button').forEach(b => b.addEventListener('click', () => {
+  seek(parseFloat(b.dataset.t) + 0.6);
+}));
+document.querySelectorAll('#views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+const clayBtn = document.getElementById('clay');
+clayBtn.addEventListener('click', () => {
+  const on = clayBtn.getAttribute('aria-pressed') !== 'true';
+  clayBtn.setAttribute('aria-pressed', String(on));
+  meshes.forEach(m => { m.material = on ? clayMat : m.userData.mat; });
+});
+
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (mixer) {
+    if (playing) mixer.update(dt);
+    const t = action.time % 12;
+    scrub.value = t.toFixed(2);
+    timeEl.textContent = t.toFixed(2) + ' s';
+    phaseNow.textContent = PHASES[Math.min(3, Math.floor(t / 3))];
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>

@@ -1,0 +1,30 @@
+{
+  "joints": 26,
+  "frames": 361,
+  "fps": 30,
+  "duration_seconds": 12.0,
+  "triangles": 659238,
+  "weights_sum_255": true,
+  "joint_indices_valid": true,
+  "loop_matrix_max_error": 0.0,
+  "planted_feet_max_drift_m": 5.119447934351373e-05,
+  "suit_torso_edge_stretch_p999_max": 1.403955340385437,
+  "sleeve_edge_stretch_p999_max": 2.9497642517089844,
+  "sleeve_end_to_glove_gap_p95_rest_m": 0.016036089238113484,
+  "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.016078194237640647,
+  "glove_into_body_penetration_p995_m": {
+    "Beaks": 0.0,
+    "Wings": 0.0,
+    "Wiggle": 0.0,
+    "Claps": 0.0
+  },
+  "clap_min_glove_distance_m": [
+    0.00031857844727321507,
+    0.00031857844727321507,
+    0.00031857844727321507,
+    0.00031857844727321507
+  ],
+  "shag_strands": 4408,
+  "vertices": 381557,
+  "glb_bytes": 29780544
+}
