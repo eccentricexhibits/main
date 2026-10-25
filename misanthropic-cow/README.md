@@ -106,9 +106,9 @@ In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove 
 |---|---|---|
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.4 mm at the bottom of the Wiggle squat |
-| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.74× |
-| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.79× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 15.8 mm and 16.1 mm |
+| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.73× |
+| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.81× |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 15.8 mm and 16.0 mm |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
 | Clap contact gap | not measured | 0.3 mm |
 | Loop seam error | 0 | 0 |
