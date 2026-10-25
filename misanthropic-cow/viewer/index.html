@@ -239,6 +239,7 @@ new ResizeObserver(resize).observe(stage); resize();
 
 let mixer = null, action = null, playing = true, clipName = 'Chicken Dance';
 const clipMap = {};
+const restPose = [];   // every bone's rest transform, recorded at load (the default pose)
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
 const meshes = [];
 
@@ -279,6 +280,7 @@ async function start() {
   }
   const root = gltf.scene;
   root.traverse(o => {
+    if (o.isBone) restPose.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]);
     if (o.isMesh) {
       o.frustumCulled = false;
       o.userData.mat = o.material;
@@ -304,7 +306,7 @@ function selectClip(name) {
   ticks.hidden = !dance; phaseRow.hidden = !dance;
   if (name === '__pose') {
     // the relaxed rest pose: arms down at the sides, feet together
-    meshes.forEach(m => { if (m.isSkinnedMesh) m.skeleton.pose(); });
+    restPose.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
     action = null; clipName = name;
     phaseNow.textContent = 'Default pose';
     scrub.disabled = true; timeEl.textContent = '';
