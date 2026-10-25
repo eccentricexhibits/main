@@ -68,6 +68,33 @@ def validate(model, groups, B, Gs, mats, times, dance):
         P = posed(model, mats[k])
         gl = np.vstack([P[i]['v'] for i in glove_idx['L']]); gr = np.vstack([P[i]['v'] for i in glove_idx['R']])
         clap.append(float(cKDTree(gl).query(gr)[0].min()))
+    # clipping: arm surfaces (away from the sleeve head) and gloves into the cups/torso; teats into the belly
+    import design as D
+    arm_pts = {}
+    for side, s in [('L', 1), ('R', -1)]:
+        sh = D.arm_points(s)[0]
+        el = D.arm_points(s)[1]; du = (el - sh) / np.linalg.norm(el - sh)
+        sv = model.parts[sleeves[side]]['v']
+        arm_pts[side] = np.nonzero((sv - sh) @ du > .13)[0]
+    udder_idx = [i for i, g in enumerate(groups) if g == 'udder']
+    teat_v = {}
+    for i in udder_idx:
+        p = model.parts[i]
+        tj = set(RG.TEAT.values())
+        isteat = np.isin(p['j'], list(tj)) & (p['w'] > 128)
+        teat_v[i] = np.nonzero(isteat.any(1))[0]
+    arm_clip, teat_clip = {k: [] for k in AN.PHASES}, {k: [] for k in AN.PHASES}
+    for k in range(0, len(times), 2):
+        P = posed(model, mats[k])
+        G = Gs[k]
+        phase = AN.PHASES[min(3, int((times[k] % AN.DURATION) // 3))]
+        pts = np.vstack([P[sleeves[s]]['v'][arm_pts[s]] for s in 'LR'] + [P[i]['v'] for s in 'LR' for i in glove_idx[s]])
+        arm_clip[phase].append(float(np.percentile(np.maximum(0, -dance.clearance(G, pts)), 99.5)))
+        tv = np.vstack([P[i]['v'][teat_v[i]] for i in udder_idx])
+        qb = (tv - G[RG.SPINE, :3, 3]) @ G[RG.SPINE, :3, :3] + B[RG.SPINE]
+        teat_clip[phase].append(float(np.percentile(np.maximum(0, -D.torso_sdf(qb)), 99.5)))
+    m['arm_into_cups_or_torso_p995_m'] = {k: max(v) for k, v in arm_clip.items()}
+    m['teats_into_belly_p995_m'] = {k: max(v) for k, v in teat_clip.items()}
     m['suit_torso_edge_stretch_p999_max'] = max(stretch_torso)
     m['sleeve_edge_stretch_p999_max'] = max(stretch_arm)
     m['sleeve_end_to_glove_gap_p95_rest_m'] = sleeve_gap[0]

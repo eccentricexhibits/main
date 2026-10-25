@@ -81,11 +81,49 @@ def elbow_patches():
     return out
 
 
-def suit_color(p, n, white, black):
-    patches = SHAG_PATCHES + elbow_patches()
-    m = blob_mask(p, patches)
+def all_patches():
+    return SHAG_PATCHES + elbow_patches()
+
+
+# which patches may appear on which suit piece (a patch never spills across the sleeve seam)
+TORSO_PATCHES, SLEEVE_PATCHES = [0, 1, 2, 3], {'L': [4], 'R': [5]}
+
+
+def patches_for(chart_name):
+    for side in 'LR':
+        if f'sleeve_{side}' in chart_name:
+            return SLEEVE_PATCHES[side]
+    return TORSO_PATCHES
+
+
+def shag_mask(p, which=None):
+    """Patch mask whose edges break into hanging tufts (noise stretched along gravity)."""
+    m = np.zeros(p.shape[:-1], np.float32)
+    nz = N.fbm(p * np.array([30, 9, 30]), 4, seed=3) + .6 * N.fbm(p * np.array([90, 22, 90]), 2, seed=10)
+    allp = all_patches()
+    for c, r in [allp[i] for i in (which if which is not None else range(len(allp)))]:
+        q = (p - np.asarray(c)) / np.asarray(r)
+        d = np.linalg.norm(q, axis=-1)
+        below = np.clip(-q[..., 1], 0, 1)          # tufts hang lower under the patch
+        d = d * (1 + .38 * nz) - .18 * below * np.clip(nz + .4, 0, 1)
+        m = np.maximum(m, np.clip((1 - d) / .05 + .5, 0, 1))
+    return m
+
+
+def shag_detail(p, black):
+    """Long-pile look in the texture: clumped streaks running downward, dark roots, glossy tips."""
+    streak = N.fbm(p * np.array([75, 10, 75]), 4, seed=41)
+    fine = N.fbm(p * np.array([260, 30, 260]), 2, seed=43)
+    clump = N.fbm(p * 18, 3, seed=47)
+    shade = .55 + .55 * np.clip(streak * .9 + fine * .35 + .25, 0, 1) - .25 * np.clip(-clump, 0, 1)
+    tips = .06 * np.clip(fine + streak - .3, 0, 1)
+    return np.clip(black * shade[..., None] + tips[..., None], 0, 1)
+
+
+def suit_color(p, n, white, black, which=None):
+    m = shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
-    bc = triplanar(black, p, n, TILE * 1.4)
+    bc = shag_detail(p, triplanar(black, p, n, TILE * 1.4))
     # very slight low-frequency warmth/soil variation in the white plush
     var = 1 + .035 * N.fbm(p * 6, 3, seed=11)[..., None]
     wc = np.clip(wc * var * np.array([1.0, .992, .975]), 0, 1)
@@ -126,6 +164,7 @@ def mild_lift(rgb):
     """Gentle brightening of the photographed mask (keeps black paint black)."""
     a = rgb.astype(np.float32) / 255
     l = a.mean(-1, keepdims=True)
-    lift = np.clip((l - .25) / .4, 0, 1)
-    out = a + (1 - (1 - a) ** 1.35 - a) * lift
+    sat = a.max(-1, keepdims=True) - a.min(-1, keepdims=True)
+    lift = np.clip((l - .22) / .35, 0, 1) * np.clip(1 - sat * 2.5, 0, 1)   # white paint only, not eyes/muzzle
+    out = a + (1 - (1 - a) ** 1.8 - a) * lift
     return out

@@ -114,8 +114,11 @@ def build_suit(step=.0042, target=170000):
     c = v[f].mean(1)
     parts = D.suit_parts(c)
     labels = np.where(parts['hood'] - .006 < parts['torso'], 1, 0)
+    labels[(parts['tube'] < parts['hood'] + .004) & (c[:, 1] > 1.585)] = 4
+    tube_axis = [D.TUBE_C - [.12, 0, 0], D.TUBE_C + [.12, 0, 0]]
     charts = [make_chart(v, f, labels, 0, lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
-              make_chart(v, f, labels, 1, lambda q: sphere_uv(q, D.HEAD_CENTER + [0, 0, .018], (0, 0, -1), .13), 'Suit_hood_white_faux_fur')]
+              make_chart(v, f, labels, 1, lambda q: sphere_uv(q, D.HEAD_CENTER + [0, 0, -.03], (0, 0, -1), .13), 'Suit_hood_white_faux_fur'),
+              make_chart(v, f, labels, 4, lambda q: cyl_uv(q, tube_axis, (0, -1, -1), (0, 1, 0), .037, (0, .24)), 'Horn_tube_white_faux_fur')]
     V, F, Nn, L = [v], [f], [n], [labels]
     off = len(v)
     for k, side in [(2, 'L'), (3, 'R')]:

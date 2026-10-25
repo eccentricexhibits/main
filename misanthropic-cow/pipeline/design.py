@@ -53,36 +53,27 @@ def mask_transform(v):
     return (v - MASK_OLD_ANCHOR) * MASK_SCALE + MASK_NEW_ANCHOR
 
 
-def hood_only(p):
-    return suit_parts(p)['hood']
-
-
-def root_horn(v, depth=.014):
-    """Slide a horn along its own root axis so its root is buried `depth` inside the hood."""
-    side = np.sign(v[:, 0].mean())
-    ax = np.abs(v[:, 0])
-    root = v[ax < ax.min() + .012].mean(0)
-    out_dir = v.mean(0) - root
-    out_dir[1] *= .5
-    out_dir /= np.linalg.norm(out_dir)
-    lo, hi = -.15, .15       # find t with the root on the surface: hood(root + t*out_dir) == 0
-    for _ in range(40):
-        t = .5 * (lo + hi)
-        if hood_only(root + t * out_dir) < 0:
-            lo = t
-        else:
-            hi = t
-    return v + (t - depth) * out_dir
+# The fur-covered cardboard tube that joins the two horns across the top of the head
+# (v09's "crown block" stood in for it). Horns keep their scanned positions at its ends.
+TUBE_C_SCAN = np.array([0, 1.6325, .0615])     # where the scanned horns expect the tube
+TUBE_C = np.array([0, 1.616, .046])            # seated on the mask's top edge and the hood
+HORN_SHIFT = TUBE_C - TUBE_C_SCAN
+TUBE_HALF, TUBE_R = .066, .037
+MASK_BACK_Z = .080          # the scanned mask shell's back plane after mask_transform
 
 
 # ------------------------------------------------------------------ fur suit + hood
-def suit_parts(p):
+def torso_sdf(p):
+    return suit_parts(p, torso_only=True)['torso']
+
+
+def suit_parts(p, torso_only=False):
     """Return dict of component SDFs (used for both the surface and skin-weight membership)."""
     out = {}
     chest = S.ellipsoid(p, (0, 1.19, -.028), (.163, .205, .128))
     shoulders = S.capsule(p, (-.145, 1.318, -.036), (.145, 1.318, -.036), .062)
     neck = S.round_cone(p, (0, 1.30, -.034), (0, 1.47, -.015), .078, .066)
-    belly = S.ellipsoid(p, (0, .932, .055), (.226, .204, .220))
+    belly = S.ellipsoid(p, (0, .905, .058), (.226, .200, .222))
     back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
@@ -93,6 +84,8 @@ def suit_parts(p):
     hem = .808 + .030 * np.clip((.05 - z) / .25, 0, 1)
     torso = S.smax(torso, hem - p[..., 1], .025)
     out['torso'] = torso
+    if torso_only:
+        return out
     for s, side in [(1, 'L'), (-1, 'R')]:
         sh, el, wr = arm_points(s)
         upper = S.round_cone(p, sh, el, .070, .060)
@@ -101,16 +94,20 @@ def suit_parts(p):
         d = (wr - el) / np.linalg.norm(wr - el)
         arm = S.smax(arm, S.plane(p, wr - .004 * d, d), .012)
         out['arm_' + side] = arm
-    # hood: loose fur hood over the head, crown tuft between the horns, face opening
-    # the hood narrows above the brow so the horns stand proud of it, as in the photos
-    taper = 1 - .30 * np.clip((p[..., 1] - 1.53) / .13, 0, 1) ** 1.5
+    # hood: the mask covers its whole front.  A rounded block with a flat face just behind the
+    # mask's back plane, a large rounded back, and a drape that falls onto the shoulders behind.
+    # Mask outline ~ ellipse centred y=1.4775 (+-0.105 x, +-0.12 y).  The ellipsoid's section at the
+    # mask's back plane is 92 % of that, so the mask overhangs the fur all round; it swells behind.
+    taper = 1 - .24 * np.clip((p[..., 1] - 1.47) / .13, 0, 1)           # narrower toward the crown
     q = p.copy(); q[..., 0] = p[..., 0] / taper
-    hood = S.ellipsoid(q, HEAD_CENTER + [0, 0, .018], (.127, .143, .140)) * (.5 + .5 * taper)
-    tuft = S.ellipsoid(p, (0, 1.648, .036), (.074, .040, .060))
-    hood = S.smin(hood, tuft, .035)
+    head = S.ellipsoid(q, (0, 1.452, -.018), (.125, .148, .147)) * (.6 + .4 * taper)
+    drape = S.ellipsoid(p, (0, 1.380, -.075), (.140, .085, .120))
+    hood = S.smin(head, drape, .05)
+    hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z - .002), .006)   # never in front of the mask
     hood = S.smin(hood, neck, .05)
-    cavity = S.ellipsoid(p, (0, 1.490, .205), (.092, .114, .128))
-    hood = S.smax(hood, -cavity, .012)
+    tube = S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)
+    out['tube'] = tube
+    hood = S.smin(hood, tube, .012)
     out['hood'] = hood
     return out
 
@@ -172,7 +169,7 @@ def cup_sdf_one(p, s):
 def teat_specs(s):
     """(direction from cup centre to the base, teat pointing direction) per teat."""
     return [
-        (np.array([s * -.28, -1.0, 1.05]), np.array([s * .06, -1.0, .78])),   # bottom, hangs forward/down over the belly
+        (np.array([s * -.26, -1.0, 1.45]), np.array([s * .06, -.80, 1.0])),   # bottom, hangs forward/down over the belly
         (np.array([s * 1.0, -.62, .45]), np.array([s * .85, -.55, .18])),   # outer, points out and down
     ]
 

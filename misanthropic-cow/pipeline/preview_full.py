@@ -22,7 +22,7 @@ sheet = Image.new('RGB', (2000, 640))
 for i, (a, e) in enumerate(views):
     sheet.paste(r.render(a, e, (500, 640), center=(0, .87, 0), height=1.85, clay=clay), (500 * i, 0))
 sheet.save(sys.argv[1], quality=90)
-head = Image.new('RGB', (1200, 600))
-for i, (a, e) in enumerate([(0, 0), (40, 5), (90, 0)]):
+head = Image.new('RGB', (1600, 600))
+for i, (a, e) in enumerate([(0, 0), (40, 5), (90, 0), (150, 10)]):
     head.paste(r.render(a, e, (400, 600), center=(0, 1.47, .03), height=.5, clay=clay), (400 * i, 0))
 head.save(sys.argv[1].replace('.jpg', '_head.jpg'), quality=90)

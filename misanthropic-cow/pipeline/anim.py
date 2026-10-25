@@ -32,12 +32,14 @@ def frame(direction, normal):
     return np.stack([x, z, np.cross(x, z)], 1)
 
 
-def ik(a, target, l1, l2, pole):
+def ik(a, target, l1, l2, pole, swivel=0.0):
     d = target - a; dist = np.linalg.norm(d); d /= dist
     dist = np.clip(dist, abs(l1 - l2) + 1e-3, l1 + l2 - 1e-3)
     wrist = a + d * dist
     along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist)
     perp = pole - a - d * ((pole - a) @ d); perp /= np.linalg.norm(perp)
+    if swivel:
+        perp = rot(d, swivel) @ perp          # swing the elbow round the shoulder-wrist line
     elbow = a + d * along + perp * np.sqrt(max(0, l1 * l1 - along * along))
     return elbow, wrist
 
@@ -70,8 +72,8 @@ class Dance:
         for side, s in [('L', 1), ('R', -1)]:
             if stage == 0:      # Beaks: hands up in front, hoof "beaks" snap open/shut
                 snap = .5 - .5 * np.cos(beat)
-                p['hand'][side] = np.array([s * .135, 1.300 + .01 * snap, .355])
-                p['pole'][side] = np.array([s * .55, .95, -.05])
+                p['hand'][side] = np.array([s * .150, 1.350 + .01 * snap, .405])
+                p['pole'][side] = np.array([s * .65, 1.05, .05])
                 p['hrot'][side] = self.hand_rot(side, [s * -.12, .10, 1], [-s * .35, -1, 0])
                 p['fingers'] = -.55 * snap; p['thumb'] = .45 * snap
                 p['clav'][side] = .03
@@ -103,8 +105,8 @@ class Dance:
             else:               # Claps: four claps in front of the chest, above the udder
                 open_ = .5 + .5 * np.cos(beat)
                 half = self.palm_half[side]
-                p['hand'][side] = np.array([s * (half + .012 + .24 * open_), 1.345 + .02 * open_, .365 - .03 * open_])
-                p['pole'][side] = np.array([s * .70, .98, -.10])
+                p['hand'][side] = np.array([s * (half + .012 + .24 * open_), 1.395 + .02 * open_, .405 - .03 * open_])
+                p['pole'][side] = np.array([s * .75, 1.12, .02])
                 p['hrot'][side] = self.hand_rot(side, [s * .05 * open_, .55, .84], [-s, 0, 0])
                 p['clav'][side] = .05
                 p['shift'] = np.array([0, -.012 * (1 - open_), 0])
@@ -130,15 +132,80 @@ class Dance:
             return self.blend(self.params(stage, u), self.params((stage + 1) % 4, 0), smooth(-bl, bl, u - 1))
         return self.params(stage, u)
 
+    # ---------------------------------------------------------------- obstacles for the arms
+    def clearance(self, G, pts):
+        """Signed distance of posed points to the udder cups and torso (rigid in chest/spine frames)."""
+        B = self.B
+        best = np.full(len(pts), 1e3)
+        for j in (RG.CHEST, RG.SPINE):
+            q = (pts - G[j, :3, 3]) @ G[j, :3, :3] + B[j]          # back to bind space
+            best = np.minimum(best, D.torso_sdf(q))
+            if j == RG.CHEST:
+                best = np.minimum(best, D.udder_sdf(q))
+        return best
+
+    def arm_cost(self, G, sh, elbow, wrist):
+        u = np.linspace(.30, 1, 6)[:, None]
+        pu = sh + (elbow - sh) * u
+        pf = elbow + (wrist - elbow) * np.linspace(0, 1, 7)[:, None]
+        d = self.clearance(G, np.vstack([pu, pf]))
+        r = np.r_[np.full(len(pu), .074), np.full(len(pf), .062)]
+        return float(np.sum(np.maximum(0, r - d) ** 2))
+
+    def solve_swivel(self, fps=FPS):
+        """Pick, per frame, how far to swing each elbow around the shoulder-wrist line to stay clear
+        of the cups and torso; continuity-weighted, then smoothed around the loop."""
+        times = np.arange(0, DURATION, 1 / fps)
+        cand = np.linspace(-1.1, 1.1, 23)
+        self.swivel = None
+        out = {}
+        costs = {s: np.zeros((len(times), len(cand))) for s in 'LR'}
+        for i, t in enumerate(times):
+            G, arm = self.pose(t, solve=True)
+            for side in 'LR':
+                sh, target, l1, l2, pole = arm[side]
+                for c, phi in enumerate(cand):
+                    el, wr = ik(sh, target, l1, l2, pole, phi)
+                    costs[side][i, c] = self.arm_cost(G, sh, el, wr) + 2e-4 * phi * phi
+        for side in 'LR':
+            C = costs[side]
+            # Viterbi over the loop (twice round for wrap-around), penalising elbow jumps
+            jump = 2e-3 * (cand[:, None] - cand[None, :]) ** 2
+            acc = C[0].copy(); back = []
+            seq = np.r_[np.arange(len(times)), np.arange(len(times))]
+            for i in seq[1:]:
+                tot = acc[:, None] + jump
+                arg = tot.argmin(0); back.append(arg)
+                acc = tot.min(0) + C[i]
+            path = [int(acc.argmin())]
+            for arg in reversed(back):
+                path.append(int(arg[path[-1]]))
+            path = np.array(path[::-1])[len(times):]
+            phi = cand[path]
+            k = np.exp(-np.arange(-6, 7) ** 2 / 8.0); k /= k.sum()
+            ext = np.r_[phi[-6:], phi, phi[:6]]
+            out[side] = np.convolve(ext, k, 'valid')
+            self.swivel_cost = getattr(self, 'swivel_cost', {})
+            self.swivel_cost[side] = float(C[np.arange(len(times)), path].max())
+        self.swivel = (times, out)
+
+    def swivel_at(self, t, side):
+        if getattr(self, 'swivel', None) is None:
+            return 0.0
+        times, phi = self.swivel
+        return float(np.interp(t % DURATION, np.r_[times, DURATION], np.r_[phi[side], phi[side][0]]))
+
     # ---------------------------------------------------------------- pose solve
-    def pose(self, t, jiggle=None):
+    def pose(self, t, dyn=None, solve=False):
         B = self.B
         p = self.sample(t)
         G = np.tile(np.eye(4), (RG.NB, 1, 1))
+        dyn = dyn or {}
+        trans = dyn.get('trans', {})
 
         def at(i, parent, R):
             G[i, :3, :3] = R
-            G[i, :3, 3] = G[parent, :3, :3] @ (B[i] - B[parent]) + G[parent, :3, 3]
+            G[i, :3, 3] = G[parent, :3, :3] @ (B[i] - B[parent]) + G[parent, :3, 3] + trans.get(i, 0)
         Rh = euler(p['hips'])
         G[RG.HIPS, :3, :3] = Rh; G[RG.HIPS, :3, 3] = B[RG.HIPS] + p['shift']
         at(RG.SPINE, RG.HIPS, Rh @ euler(p['spine']))
@@ -147,11 +214,14 @@ class Dance:
         Rc = G[RG.CHEST, :3, :3]
         for side in 'LR':
             at(RG.UDDER[side], RG.CHEST, Rc)
+            for k in range(2):
+                j = RG.TEAT[(side, k)]
+                at(j, RG.UDDER[side], Rc)
+                if j in dyn.get('teat', {}):
+                    G[j, :3, :3] = align(Rc @ self.teat_dir[j], dyn['teat'][j]) @ Rc
         at(RG.NECK, RG.CHEST, Rc @ euler(p['neck']))
         at(RG.HEAD, RG.NECK, G[RG.NECK, :3, :3] @ euler(p['head']))
-        if jiggle is not None:
-            for j, off in jiggle.items():
-                G[j, :3, 3] += off
+        arm_in = {}
         for side, s in [('L', 1), ('R', -1)]:
             a = RG.ARM[side]
             at(a['shoulder'], RG.CHEST, Rc @ rot([0, 0, 1], s * p['clav'][side]))
@@ -159,7 +229,8 @@ class Dance:
             l1 = np.linalg.norm(B[a['fore']] - B[a['upper']]); l2 = np.linalg.norm(B[a['hand']] - B[a['fore']])
             target = Rc @ (p['hand'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
             pole = Rc @ (p['pole'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
-            elbow, wrist = ik(sh, target, l1, l2, pole)
+            arm_in[side] = (sh, target, l1, l2, pole)
+            elbow, wrist = ik(sh, target, l1, l2, pole, self.swivel_at(t, side))
             bu = B[a['fore']] - B[a['upper']]; bf = B[a['hand']] - B[a['fore']]
             hinge_b = np.cross(bu, bf); hinge_b /= np.linalg.norm(hinge_b)
             nu = elbow - sh; nf = wrist - elbow
@@ -169,17 +240,16 @@ class Dance:
             hinge_p /= np.linalg.norm(hinge_p)
             Ru = frame(nu, hinge_p) @ frame(bu, hinge_b).T
             Rf = frame(nf, hinge_p) @ frame(bf, hinge_b).T
+
             def resolve(h):
                 if isinstance(h, tuple) and h[0] == 'follow':
-                    return Rf @ rot(hinge_b, h[1])            # relative to the forearm (bind hinge axis)
+                    return Rf @ rot(hinge_b, h[1])
                 if isinstance(h, tuple) and h[0] == 'blend':
                     A, Bm = resolve(h[1]), resolve(h[2])
                     return Slerp([0, 1], Rotation.from_matrix([A, Bm]))([h[3]]).as_matrix()[0]
                 return Rc @ h
             Rhand = resolve(p['hrot'][side])
-            # distribute half of the wrist twist into the forearm (no candy-wrap at the cuff)
             rel = Rf.T @ Rhand
-            axis_l = frame(bf, hinge_b).T @ (bf / np.linalg.norm(bf))
             q = Rotation.from_matrix(rel).as_quat()
             ax = bf / np.linalg.norm(bf)
             twist = 2 * np.arctan2(q[:3] @ ax, q[3])
@@ -187,11 +257,17 @@ class Dance:
             G[a['upper'], :3, :3] = Ru; G[a['upper'], :3, 3] = sh
             G[a['fore'], :3, :3] = Rf; G[a['fore'], :3, 3] = elbow
             G[a['hand'], :3, :3] = Rhand; G[a['hand'], :3, 3] = wrist
+            half = lambda A, Bm: Slerp([0, 1], Rotation.from_matrix([A, Bm]))([.5]).as_matrix()[0]
+            G[RG.ROOT_HALF[side], :3, :3] = half(G[a['shoulder'], :3, :3], Ru); G[RG.ROOT_HALF[side], :3, 3] = sh
+            G[RG.ELBOW_HALF[side], :3, :3] = half(Ru, Rf); G[RG.ELBOW_HALF[side], :3, 3] = elbow
             fd = bf / np.linalg.norm(bf)
             knuckle = np.cross(fd, [-s, 0, 0]); knuckle /= np.linalg.norm(knuckle)
             sign = 1 if (rot(knuckle, .3) @ fd) @ np.array([-s, 0, 0]) > 0 else -1
             at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * p['fingers']))
             at(a['thumb'], a['hand'], Rhand @ rot(knuckle, -sign * p['thumb']))
+        for j, parent in zip(RG.SHAG, RG.SHAG_PARENTS):
+            pi = RG.NAMES.index(parent)
+            at(j, pi, G[pi, :3, :3])
         for side in 'LR':
             L = RG.LEG[side]
             hip = G[RG.HIPS, :3, :3] @ (B[L['thigh']] - B[RG.HIPS]) + G[RG.HIPS, :3, 3]
@@ -199,42 +275,91 @@ class Dance:
             l1 = np.linalg.norm(B[L['shin']] - B[L['thigh']]); l2 = np.linalg.norm(B[L['foot']] - B[L['shin']])
             knee, ankle = ik(hip, ankle, l1, l2, B[L['shin']] + [0, 0, .8])
             for j, st, en, rest in [(L['thigh'], hip, knee, B[L['shin']] - B[L['thigh']]), (L['shin'], knee, ankle, B[L['foot']] - B[L['shin']])]:
-                yaw = np.arctan2(*(Rh @ [0, 0, 1])[[0, 2]])
-                R = align(rest, en - st)
-                G[j, :3, :3] = R; G[j, :3, 3] = st
+                G[j, :3, :3] = align(rest, en - st); G[j, :3, 3] = st
             G[L['foot'], :3, :3] = np.eye(3); G[L['foot'], :3, 3] = ankle
+        if solve:
+            return G, arm_in
         return G
 
-    def jiggle_track(self, times):
-        """Damped-spring secondary motion of belly and udder bones, looped (3 laps, keep the last)."""
-        dt = 1 / 240
-        ts = np.arange(0, 3 * DURATION, dt)
-        bodies = {RG.BELLY: RG.SPINE, RG.UDDER['L']: RG.CHEST, RG.UDDER['R']: RG.CHEST}
-        pos = {j: [] for j in bodies}
-        for t in ts[::8]:
-            G = self.pose(t)
-            for j in bodies:
-                pos[j].append(G[j, :3, 3].copy())
-        out = {}
-        for j in bodies:
-            P = np.array(pos[j]); tt = ts[::8]
+    # ---------------------------------------------------------------- light physics (baked)
+    @property
+    def teat_dir(self):
+        if not hasattr(self, '_teat_dir'):
+            self._teat_dir, self._teat_len = {}, {}
+            for side, s in [('L', 1), ('R', -1)]:
+                for k, (a, b) in enumerate(D.TEATS[s]):
+                    j = RG.TEAT[(side, k)]
+                    d = b - self.B[j]
+                    self._teat_len[j] = float(np.linalg.norm(d)); self._teat_dir[j] = d / np.linalg.norm(d)
+        return self._teat_dir
+
+    def dynamics(self, times):
+        """Damped springs for belly, udder cups, shag patches and teats; teats collide with the belly.
+        Simulated for three loops; the last loop is kept so the animation cycles seamlessly."""
+        sub, fps = 8, FPS
+        dt = 1 / (fps * sub)
+        tt = np.arange(0, 3 * DURATION, 1 / fps)
+        springs = {RG.BELLY: (110., 9., .55, .020), RG.UDDER['L']: (150., 8., .6, .016), RG.UDDER['R']: (150., 8., .6, .016)}
+        for j in RG.SHAG:
+            springs[j] = (70., 5.5, .9, .022)
+        base = [self.pose(t) for t in tt]
+        trans_hist = {}
+        for j, (k, c, gain, lim) in springs.items():
+            P = np.array([g[j, :3, 3] for g in base])
             acc = np.gradient(np.gradient(P, tt, axis=0), tt, axis=0)
-            k, c, gain = (110., 9., .55) if j == RG.BELLY else (150., 8., .6)
             x = np.zeros(3); v = np.zeros(3); hist = []
             for i in range(len(tt)):
-                for _ in range(8):
-                    a = -k * x - c * v - gain * acc[i]
-                    v += a * dt; x += v * dt
+                for _ in range(sub):
+                    v += (-k * x - c * v - gain * acc[i]) * dt; x += v * dt
                 hist.append(x.copy())
-            hist = np.clip(np.array(hist), -.02, .02)
-            last = tt >= 2 * DURATION
-            out[j] = np.stack([np.interp((times % DURATION) + 2 * DURATION, tt[last], hist[last, d]) for d in range(3)], 1)
+            h = np.clip(np.array(hist), -lim, lim)
+            if j in RG.UDDER.values():
+                h[:, 1] = np.maximum(h[:, 1], -.006)          # cups never sink into the belly
+            trans_hist[j] = h
+        # teats: tips follow their rest direction on a spring, then are pushed clear of the belly
+        posed = [self.pose(t, {'trans': {j: trans_hist[j][i] for j in trans_hist}}) for i, t in enumerate(tt)]
+        teat_hist = {}
+        for j in self.teat_dir:
+            L = self._teat_len[j]
+            rest = np.array([g[j, :3, 3] + g[j, :3, :3] @ (self.teat_dir[j] * L) for g in posed])
+            acc = np.gradient(np.gradient(rest, tt, axis=0), tt, axis=0)
+            o = np.zeros(3); v = np.zeros(3); dirs = []
+            for i in range(len(tt)):
+                for _ in range(sub):
+                    v += (-260. * o - 11. * v - .8 * acc[i] + np.array([0, -1.5, 0])) * dt; o += v * dt
+                o = np.clip(o, -.02, .02)
+                g = posed[i]; b0 = g[j, :3, 3]
+                tip = rest[i] + o
+                for _ in range(3):
+                    dvec = tip - b0; dvec /= np.linalg.norm(dvec); tip = b0 + dvec * L
+                    for frac in (.55, 1.0):
+                        q = b0 + dvec * L * frac
+                        qb = (q - g[RG.SPINE, :3, 3]) @ g[RG.SPINE, :3, :3] + self.B[RG.SPINE]
+                        dist = D.torso_sdf(qb[None])[0]
+                        need = .013
+                        if dist < need:
+                            e = 1e-3
+                            grad = np.array([D.torso_sdf((qb + dd)[None])[0] - D.torso_sdf((qb - dd)[None])[0] for dd in np.eye(3) * e]) / (2 * e)
+                            grad = g[RG.SPINE, :3, :3] @ (grad / max(np.linalg.norm(grad), 1e-9))
+                            tip = tip + grad * (need - dist) / frac
+                dvec = tip - b0
+                dirs.append(dvec / np.linalg.norm(dvec))
+                o = tip - rest[i]
+            teat_hist[j] = np.array(dirs)
+        last = tt >= 2 * DURATION
+        idx = np.searchsorted(tt[last], (times % DURATION) + 2 * DURATION).clip(0, last.sum() - 1)
+        out = []
+        for i in range(len(times)):
+            k = np.nonzero(last)[0][idx[i]]
+            out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: teat_hist[j][k] for j in teat_hist}})
         return out
 
     def bake(self, fps=FPS):
+        self.solve_swivel(fps)
         times = np.linspace(0, DURATION, int(round(DURATION * fps)) + 1)
-        jig = self.jiggle_track(times)
-        Gs = np.stack([self.pose(t, {j: jig[j][i] for j in jig}) for i, t in enumerate(times)])
+        dyn = self.dynamics(times)
+        dyn[-1] = dyn[0]
+        Gs = np.stack([self.pose(t, dyn[i]) for i, t in enumerate(times)])
         return times, Gs
 
 

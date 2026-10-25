@@ -40,6 +40,19 @@ LEG = {}
 for side in 'LR':
     t = _j(f'Thigh_{side}', 'Hips'); s = _j(f'Shin_{side}', f'Thigh_{side}'); f = _j(f'Foot_{side}', f'Shin_{side}')
     LEG[side] = dict(thigh=t, shin=s, foot=f)
+# helpers that take half of a joint's rotation (keeps volume at the shoulder root and elbow)
+ROOT_HALF, ELBOW_HALF = {}, {}
+for side in 'LR':
+    ROOT_HALF[side] = _j(f'UpperArmRoot_{side}', f'Shoulder_{side}')
+    ELBOW_HALF[side] = _j(f'Elbow_{side}', f'UpperArm_{side}')
+# soft-body bones (driven by baked spring physics): one per teat, one per shag patch
+TEAT = {}
+for side in 'LR':
+    for k, kind in enumerate(['bottom', 'outer']):
+        TEAT[(side, k)] = _j(f'Teat_{side}_{kind}', f'Udder_{side}')
+SHAG_NAMES = ['Shag_chest_R', 'Shag_belly', 'Shag_back_upper_R', 'Shag_back_lower_L', 'Shag_elbow_L', 'Shag_elbow_R']
+SHAG_PARENTS = ['Chest', 'Belly', 'Chest', 'Spine', 'Elbow_L', 'Elbow_R']
+SHAG = [_j(n, p) for n, p in zip(SHAG_NAMES, SHAG_PARENTS)]
 NB = len(NAMES)
 BELLY_C = np.array([0, .925, .085])
 
@@ -62,6 +75,15 @@ def bind_positions(glove_parts):
         B[ARM[side]['thumb']] = th[proj < np.percentile(proj, 15)].mean(0)
         for key, jn in [('thigh', 'Thigh'), ('shin', 'Shin'), ('foot', 'Foot')]:
             B[LEG[side][key]] = D.J[f'{jn}_{side}']
+        sh, el, wr = D.arm_points(s)
+        B[ROOT_HALF[side]] = sh
+        B[ELBOW_HALF[side]] = el
+        for k, (a, b) in enumerate(D.TEATS[s]):
+            d = (b - a) / np.linalg.norm(b - a)
+            B[TEAT[(side, k)]] = a + .012 * d
+    import textures as T
+    for j, (c, r) in zip(SHAG, T.all_patches()):
+        B[j] = c
     return B
 
 
@@ -130,6 +152,11 @@ def suit_weights(v, f, face_labels):
     head = ss(1.425, 1.475, y)
     hw = np.zeros((len(v), NB)); hw[:, NECK] = 1 - head; hw[:, HEAD] = head
     W = W * (1 - hood)[:, None] + hw * hood[:, None]
+    for side, s in [('L', 1), ('R', -1)]:
+        # torso around the sleeve head follows the arm a little, so the shoulder does not poke through
+        sh = D.arm_points(s)[0]
+        k = .40 * ss(.10, .035, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.22, 1.29, y)
+        W *= (1 - k)[:, None]; W[:, ROOT_HALF[side]] += k
     torso_mask = ~(sleeve['L'] | sleeve['R'])
     ft = f[np.all(torso_mask[f], axis=1)]
     W[torso_mask] = smooth_weights(W, ft, 6)[torso_mask]
@@ -139,10 +166,14 @@ def suit_weights(v, f, face_labels):
         sh, el, wr = D.arm_points(s)
         up, fo, ha = arm_chain(v[m], side)
         du = (el - sh) / np.linalg.norm(el - sh)
-        cap = ss(.06, -.01, (v[m] - sh) @ du) * .5
+        tu = (v[m] - sh) @ du
+        root = ss(.075, .0, tu)                    # sleeve head shares the half-rotation helper
         aw = np.zeros((m.sum(), NB))
-        aw[:, a['upper']] = up * (1 - cap); aw[:, a['shoulder']] = up * cap
+        aw[:, a['upper']] = up * (1 - .65 * root); aw[:, ROOT_HALF[side]] = up * .65 * root
         aw[:, a['fore']] = fo; aw[:, a['hand']] = ha
+        ed = np.linalg.norm(v[m] - el, axis=1)
+        ew = .55 * np.exp(-(ed / .055) ** 2)        # elbow helper keeps the bend from collapsing
+        aw *= (1 - ew)[:, None]; aw[:, ELBOW_HALF[side]] += ew
         W[m] = aw
     return W
 
@@ -201,6 +232,13 @@ def udder_weights(v, side):
     k = .25 + .6 * front
     W[:, UDDER[side]] = k
     W[:, CHEST] = 1 - k
+    for kk, (a, b) in enumerate(D.TEATS[s]):
+        d = b - a; L = np.linalg.norm(d); d /= L
+        t = (v - a) @ d
+        r = np.linalg.norm((v - a) - t[:, None] * d, axis=1)
+        m = (r < .026) & (t > -.006)
+        tw = ss(.004, .026, t) * m
+        W *= (1 - tw)[:, None]; W[:, TEAT[(side, kk)]] += tw
     return W
 
 

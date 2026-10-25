@@ -81,7 +81,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Beaks</div>
-        <div class="status" id="status">Loading the model (9.3 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (9 MB)&hellip;</div>
       </div>
 
       <div class="row">
@@ -122,10 +122,11 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li>Body rebuilt to the original 2012 shoot: narrow sloped shoulders, a long round belly hanging to the crotch, pink panties showing beneath it.</li>
-          <li>The scanned mask now sits recessed in a fur hood that narrows at the crown, with both horns rooted in the crown tuft.</li>
-          <li>Sleeves are separate tubes set into the shoulder, as on the costume, so lifting the elbows no longer webs the torso into "wings".</li>
-          <li>Each glove tucks 3.5 cm into its sleeve and both share one weight function along the forearm, so the hands stay attached through every move.</li>
+          <li>The mask now covers the whole front of the fur hood, which swells out behind it. The fur-covered tube is back across the top, with a horn at each end.</li>
+          <li>The black shag is toned down: short clumped tufts on top of a streaked, hanging-tuft texture.</li>
+          <li>Elbows swing clear of the udder cups, helper joints keep the shoulders and elbows full, and the teats no longer sink into the belly.</li>
+          <li>Light physics, baked into the dance: the teats swing and collide with the belly, and the shag patches, belly and udder cups lag and settle.</li>
+          <li>Body built to the 2012 shoot; sleeves set into the shoulder so the arms never web into "wings"; gloves tucked into the sleeves so the hands stay attached.</li>
         </ul>
       </section>
       <section>
@@ -133,15 +134,20 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <table class="metrics">
           <thead><tr><th>Check</th><th>v09</th><th>v10</th></tr></thead>
           <tbody>
-            <tr><td>Torso edge stretch, 99.9th pct</td><td>4.08&times;</td><td class="good">1.40&times;</td></tr>
-            <tr><td>Sleeve edge stretch, 99.9th pct</td><td>12.85&times;</td><td class="good">2.95&times;</td></tr>
-            <tr><td>Sleeve-to-glove gap, rest &rarr; worst frame</td><td>n/a</td><td class="good">16.0 &rarr; 16.1 mm</td></tr>
-            <tr><td>Glove into body, 99.5th pct</td><td>n/a</td><td class="good">0 mm</td></tr>
-            <tr><td>Clap contact gap</td><td>n/a</td><td class="good">0.3 mm</td></tr>
+            <tr><td>Arms into udder or torso, 99.5th pct</td><td>n/a</td><td class="good">0 mm</td></tr>
+            <tr><td>Teats into belly, 99.5th pct</td><td>n/a</td><td class="good">&le; 2.4 mm</td></tr>
+            <tr><td>Torso edge stretch, 99.9th pct</td><td>4.08&times;</td><td class="good">1.74&times;</td></tr>
+            <tr><td>Sleeve edge stretch, 99.9th pct</td><td>12.85&times;</td><td class="good">2.79&times;</td></tr>
+            <tr><td>Sleeve-to-glove gap, rest &rarr; worst frame</td><td>n/a</td><td class="good">15.8 &rarr; 16.1 mm</td></tr>
+            <tr><td>Teat swing, max</td><td>none</td><td class="good">23&deg;</td></tr>
           </tbody>
         </table>
-        <p class="note">Remaining sleeve stretch is on the outer elbow at the top of each wing flap.</p>
+        <p class="note">The teats only touch the belly at the bottom of the Wiggle squat.</p>
       </section>
+      <figure>
+        <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
+        <figcaption>Mask and hood photos &middot; matching v10 views</figcaption>
+      </figure>
       <figure>
         <img src="compare.jpg" alt="Two 2012 shoot photos beside the v09 render and the v10 front and quarter renders">
         <figcaption>2012 shoot (0120, 0071) &middot; v09 before &middot; v10 after</figcaption>

@@ -40,6 +40,19 @@ def capsule(p, a, b, r):
     return round_cone(p, a, b, r, r)
 
 
+def round_box(p, c, half, r):
+    q = np.abs(p - np.asarray(c)) - (np.asarray(half) - r)
+    return np.linalg.norm(np.maximum(q, 0), axis=-1) + np.minimum(q.max(-1), 0) - r
+
+
+def round_cylinder_x(p, c, half_len, radius, r):
+    """Cylinder along X with rounded rims."""
+    d = p - np.asarray(c)
+    qx = np.abs(d[..., 0]) - (half_len - r)
+    qr = np.sqrt(d[..., 1] ** 2 + d[..., 2] ** 2) - (radius - r)
+    return np.sqrt(np.maximum(qx, 0) ** 2 + np.maximum(qr, 0) ** 2) + np.minimum(np.maximum(qx, qr), 0) - r
+
+
 def smin(a, b, k):
     h = np.maximum(k - np.abs(a - b), 0) / k
     return np.minimum(a, b) - h * h * k * .25

@@ -51,18 +51,12 @@ def load(src):
     out = []
     for name in MASK_KEEP:
         p = dict(src.part(name))
-        p['v'] = D.mask_transform(p['v']).astype(np.float32)
+        p['v'] = D.mask_transform(p['v'])
+        if 'Horn' in name or 'Wires' in name:
+            p['v'] = p['v'] + D.HORN_SHIFT          # horns ride on the ends of the tube
+        p['v'] = p['v'].astype(np.float32)
         p['name'] = NEW_NAMES[name]
         out.append((p, 'head'))
-    # bury each horn root in the hood; the exposed wire travels with the broken horn
-    horns = {q['name']: q for q, _ in out}
-    for horn, extra in [('Horn_left_complete', None), ('Horn_right_broken', 'Horn_right_exposed_wire')]:
-        v = horns[horn]['v'].astype(np.float64)
-        moved = D.root_horn(v)
-        delta = (moved - v).mean(0)
-        horns[horn]['v'] = moved.astype(np.float32)
-        if extra:
-            horns[extra]['v'] = (horns[extra]['v'] + delta).astype(np.float32)
     for old, side in [('Right_glove_v08_', 'L'), ('Left_glove_v08_', 'R')]:
         T, Rm = glove_transform(src, old, side)
         el, wr = D.J[f'Forearm_{side}'], D.J[f'Hand_{side}']

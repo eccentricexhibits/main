@@ -34,47 +34,49 @@ def tinted_tile(tile, colour):
     return np.clip(t * np.asarray(colour), 0, 1)
 
 
-def shag_strands(v, f, n, mask_fn, density=2.2e4, seed=7):
-    """Long black shag strands (tapered ribbons) rooted on the patch areas of the suit."""
+def shag_strands(v, f, n, m, clump_density=3.0e3, per_clump=5, seed=7):
+    """Black shag suggested by sparse clumps of short tapered strands (the texture carries the rest).
+    Returns verts, faces, normals, t-along-strand (0 root .. 1 tip), strand id, roots."""
     rng = np.random.default_rng(seed)
     a, b, c = v[f[:, 0]], v[f[:, 1]], v[f[:, 2]]
     area = .5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    cen = (a + b + c) / 3
-    m = mask_fn(cen)
-    w = area * np.clip(m * 1.3 - .15, 0, 1)
-    count = int(w.sum() * density)
-    fi = rng.choice(len(f), count, p=w / w.sum())
-    r1, r2 = rng.random(count), rng.random(count)
+    w = area * np.clip((m - .55) / .45, 0, 1)
+    nclump = int(w.sum() * clump_density)
+    fi = rng.choice(len(f), nclump, p=w / w.sum())
+    r1, r2 = rng.random(nclump), rng.random(nclump)
     s1 = np.sqrt(r1)
     bc = np.stack([1 - s1, s1 * (1 - r2), s1 * r2], 1)
-    root = np.einsum('ij,ijk->ik', bc, v[f[fi]])
-    nr = np.einsum('ij,ijk->ik', bc, n[f[fi]])
-    nr /= np.linalg.norm(nr, axis=1, keepdims=True)
+    croot = np.einsum('ij,ijk->ik', bc, v[f[fi]])
+    cn = np.einsum('ij,ijk->ik', bc, n[f[fi]]); cn /= np.linalg.norm(cn, axis=1, keepdims=True)
     down = np.array([0, -1, 0.])
-    d = nr * .62 + down * .38 + rng.normal(0, .28, (count, 3))
+    cdir = cn * .45 + down * .55 + rng.normal(0, .18, (nclump, 3))
+    cdir /= np.linalg.norm(cdir, axis=1, keepdims=True)
+    cL = rng.uniform(.016, .036, nclump)
+    count = nclump * per_clump
+    root = np.repeat(croot, per_clump, 0) + rng.normal(0, .0035, (count, 3))
+    nr = np.repeat(cn, per_clump, 0)
+    d = np.repeat(cdir, per_clump, 0) + rng.normal(0, .07, (count, 3))
     d /= np.linalg.norm(d, axis=1, keepdims=True)
-    L = rng.uniform(.028, .068, count)
+    L = np.repeat(cL, per_clump, 0) * rng.uniform(.75, 1.1, count)
+    tipc = np.repeat(croot + cdir * cL[:, None] * .9, per_clump, 0)   # strands of a clump converge
     side = np.cross(d, rng.normal(0, 1, (count, 3)))
     side /= np.linalg.norm(side, axis=1, keepdims=True)
-    segs = 4
+    segs = 3
     ts = np.linspace(0, 1, segs + 1)
-    width = .0075 * (1 - ts * .85)
-    verts, faces, norms, srcroot = [], [], [], []
+    width = .0050 * (1 - ts * .9)
+    verts = []
     for k, t in enumerate(ts):
-        ctr = root - nr * .002 + d * (L * t)[:, None] + down * (.35 * L * t * t)[:, None]
+        straight = root - nr * .0015 + d * (L * t)[:, None] + down * (.25 * L * t * t)[:, None]
+        ctr = straight * (1 - .45 * t * t) + tipc * (.45 * t * t)
         verts += [ctr - side * width[k] / 2, ctr + side * width[k] / 2]
-    V = np.stack(verts, 1)   # (count, 2*(segs+1), 3)
+    V = np.stack(verts, 1)
     idx = np.arange(count)[:, None] * (2 * (segs + 1))
     F = []
     for k in range(segs):
         a0, a1, b0, b1 = 2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3
         F += [np.hstack([idx + a0, idx + a1, idx + b1]), np.hstack([idx + a0, idx + b1, idx + b0])]
-    F = np.vstack(F)
-    Vf = V.reshape(-1, 3)
-    Nf = np.repeat(nr, 2 * (segs + 1), 0)
-    uv = np.tile(np.stack([np.repeat([0, 1], 1).repeat(1), ], 0), 1)
-    tcoord = np.tile(np.repeat(ts, 2), count)
-    return Vf, F, Nf, tcoord, np.repeat(np.arange(count), 2 * (segs + 1)), root
+    return (V.reshape(-1, 3), np.vstack(F), np.repeat(nr, 2 * (segs + 1), 0), np.tile(np.repeat(ts, 2), count),
+            np.repeat(np.arange(count), 2 * (segs + 1)), root, np.repeat(fi, per_clump), np.repeat(bc, per_clump, 0))
 
 
 def build(v09_path, tex_dir, out_dir, quick=False):
@@ -95,13 +97,14 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     sv, sf, sn = suit['v'], suit['f'], suit['n']
     ao_suit = sdf_ao(sv, sn)
     W_suit = RG.suit_weights(sv, sf, suit['labels'])
-    sizes = {'Suit_torso': (2048, 2048), 'Suit_hood': (1024, 1024), 'Suit_sleeve_L': (1024, 1024), 'Suit_sleeve_R': (1024, 1024)}
+    sizes = {'Suit_torso': (2048, 2048), 'Suit_hood': (1024, 1024), 'Suit_sleeve_L': (1024, 1024), 'Suit_sleeve_R': (1024, 1024),
+             'Horn_tube': (512, 512)}
     for ch in suit['charts']:
         key = '_'.join(ch['name'].split('_')[:3]) if 'sleeve' in ch['name'] else '_'.join(ch['name'].split('_')[:2])
         W, H = [int(x * sc) for x in sizes[key]]
         p, n, cover = T.bake_chart(ch, sn, W, H)
         nn = n / np.maximum(np.linalg.norm(n, axis=-1, keepdims=True), 1e-9)
-        col, m = T.suit_color(p, nn, tiles['white'], tiles['black'])
+        col, m = T.suit_color(p, nn, tiles['white'], tiles['black'], T.patches_for(ch['name']))
         col = T.dilate(col, cover)
         img = model.add_image(T.to_jpeg(col))
         mat = model.add_material({'name': ch['name'], 'pbrMetallicRoughness': {
@@ -112,13 +115,32 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             'ao': ao_suit[ch['src']], 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'suit',
                             'W': W_suit[ch['src']]})
     # shag strands on the black patches
-    patches = T.SHAG_PATCHES + T.elbow_patches()
-    sv2, sf2, sn2, tco, sid, roots = shag_strands(sv, sf, sn, lambda q: T.blob_mask(q, patches), density=(1.0e4 if quick else 2.4e4))
+    fl = suit['labels']
+    cen = sv[sf].mean(1)
+    piece = np.where(fl == 2, 1, np.where(fl == 3, 2, 0))          # 0 torso/hood/tube, 1 sleeve L, 2 sleeve R
+    allowed = [T.TORSO_PATCHES, T.SLEEVE_PATCHES['L'], T.SLEEVE_PATCHES['R']]
+    m_face = np.zeros(len(sf))
+    for k in range(3):
+        sel = piece == k
+        m_face[sel] = T.shag_mask(cen[sel], allowed[k])
+    sv2, sf2, sn2, tco, sid, roots, rface, rbc = shag_strands(sv, sf, sn, m_face, clump_density=(1.5e3 if quick else 3.0e3))
+    # strand roots follow the face they grew from; tips swing with that piece's own patch spring bone
+    W_root = np.einsum('ij,ijk->ik', rbc, W_suit[sf[rface]])
+    pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
+    for k in range(3):
+        mask = np.ones(pm.shape[1], bool); mask[allowed[k]] = False
+        rows = np.nonzero(piece[rface] == k)[0]
+        pm[np.ix_(rows, np.nonzero(mask)[0])] = -1
+    patch = pm.argmax(1)
+    W_strand = W_root[sid].copy()
+    k = (.85 * tco ** 1.2)[:, None]
+    tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[patch[sid]]] = 1
+    W_strand = W_strand * (1 - k) + tipw * k
     shag_mat = model.add_material({'name': 'Black_shag_fur_strands', 'doubleSided': True, 'pbrMetallicRoughness': {
         'baseColorFactor': [.018, .018, .02, 1], 'metallicFactor': 0, 'roughnessFactor': .55}, 'extensions': SHEEN(.06, .5)})
     model.parts.append({'name': 'Suit_black_shag_strands', 'v': sv2.astype(np.float32), 'n': sn2.astype(np.float32),
                         'uv': None, 'uv1': None, 'ao': (.55 + .45 * tco).astype(np.float32), 'f': sf2.astype(np.int32),
-                        'material': shag_mat, 'group': 'suit', 'W': W_suit[cKDTree(sv).query(roots)[1]][sid]})
+                        'material': shag_mat, 'group': 'suit', 'W': W_strand})
     report['shag_strands'] = int(len(roots))
 
     # --- leggings

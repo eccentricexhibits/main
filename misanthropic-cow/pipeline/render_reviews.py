@@ -19,7 +19,22 @@ def caption(im, text, size=26):
     return im
 
 
-def main(rigged, out, v09=None, photos=()):
+def head_sheet(r, out, head_photos):
+    """Side-by-side of the mask/hood photos and matching v10 views."""
+    tiles = []
+    for f, a, lab in head_photos:
+        im = ImageOps.exif_transpose(Image.open(f)).convert('RGB')
+        im = im.crop((0, int(im.height * .22), im.width, int(im.height * .92))); im.thumbnail((520, 640))
+        c = Image.new('RGB', (520, 640), '#161b22'); c.paste(im, ((520 - im.width) // 2, 0))
+        tiles.append(caption(c, 'photo \u00b7 ' + lab, 22))
+        tiles.append(caption(r.render(a, 6, (520, 640), center=(0, 1.50, .0), height=.50), 'v10 \u00b7 ' + lab, 22))
+    sheet = Image.new('RGB', (520 * len(tiles), 640))
+    for i, t in enumerate(tiles):
+        sheet.paste(t, (520 * i, 0))
+    sheet.save(out / 'v10_head_vs_photos.jpg', quality=90)
+
+
+def main(rigged, out, v09=None, photos=(), head_dir=None):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
     d = pickle.load(open(rigged, 'rb'))
     m = d['model']
@@ -47,8 +62,13 @@ def main(rigged, out, v09=None, photos=()):
     sheet.save(out / 'v10_vs_shoot_and_v09.jpg', quality=90)
     # dance storyboard: 4 phases x 2 views
     times = [1.30, 4.00, 7.10, 9.375]
+    if head_dir:
+        hd = Path(head_dir)
+        head_sheet(r, out, [(hd / 'IMG_2003.JPG', 0, 'front'), (hd / 'IMG_2004.JPG', 28, 'quarter'), (hd / 'IMG_2005.JPG', 90, 'side')])
     RD.storyboard(d, times, out / 'Chicken_Dance_Pose_Review_v10.jpg', views=((-12, 4), (55, 4)), size=(600, 800), center=(0, .90, .04), height=1.88)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None, sys.argv[4:])
+    args = [a for a in sys.argv[1:] if not a.startswith('--head=')]
+    head = next((a[7:] for a in sys.argv[1:] if a.startswith('--head=')), None)
+    main(args[0], args[1], args[2] if len(args) > 2 else None, args[3:], head)
