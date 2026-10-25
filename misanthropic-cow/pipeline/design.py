@@ -17,8 +17,8 @@ SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-
 
 def arm_points(s, d=None):
     d = d or {}
-    sh = np.array([s * .172, 1.320, -.032])
-    up_angle = np.deg2rad(d.get('arm_abduction', 18.0))
+    sh = np.array([s * .170, 1.308, -.032])
+    up_angle = np.deg2rad(d.get('arm_abduction', 19.0))
     elbow = sh + .275 * np.array([s * np.sin(up_angle), -np.cos(up_angle), .07])
     fa = np.deg2rad(d.get('forearm_abduction', 11.0))
     wrist = elbow + .232 * np.array([s * np.sin(fa), -np.cos(fa), .30])
@@ -59,7 +59,9 @@ def mask_transform(v):
 # The fur-covered cardboard tube that joins the two horns across the top of the head
 # (v09's "crown block" stood in for it). Horns keep their scanned positions at its ends.
 TUBE_C_SCAN = np.array([0, 1.6325, .0615]) + MASK_SEAT     # where the scanned horns expect the tube
-TUBE_C = np.array([0, 1.640, .040]) + MASK_SEAT            # rests on the mask's top edge (part of the mask)
+# The tube sits directly on the mask's arched top edge, as in the photos of the mask with its horns:
+# its underside rests on the rim at the crown (y 1.597), within a few mm of where the scanned horns put it
+TUBE_C = np.array([0, 1.629, .070]) + MASK_SEAT
 HORN_SHIFT = TUBE_C - TUBE_C_SCAN
 TUBE_HALF, TUBE_R = .066, .037
 MASK_BACK_Z = .080 + MASK_SEAT[2]     # the scanned mask shell's back plane (its rim) after mask_transform
@@ -121,9 +123,9 @@ def suit_parts(p, torso_only=False):
     out['torso'] = with_deltoids(p, torso)
     for s, side in [(1, 'L'), (-1, 'R')]:
         sh, el, wr = arm_points(s)
-        # a narrow round head that turns inside the shoulder cap, widening to the upper arm below it
-        mid = sh + .10 * (el - sh) / np.linalg.norm(el - sh)
-        upper = S.smin(S.round_cone(p, sh, mid, .056, .066), S.round_cone(p, mid, el, .066, .060), .02)
+        # its round head turns inside the shoulder cap (3 mm inside it); the upper arm is nearly the
+        # cap's width, so the sleeve leaves the cap at a shallow angle instead of a crease
+        upper = S.round_cone(p, sh, el, .061, .058)
         fore = S.round_cone(p, el, wr, .059, .048)
         arm = S.smin(upper, fore, .025)
         d = (wr - el) / np.linalg.norm(wr - el)
@@ -131,7 +133,7 @@ def suit_parts(p, torso_only=False):
         out['arm_' + side] = arm
     # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
     # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
-    head = S.ellipsoid(p, (0, 1.523, -.022), (.094, .124, .112))
+    head = S.ellipsoid(p, (0, 1.519, -.012), (.090, .118, .099))     # back of the head 2 cm flatter
     hood_neck = S.round_cone(p, (0, 1.355, -.030), (0, 1.47, -.022), .060, .064)
     hood = S.smin(head, hood_neck, .04)
     hood = S.smin(hood, hood_face(p), .03)
@@ -152,13 +154,13 @@ def deltoid(p, s):
     du = (el - sh) / np.linalg.norm(el - sh)
     out_dir = s * np.array([-du[1], du[0], 0.])      # perpendicular to the arm, outward/up
     out_dir = out_dir / np.linalg.norm(out_dir)
-    cap = S.sphere(p, sh, .071)
+    cap = S.sphere(p, sh, .064)
     return S.smax(cap, -((p - sh) @ out_dir + .015), .025)
 
 
 def with_deltoids(p, torso):
     for s in SIDES:
-        torso = S.smin(torso, deltoid(p, s), .065)
+        torso = S.smin(torso, deltoid(p, s), .045)
     return torso
 
 

@@ -46,8 +46,9 @@ def glove_transform(src, old_prefix, side):
     return lambda v: (v - top) @ Rm.T * GLOVE_SIZE + anchor, Rm
 
 
-def load(src):
-    """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}."""
+def load(src, keep_gloves=False):
+    """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}.
+    The v08 gloves are replaced by the rebuilt ones in gloves.py unless keep_gloves is set."""
     out = []
     for name in MASK_KEEP:
         p = dict(src.part(name))
@@ -57,7 +58,7 @@ def load(src):
         p['v'] = p['v'].astype(np.float32)
         p['name'] = NEW_NAMES[name]
         out.append((p, 'head'))
-    for old, side in [('Right_glove_v08_', 'L'), ('Left_glove_v08_', 'R')]:
+    for old, side in ([('Right_glove_v08_', 'L'), ('Left_glove_v08_', 'R')] if keep_gloves else []):
         T, Rm = glove_transform(src, old, side)
         el, wr = D.J[f'Forearm_{side}'], D.J[f'Hand_{side}']
         d = (wr - el) / np.linalg.norm(wr - el)

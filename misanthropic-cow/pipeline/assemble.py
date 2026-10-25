@@ -8,6 +8,7 @@ import design as D
 import garments as Gm
 import textures as T
 import assets as A
+import gloves as GL
 import glb as G
 import noise as N
 import rig as RG
@@ -233,6 +234,17 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             W[:, RG.LEG[grp[-1]]['foot']] = 1
         q['W'] = W
         model.parts.append(q)
+
+    # --- hoof gloves, rebuilt from the glove close-ups
+    gm = GL.materials(model)
+    for side in 'LR':
+        for p in GL.build(side, step=.0022 if quick else .0016):
+            q = {'name': p['name'], 'v': p['v'].astype(np.float32), 'n': p['n'].astype(np.float32),
+                 'f': p['f'].astype(np.int32), 'uv': p['uv'].astype(np.float32),
+                 'uv1': None if p.get('uv1') is None else p['uv1'].astype(np.float32), 'ao': p['ao'],
+                 'material': gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side], 'group': f'glove_{side}'}
+            q['W'] = RG.glove_weights(q, side)
+            model.parts.append(q)
     report['triangles'] = int(sum(len(p['f']) for p in model.parts))
     report['vertices'] = int(sum(len(p['v']) for p in model.parts))
     return model, report

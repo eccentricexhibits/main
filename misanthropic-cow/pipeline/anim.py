@@ -124,7 +124,7 @@ class Dance:
             else:               # Claps: four claps in front of the chest, above the udder
                 open_ = .5 + .5 * np.cos(beat)
                 half = self.palm_half[side]
-                p['hand'][side] = np.array([s * (half + .012 + .24 * open_), 1.395 + .02 * open_, .405 - .03 * open_])
+                p['hand'][side] = np.array([s * (half + .0015 + .24 * open_), 1.395 + .02 * open_, .405 - .03 * open_])
                 p['pole'][side] = np.array([s * .75, 1.12, .02])
                 p['hrot'][side] = self.hand_rot(side, [s * .05 * open_, .55, .84], [-s, 0, 0])
                 p['clav'][side] = .05

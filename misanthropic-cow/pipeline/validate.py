@@ -51,7 +51,8 @@ def validate(model, groups, B, Gs, mats, times, dance):
         t = (sv - B[a['hand']]) @ d
         rings[side] = np.nonzero(t > -.012)[0]
         cuffs[side] = [(i, None) for i in glove_idx[side] if 'hoof_cap' not in model.parts[i]['name']]
-    stretch_torso, stretch_arm, sleeve_gap, overlap, pen, clap = [], [], [], [], {k: 0. for k in PH}, []
+    stretch_torso, stretch_arm, stretch_leg, sleeve_gap, overlap, pen, clap = [], [], [], [], [], {k: 0. for k in PH}, []
+    legs = [i for i, p in enumerate(model.parts) if p['name'].startswith('Leggings_')]
     sole = []
     foot_idx = [i for i, g in enumerate(groups) if g and g.startswith('foot')]
     v_rest = {i: model.parts[i]['v'] for i in suit_idx}
@@ -62,6 +63,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
         st = tri_stretch(v_rest[torso], P[torso]['v'], model.parts[torso]['f'])
         stretch_torso.append(float(np.percentile(st, 99.9)))
         stretch_arm.append(float(max(np.percentile(tri_stretch(v_rest[sleeves[s]], P[sleeves[s]]['v'], model.parts[sleeves[s]]['f']), 99.9) for s in 'LR')))
+        stretch_leg.append(float(max(np.percentile(tri_stretch(model.parts[i]['v'], P[i]['v'], model.parts[i]['f']), 99.9) for i in legs)))
         phase = phase_of(dance, times[k])
         sole.append(float(min(P[i]['v'][:, 1].min() for i in foot_idx)))
         for side in 'LR':
@@ -77,6 +79,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
             gv = np.vstack([P[i]['v'] for i in glove_idx[side]])
             dd, ii = tree.query(gv)
             depth = -np.einsum('ij,ij->i', gv - body[ii], bn[ii])
+            depth[dd > .04] = 0     # behind the nearest vertex's plane but far from it is not contact
             pen[phase] = max(pen[phase], float(np.percentile(depth, 99.5)))
     if dance.name.startswith('Chicken Dance'):
         for k in clap_frames:
@@ -112,6 +115,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
     m['teats_into_belly_p995_m'] = {k: max(v) for k, v in teat_clip.items()}
     m['suit_torso_edge_stretch_p999_max'] = max(stretch_torso)
     m['sleeve_edge_stretch_p999_max'] = max(stretch_arm)
+    m['leggings_edge_stretch_p999_max'] = max(stretch_leg)
     m['sleeve_end_to_glove_gap_p95_rest_m'] = sleeve_gap[0]
     m['sleeve_end_to_glove_gap_p95_max_during_dance_m'] = max(sleeve_gap)
     m['glove_into_body_penetration_p995_m'] = pen

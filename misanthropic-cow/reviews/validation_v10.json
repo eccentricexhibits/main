@@ -1,9 +1,9 @@
 {
   "model": {
-    "shag_tuft_cards": 495,
-    "triangles": 626947,
-    "vertices": 341366,
-    "glb_bytes": 32093176
+    "shag_tuft_cards": 490,
+    "triangles": 620572,
+    "vertices": 335896,
+    "glb_bytes": 31449848
   },
   "clips": {
     "Idle": {
@@ -11,21 +11,22 @@
       "frames": 121,
       "fps": 30,
       "duration_seconds": 4.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
-      "loop_matrix_max_error": 1.1102230246251565e-16,
+      "loop_matrix_max_error": 1.3877787807814457e-17,
       "planted_feet_max_drift_m": 5.427844739244736e-05,
       "arm_into_cups_or_torso_p995_m": {
-        "Idle": 0.0012691941511115375
+        "Idle": 0.0
       },
       "teats_into_belly_p995_m": {
         "Idle": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.029791235923767,
-      "sleeve_edge_stretch_p999_max": 1.12599778175354,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044080768888116,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.01572984547906103,
+      "suit_torso_edge_stretch_p999_max": 1.0293149948120117,
+      "sleeve_edge_stretch_p999_max": 1.1238782405853271,
+      "leggings_edge_stretch_p999_max": 1.1715967655181885,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.0251611180997938,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370213310117674,
       "glove_into_body_penetration_p995_m": {
         "Idle": 0.0
       },
@@ -36,20 +37,21 @@
       "frames": 35,
       "fps": 30,
       "duration_seconds": 1.12,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "arm_into_cups_or_torso_p995_m": {
-        "Walk": 0.002827012032328762
+        "Walk": 0.0
       },
       "teats_into_belly_p995_m": {
         "Walk": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.1290704011917114,
-      "sleeve_edge_stretch_p999_max": 1.3570743799209595,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044074900973948,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.01572978223737454,
+      "suit_torso_edge_stretch_p999_max": 1.1362316608428955,
+      "sleeve_edge_stretch_p999_max": 1.3438854217529297,
+      "leggings_edge_stretch_p999_max": 2.5196094512939453,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161125276100652,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.02537021737886373,
       "glove_into_body_penetration_p995_m": {
         "Walk": 0.0
       },
@@ -60,7 +62,7 @@
       "frames": 23,
       "fps": 30,
       "duration_seconds": 0.72,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -70,10 +72,11 @@
       "teats_into_belly_p995_m": {
         "Run": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.29372239112854,
-      "sleeve_edge_stretch_p999_max": 2.168893814086914,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.014935091863414476,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015604874966713497,
+      "suit_torso_edge_stretch_p999_max": 1.2936620712280273,
+      "sleeve_edge_stretch_p999_max": 2.1205894947052,
+      "leggings_edge_stretch_p999_max": 3.495922565460205,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.0251367920097664,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.02535659862873974,
       "glove_into_body_penetration_p995_m": {
         "Run": 0.0
       },
@@ -84,7 +87,7 @@
       "frames": 79,
       "fps": 30,
       "duration_seconds": 2.6,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -94,10 +97,11 @@
       "teats_into_belly_p995_m": {
         "Sneak": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.3801519870758057,
-      "sleeve_edge_stretch_p999_max": 2.559934139251709,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.010877620717481705,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.010903533606469028,
+      "suit_torso_edge_stretch_p999_max": 1.4407570362091064,
+      "sleeve_edge_stretch_p999_max": 2.556039333343506,
+      "leggings_edge_stretch_p999_max": 3.6050851345062256,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.021865390028960468,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.021952542451610515,
       "glove_into_body_penetration_p995_m": {
         "Sneak": 0.0
       },
@@ -108,7 +112,7 @@
       "frames": 121,
       "fps": 30,
       "duration_seconds": 4.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -118,10 +122,11 @@
       "teats_into_belly_p995_m": {
         "Jumping Jacks": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 2.0513644218444824,
-      "sleeve_edge_stretch_p999_max": 1.835312843322754,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015070871133893361,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.0157564364546595,
+      "suit_torso_edge_stretch_p999_max": 2.2025296688079834,
+      "sleeve_edge_stretch_p999_max": 1.8313899040222168,
+      "leggings_edge_stretch_p999_max": 2.2430331707000732,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161637789213126,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025371924712853832,
       "glove_into_body_penetration_p995_m": {
         "Jumping Jacks": 0.0
       },
@@ -132,20 +137,21 @@
       "frames": 181,
       "fps": 30,
       "duration_seconds": 6.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "arm_into_cups_or_torso_p995_m": {
-        "Look Around": 0.010214917157096392
+        "Look Around": 0.00645517247252195
       },
       "teats_into_belly_p995_m": {
         "Look Around": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.6481361389160156,
-      "sleeve_edge_stretch_p999_max": 2.438516855239868,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044034412408794,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729805843230388,
+      "suit_torso_edge_stretch_p999_max": 1.7683227062225342,
+      "sleeve_edge_stretch_p999_max": 2.372558355331421,
+      "leggings_edge_stretch_p999_max": 1.2759517431259155,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161111286239813,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370218379611655,
       "glove_into_body_penetration_p995_m": {
         "Look Around": 0.0
       },
@@ -156,7 +162,7 @@
       "frames": 361,
       "fps": 30,
       "duration_seconds": 12.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -173,10 +179,11 @@
         "Wiggle": 0.00165587489086037,
         "Claps": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.9056129455566406,
-      "sleeve_edge_stretch_p999_max": 2.8371331691741943,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015435279864844938,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015964454269054722,
+      "suit_torso_edge_stretch_p999_max": 2.0031075477600098,
+      "sleeve_edge_stretch_p999_max": 2.8575599193573,
+      "leggings_edge_stretch_p999_max": 2.1100780963897705,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025043149791620794,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025164271287179903,
       "glove_into_body_penetration_p995_m": {
         "Beaks": 0.0,
         "Wings": 0.0,
@@ -184,10 +191,10 @@
         "Claps": 0.0
       },
       "clap_min_glove_distance_m": [
-        0.0003187347999389104,
-        0.0003187347999389104,
-        0.0003187347999389104,
-        0.0003187347999389104
+        0.0007961642590296422,
+        0.0007961642590296422,
+        0.0007961642590296422,
+        0.0007961642590296422
       ],
       "lowest_slipper_point_m": 0.006043986417353153
     },
@@ -196,7 +203,7 @@
       "frames": 49,
       "fps": 30,
       "duration_seconds": 1.6,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -206,10 +213,11 @@
       "teats_into_belly_p995_m": {
         "Depressed Walk": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.4611893892288208,
-      "sleeve_edge_stretch_p999_max": 1.13523530960083,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015210296113480895,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015799160239500173,
+      "suit_torso_edge_stretch_p999_max": 1.4596267938613892,
+      "sleeve_edge_stretch_p999_max": 1.1422230005264282,
+      "leggings_edge_stretch_p999_max": 2.3195416927337646,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161390135422384,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.02537250225794753,
       "glove_into_body_penetration_p995_m": {
         "Depressed Walk": 0.0
       },
@@ -220,20 +228,21 @@
       "frames": 331,
       "fps": 30,
       "duration_seconds": 11.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "arm_into_cups_or_torso_p995_m": {
-        "Crouch and Sit": 0.02747927256522931
+        "Crouch and Sit": 0.02504336934878197
       },
       "teats_into_belly_p995_m": {
         "Crouch and Sit": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.983319640159607,
-      "sleeve_edge_stretch_p999_max": 2.0841169357299805,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044034412408794,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729859522493027,
+      "suit_torso_edge_stretch_p999_max": 1.9921751022338867,
+      "sleeve_edge_stretch_p999_max": 2.0580387115478516,
+      "leggings_edge_stretch_p999_max": 5.037456512451172,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161111286239813,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370213732691816,
       "glove_into_body_penetration_p995_m": {
         "Crouch and Sit": 0.0
       },
@@ -244,21 +253,22 @@
       "frames": 211,
       "fps": 30,
       "duration_seconds": 7.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "planted_feet_max_drift_m": 5.119447934351373e-05,
       "arm_into_cups_or_torso_p995_m": {
-        "Crying": 0.01021491230025965
+        "Crying": 0.00645516397031072
       },
       "teats_into_belly_p995_m": {
         "Crying": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.480918526649475,
-      "sleeve_edge_stretch_p999_max": 2.4958832263946533,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044034412408794,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729788397616396,
+      "suit_torso_edge_stretch_p999_max": 1.7777221202850342,
+      "sleeve_edge_stretch_p999_max": 2.865626096725464,
+      "leggings_edge_stretch_p999_max": 1.6778993606567383,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161111286239813,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370211626748965,
       "glove_into_body_penetration_p995_m": {
         "Crying": 0.0
       },
@@ -269,21 +279,22 @@
       "frames": 196,
       "fps": 30,
       "duration_seconds": 6.5,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "planted_feet_max_drift_m": 5.119447934351373e-05,
       "arm_into_cups_or_torso_p995_m": {
-        "Exasperated": 0.010582543379104047
+        "Exasperated": 0.0076885562704600615
       },
       "teats_into_belly_p995_m": {
         "Exasperated": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.5483179092407227,
-      "sleeve_edge_stretch_p999_max": 2.7889015674591064,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044034412408794,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729826202664273,
+      "suit_torso_edge_stretch_p999_max": 1.6397489309310913,
+      "sleeve_edge_stretch_p999_max": 2.735647201538086,
+      "leggings_edge_stretch_p999_max": 1.3105988502502441,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161111286239813,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370383084735944,
       "glove_into_body_penetration_p995_m": {
         "Exasperated": 0.0
       },
@@ -294,7 +305,7 @@
       "frames": 151,
       "fps": 30,
       "duration_seconds": 5.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -305,10 +316,11 @@
       "teats_into_belly_p995_m": {
         "Idle": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.1798914670944214,
-      "sleeve_edge_stretch_p999_max": 1.1259907484054565,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044028630164664,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729855337963426,
+      "suit_torso_edge_stretch_p999_max": 1.1813881397247314,
+      "sleeve_edge_stretch_p999_max": 1.1238813400268555,
+      "leggings_edge_stretch_p999_max": 1.4897408485412598,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161110255900475,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370202211840265,
       "glove_into_body_penetration_p995_m": {
         "Idle": 0.0
       },
@@ -319,7 +331,7 @@
       "frames": 43,
       "fps": 30,
       "duration_seconds": 1.4000000000000001,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -329,10 +341,11 @@
       "teats_into_belly_p995_m": {
         "Walk": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.272019863128662,
-      "sleeve_edge_stretch_p999_max": 1.3367801904678345,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044000927047977,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729780930680504,
+      "suit_torso_edge_stretch_p999_max": 1.272507667541504,
+      "sleeve_edge_stretch_p999_max": 1.3244359493255615,
+      "leggings_edge_stretch_p999_max": 2.3688924312591553,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.02516114220408342,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370190495474332,
       "glove_into_body_penetration_p995_m": {
         "Walk": 0.0
       },
@@ -343,7 +356,7 @@
       "frames": 28,
       "fps": 30,
       "duration_seconds": 0.8999999999999999,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -353,10 +366,11 @@
       "teats_into_belly_p995_m": {
         "Run": 0.002778521470090785
       },
-      "suit_torso_edge_stretch_p999_max": 1.4694229364395142,
-      "sleeve_edge_stretch_p999_max": 2.024859666824341,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.014935081277542575,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015604839101313835,
+      "suit_torso_edge_stretch_p999_max": 1.4711533784866333,
+      "sleeve_edge_stretch_p999_max": 1.9838831424713135,
+      "leggings_edge_stretch_p999_max": 3.1486048698425293,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025136821320607978,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025356600837110232,
       "glove_into_body_penetration_p995_m": {
         "Run": 0.0
       },
@@ -367,7 +381,7 @@
       "frames": 99,
       "fps": 30,
       "duration_seconds": 3.25,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -377,10 +391,11 @@
       "teats_into_belly_p995_m": {
         "Sneak": 0.0012553839556341691
       },
-      "suit_torso_edge_stretch_p999_max": 1.433895230293274,
-      "sleeve_edge_stretch_p999_max": 2.548574447631836,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.010899942574699393,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.010958551375787379,
+      "suit_torso_edge_stretch_p999_max": 1.434829831123352,
+      "sleeve_edge_stretch_p999_max": 2.543367385864258,
+      "leggings_edge_stretch_p999_max": 3.27626895904541,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.021926926140707462,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.02200448415481825,
       "glove_into_body_penetration_p995_m": {
         "Sneak": 0.0
       },
@@ -391,7 +406,7 @@
       "frames": 151,
       "fps": 30,
       "duration_seconds": 5.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -401,10 +416,11 @@
       "teats_into_belly_p995_m": {
         "Jumping Jacks": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.8431189060211182,
-      "sleeve_edge_stretch_p999_max": 1.8003398180007935,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015070866901390608,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015756443478609737,
+      "suit_torso_edge_stretch_p999_max": 1.9148881435394287,
+      "sleeve_edge_stretch_p999_max": 1.7759219408035278,
+      "leggings_edge_stretch_p999_max": 2.238887310028076,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161658951864615,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025371854728232095,
       "glove_into_body_penetration_p995_m": {
         "Jumping Jacks": 0.0
       },
@@ -415,21 +431,22 @@
       "frames": 226,
       "fps": 30,
       "duration_seconds": 7.5,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
       "planted_feet_max_drift_m": 2.7755575615628914e-17,
       "arm_into_cups_or_torso_p995_m": {
-        "Look Around": 0.011973202886519768
+        "Look Around": 0.00779869622073304
       },
       "teats_into_belly_p995_m": {
         "Look Around": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.5967937707901,
-      "sleeve_edge_stretch_p999_max": 2.4366865158081055,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.015044066041460177,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015729835803042005,
+      "suit_torso_edge_stretch_p999_max": 1.724125623703003,
+      "sleeve_edge_stretch_p999_max": 2.3766942024230957,
+      "leggings_edge_stretch_p999_max": 1.486647367477417,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.025161099980460275,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025370203697933143,
       "glove_into_body_penetration_p995_m": {
         "Look Around": 0.0
       },
@@ -440,7 +457,7 @@
       "frames": 451,
       "fps": 30,
       "duration_seconds": 15.0,
-      "triangles": 626947,
+      "triangles": 620572,
       "weights_sum_255": true,
       "joint_indices_valid": true,
       "loop_matrix_max_error": 0.0,
@@ -457,21 +474,22 @@
         "Wiggle": 0.005028628342202754,
         "Claps": 0.0
       },
-      "suit_torso_edge_stretch_p999_max": 1.7412147521972656,
-      "sleeve_edge_stretch_p999_max": 2.8230245113372803,
-      "sleeve_end_to_glove_gap_p95_rest_m": 0.01543706140667682,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.015979491497853264,
+      "suit_torso_edge_stretch_p999_max": 1.8028069734573364,
+      "sleeve_edge_stretch_p999_max": 2.8206875324249268,
+      "leggings_edge_stretch_p999_max": 2.0836021900177,
+      "sleeve_end_to_glove_gap_p95_rest_m": 0.0250290479136614,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.02516097856099389,
       "glove_into_body_penetration_p995_m": {
         "Beaks": 0.0,
         "Wings": 0.0,
         "Wiggle": 0.0,
-        "Claps": 0.0
+        "Claps": 0.0014856407651677728
       },
       "clap_min_glove_distance_m": [
-        0.0007312549738399122,
-        0.0003185872723832322,
-        0.00011059808877584497,
-        7.8888278556493e-05
+        0.00132623473810697,
+        0.0007961990998067175,
+        0.0004953166960764773,
+        0.00039943337038286694
       ],
       "lowest_slipper_point_m": 0.006043986417353153
     }

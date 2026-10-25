@@ -182,14 +182,19 @@ def suit_weights(v, f, face_labels):
 
 
 def leg_weights(v, f):
+    """Hips on the seat, each leg's chain below.  The two legs share the crotch symmetrically: a
+    smooth left/right split across the centre line (half each at the seam), so spreading the legs
+    stretches the gusset evenly instead of tearing it along a hard line."""
     c = D.legging_parts(v)
     W = np.zeros((len(v), NB))
-    W[:, HIPS] = 1
     y = v[:, 1]
+    lw_all, m_all = [], []
     for side, s in [('L', 1), ('R', -1)]:
         L = LEG[side]
-        legm = ss(-.03, .02, c['pelvis'] - c['leg_' + side]) * (s * v[:, 0] > -.01)
-        legm = np.maximum(legm * (1 - ss(.80, .88, y)), (1 - ss(.70, .80, y)) * (s * v[:, 0] > 0))
+        lateral = ss(-.045, .045, s * v[:, 0])                     # 0.5 on the centre line
+        inleg = ss(-.03, .02, c['pelvis'] - c['leg_' + side]) * (1 - ss(.80, .88, y))
+        below = 1 - ss(.66, .80, y)                                 # under the crotch it is all leg
+        m = np.maximum(inleg, below) * lateral
         knee = D.J[f'Shin_{side}'][1]; ank = D.J[f'Foot_{side}'][1]
         shin = 1 - ss(knee - .04, knee + .05, y)
         foot = 1 - ss(ank - .01, ank + .05, y)
@@ -197,8 +202,13 @@ def leg_weights(v, f):
         lw[:, L['thigh']] = 1 - shin
         lw[:, L['shin']] = shin * (1 - foot)
         lw[:, L['foot']] = shin * foot
-        W = W * (1 - legm)[:, None] + lw * legm[:, None]
-    return smooth_weights(W, f, 4)
+        lw_all.append(lw); m_all.append(m)
+    hips = np.clip(1 - m_all[0] - m_all[1], 0, 1)
+    W[:, HIPS] = hips
+    for lw, m in zip(lw_all, m_all):
+        W += lw * m[:, None]
+    W /= W.sum(1, keepdims=True)
+    return smooth_weights(W, f, 8)
 
 
 def glove_weights(p, side):

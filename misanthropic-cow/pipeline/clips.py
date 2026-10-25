@@ -392,7 +392,8 @@ class Crying(AN.Dance):
         p['hand'], p['pole'] = {}, {}
         for side, s in [('L', 1), ('R', -1)]:
             eye, Rh = head_point(self, p, [s * .050, 1.522, .135])
-            wrist, _ = head_point(self, p, [s * .085, 1.405, .205])          # below and in front of the eye
+            # the hoof plates reach ~21 cm past the wrist: hold the wrist that far out, below the eye
+            wrist, _ = head_point(self, p, np.array([s * .050, 1.522, .135]) + .213 * np.array([s * .05, -.79, .61]))
             rest = rest_hand(self, side, s)
             tgt = bezier_reach(rest, np.array([s * .44, 1.12, .06]), np.array([s * .34, 1.36, .30]),
                                np.array([s * .20, 1.38, .36]), wrist, face)
@@ -441,7 +442,7 @@ class Exasperated(AN.Dance):
             hr = ('blend', ('follow', .12), self.hand_rot(side, [s * .55, .05, .55], [0, 1, 0]), fling)
             if side == 'R' and palm > 0:
                 brow, Rh = head_point(self, p, [-.015, 1.575, .115])
-                wrist, _ = head_point(self, p, [-.040, 1.470, .245])
+                wrist, _ = head_point(self, p, np.array([-.015, 1.575, .115]) + .222 * np.array([-.15, -.62, .77]))
                 tgt = bezier_reach(tgt, np.array([s * .44, 1.12, .04]), np.array([s * .36, 1.42, .20]),
                                    np.array([s * .16, 1.52, .36]), wrist, palm)
                 pole = pole * (1 - palm) + np.array([s * .60, 1.15, -.05]) * palm
@@ -460,7 +461,7 @@ SLOW = 1.25         # alt clips play 25 % slower
 
 
 def lumber(clip, p, q, u):
-    """Re-voice a pose: slumped and head-down, dropped shoulders, heavier sway, upper body trailing
+    """Re-voice a pose: slumped with the neck forward but eyes level, dropped shoulders, heavier sway, upper body trailing
     the hips (q is the same clip sampled a moment earlier), arms hanging plumb, feet dragging."""
     T = clip.duration
     breath = np.sin(2 * np.pi * u * max(1, round(T / 3.5)))
@@ -472,8 +473,10 @@ def lumber(clip, p, q, u):
     # the slouch bends the lower spine; the chest stays over it so the cups don't tip onto the belly
     p['spine'] = np.asarray(p['spine'], float) + [.08, 0, 0]
     p['chest'] = p['chest'] + [.01 + .012 * breath, 0, 0]
-    p['neck'] = p['neck'] + [.07 * (1 - nh), 0, 0]
-    p['head'] = p['head'] + [.10 * (1 - nh), 0, .035 * (1 - nh)]
+    # the neck juts forward with the slump, but the head tips back up so the eyes stay level and she
+    # can see where she is going (spine .08 + chest .01 + neck .04 - head .12 = level gaze)
+    p['neck'] = p['neck'] + [.04 * (1 - nh), 0, 0]
+    p['head'] = p['head'] + [-.12 * (1 - nh), 0, .035 * (1 - nh)]
     p['hips'] = np.asarray(p['hips'], float) * [1, 1, 1.4]
     sh = np.asarray(p['shift'], float)
     p['shift'] = np.array([1.4 * sh[0], .7 * sh[1] - .014 - .004 * (.5 + .5 * breath), sh[2]])

@@ -35,7 +35,8 @@ The wearer is built at about 1.60 m. v09 had scaled the whole figure to fit an o
 **Head.** The head is built as the costume is worn, following the mask and hood photos (`IMG_2003`–`2034`, `0006`, `0013`, `0014`, `Nathan 32`). There are three separate pieces:
 - **Hood.** A snug fur balaclava, about 2 cm of fur over a 1.6 m wearer's head. Its neck tucks into the torso garment's neckline, which stops at the base of the neck. The head is skinned only to the Head and Neck bones, so it turns freely without dragging the torso up into a hump.
 - **Mask.** The scanned papier-mâché mask covers the hood's whole front, and its rim sits on the hood all the way round. The mask, tube and horns were pushed 2.5 cm back as one rigid piece, so the tube and horns keep exactly their size and placement relative to the mask. The hood has a padded face opening shaped to the mask's outline: the outline is a Fourier fit to the scanned rim, with an rms error of 1.3 mm. Just behind the rim the opening is 2 mm inside that outline, and it tapers back into the head. Earlier the rim floated 2–7 cm in front of a plain egg-shaped hood, which showed as a gap from the side.
-- **Tube and horns.** The fur-covered cardboard tube that joins the horns belongs to the mask and rests on the mask's top edge. The scanned horns ride on its ends in their original positions relative to it.
+- **Tube and horns.** The fur-covered cardboard tube that joins the horns belongs to the mask. It sits directly on the mask's arched top edge, as in the photos of the mask laid out with its horns: its underside rests on the rim at the crown. The scanned horns ride on its ends, within a few millimetres of their scanned positions. In the previous pass the tube sat 2 cm behind the rim, with a band of hood showing between them.
+- **Back of the head.** The hood's dome is 2 cm shallower front to back and a little narrower and lower, so the back of the head no longer bulges behind the mask.
 
 The white paint in the mask photo gets a lift; the eyes, the muzzle and the weathered grey wash keep their colour.
 
@@ -51,25 +52,37 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
-- The hoof caps are glossy black, as in every photo. v08 had them mid grey-teal.
+- **Gloves.** The gloves were rebuilt from the close-up glove photos (`gloves.py`):
+  - **Mitten:** a long cream terry-cloth mitten with a narrow cuff inside the sleeve, a wider flat palm and a rounded finger end. Its terry loops are a procedural tileable texture with a matching normal map.
+  - **Thumb:** a separate cloth thumb standing out from the side at about 40°.
+  - **Hoof plates:** two long, flat, D-shaped plates over the fingertips, side by side and splayed 3° so they read as a cloven hoof. Each has a straight inner edge along the split and thins toward its rounded point, and the mitten's tip tucks inside them.
+  - **Paint:** the plates are glossy black lacquer with chips showing the printed card underneath, red on the left glove and green on the right, as in the photos.
+  - The v08 gloves had a stubby mitten with short round caps hanging under it and bristly fur cards. Their cuff poked out of the back of the sleeve as a white flap; that flap is gone with them.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
 
-**Shoulders.** Earlier passes plugged the round top of each sleeve tube into the side of the torso, so the shoulders read as tubes. Now the torso garment carries a padded shoulder cap that blends broadly into the trapezius and chest, and the sleeve comes out from under it. The setup works like a ball and socket:
+**Shoulders.** Earlier passes plugged the round top of each sleeve tube into the side of the torso, so the shoulders read as tubes. Now the torso garment carries a padded shoulder cap that blends into the trapezius and chest, and the sleeve comes out from under it. The setup works like a ball and socket:
 - The cap is a ball centred on the arm's pivot.
 - The sleeve's head is a narrower ball on the same centre.
 - However the arm swings, the sleeve head turns inside the cap and never pokes through.
-- Because the cap only ever turns about its own centre, it can follow the half-rotation helper without tearing the torso. The torso stretch in Jumping Jacks stays at 2.0×, against 1.8× before.
+- Because the cap only ever turns about its own centre, it can follow the half-rotation helper without tearing the torso. The torso stretch in Jumping Jacks is 2.2×, against 1.8× before the cap.
 - Only the outer half of the cap exists, so the armpit stays open and cannot web.
 
-The shoulder pivot moved 1.5 cm lower and the arms hang 1° wider (18°).
+The second pass made the shoulders lower and less bulky:
+- The pivot is 2.7 cm lower than in the first v10 pass.
+- The cap's radius dropped from 7.1 to 6.4 cm, and it blends into the trapezius with a smaller fillet.
+- The upper sleeve is 5 mm slimmer.
+- The arms hang at 19°.
 
-**Hands that don't connect (fixed).** Each glove tucks 3.5 cm up inside its sleeve end. The sleeve and the glove are weighted by the same function of position along the forearm, so they move as one. In the wing pose the fists follow the forearm instead of being bent 90° at the wrist. v08's flared cuff ring and its halo strands were removed, because at this scale they z-fought with the sleeve.
+Where a sleeve meets the torso, both pieces are shaded with the normals of one smoothly blended surface, which removes the seam line. The sleeve also leaves the cap at a shallow 17° angle instead of 29°.
+
+**Hands that don't connect (fixed).** Each glove's cuff tucks up inside its sleeve end. The sleeve and the glove are weighted by the same function of position along the forearm, so they move as one. In the wing pose the fists follow the forearm instead of being bent 90° at the wrist. v08's flared cuff ring and its halo strands were removed, because at this scale they z-fought with the sleeve.
 
 **Clipping (fixed).**
 - Each elbow swings around its shoulder-wrist line to stay clear of the udder cups and torso. The swing is chosen frame by frame from a collision cost and kept continuous with a Viterbi pass, then smoothed around the loop.
 - Half-rotation helper joints at the sleeve head and the elbow keep both joints full when they bend.
 - The torso just around each sleeve head follows the arm slightly.
+- **Crotch.** The leggings' leg weights used to switch hard from one leg to the other on the centre line, and the two sides were treated differently. Spreading the legs (Jumping Jacks, Run) tore that line open into a stretched panel. Now the two legs share the crotch with a smooth, symmetric blend, half each on the seam. The leggings' worst-frame stretch fell from 8.5× to 2.1× in Jumping Jacks and from 11.1× to 3.1× in Run.
 - The belly's fullest point was lowered 2.7 cm and the bottom teats angled forward. This gives the teats clearance at rest, matching the dip under the cups in shots 0120 and 0071.
 
 **Light physics (baked).** glTF has no live physics, so damped springs are simulated over three loops of each animation and the last loop is baked into the bones. It plays in any glTF viewer and every animation loops seamlessly.
@@ -97,7 +110,7 @@ All 18 animations loop seamlessly and play in place, with no root travel.
 
 **Alt set.** Each of the first seven has an alt version, named `<Animation> (alt)`. The alt versions play the character as it is: heavy, awkward, lumbering and a bit depressed, without going overboard. One function (`lumbering` in `clips.py`) re-voices the original choreography:
 - It plays 25 % slower.
-- The lower spine slumps forward and the head hangs lower with a slight tilt. The shoulders drop.
+- The lower spine slumps forward and the neck juts, but the head tips back up so the eyes stay level and she can see where she's going. The head also has a slight tilt, and the shoulders drop.
 - The weight shifts further side to side and the hips roll more. The body sags a little lower and breathes.
 - The chest, neck and head trail the hips by 0.07 s, so the upper body follows through.
 - The arms swing less and hang plumb.
@@ -112,30 +125,30 @@ The **default pose** is the rest pose: arms relaxed and down at the sides. In th
 
 All depths are the 99.5th percentile over every frame.
 
-| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Lowest slipper point |
-|---|---|---|---|---|
-| Idle | 1.3 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Walk | 2.8 mm | 0 mm | 0 mm | 1.2 mm above floor |
-| Run | 0 mm | 0 mm | 0 mm | 1.4 mm above floor |
-| Sneak | 0 mm | 0 mm | 0 mm | 2.6 mm above floor |
-| Jumping Jacks | 0 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Look Around | 10.2 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Chicken Dance | 0 mm | 1.7 mm | 0 mm | 6.0 mm above floor |
-| Depressed Walk | 0 mm | 0 mm | 0 mm | 1.1 mm above floor |
-| Crouch and Sit | 27.5 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Crying | 10.2 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Exasperated | 10.6 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Idle (alt) | 0 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Walk (alt) | 0 mm | 0 mm | 0 mm | 1.1 mm above floor |
-| Run (alt) | 0 mm | 2.8 mm | 0 mm | 1.4 mm above floor |
-| Sneak (alt) | 0 mm | 1.3 mm | 0 mm | 2.1 mm above floor |
-| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 4.8 mm above floor |
-| Look Around (alt) | 12.0 mm | 0 mm | 0 mm | 6.0 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.0 mm | 0 mm | 6.0 mm above floor |
+| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Leggings stretch, worst frame | Lowest slipper point |
+|---|---|---|---|---|---|
+| Idle | 0 mm | 0 mm | 0 mm | 1.17× | 6.0 mm above floor |
+| Walk | 0 mm | 0 mm | 0 mm | 2.52× | 1.2 mm above floor |
+| Run | 0 mm | 0 mm | 0 mm | 3.50× | 1.4 mm above floor |
+| Sneak | 0 mm | 0 mm | 0 mm | 3.61× | 2.6 mm above floor |
+| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.24× | 6.0 mm above floor |
+| Look Around | 6.5 mm | 0 mm | 0 mm | 1.28× | 6.0 mm above floor |
+| Chicken Dance | 0 mm | 1.7 mm | 0 mm | 2.11× | 6.0 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.32× | 1.1 mm above floor |
+| Crouch and Sit | 25.0 mm | 0 mm | 0 mm | 5.04× | 6.0 mm above floor |
+| Crying | 6.5 mm | 0 mm | 0 mm | 1.68× | 6.0 mm above floor |
+| Exasperated | 7.7 mm | 0 mm | 0 mm | 1.31× | 6.0 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.49× | 6.0 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.37× | 1.1 mm above floor |
+| Run (alt) | 0 mm | 2.8 mm | 0 mm | 3.15× | 1.4 mm above floor |
+| Sneak (alt) | 0 mm | 1.3 mm | 0 mm | 3.28× | 2.1 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.24× | 4.8 mm above floor |
+| Look Around (alt) | 7.8 mm | 0 mm | 0 mm | 1.49× | 6.0 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.0 mm | 1.5 mm | 2.08× | 6.0 mm above floor |
 
-The figures of about 10 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 27.5 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The alt Chicken Dance's slump puts the teats 5 mm into the belly at the bottom of the Wiggle squat. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it.
+The figures of about 7 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 25.0 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The alt Chicken Dance's slump puts the teats 5 mm into the belly at the bottom of the Wiggle squat. In Crying and Exasperated the hooves press about 5 mm into the mask at the eyes and brow. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
-In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 1.0 mm.
+In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The new hooves reach about 22 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
 ## Measured over the dance
 
@@ -143,11 +156,11 @@ In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove 
 |---|---|---|
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 1.7 mm at the bottom of the Wiggle squat |
-| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.91× |
-| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.84× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 15.4 mm and 16.0 mm |
+| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 2.00× |
+| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.86× |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 25.0 mm and 25.2 mm (the slimmer mitten wrist sits loosely inside the sleeve end) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
-| Clap contact gap | not measured | 0.3 mm |
+| Clap contact gap | not measured | 0.8 mm |
 | Loop seam error | 0 | 0 |
 | Planted-foot drift | ~0 | 0.05 mm |
 
@@ -186,7 +199,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 ## Rebuilding
 
 You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk`, plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
-- the review GLB, which supplies the mask scan, horns, gloves and slippers;
+- the review GLB, which supplies the mask scan, horns and slippers (the gloves are generated by `gloves.py`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
 ```bash
@@ -208,6 +221,7 @@ Add `--quick` to `build_v10.py` for a half-resolution build that takes about 5 m
 Where things live:
 - `design.py`: proportions, as signed-distance primitives;
 - `textures.py`: shag patch and spot placement;
+- `gloves.py`: the hoof gloves and their terry and hoof-paint textures;
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 

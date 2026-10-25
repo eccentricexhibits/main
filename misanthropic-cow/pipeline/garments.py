@@ -136,7 +136,37 @@ def build_suit(step=.0042, target=170000):
         charts.append(ch)
         V.append(v); F.append(f + off); Nn.append(n); L.append(lab_f)
         off += len(v)
-    return {'v': np.vstack(V), 'f': np.vstack(F), 'n': np.vstack(Nn), 'labels': np.concatenate(L), 'charts': charts}
+    v, f, n, lab = np.vstack(V), np.vstack(F), np.vstack(Nn), np.concatenate(L)
+    return {'v': v, 'f': f, 'n': junction_normals(v, f, n, lab), 'labels': lab, 'charts': charts}
+
+
+def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018)):
+    """Where a sleeve meets the torso (shoulder cap, armpit), shade both pieces with the normals of
+    one smoothly blended surface, so the junction reads as continuous fur rather than a seam line."""
+    vl = np.zeros(len(v), int)
+    for c in range(3):
+        vl[f[:, c]] = face_labels
+    n = n.copy()
+    torso = D.suit_sdf
+    for side, lab in [('L', 2), ('R', 3)]:
+        sleeve = lambda q, sd=side: D.sleeve_sdf(q, sd)
+        for mine, other in [(vl == 0, sleeve), (vl == lab, torso)]:
+            idx = np.nonzero(mine)[0]
+            d = np.abs(other(v[idx]))
+            near = d < band[1]
+            idx, d = idx[near], d[near]
+            if not len(idx):
+                continue
+            q = v[idx]
+            e = 1e-3
+            blend = lambda x: S.smin(torso(x), sleeve(x), k)
+            g = np.stack([blend(q + dd) - blend(q - dd) for dd in np.eye(3) * e], 1)
+            g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-9)
+            w = np.clip((band[1] - d) / (band[1] - band[0]), 0, 1)
+            w = w * w * (3 - 2 * w)
+            m = n[idx] * (1 - w)[:, None] + g * w[:, None]
+            n[idx] = m / np.maximum(np.linalg.norm(m, axis=1, keepdims=True), 1e-9)
+    return n
 
 
 # ---------------------------------------------------------------- leggings
