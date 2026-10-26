@@ -3,7 +3,19 @@
 A small browser game starring **The Misanthropic Cow**, moving with Mario's physics and
 animations from *Super Mario 64*. Mario himself is still selectable from the pause menu.
 
-## The cow
+There are two cows, picked from the pause menu (and in the animation viewer):
+
+- **Cow 64** (default): a low-poly (about 3,000 triangles), Mario-proportioned version with a
+  big head, chunky body and short legs, drawn at 1.2x Mario's size. Each body part is a rigid
+  mesh built in the local frame of one of Mario's 20 animated parts, the way Mario's own N64
+  model is built, so every Mario animation fits it exactly. That includes the punch/kick
+  scaling and the floor-aligned crawling and sliding. Its face is the real mask from the
+  detailed model, rendered into a texture when the game loads; without the detailed model it
+  falls back to a drawn face. The geometry comes from code (`src/render/lowPolyCow.js`), with
+  no image files.
+- **Detailed cow**: the original 3D model with its own skeleton, described below.
+
+## The detailed cow
 
 - Model: `assets/misanthropic_cow.glb` (not committed; see below), a game-ready copy of
   *Misanthropic_Cow_v11_FirstPass_Animated.glb*. Triangles were cut from 620k to 133k (the

@@ -46,6 +46,7 @@ export class MarioModel extends GeoModel {
     this.animations = animations;
     this.areaUpdateCounter = 0;
     this.attackAnimCounter = -1;
+    this.visualScale = 1; // a character drawn on this skeleton can be larger than Mario
   }
 
   // Only the normal-cap, high-poly Mario is needed: skip LOD and cap-effect variants.
@@ -83,6 +84,7 @@ export class MarioModel extends GeoModel {
       setRotateZXYTranslate(this.root.matrix, pos, angle);
     }
     if (gfx.scale) this.root.matrix.scale(_scale.set(gfx.scale[0], gfx.scale[1], gfx.scale[2]));
+    if (this.visualScale !== 1) this.root.matrix.scale(_scale.setScalar(this.visualScale));
     this.root.matrixWorldNeedsUpdate = true;
 
     // Animation globals (geo_set_animation_globals)

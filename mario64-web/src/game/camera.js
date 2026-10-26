@@ -11,7 +11,7 @@ export class FollowCamera {
   constructor(camera, levelMesh) {
     this.camera = camera;
     this.level = levelMesh;
-    this.dist = 1100;
+    this.dist = 950;
     this.pitch = 0.32;
     this.focus = new THREE.Vector3();
     this.pos = new THREE.Vector3();

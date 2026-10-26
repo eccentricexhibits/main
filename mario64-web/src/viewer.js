@@ -4,6 +4,7 @@ import { parseMarioAnimations } from './rom/anims.js';
 import { MarioModel } from './render/marioModel.js';
 import { pickRomFile } from './game/romPicker.js';
 import { CowModel, loadCowGltf } from './render/cowModel.js';
+import { LowPolyCow, bakeFaceFromGltf } from './render/lowPolyCow.js';
 import { COW_URL } from './game/cowAsset.js';
 import { setupLighting } from './render/lighting.js';
 
@@ -22,7 +23,7 @@ const floor = new THREE.Mesh(
 scene.add(floor);
 
 let yaw = 0.6, pitch = 0.25, dist = 520;
-window.__setYaw = (y) => { yaw = y; }; // used by automated screenshots
+window.__setYaw = (y, p, d) => { yaw = y; if (p !== undefined) pitch = p; if (d !== undefined) dist = d; }; // used by automated screenshots
 function placeCamera() {
   const target = new THREE.Vector3(0, 80, 0);
   camera.position.set(
@@ -66,8 +67,11 @@ async function start(rom) {
   const model = new MarioModel(rom, animations);
   scene.add(model.root);
   let cow = null;
+  let face = null;
   try {
-    cow = new CowModel(await loadCowGltf(COW_URL), model);
+    const gltf = await loadCowGltf(COW_URL);
+    face = bakeFaceFromGltf(renderer, gltf);
+    cow = new CowModel(gltf, model);
     cow.useNativeClips = false;
     scene.add(cow.root);
     for (const name of cow.clipNames) {
@@ -84,9 +88,11 @@ async function start(rom) {
     const asCow = charSelect.value === 'cow' && !!cow;
     if (cow) cow.root.visible = asCow;
     model.root.visible = !asCow;
+    cow64.setActive(charSelect.value === 'cow64');
     document.getElementById('clipRow').hidden = !asCow;
   };
-  if (!cow) { charSelect.value = 'mario'; charSelect.disabled = true; }
+  const cow64 = new LowPolyCow(model, face);
+  if (!cow) charSelect.querySelector('option[value=cow]').disabled = true;
   charSelect.addEventListener('change', applyChar);
   clipSelect.addEventListener('change', () => { if (cow) cow.override = clipSelect.value || null; });
   applyChar();
@@ -165,7 +171,7 @@ async function start(rom) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__viewer = { model, cow, animations, m, setAnim };
+  window.__viewer = { model, cow, cow64, animations, m, setAnim };
 }
 
 pickRomFile(start);

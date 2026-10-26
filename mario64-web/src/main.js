@@ -6,6 +6,7 @@ import { parseMarioAnimations } from './rom/anims.js';
 import { MarioModel } from './render/marioModel.js';
 import { RedCoinModel, StarModel } from './render/objects.js';
 import { CowModel, loadCowGltf } from './render/cowModel.js';
+import { LowPolyCow, bakeFaceFromGltf } from './render/lowPolyCow.js';
 import { setupLighting } from './render/lighting.js';
 import { COW_URL } from './game/cowAsset.js';
 import { pickRomFile, forgetRom } from './game/romPicker.js';
@@ -25,9 +26,9 @@ const COW_SPEED_SCALE = 0.78;
 const settings = loadSettings();
 function loadSettings() {
   try {
-    return { character: 'cow', voice: false, ...JSON.parse(localStorage.getItem('mario64-web-settings') || '{}') };
+    return { character: 'cow64', voice: false, ...JSON.parse(localStorage.getItem('mario64-web-settings') || '{}') };
   } catch {
-    return { character: 'cow', voice: false };
+    return { character: 'cow64', voice: false };
   }
 }
 function saveSettings() {
@@ -97,13 +98,20 @@ async function start(rom) {
   const model = new MarioModel(rom, animations);
   scene.add(model.root);
 
+  // Two cows: the detailed model (own skeleton, retargeted animation) and "Cow 64", a
+  // low-poly Mario-proportioned version riding Mario's skeleton. Cow 64 wears the
+  // detailed model's mask, baked to a texture, when that model is available.
   let cow = null;
+  let face = null;
   try {
-    cow = new CowModel(await loadCowGltf(COW_URL), model);
+    const gltf = await loadCowGltf(COW_URL);
+    face = bakeFaceFromGltf(renderer, gltf);
+    cow = new CowModel(gltf, model);
     scene.add(cow.root);
   } catch (e) {
-    console.error('Could not load the cow model; playing as Mario', e);
+    console.error('Could not load the detailed cow model', e);
   }
+  const cow64 = new LowPolyCow(model, face);
 
   const level = buildPlayground();
   scene.add(level.mesh);
@@ -122,12 +130,14 @@ async function start(rom) {
   scene.add(shadow);
 
   function applySettings() {
-    const asCow = settings.character === 'cow' && !!cow;
+    if (settings.character === 'cow' && !cow) settings.character = 'cow64';
+    const asCow = settings.character === 'cow';
     if (cow) cow.root.visible = asCow;
     model.root.visible = !asCow;
+    cow64.setActive(settings.character === 'cow64');
     m.speedScale = asCow ? COW_SPEED_SCALE : 1;
     sfx.voiceEnabled = settings.voice;
-    $('characterSelect').value = asCow ? 'cow' : 'mario';
+    $('characterSelect').value = settings.character;
     $('voiceToggle').checked = settings.voice;
     $('characterSelect').querySelector('option[value=cow]').disabled = !cow;
   }
@@ -274,7 +284,7 @@ async function start(rom) {
     if (m.floor) {
       const h = gp[13] - m.floorHeight;
       shadow.visible = h < 1500;
-      const s = (usingCow() ? 135 : 100) * Math.max(0.5, 1 - h / 1500);
+      const s = (usingCow() ? 135 : settings.character === 'cow64' ? 125 : 100) * Math.max(0.5, 1 - h / 1500);
       shadow.scale.set(s, 1, s);
       shadow.position.set(gp[12], m.floorHeight + 2, gp[14]);
       const n = m.floor.normal;
@@ -297,7 +307,7 @@ async function start(rom) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__game = { m, model, cow, world, level, game, followCam, sfx };
+  window.__game = { m, model, cow, cow64, world, level, game, followCam, sfx };
 }
 
 pickRomFile(start);
