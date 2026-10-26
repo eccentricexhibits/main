@@ -1,6 +1,38 @@
-# Mario 64 Playground
+# Misanthropic Cow 64
 
-A small browser game built around Mario as he exists in *Super Mario 64*: his real model,
+A small browser game starring **The Misanthropic Cow**, moving with Mario's physics and
+animations from *Super Mario 64*. Mario himself is still selectable from the pause menu.
+
+## The cow
+
+- Model: `assets/misanthropic_cow.glb` (not committed; see below), a game-ready copy of
+  *Misanthropic_Cow_v11_FirstPass_Animated.glb*. Triangles were cut from 620k to 133k (the
+  scanned mask keeps the most detail, the alpha-card fur is untouched), textures capped at
+  1024 px and the geometry meshopt-compressed: 35 MB down to 5.9 MB. The skeleton and all 18
+  clips are unchanged.
+- Animation (`src/render/cowModel.js`): idling, walking, sneaking and running use the cow's
+  own clips (Idle, Look Around, Walk, Sneak, Run), sped up to match the ground speed. It
+  switches to Depressed Walk and Exasperated when health is low, and does the Chicken Dance
+  after getting the star. Every other move (jumps, flips, punches, dives, ledge grabs,
+  slides, sleeping...) uses Mario's animation from the ROM, retargeted onto the cow's
+  skeleton at runtime: the arms are re-aimed from Mario's A-pose to the cow's resting pose,
+  and root motion is scaled to the cow's longer legs. Clips cross-fade over 0.14 s.
+- Physics tweak: the cow's top speed is 78% of Mario's (about 24 instead of 32 units per
+  frame) so its run cycle doesn't look frantic. Everything else is Mario's original
+  physics. Triple jumps and long jumps still work: a long jump covers about 1,370 units,
+  and the level's widest gap is 950.
+- Mario's voice clips are off by default when playing as the cow (pause menu to enable).
+- The animation viewer can show any of Mario's 209 animations on the cow, plus the cow's
+  own clips.
+
+The model file is deliberately not committed while this repository is public. To run the
+cow version from source, copy the optimized GLB to `assets/misanthropic_cow.glb`; without
+it the game falls back to Mario. `npm run build` embeds it into the standalone files in
+`dist/` (which are git-ignored for the same reason).
+
+## About the engine
+
+The game is built around Mario as he exists in *Super Mario 64*: his real model,
 textures, all 209 animations, his voice clips, and a JavaScript port of the game's own
 movement code (walking, running, triple jumps, long jumps, backflips, side flips, wall
 kicks, ground pounds, dives, ledge grabs, slides, punches and kicks).
@@ -12,7 +44,7 @@ remembered in your browser's local storage (IndexedDB) so you don't have to pick
 
 ## Playing
 
-**Easiest:** download `dist/mario64-playground.html` and double-click it. It is a single
+**Easiest:** double-click `dist/mario64-playground.html` (built locally with `npm run build`). It is a single
 self-contained file (code, styles and Three.js inlined) that runs straight from disk, no
 server needed. `dist/mario64-viewer.html` is the matching animation viewer.
 

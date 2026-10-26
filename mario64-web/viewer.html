@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mario Animation Viewer</title>
+<title>Animation Viewer</title>
 <link rel="stylesheet" href="style.css">
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 </head>
@@ -18,6 +18,8 @@
   </div>
 </div>
 <div id="panel" class="panel" hidden>
+  <label>Character <select id="charSelect"><option value="cow">The Misanthropic Cow</option><option value="mario">Mario</option></select></label>
+  <label id="clipRow">Cow's own clips <select id="clipSelect"><option value="">(Mario animation below, retargeted)</option></select></label>
   <label>Animation <select id="animSelect"></select></label>
   <div class="row">
     <button id="prevAnim" type="button">◀</button>

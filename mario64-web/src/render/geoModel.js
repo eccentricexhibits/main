@@ -50,7 +50,8 @@ export class GeoModel {
     this.root = new THREE.Group();
     this.root.matrixAutoUpdate = false;
     this.nodes = [];
-    this.animatedParts = [];
+    this.animatedParts = []; // every animated part node, including all switch-case variants
+    this.posedParts = []; // by animation slot: the variant posed most recently
     this.triangleCount = 0;
 
     const geo = parseGeoLayout(rom, geoAddr);
@@ -172,6 +173,7 @@ export class GeoModel {
         break;
       case 'animatedPart':
         this.poseAnimatedPart(rt);
+        this.posedParts[rt.animIndex] = rt;
         break;
       case 'switch':
         rt.selected = this.selectCase(rt);

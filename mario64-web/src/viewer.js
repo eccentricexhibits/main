@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import { parseMarioAnimations } from './rom/anims.js';
 import { MarioModel } from './render/marioModel.js';
 import { pickRomFile } from './game/romPicker.js';
+import { CowModel, loadCowGltf } from './render/cowModel.js';
+import { COW_URL } from './game/cowAsset.js';
+import { setupLighting } from './render/lighting.js';
 
 const canvas = document.getElementById('view');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -10,6 +13,8 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87b8e8);
 const camera = new THREE.PerspectiveCamera(45, 1, 10, 20000);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+setupLighting(renderer, scene);
 
 const floor = new THREE.Mesh(
   new THREE.CircleGeometry(400, 48).rotateX(-Math.PI / 2),
@@ -17,6 +22,7 @@ const floor = new THREE.Mesh(
 scene.add(floor);
 
 let yaw = 0.6, pitch = 0.25, dist = 520;
+window.__setYaw = (y) => { yaw = y; }; // used by automated screenshots
 function placeCamera() {
   const target = new THREE.Vector3(0, 80, 0);
   camera.position.set(
@@ -59,6 +65,31 @@ async function start(rom) {
   const animations = parseMarioAnimations(rom);
   const model = new MarioModel(rom, animations);
   scene.add(model.root);
+  let cow = null;
+  try {
+    cow = new CowModel(await loadCowGltf(COW_URL), model);
+    cow.useNativeClips = false;
+    scene.add(cow.root);
+    for (const name of cow.clipNames) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = name;
+      document.getElementById('clipSelect').append(opt);
+    }
+  } catch (e) {
+    console.error('Cow model unavailable', e);
+  }
+  const charSelect = document.getElementById('charSelect');
+  const clipSelect = document.getElementById('clipSelect');
+  const applyChar = () => {
+    const asCow = charSelect.value === 'cow' && !!cow;
+    if (cow) cow.root.visible = asCow;
+    model.root.visible = !asCow;
+    document.getElementById('clipRow').hidden = !asCow;
+  };
+  if (!cow) { charSelect.value = 'mario'; charSelect.disabled = true; }
+  charSelect.addEventListener('change', applyChar);
+  clipSelect.addEventListener('change', () => { if (cow) cow.override = clipSelect.value || null; });
+  applyChar();
   let names = [];
   try { names = (await import('./mario/anim_ids.js')).ANIM_NAMES || []; } catch { /* names are optional */ }
 
@@ -114,7 +145,8 @@ async function start(rom) {
 
   let acc = 0, last = performance.now();
   function frame(now) {
-    acc += Math.min(now - last, 100);
+    const dt = Math.min(now - last, 100) / 1000;
+    acc += dt * 1000;
     last = now;
     while (acc >= 1000 / 30) {
       acc -= 1000 / 30;
@@ -126,13 +158,14 @@ async function start(rom) {
         ui.slider.value = ai.animFrame;
       }
     }
-    model.update(m);
+    if (cow && cow.root.visible) cow.update(m, null, 1, playing ? dt : 0);
+    else model.update(m);
     placeCamera();
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__viewer = { model, animations, m, setAnim };
+  window.__viewer = { model, cow, animations, m, setAnim };
 }
 
 pickRomFile(start);

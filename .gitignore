@@ -3,3 +3,8 @@
 *.n64
 *.v64
 node_modules/
+
+# The Misanthropic Cow model is kept out of this public repo until its owner decides
+# otherwise; the standalone builds embed it, so they stay local too.
+mario64-web/assets/*.glb
+mario64-web/dist/

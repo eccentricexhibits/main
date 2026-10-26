@@ -17,8 +17,27 @@ const PAGES = [
 // Links between the pages point at the bundled file names.
 const LINKS = { 'href="viewer.html"': 'href="mario64-viewer.html"', 'href="index.html"': 'href="mario64-playground.html"' };
 
+// Browsers refuse fetch() from file:// pages, so the cow model is embedded as base64
+// and handed to the loader as a blob: URL.
+const cowAssetPlugin = {
+  name: 'embed-cow',
+  setup(b) {
+    b.onResolve({ filter: /cowAsset\.js$/ }, (args) => ({ path: path.join(args.resolveDir, args.path), namespace: 'cow-asset' }));
+    b.onLoad({ filter: /.*/, namespace: 'cow-asset' }, async () => {
+      const glb = await readFile(path.join(root, 'assets/misanthropic_cow.glb'));
+      return {
+        contents: `const b64 = ${JSON.stringify(glb.toString('base64'))};
+const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+export const COW_URL = URL.createObjectURL(new Blob([bytes], { type: 'model/gltf-binary' }));`,
+        loader: 'js',
+      };
+    });
+  },
+};
+
 async function bundle(entry) {
   const result = await build({
+    plugins: [cowAssetPlugin],
     entryPoints: [path.join(root, entry)],
     bundle: true,
     format: 'esm',

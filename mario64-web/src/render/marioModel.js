@@ -1,6 +1,7 @@
 // Mario's model, posed every frame from the game's animation data and his body
 // state. The per-node behaviour ports the geo callbacks in src/game/mario_misc.c.
 
+import * as THREE from 'three';
 import { animValue } from '../rom/anims.js';
 import { GeoModel, coss, setRotateXYZTranslate, setRotateZXYTranslate } from './geoModel.js';
 
@@ -36,6 +37,7 @@ const MARIO_HAND_OPEN = 1;
 
 const s16 = (v) => (v << 16) >> 16;
 const lerpAngle = (a, b, t) => a + s16(b - a) * t;
+const _scale = new THREE.Vector3();
 
 export class MarioModel extends GeoModel {
   constructor(rom, animations) {
@@ -63,13 +65,24 @@ export class MarioModel extends GeoModel {
     const anim = this.animations[ai.animID];
     this.bodyState = m.marioBodyState;
 
-    // Object transform (geo_process_object)
+    // Object transform (geo_process_object): a floor-aligned throwMatrix while
+    // crawling/sliding, otherwise position + angles; then the squish scale.
     let pos = gfx.pos, angle = gfx.angle;
     if (prev) {
       pos = pos.map((v, i) => prev.pos[i] + (v - prev.pos[i]) * alpha);
       angle = angle.map((v, i) => lerpAngle(prev.angle[i], v, alpha));
     }
-    setRotateZXYTranslate(this.root.matrix, pos, angle);
+    const t = gfx.throwMatrix;
+    if (t) {
+      this.root.matrix.set(
+        t[0][0], t[1][0], t[2][0], pos[0],
+        t[0][1], t[1][1], t[2][1], pos[1],
+        t[0][2], t[1][2], t[2][2], pos[2],
+        0, 0, 0, 1);
+    } else {
+      setRotateZXYTranslate(this.root.matrix, pos, angle);
+    }
+    if (gfx.scale) this.root.matrix.scale(_scale.set(gfx.scale[0], gfx.scale[1], gfx.scale[2]));
     this.root.matrixWorldNeedsUpdate = true;
 
     // Animation globals (geo_set_animation_globals)

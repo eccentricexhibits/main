@@ -5,6 +5,9 @@ import * as THREE from 'three';
 import { parseMarioAnimations } from './rom/anims.js';
 import { MarioModel } from './render/marioModel.js';
 import { RedCoinModel, StarModel } from './render/objects.js';
+import { CowModel, loadCowGltf } from './render/cowModel.js';
+import { setupLighting } from './render/lighting.js';
+import { COW_URL } from './game/cowAsset.js';
 import { pickRomFile, forgetRom } from './game/romPicker.js';
 import { buildPlayground } from './game/level.js';
 import { FollowCamera } from './game/camera.js';
@@ -16,6 +19,20 @@ import { actionName } from './game/actionNames.js';
 import { Sfx } from './game/sfx.js';
 
 const TICK = 1 / 30;
+// The cow is heavier than Mario: a lower top speed keeps its run cycle believable.
+const COW_SPEED_SCALE = 0.78;
+
+const settings = loadSettings();
+function loadSettings() {
+  try {
+    return { character: 'cow', voice: false, ...JSON.parse(localStorage.getItem('mario64-web-settings') || '{}') };
+  } catch {
+    return { character: 'cow', voice: false };
+  }
+}
+function saveSettings() {
+  try { localStorage.setItem('mario64-web-settings', JSON.stringify(settings)); } catch { /* storage unavailable */ }
+}
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -26,10 +43,7 @@ const scene = new THREE.Scene();
 scene.background = skyTexture();
 scene.fog = new THREE.Fog(0xb9dcf7, 7000, 18000);
 const camera = new THREE.PerspectiveCamera(45, 1, 20, 30000);
-scene.add(new THREE.HemisphereLight(0xdff1ff, 0x4a5a32, 1.6));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6);
-sun.position.set(0.5, 1, 0.35);
-scene.add(sun);
+setupLighting(renderer, scene);
 
 function skyTexture() {
   const c = document.createElement('canvas');
@@ -83,6 +97,14 @@ async function start(rom) {
   const model = new MarioModel(rom, animations);
   scene.add(model.root);
 
+  let cow = null;
+  try {
+    cow = new CowModel(await loadCowGltf(COW_URL), model);
+    scene.add(cow.root);
+  } catch (e) {
+    console.error('Could not load the cow model; playing as Mario', e);
+  }
+
   const level = buildPlayground();
   scene.add(level.mesh);
   const world = new CollisionWorld(level.tris);
@@ -98,6 +120,21 @@ async function start(rom) {
 
   const shadow = makeShadow();
   scene.add(shadow);
+
+  function applySettings() {
+    const asCow = settings.character === 'cow' && !!cow;
+    if (cow) cow.root.visible = asCow;
+    model.root.visible = !asCow;
+    m.speedScale = asCow ? COW_SPEED_SCALE : 1;
+    sfx.voiceEnabled = settings.voice;
+    $('characterSelect').value = asCow ? 'cow' : 'mario';
+    $('voiceToggle').checked = settings.voice;
+    $('characterSelect').querySelector('option[value=cow]').disabled = !cow;
+  }
+  $('characterSelect').addEventListener('change', (e) => { settings.character = e.target.value; saveSettings(); applySettings(); });
+  $('voiceToggle').addEventListener('change', (e) => { settings.voice = e.target.checked; saveSettings(); applySettings(); });
+  applySettings();
+  const usingCow = () => cow && cow.root.visible;
 
   const coins = level.redCoins.map((p) => {
     const model = new RedCoinModel(rom);
@@ -126,6 +163,7 @@ async function start(rom) {
   function restart() {
     game.time = 0; game.coins = 0; game.done = false;
     coins.forEach((c) => { c.got = false; c.mesh.visible = true; });
+    if (cow) cow.override = null;
     star.visible = false;
     ui.toast.hidden = true;
     respawn();
@@ -160,9 +198,9 @@ async function start(rom) {
     if (inp.buttons & BTN_Z) buttons |= Z_TRIG;
 
     prevSnap = snapshot();
+    if (cow && cow.override && (inp.stickX || inp.stickY || buttons)) cow.override = null; // end the victory dance
     m.update({ stickX: inp.stickX, stickY: inp.stickY, buttons, cameraYaw: followCam.yaw });
     game.counter++;
-    m.areaUpdateCounter = game.counter;
     if (m.requestRespawn) {
       sfx.play('SOUND_MARIO_WAAAOOOW');
       respawn();
@@ -191,6 +229,7 @@ async function start(rom) {
         game.done = true;
         star.visible = false;
         sfx.star();
+        if (cow) cow.override = 'Chicken Dance';
         toast(`STAR GET!  ${formatTime(game.time)}`, 1e9);
       }
     }
@@ -228,13 +267,14 @@ async function start(rom) {
     }
     const alpha = game.paused ? 1 : acc / TICK;
 
-    model.update(m, prevSnap, alpha);
+    if (usingCow()) cow.update(m, prevSnap, alpha, game.paused ? 0 : dt);
+    else model.update(m, prevSnap, alpha);
     const gp = model.root.matrix.elements;
     // shadow on the floor under Mario, fading with height
     if (m.floor) {
       const h = gp[13] - m.floorHeight;
       shadow.visible = h < 1500;
-      const s = 100 * Math.max(0.5, 1 - h / 1500);
+      const s = (usingCow() ? 135 : 100) * Math.max(0.5, 1 - h / 1500);
       shadow.scale.set(s, 1, s);
       shadow.position.set(gp[12], m.floorHeight + 2, gp[14]);
       const n = m.floor.normal;
@@ -257,7 +297,7 @@ async function start(rom) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__game = { m, model, world, level, game, followCam, sfx };
+  window.__game = { m, model, cow, world, level, game, followCam, sfx };
 }
 
 pickRomFile(start);

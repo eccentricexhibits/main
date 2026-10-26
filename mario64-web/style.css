@@ -76,3 +76,6 @@ a { color: #8fb8ff; }
   width: 44px; height: 44px; border-radius: 50%; margin-top: 6px;
   border: 3px solid #fff; box-shadow: 0 2px 0 #000;
 }
+.settings { display: grid; gap: 10px; margin: 0 0 16px; text-align: left; }
+.settings label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--ink); }
+.settings select { background: #0f1420; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }

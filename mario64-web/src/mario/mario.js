@@ -1098,6 +1098,8 @@ export function update_mario_joystick_inputs(m) {
     } else {
         m.intendedMag = mag / 8.0;
     }
+    // Not in the original: lets a heavier character have a lower top speed.
+    m.intendedMag *= m.speedScale;
 
     if (m.intendedMag > 0.0) {
         m.intendedYaw = s16(atan2s(-controller.stickY, controller.stickX) + m.area.camera.yaw);

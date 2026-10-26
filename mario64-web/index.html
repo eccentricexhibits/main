@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Mario 64 Playground</title>
+<title>Misanthropic Cow 64</title>
 <link rel="stylesheet" href="style.css">
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 </head>
@@ -12,9 +12,9 @@
 
 <div id="romGate" class="gate" hidden>
   <div class="gate-card">
-    <h1>Mario 64 Playground</h1>
-    <p>This game builds Mario (model, textures, animations) from your own copy of
-      <b>Super Mario 64 (US, .z64/.n64/.v64)</b>. The ROM is read locally in your browser and never uploaded.</p>
+    <h1>Misanthropic Cow 64</h1>
+    <p>The Misanthropic Cow, moving with Super Mario 64's physics and animations. These come from your own copy of
+      <b>Super Mario 64 (US, .z64/.n64/.v64)</b>, which is read locally in your browser and never uploaded.</p>
     <label class="btn">Choose ROM…<input id="romFile" type="file" accept=".z64,.n64,.v64,.rom,.bin" hidden></label>
     <p class="small">…or drop the file here.</p>
     <p id="romError" class="error"></p>
@@ -44,6 +44,15 @@
     <p class="small">Moves to try: double &amp; triple jump (jump again as you land), long jump (run, crouch, jump),
       backflip (crouch, jump), side flip (turn around while running, jump), wall kick (jump into a wall, jump again),
       ground pound (crouch in the air), dive (punch while running).</p>
+    <div class="settings">
+      <label>Character
+        <select id="characterSelect">
+          <option value="cow">The Misanthropic Cow</option>
+          <option value="mario">Mario</option>
+        </select>
+      </label>
+      <label><input id="voiceToggle" type="checkbox"> Mario's voice clips</label>
+    </div>
     <div class="row">
       <button id="resume" type="button">Resume</button>
       <button id="restart" type="button">Restart</button>

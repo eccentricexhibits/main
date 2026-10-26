@@ -7,6 +7,7 @@ export class Sfx {
     this.rom = rom;
     this.ctx = null;
     this.muted = false;
+    this.voiceEnabled = true;
     this.buffers = new Map();
     this.voiceSource = null;
     try {
@@ -63,7 +64,7 @@ export class Sfx {
 
   /** Called by the physics port with SM64 SOUND_* names. */
   play(name, extra) {
-    if (this.muted || !this.ctx) return;
+    if (this.muted || !this.voiceEnabled || !this.ctx) return;
     const variants = this.voices && this.voices.variants(name);
     if (!variants) return;
     const v = extra && Number.isInteger(extra.variant) && variants[extra.variant];

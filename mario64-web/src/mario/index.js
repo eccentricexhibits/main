@@ -77,6 +77,7 @@ export function createMario({ world, animations, sound } = {}) {
     const m = {
         // ---- struct MarioState ----
         unk00: 0,
+        speedScale: 1, // extension: scales the stick's target speed (1 = original)
         input: 0,
         flags: 0,
         particleFlags: 0,
