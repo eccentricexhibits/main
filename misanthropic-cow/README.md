@@ -15,7 +15,7 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 658k triangles, real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 662k triangles, real-world scale in metres, all textures embedded. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 54-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
@@ -59,7 +59,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
-- **Panties.** They read as stretched briefs (the Blue Shirt front and the photos). The briefs are their own surface over the leggings. Like real stretched fabric, they don't sink into every hollow: they span flat across the notch between the thighs at the front and across the cleft of the seat, while the gusset hugs the crotch underneath. At the front the leg line runs nearly straight across the tops of the thighs at crotch level, then rises to the hips, so the briefs show as a taut band under the belly. At the back it runs diagonally from the hip down across each cheek to the gluteal fold, leaving the lower outer cheeks in leggings. The leg openings are cut exactly along those lines and finished with raised elastic trims. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere. The previous version followed the leggings into the crotch and covered most of the seat, so it read as a pink smear rather than underwear.
+- **Panties.** They read as stretched briefs (the Blue Shirt front and the photos). The briefs are their own surface over the leggings. Like real stretched fabric, they don't sink into every hollow: they span flat across the notch between the thighs at the front and across the cleft of the seat. At the front the leg line sags in a gentle U across the tops of the thighs down to the top of the crotch, then rises to the hips. At the back it runs diagonally from the hip down across each cheek, leaving the lower outer cheeks in leggings. A gusset runs under the crotch and joins the two. It is 7 cm wide where it meets the front and back panels and narrows as it dips into the crotch, so it cups the crotch in a U. When the legs spread (Jumping Jacks), the crotch shows pink, while the insides of the thighs stay leggings. The briefs bridge across the top of the narrow slot where the thighs nearly touch, as a smooth saddle, instead of dipping into it. The leg openings are cut exactly along those lines and finished with raised elastic trims. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere. Earlier passes either followed the leggings into the crotch, which read as a pink smear, or stopped above the crotch, which left the leggings showing between the legs.
 - **Tail.** A gold satin bowtie is tied on at the back, on the roll of back fat at the bottom of the white fur. It has two puffed, pleated wings flaring from a pinched centre knot and is about 12 cm wide. A tan two-core lamp cord hangs from the knot to about mid-thigh, 43 cm, and ends in a two-prong plug with brass blades (`tail.py`).
 - **Back.** The suit's back isn't flat: a padded roll of back fat across the lower back bulges out and overhangs the panty waistband as a lip, and the back hem tucks under it.
 - **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
@@ -67,7 +67,8 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - **Gloves.** The gloves are the owner's Tripo model of the glove photo: the mask and both gloves lying on a mat (`pipeline/tripo_gloves.py`, `assets/gloves_tripo.glb`). Each glove was cut out and given its own frame from its shape: along the hand, across toward the thumb, and out of the palm. The red-chipped glove is the left and the green-chipped one the right. Each was then scaled so the model's horn span matches the v10 mask (×0.653), placed on the hand with the hoof tips 20 cm past the wrist, re-unwrapped, and its colour and roughness baked from the Tripo maps.
   - **What they are:** a long cream terry mitten with a thumb, and two glossy black hoof halves over the fingertips, chipped to show red card on the left glove and green on the right, as in the photos.
   - **Touch-ups:** the photo's lighting had left the terry grey-green, so it is white-balanced back to cream. The model's metallic map is ignored, so nothing on the glove reads as metal.
-  - **Rigging:** each glove is one seamless mesh, so nothing can crack where the mitten meets the hooves. The hoof halves follow the HoofFingers bone and the thumb the Thumb bone through smooth per-vertex weights. The thumb is found from the mesh as whatever stands out beyond the mitten's edge.
+  - **Rigging:** each glove is one seamless mesh, so nothing can crack where the mitten meets the hooves. The hoof halves follow the HoofFingers bone through smooth per-vertex weights. The thumb is its own lobe along the thumb-side edge of the mitten, rooted at the wrist (`gloves.THUMB_LINE`). Only that lobe follows the Thumb bone, which sits at the thumb's root and curls it toward the palm about its own hinge. Earlier the whole thumb-side edge of the mitten was weighted to the thumb and bent outward.
+  - **Cuff:** the Tripo cuff was wider than the sleeve end on the little-finger side and poked out through the back of the sleeve. Where it is hidden inside the sleeve, it is pulled in toward the arm until it sits inside the sleeve's surface, smoothly, so the visible mitten keeps its shape.
   - The procedural gloves from earlier rounds remain in `gloves.py` as a fallback for builds without the asset.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
@@ -166,7 +167,7 @@ All depths are the 99.5th percentile over every frame.
 |---|---|---|---|---|---|---|
 | Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor | 436 mm above floor |
 | Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor | 387 mm above floor |
-| Run | 0.3 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor | 400 mm above floor |
+| Run | 0.1 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor | 400 mm above floor |
 | Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor | 400 mm above floor |
 | Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor | 360 mm above floor |
 | Look Around | 0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor | 431 mm above floor |
@@ -181,11 +182,11 @@ All depths are the 99.5th percentile over every frame.
 | Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor | 399 mm above floor |
 | Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor | 368 mm above floor |
 | Look Around (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 420 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.4 mm | 2.14× | 3.0 mm above floor | 350 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.8 mm | 1.4 mm | 2.14× | 3.0 mm above floor | 350 mm above floor |
 
 The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 17.5 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. With the Tripo gloves the hooves no longer press into the mask in Crying (7 mm before); they stay clear in Exasperated too. The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the plug rests on the floor. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
-In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 2.2 mm (in Sneak, where the wrists bend). The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 20 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
+In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 1.2 mm (in Sneak, where the wrists bend). The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 20 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
 ## Measured over the dance
 
@@ -195,7 +196,7 @@ In every animation the gloves stay tucked into the sleeves: within a clip the sl
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
 | Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
 | Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.56× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 31.3 mm at both (the real mitten is slimmer than the sleeve end, which sits loosely round its wrist) |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 31.8 mm at both (the real mitten is slimmer than the sleeve end, which sits loosely round its wrist) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
 | Clap contact gap | not measured | 0.3 mm |
 | Loop seam error | 0 | 0 |
@@ -272,6 +273,8 @@ The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). It is made from a copy with every texture capped at 1024 px (`python web_textures.py <in> <out> 1024`).
 
 Both copies keep their base64 versions under the viewer host's 16 MB limit. `web_textures.py` rewrites only the images and leaves everything else in the file byte for byte. An earlier copying step dropped the rig, so the plain fallback had no animations until this round. The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
+
+The page zooms with the scroll wheel in proportion to how far the wheel or trackpad scrolled. three.js r160's OrbitControls divides the scroll by `devicePixelRatio | 0`, which is 0 when the browser is zoomed out below 100%, so one wheel tick used to jump straight to the closest distance. Pinch zoom is still OrbitControls'.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 

@@ -240,26 +240,39 @@ def panty_sdf(p):
     c = D.legging_parts(p)
     y, z = p[..., 1], p[..., 2]
     front = np.exp(-((y - .735) / .055) ** 2) * _sm(-.01, .05, z)
-    cleft = np.exp(-((y - .80) / .08) ** 2) * _sm(-.05, -.11, z)
-    k = .05 + .07 * front + .035 * cleft
-    d = S.smin(S.smin(c['pelvis'], c['leg_L'], k), c['leg_R'], k)
+    cleft = np.exp(-((y - .77) / .075) ** 2) * _sm(-.04, -.10, z)
+    k = .05 + .07 * front + .08 * cleft
+    # under the crotch the thighs nearly touch, leaving a deep narrow slot; the gusset spans across
+    # its top as a smooth saddle instead of dipping into it
+    x = np.abs(p[..., 0])
+    saddle = np.exp(-((y - .640) / .045) ** 2) * _sm(.11, .06, np.abs(z + .01)) * _sm(.07, .03, x)
+    legs = S.smin(c['leg_L'], c['leg_R'], .03 + .10 * saddle)
+    d = S.smin(c['pelvis'], legs, k)
     return d - PANTY_OFFSET
 
 
 def leg_opening(p):
-    """Height of the leg openings, cut like stretched briefs.  At the front the leg line runs nearly
-    straight across the tops of the thighs at crotch level, rising to the hips; the gusset passes
-    under the crotch; at the back the line runs diagonally from the hip down across each cheek to the
-    gluteal fold, leaving the lower outer cheeks in leggings."""
+    """Height of the leg openings, cut like stretched briefs.  At the front the leg line sags in a
+    gentle U across the tops of the thighs to the top of the crotch, rising to the hips; at the back it runs
+    diagonally from the hip down across each cheek to the gluteal fold, leaving the lower outer
+    cheeks in leggings.  The gusset (below) joins front and back under the crotch."""
     x, z = np.abs(p[..., 0]), p[..., 2]
-    t = np.clip((x - .02) / .165, 0, 1)
-    front = .702 + .118 * _sm(0, 1, t) ** 1.3
+    t = np.clip(x / .185, 0, 1)
+    front = .655 + .165 * _sm(0, 1, t) ** 1.4            # a gentle U down to the top of the crotch
     tb = np.clip((x - .02) / .175, 0, 1)
     back = .735 + .110 * tb ** 1.1
     wb = _sm(.0, -.075, z)
-    h = front * (1 - wb) + back * wb
-    gus = _sm(.042, .026, x) * _sm(.03, .012, z) * _sm(-.065, -.04, z)       # the gusset, only right under the crotch
-    return h * (1 - gus) + .590 * gus
+    return front * (1 - wb) + back * wb
+
+
+def gusset(v, n):
+    """The gusset: a strip under the crotch joining the front and back panels, 7 cm wide where it
+    meets them and narrowing as it dips into the crotch, so it cups the crotch in a U instead of
+    hanging down between the thighs as a band.  The insides of the thighs stay leggings, which is
+    what shows when the legs spread.  >= 0 inside the strip."""
+    x, y, z = np.abs(v[:, 0]), v[:, 1], v[:, 2]
+    half = .036 * np.clip((y - .578) / .045, .35, 1)
+    return np.minimum.reduce([half - x, y - .578, .745 - y, .09 - z, z + .17])
 
 
 def clip_mesh(v, f, g):
@@ -307,7 +320,7 @@ def build_panties(step=.0035, target=45000):
     tension wrinkles fanning from the crotch over the front, and world-scale fabric UVs."""
     import xatlas
     v, f = mesh_from(panty_sdf, (-.27, .50, -.22), (.27, 1.0, .17), step, target, smooth=4)
-    v, f = clip_mesh(v, f, v[:, 1] - leg_opening(v))
+    v, f = clip_mesh(v, f, np.maximum(v[:, 1] - leg_opening(v), gusset(v, S.vertex_normals(v, f))))
     v, f = clip_mesh(v, f, .955 - v[:, 1])
     v, f = S.largest_component(v, f)
     n = S.vertex_normals(v, f)

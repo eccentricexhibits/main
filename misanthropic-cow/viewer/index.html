@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (10.8 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (10.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -147,11 +147,10 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Hands:</strong> the gloves are now cut from your Tripo model of the glove photo: long cream terry mittens with a thumb, and glossy black split hooves chipped red (left) and green (right). The terry is white-balanced back to cream, and each glove is one seamless mesh rigged to the hand, hoof and thumb bones.</li>
-          <li><strong>Underwear:</strong> it reads as stretched briefs now. It spans flat across the crotch as a taut band under the belly, with a leg line straight across the thighs at the front, a diagonal one across the cheeks at the back, and raised elastic trims.</li>
-          <li><strong>Back:</strong> a soft roll of back fat across the lower back overhangs the waistband as a lip.</li>
-          <li><strong>Tail:</strong> a gold satin bowtie on that roll, with the lamp cord now half as long (43 cm, to mid-thigh) ending in its plug.</li>
-          <li>Last round: the arm glitches in Exasperated, Crying and the Chicken Dance were fixed.</li>
+          <li><strong>Underwear:</strong> it now goes under the crotch. A gusset joins front and back and cups the crotch, so it shows pink when the legs spread in Jumping Jacks. The front edge sags in a gentle U to the top of the crotch, and the back shape is unchanged.</li>
+          <li><strong>Hands:</strong> the thumb is now just the thumb. It has a joint at its root and curls toward the palm, instead of the whole side of the mitten bending outward. The cuff no longer pokes out through the back of the sleeve.</li>
+          <li><strong>Zoom:</strong> the scroll wheel zooms gradually again at any browser zoom level, mouse or trackpad.</li>
+          <li>Previous round: the Tripo gloves, stretched briefs, back-fat roll, bowtie and a shorter cord.</li>
           <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
           <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
         </ul>
@@ -164,7 +163,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
           <tbody>
             <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>2.8 mm</td></tr>
-            <tr><td>Run</td><td>0.3 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
+            <tr><td>Run</td><td>0.1 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
             <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
             <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
@@ -242,6 +241,17 @@ floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; scene.add(floor);
 const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.05, 30);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 7;
+// Wheel zoom proportional to how far the wheel or trackpad actually scrolled.  OrbitControls
+// (three r160) zooms a fixed 5% per wheel event, so trackpads and smooth-scrolling mice, which send
+// dozens of small events per gesture, raced straight in to the closest distance.
+stage.addEventListener('wheel', e => {
+  e.preventDefault(); e.stopPropagation();
+  const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
+  const k = Math.exp(Math.max(-0.5, Math.min(0.5, px * 0.0012)));        // one 100 px notch = 11%
+  const off = camera.position.clone().sub(controls.target);
+  const len = THREE.MathUtils.clamp(off.length() * k, controls.minDistance, controls.maxDistance);
+  camera.position.copy(controls.target).add(off.setLength(len));
+}, { capture: true, passive: false });
 const VIEWS = {
   front:   { pos: [0, 1.05, 4.3], target: [0, 0.88, 0] },
   quarter: { pos: [2.4, 1.25, 3.5], target: [0, 0.88, 0] },
@@ -301,7 +311,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (10.9 MB)...';
+    status.textContent = 'Loading the simplified copy (11.0 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

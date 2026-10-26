@@ -154,28 +154,75 @@ def tripo_asset():
     return _TRIPO[0] if _TRIPO else None
 
 
+# The thumb lies along the thumb-side edge of each Tripo mitten as its own lobe, rooted at about
+# u = 0 and reaching its tip at u = .08-.09.  It is the part beyond this line in (u, a) (from the
+# owner's glove model, both gloves alike); the mitten body stays below it.
+THUMB_LINE = ((-.040, .036), (.000, .044), (.030, .047), (.115, .041))
+THUMB_U = (-.035, -.010, .100, .115)        # the lobe starts and ends along the hand
+
+
+def _thumb_line(u):
+    pu, pa = np.array(THUMB_LINE).T
+    return np.interp(u, pu, pa)
+
+
+_GLOVE = {}
+
+
 def tripo_glove(side):
     """The Tripo glove for one hand, moved from its own frame onto the hand at the bind pose."""
+    if side not in _GLOVE:
+        _GLOVE[side] = _tripo_glove(side)
+    return dict(_GLOVE[side])
+
+
+def _tripo_glove(side):
     m, meta = tripo_asset()
     p = [q for q in m.parts if q['name'] == f'Glove_{side}_tripo'][0]
     u, a, w = p['v'].astype(float).T
     hoof_u = meta['gloves'][side]['hoof_u']
-    # the mitten's edge on the thumb side: over most of its length the thumb is absent, so the median
-    # of the per-slice reach is the body's own edge; the thumb is what stands out beyond it
-    reach = []
-    for b0 in np.arange(-.08, hoof_u - .01, .01):
-        sl = (u >= b0) & (u < b0 + .01)
-        if sl.sum() > 30:
-            reach.append(np.percentile(a[sl], 97))
-    body_a = float(np.median(reach))
     o, d, aa, pn = hand_frame(side)
     v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
+    f = p['f'].astype(np.int64)
+    # touch-up: the Tripo cuff is wider than the sleeve end on the little-finger side and poked out
+    # through the back of the sleeve.  Where it is hidden inside the sleeve, pull it in toward the arm
+    # until it sits 8 mm inside the sleeve's surface (smoothed so the mitten keeps its shape).
+    inside = _ss(.010, -.002, u)
+    for _ in range(2):
+        ds = D.sleeve_sdf(v, side)
+        push = np.maximum(ds + .008, 0) * inside
+        for _ in range(12):
+            nb = np.zeros(len(v)); cnt = np.zeros(len(v))
+            for k in range(3):
+                np.add.at(nb, f[:, k], push[f[:, (k + 1) % 3]]); np.add.at(cnt, f[:, k], 1)
+            push = np.maximum(push, .5 * push + .5 * nb / np.maximum(cnt, 1)) * (inside > 0)
+        push *= inside
+        rlen = np.maximum(np.hypot(a, w), 1e-6)
+        shrink = np.clip(1 - push / rlen, .3, 1)
+        a, w = a * shrink, w * shrink
+        v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
+    a = p['v'][:, 1].astype(float)             # the thumb is found in the glove's original shape
     hoof_w = _ss(hoof_u - .022, hoof_u + .004, u)
-    thumb_w = _ss(body_a - .003, body_a + .009, a) * _ss(hoof_u - .004, hoof_u - .020, u)
-    return {'name': f'Glove_{side}_terry_mitten_thumb_and_black_hooves', 'v': v, 'f': p['f'].astype(np.int64),
-            'n': S.vertex_normals(v, p['f']), 'uv': p['uv'], 'uv1': None, 'kind': 'tripo',
+    line = _thumb_line(u)
+    thumb_w = _ss(line - .002, line + .008, a) * _ss(THUMB_U[0], THUMB_U[1], u) * _ss(THUMB_U[3], THUMB_U[2], u)
+    return {'name': f'Glove_{side}_terry_mitten_thumb_and_black_hooves', 'v': v, 'f': f,
+            'n': S.vertex_normals(v, f), 'uv': p['uv'], 'uv1': None, 'kind': 'tripo',
             'ao': (.75 + .25 * (1 - hoof_w * (1 - hoof_w) * 4)).astype(np.float32),     # a little shade where the mitten meets the hooves
             'hoof_w': hoof_w, 'thumb_w': thumb_w, 'src_material': p['material']}
+
+
+def thumb_hinge(parts, side):
+    """Root and pointing direction of the Tripo glove's thumb at the bind pose (None for the
+    procedural gloves), so the Thumb bone can curl it toward the palm about its own hinge."""
+    for p in parts:
+        if 'thumb_w' in p:
+            v, tw = p['v'], p['thumb_w']
+            root = v[(tw > .3) & (tw < .7)].mean(0)
+            o, d, aa, pn = hand_frame(side)
+            tip = v[tw > .9][np.argmax((v[tw > .9] - o) @ d)]
+            dr = tip - root; dr -= pn * (dr @ pn)
+            return root, dr / np.linalg.norm(dr)
+    return None
 
 
 def tripo_material(model, side):
@@ -197,9 +244,7 @@ def joint_points(parts, side):
         if 'hoof_w' in p:
             v = p['v']; t = (v - o) @ d
             base = (p['hoof_w'] > .5) & (t < np.percentile(t[p['hoof_w'] > .5], 15))
-            th = p['thumb_w'] > .5
-            tt = t[th]
-            return v[base].mean(0), v[th][tt < np.percentile(tt, 15)].mean(0)
+            return v[base].mean(0), thumb_hinge(parts, side)[0]
     caps = np.vstack([p['v'] for p in parts if 'hoof_cap' in p['name']])
     top = caps[:, 1] > np.percentile(caps[:, 1], 88)
     th = np.vstack([p['v'] for p in parts if p['name'].endswith('cloth_thumb')])

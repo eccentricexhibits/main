@@ -99,6 +99,16 @@ class Dance:
         # slipper contact points relative to the ankle (heel and toe), for keeping soles on the floor
         self.sole = sole_points()
         self._twist = {}
+        # the Tripo gloves' thumb lies along the mitten: it curls toward the palm about its own hinge
+        import gloves as GL
+        self.thumb_hinge = {}
+        if GL.tripo_asset() is not None:
+            for side, s in [('L', 1), ('R', -1)]:
+                root, dr = GL.thumb_hinge([GL.tripo_glove(side)], side)
+                pn = GL.hand_frame(side)[3]
+                ax = np.cross(dr, pn); ax /= np.linalg.norm(ax)
+                sg = 1 if (rot(ax, .3) @ dr) @ pn > 0 else -1
+                self.thumb_hinge[side] = (ax, sg)
 
     def ankle_height(self, pitch):
         """Ankle height that keeps the lowest point of the slipper sole on the floor at this pitch."""
@@ -375,7 +385,11 @@ class Dance:
             knuckle = np.cross(fd, [-s, 0, 0]); knuckle /= np.linalg.norm(knuckle)
             sign = 1 if (rot(knuckle, .3) @ fd) @ np.array([-s, 0, 0]) > 0 else -1
             at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * p['fingers']))
-            at(a['thumb'], a['hand'], Rhand @ rot(knuckle, -sign * p['thumb']))
+            if side in self.thumb_hinge:
+                ax, sg = self.thumb_hinge[side]
+                at(a['thumb'], a['hand'], Rhand @ rot(ax, sg * p['thumb']))
+            else:
+                at(a['thumb'], a['hand'], Rhand @ rot(knuckle, -sign * p['thumb']))
         for j, parent in zip(RG.SHAG, RG.SHAG_PARENTS):
             pi = RG.NAMES.index(parent)
             at(j, pi, G[pi, :3, :3])
