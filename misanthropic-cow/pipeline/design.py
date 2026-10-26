@@ -195,12 +195,15 @@ def body_sdf(p):
 
 
 # ------------------------------------------------------------------ leggings
+THIGH_OUT, THIGH_R = .024, .096
 def legging_parts(p):
     out = {}
     pelvis = S.ellipsoid(p, (0, .885, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
     for s, side in [(1, 'L'), (-1, 'R')]:
         hip, knee, ankle = J[f'Thigh_{side}'], J[f'Shin_{side}'], J[f'Foot_{side}']
-        thigh = S.round_cone(p, hip + [s * .010, .03, 0], knee, .110, .066)
+        # the thigh's axis sits 2.4 cm out from the hip joint and it is slimmer at the top, so the hips keep
+        # their width while the inner thighs part below the crotch (owner's note: more separation)
+        thigh = S.round_cone(p, hip + [s * THIGH_OUT, .03, 0], knee, THIGH_R, .066)
         shin = S.round_cone(p, knee, ankle + [0, -.03, 0], .063, .040)
         calf = S.ellipsoid(p, (s * .098, .330, -.030), (.060, .110, .062))
         butt = S.ellipsoid(p, (s * .084, .800, -.068), (.106, .105, .092))

@@ -201,6 +201,23 @@ def _tripo_glove(side):
         shrink = np.clip(1 - push / rlen, .3, 1)
         a, w = a * shrink, w * shrink
         v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
+    # touch-up: the Tripo mitten's wrist is slimmer than the sleeve end, so the hand looked as if it
+    # floated in the opening.  Flare the wrist out to fill the sleeve: up to 1 cm inside the sleeve's
+    # surface where it is hidden, fading out gently over the first 6 cm past the sleeve's end.  Only the
+    # back and sides of the wrist flare; the palm side stays as it is, so the claps still meet palm to palm.
+    sh, el, wr = D.arm_points(1 if side == 'L' else -1)
+    Lf = np.linalg.norm(wr - el)
+    target = .048 + .011 * np.clip(-u / Lf, 0, 1) - .011
+    facing = w / np.maximum(np.hypot(a, w), 1e-6)                    # 1 = straight out of the palm
+    grow = np.maximum(target - np.hypot(a, w), 0) * _ss(.065, -.01, u) * _ss(.55, .05, facing)   # back and sides only
+    for _ in range(24):
+        nb = np.zeros(len(v)); cnt = np.zeros(len(v))
+        for k in range(3):
+            np.add.at(nb, f[:, k], grow[f[:, (k + 1) % 3]]); np.add.at(cnt, f[:, k], 1)
+        grow = .5 * grow + .5 * nb / np.maximum(cnt, 1)
+    rlen = np.maximum(np.hypot(a, w), 1e-6)
+    a, w = a * (1 + grow / rlen), w * (1 + grow / rlen)
+    v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
     a = p['v'][:, 1].astype(float)             # the thumb is found in the glove's original shape
     hoof_w = _ss(hoof_u - .022, hoof_u + .004, u)
     line = _thumb_line(u)

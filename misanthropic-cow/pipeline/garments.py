@@ -228,37 +228,32 @@ def _sm(a, b, x):
     return w * w * (3 - 2 * w)
 
 
-PANTY_OFFSET = .0035
+PANTY_OFFSET = .0045
 
 
 def panty_sdf(p):
-    """The briefs as their own stretched surface over the leggings.  Stretched fabric does not
-    follow every hollow: it spans flat across the notch between the thighs at the front (as in the
-    Blue Shirt reference and the photos) and across the cleft of the seat, while the gusset still
-    hugs the crotch underneath.  The blend radius varies over the body to do that, and is never
+    """The briefs as their own stretched surface over the leggings.  They follow the hips, thighs
+    and crotch, easing a little over the front of the crotch and spanning the cleft of the seat,
+    as stretched fabric does.  The blend radius varies over the body to do that, and is never
     tighter than the leggings' own (.045), so the briefs always sit outside them."""
     c = D.legging_parts(p)
     y, z = p[..., 1], p[..., 2]
-    front = np.exp(-((y - .735) / .055) ** 2) * _sm(-.01, .05, z)
-    cleft = np.exp(-((y - .77) / .075) ** 2) * _sm(-.04, -.10, z)
-    k = .05 + .07 * front + .08 * cleft
-    # under the crotch the thighs nearly touch, leaving a deep narrow slot; the gusset spans across
-    # its top as a smooth saddle instead of dipping into it
     x = np.abs(p[..., 0])
-    saddle = np.exp(-((y - .640) / .045) ** 2) * _sm(.11, .06, np.abs(z + .01)) * _sm(.07, .03, x)
-    legs = S.smin(c['leg_L'], c['leg_R'], .03 + .10 * saddle)
-    d = S.smin(c['pelvis'], legs, k)
+    front = np.exp(-((y - .735) / .05) ** 2) * _sm(-.01, .05, z) * _sm(.09, .03, x)
+    cleft = np.exp(-((y - .77) / .075) ** 2) * _sm(-.04, -.10, z)
+    k = .05 + .025 * front + .08 * cleft
+    d = S.smin(c['pelvis'], S.smin(c['leg_L'], c['leg_R'], .03), k)
     return d - PANTY_OFFSET
 
 
 def leg_opening(p):
-    """Height of the leg openings, cut like stretched briefs.  At the front the leg line sags in a
-    gentle U across the tops of the thighs to the top of the crotch, rising to the hips; at the back it runs
-    diagonally from the hip down across each cheek to the gluteal fold, leaving the lower outer
-    cheeks in leggings.  The gusset (below) joins front and back under the crotch."""
+    """Height of the leg openings, cut like the briefs in the photos.  At the front the leg line runs
+    low and nearly straight across the tops of the thighs (about 0.69 m), rising into the crotch at
+    the middle and at the outer hip, so the briefs show as a band below the belly.  At the back it runs diagonally from the hip down across each cheek, leaving the lower
+    outer cheeks in leggings.  The gusset (below) joins front and back under the crotch."""
     x, z = np.abs(p[..., 0]), p[..., 2]
-    t = np.clip(x / .185, 0, 1)
-    front = .655 + .165 * _sm(0, 1, t) ** 1.4            # a gentle U down to the top of the crotch
+    t = np.clip(x / .19, 0, 1)
+    front = .688 + .012 * _sm(0, .5, t) + .115 * _sm(.55, 1, t) ** 1.6 + .055 * _sm(.050, .012, x)   # up into the crotch
     tb = np.clip((x - .02) / .175, 0, 1)
     back = .735 + .110 * tb ** 1.1
     wb = _sm(.0, -.075, z)
@@ -266,13 +261,10 @@ def leg_opening(p):
 
 
 def gusset(v, n):
-    """The gusset: a strip under the crotch joining the front and back panels, 7 cm wide where it
-    meets them and narrowing as it dips into the crotch, so it cups the crotch in a U instead of
-    hanging down between the thighs as a band.  The insides of the thighs stay leggings, which is
-    what shows when the legs spread.  >= 0 inside the strip."""
+    """The gusset: the strip under the crotch (about 0.71 m, between the thighs) joining the front
+    and back panels, wrapping just onto the tops of the inner thighs.  >= 0 inside."""
     x, y, z = np.abs(v[:, 0]), v[:, 1], v[:, 2]
-    half = .036 * np.clip((y - .578) / .045, .35, 1)
-    return np.minimum.reduce([half - x, y - .578, .745 - y, .09 - z, z + .17])
+    return np.minimum.reduce([.036 - x, y - .685, .76 - y, .09 - z, z + .17])
 
 
 def clip_mesh(v, f, g):
@@ -316,31 +308,36 @@ def clip_mesh(v, f, g):
 
 def build_panties(step=.0035, target=45000):
     """Briefs: their own stretched surface (panty_sdf), cut along the leg openings and below the
-    waistband (hidden under the suit), with raised elastic trims at the leg openings, a few shallow
-    tension wrinkles fanning from the crotch over the front, and world-scale fabric UVs."""
+    waistband (hidden under the suit), with raised elastic trims and ruching at the leg openings, a
+    few shallow tension wrinkles fanning from the crotch over the front, and world-scale fabric UVs.
+    trim_pts (the leg-opening edges) let the leggings take a contact shadow along them."""
     import xatlas
     v, f = mesh_from(panty_sdf, (-.27, .50, -.22), (.27, 1.0, .17), step, target, smooth=4)
     v, f = clip_mesh(v, f, np.maximum(v[:, 1] - leg_opening(v), gusset(v, S.vertex_normals(v, f))))
     v, f = clip_mesh(v, f, .955 - v[:, 1])
     v, f = S.largest_component(v, f)
     n = S.vertex_normals(v, f)
-    # elastic trims: a rolled band standing ~2 mm proud along each leg opening
+    # elastic trims: a rolled band standing ~3 mm proud along each leg opening, with the fabric just
+    # inside it gathered into small ruches by the elastic
     E = np.sort(np.vstack([f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]]]), 1)
     eu, cnt = np.unique(E, axis=0, return_counts=True)
     bv = np.unique(eu[cnt == 1])
     bv = bv[v[bv, 1] < .94]                                  # not the (hidden) waistband cut
     from scipy.spatial import cKDTree
     dist, _ = cKDTree(v[bv]).query(v)
-    trim = _sm(.009, .0035, dist)
-    lift = .0021 * trim + .0006 * np.sin(np.clip(dist / .009, 0, 1) * np.pi) ** 2
+    trim = _sm(.010, .004, dist)
+    lift = .0030 * trim + .0008 * np.sin(np.clip(dist / .010, 0, 1) * np.pi) ** 2
+    theta = np.arctan2(v[:, 2] + .01, np.abs(v[:, 0]) - .11)          # round each thigh
+    ruche = np.sin(theta * 20) * _sm(.026, .010, dist) * (1 - .7 * trim)
     # tension wrinkles: shallow folds fanning out from the crotch toward the hips on the front panel
-    c0 = np.array([0, .70, .06])
+    c0 = np.array([0, .705, .07])
     rel = v - c0
     ang = np.arctan2(rel[:, 1], np.abs(rel[:, 0]) + 1e-6)
     r = np.linalg.norm(rel[:, :2], axis=1)
     fan = np.sin(ang * 7.0) * _sm(.02, .06, r) * _sm(.17, .08, r) * _sm(0, .05, v[:, 2]) * (1 - trim)
-    v = v + n * (lift + .0011 * fan)[:, None]
+    v = v + n * (lift + .0006 * ruche + .0011 * fan)[:, None]
     n = S.vertex_normals(v, f)
+    trim_pts = v[bv]
     # world-scale UVs (one fabric tile every TILE / 1.6 metres) from a low-distortion unwrap
     vmap, fi, uvx = xatlas.parametrize(v.astype(np.float32), f.astype(np.uint32))
     v2, n2 = v[vmap], n[vmap]
@@ -349,7 +346,8 @@ def build_panties(step=.0035, target=45000):
     a2 = np.linalg.norm(np.cross(u2[fi[:, 1]] - u2[fi[:, 0]], u2[fi[:, 2]] - u2[fi[:, 0]]), axis=1).sum()
     uv = uvx * np.sqrt(a3 / a2) / TILE * 1.6
     ao = (1 - .22 * trim[vmap] * (1 - trim[vmap]) * 4).astype(np.float32)        # shade the trim's edge
-    return {'name': 'Panties_pink_satin', 'v': v2, 'f': fi.astype(np.int64), 'n': n2, 'uv': uv, 'uv1': uv, 'ao': ao}
+    return {'name': 'Panties_pink_satin', 'v': v2, 'f': fi.astype(np.int64), 'n': n2, 'uv': uv, 'uv1': uv, 'ao': ao,
+            'trim_pts': trim_pts}
 
 
 # ---------------------------------------------------------------- udder

@@ -20,7 +20,7 @@ smooth = AN.smooth
 
 def neutral(clip):
     return dict(shift=np.zeros(3), hips=np.zeros(3), spine=np.zeros(3), chest=np.zeros(3), neck=np.zeros(3),
-                head=np.zeros(3), fingers=0., thumb=0., clav={'L': 0., 'R': 0.},
+                head=np.zeros(3), fingers=-.12, thumb=.10, clav={'L': 0., 'R': 0.},    # hooves and thumb relaxed, a little curled
                 fk={'L': np.array([0., 0., 0.]), 'R': np.array([0., 0., 0.])},
                 hrot={'L': ('follow', .12), 'R': ('follow', .12)}, feet=None)
 

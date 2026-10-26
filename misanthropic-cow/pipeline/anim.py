@@ -384,12 +384,15 @@ class Dance:
             fd = bf / np.linalg.norm(bf)
             knuckle = np.cross(fd, [-s, 0, 0]); knuckle /= np.linalg.norm(knuckle)
             sign = 1 if (rot(knuckle, .3) @ fd) @ np.array([-s, 0, 0]) > 0 else -1
-            at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * p['fingers']))
+            fing, thmb = p['fingers'], p['thumb']
+            fing += dyn.get('fing', {}).get(side, 0.) + self.drift(t, side, 0)
+            thmb += dyn.get('thmb', {}).get(side, 0.) + self.drift(t, side, 1)
+            at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * fing))
             if side in self.thumb_hinge:
                 ax, sg = self.thumb_hinge[side]
-                at(a['thumb'], a['hand'], Rhand @ rot(ax, sg * p['thumb']))
+                at(a['thumb'], a['hand'], Rhand @ rot(ax, sg * thmb))
             else:
-                at(a['thumb'], a['hand'], Rhand @ rot(knuckle, -sign * p['thumb']))
+                at(a['thumb'], a['hand'], Rhand @ rot(knuckle, -sign * thmb))
         for j, parent in zip(RG.SHAG, RG.SHAG_PARENTS):
             pi = RG.NAMES.index(parent)
             at(j, pi, G[pi, :3, :3])
@@ -407,6 +410,58 @@ class Dance:
         if solve:
             return G, arm_in
         return G
+
+    def spring_scale(self, t):
+        """How much hand follow-through a clip allows at time t (the dance damps it where the hooves
+        are posed deliberately: the beak snaps and the claps)."""
+        if self.name.startswith('Chicken Dance'):
+            u = (t % self.duration) / self.duration * 12
+            return 1 - .5 * smooth(-.2, .2, u) * (1 - smooth(2.8, 3.2, u)) - .85 * smooth(8.8, 9.2, u) * (1 - smooth(11.8, 12.2, u))
+        return 1.
+
+    def drift(self, t, side, which):
+        """A slow, small curl-and-release of the hooves (which=0) or thumb (1), a whole number of
+        cycles per clip so it loops, out of step between the hands, so they are never frozen."""
+        D_ = self.duration
+        n = max(1, round(D_ / (2.6 if which == 0 else 3.3)))
+        ph = (.0 if side == 'L' else 2.1) + 1.3 * which
+        amp = (.09, .07)[which] * getattr(self, 'hand_drift', 1.)
+        if self.name.startswith('Chicken Dance'):
+            amp *= self.spring_scale(t)
+        return amp * np.sin(2 * np.pi * n * t / D_ + ph)
+
+    def hand_springs(self, posed, tt, fps):
+        """Follow-through for the hooves and thumbs: each is a damped spring on its bone, driven by
+        the hand's angular acceleration about the hinge and by its acceleration toward the palm, so
+        they lag a swing and settle after it."""
+        from scipy.spatial.transform import Rotation as Rt
+        dt = 1 / fps
+        out = {'fing': {}, 'thmb': {}}
+        for side, s in [('L', 1), ('R', -1)]:
+            a = RG.ARM[side]
+            R = np.array([g[a['hand'], :3, :3] for g in posed])
+            P = np.array([g[a['hand'], :3, 3] for g in posed])
+            w = Rt.from_matrix(np.einsum('tji,tjk->tik', R[:-1], R[1:])).as_rotvec() / dt      # in the hand's bind frame
+            w = np.vstack([w, w[-1:]])
+            alpha = np.gradient(w, dt, axis=0)
+            acc = np.gradient(np.gradient(P, dt, axis=0), dt, axis=0)
+            fd = self.B[a['hand']] - self.B[a['fore']]; fd /= np.linalg.norm(fd)
+            pn = np.array([-s, 0, 0.])
+            knuckle = np.cross(fd, pn); knuckle /= np.linalg.norm(knuckle)
+            sign = 1 if (rot(knuckle, .3) @ fd) @ pn > 0 else -1
+            n_world = np.einsum('tij,j->ti', R, pn)
+            a_n = np.einsum('ti,ti->t', acc, n_world)
+            for key, axis, sgn, g1, g2 in [('fing', knuckle, sign, .9, .55),
+                                           ('thmb',) + ((self.thumb_hinge[side][0], -self.thumb_hinge[side][1]) if side in self.thumb_hinge
+                                                        else (knuckle, sign)) + (.7, -.45)]:
+                drive = (g1 * sgn * (alpha @ axis) + g2 * a_n / .10) * np.array([self.spring_scale(t) for t in tt])
+                x = v = 0.; hist = []
+                for i in range(len(tt)):
+                    for _ in range(4):
+                        v += (-160. * x - 14. * v + drive[i]) * dt / 4; x += v * dt / 4
+                    hist.append(.22 * np.tanh(x / .22))                  # soft limit, about 13 degrees
+                out[key][side] = np.array(hist)
+        return out
 
     # ---------------------------------------------------------------- light physics (baked)
     @property
@@ -449,6 +504,7 @@ class Dance:
             trans_hist[j] = h
         # teats: tips follow their rest direction on a spring, then are pushed clear of the belly
         posed = [self.pose(t, {'trans': {j: trans_hist[j][i] for j in trans_hist}}) for i, t in enumerate(tt)]
+        hand_hist = self.hand_springs(posed, tt, fps)
         teat_hist = {}
         for j in self.teat_dir:
             L = self._teat_len[j]
@@ -489,7 +545,8 @@ class Dance:
             # cross-fade the third loop into the second over the clip, so the rope's end state meets its start
             u = smooth(0, 1, (times[i] % D_) / D_)
             out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: teat_hist[j][k] for j in teat_hist},
-                        'tail': TL.relength(rope[k] * (1 - u) + rope[max(k - per, 0)] * u)})
+                        'tail': TL.relength(rope[k] * (1 - u) + rope[max(k - per, 0)] * u),
+                        'fing': {sd: hand_hist['fing'][sd][k] for sd in 'LR'}, 'thmb': {sd: hand_hist['thmb'][sd][k] for sd in 'LR'}})
         return out
 
     def bake(self, fps=FPS):

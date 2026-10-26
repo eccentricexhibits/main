@@ -160,6 +160,13 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     lv, lf, ln = leg['v'], leg['f'], leg['n']
     ao_leg = sdf_ao(lv, ln)
     W_leg = RG.leg_weights(lv, lf)
+    # the briefs (built first so the leggings can take a contact shadow along their edges, which makes
+    # the briefs read as a layer on top rather than a painted-on texture)
+    pan = Gm.build_panties(step=.005 if quick else .0035, target=20000 if quick else 45000)
+    dk, ik = cKDTree(lv).query(pan['v'], 6)
+    pan_ao = (pan['ao'] * ao_leg[ik[:, 0]]).astype(np.float32)
+    de, _ = cKDTree(pan['trim_pts']).query(lv)
+    ao_leg = ao_leg * (.60 + .40 * Gm._sm(.002, .016, de)).astype(np.float32)
     spots = T.legging_spots([c for c in leg['charts'] if 'seat' not in c['name']])
     for ch in leg['charts']:
         W, H = [int(x * sc) for x in ((1024, 512) if 'seat' in ch['name'] else (1024, 2048))]
@@ -175,9 +182,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             'ao': ao_leg[ch['src']], 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'legs',
                             'W': W_leg[ch['src']]})
     # --- panties (pink satin, sits on the leggings)
-    pan = Gm.build_panties(step=.005 if quick else .0035, target=20000 if quick else 45000)
     # the briefs move with the leggings under them: inverse-distance blend of the nearest few
-    dk, ik = cKDTree(leg['v']).query(pan['v'], 6)
     wk = 1 / np.maximum(dk, 1e-4); wk /= wk.sum(1, keepdims=True)
     W_pan = np.einsum('vk,vkj->vj', wk, W_leg[ik])
     satin = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.97, .79, .83))))
@@ -186,7 +191,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .30}, 'extensions': SHEEN(.45, .35)})
     model.parts.append({'name': pan['name'], 'v': pan['v'].astype(np.float32), 'n': pan['n'].astype(np.float32),
                         'uv': pan['uv'].astype(np.float32), 'uv1': pan['uv1'].astype(np.float32),
-                        'ao': (pan['ao'] * ao_leg[ik[:, 0]]).astype(np.float32),
+                        'ao': pan_ao,
                         'f': pan['f'].astype(np.int32), 'material': mat, 'group': 'legs', 'W': W_pan})
     # --- udder
     pink = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.94, .66, .72))))

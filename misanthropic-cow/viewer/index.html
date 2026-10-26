@@ -147,10 +147,10 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Underwear:</strong> it now goes under the crotch. A gusset joins front and back and cups the crotch, so it shows pink when the legs spread in Jumping Jacks. The front edge sags in a gentle U to the top of the crotch, and the back shape is unchanged.</li>
-          <li><strong>Hands:</strong> the thumb is now just the thumb. It has a joint at its root and curls toward the palm, instead of the whole side of the mitten bending outward. The cuff no longer pokes out through the back of the sleeve.</li>
-          <li><strong>Zoom:</strong> the scroll wheel zooms gradually again at any browser zoom level, mouse or trackpad.</li>
-          <li>Previous round: the Tripo gloves, stretched briefs, back-fat roll, bowtie and a shorter cord.</li>
+          <li><strong>Legs:</strong> the thighs part below a natural crotch now, with the hips just as wide.</li>
+          <li><strong>Underwear:</strong> it follows the hips, thighs and crotch. A band shows below the belly (and stays in view while walking), there's a small V up into the crotch, and the gusset covers the crotch when the legs spread. Rolled elastic edges and a contact shadow on the leggings make it read as fabric on top.</li>
+          <li><strong>Hands:</strong> the wrist flares to fill the sleeve end, so the hand no longer floats. The hooves and thumb now move: relaxed curls, follow-through as the arms swing, and a slow drift at rest.</li>
+          <li>Last round: the underwear crotch, the thumb joint and the scroll-wheel zoom.</li>
           <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
           <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
         </ul>
@@ -163,7 +163,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
           <tbody>
             <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>2.8 mm</td></tr>
-            <tr><td>Run</td><td>0.1 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
+            <tr><td>Run</td><td>1.3 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
             <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
             <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
@@ -311,7 +311,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (11.0 MB)...';
+    status.textContent = 'Loading the simplified copy (11.1 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
