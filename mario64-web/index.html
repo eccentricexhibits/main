@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mario 64 Playground</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="romGate" class="gate" hidden>
+  <div class="gate-card">
+    <h1>Mario 64 Playground</h1>
+    <p>This game builds Mario (model, textures, animations) from your own copy of
+      <b>Super Mario 64 (US, .z64/.n64/.v64)</b>. The ROM is read locally in your browser and never uploaded.</p>
+    <label class="btn">Choose ROM…<input id="romFile" type="file" accept=".z64,.n64,.v64,.rom,.bin" hidden></label>
+    <p class="small">…or drop the file here.</p>
+    <p id="romError" class="error"></p>
+  </div>
+</div>
+
+<div id="hud" class="hud" hidden>
+  <div>
+    <div><span style="color:#ff5a4e">●</span> <span id="coins">0</span>/8</div>
+    <div id="power" class="power" title="Power"></div>
+  </div>
+  <div class="right">
+    <div id="timer">0'00"0</div>
+    <div id="actionName" class="small"></div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<div id="help" class="help" hidden>
+  <b>Move</b> <kbd>WASD</kbd> · <b>Jump</b> <kbd>Space</kbd>/<kbd>K</kbd> · <b>Punch/Dive</b> <kbd>J</kbd>/<kbd>X</kbd> ·
+  <b>Crouch/Pound</b> <kbd>Shift</kbd>/<kbd>L</kbd> · <b>Walk</b> <kbd>Ctrl</kbd> · <b>Camera</b> drag / <kbd>Q</kbd><kbd>E</kbd> / wheel ·
+  <b>Pause</b> <kbd>Esc</kbd> · gamepad supported
+  <br>Collect the 8 red coins, then grab the star on top of the tower! <a href="#" id="hideHelp">hide</a>
+</div>
+<div id="pause" class="gate" hidden>
+  <div class="gate-card">
+    <h1>Paused</h1>
+    <p class="small">Moves to try: double &amp; triple jump (jump again as you land), long jump (run, crouch, jump),
+      backflip (crouch, jump), side flip (turn around while running, jump), wall kick (jump into a wall, jump again),
+      ground pound (crouch in the air), dive (punch while running).</p>
+    <div class="row">
+      <button id="resume" type="button">Resume</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+    <p class="small"><a href="viewer.html">Animation viewer</a> · <a href="#" id="forgetRom">Forget ROM</a></p>
+  </div>
+</div>
+<div id="touch" class="touch" hidden>
+  <div class="stick"><div class="knob"></div></div>
+  <div class="tbtn" data-btn="z" style="right:168px;bottom:40px">Z</div>
+  <div class="tbtn" data-btn="b" style="right:96px;bottom:96px">B</div>
+  <div class="tbtn" data-btn="a" style="right:24px;bottom:40px">A</div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

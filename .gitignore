@@ -1,0 +1,4 @@
+# Never commit game ROMs
+*.z64
+*.n64
+*.v64

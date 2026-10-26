@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mario Animation Viewer</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body class="viewer">
+<canvas id="view"></canvas>
+<div id="romGate" class="gate">
+  <div class="gate-card">
+    <h1>Animation viewer</h1>
+    <p>Choose your own <b>Super Mario 64 (US)</b> ROM. It is read locally in your browser and never uploaded.</p>
+    <label class="btn">Choose ROM…<input id="romFile" type="file" accept=".z64,.n64,.v64,.rom,.bin" hidden></label>
+    <p id="romError" class="error"></p>
+  </div>
+</div>
+<div id="panel" class="panel" hidden>
+  <label>Animation <select id="animSelect"></select></label>
+  <div class="row">
+    <button id="prevAnim" type="button">◀</button>
+    <button id="playPause" type="button">Pause</button>
+    <button id="nextAnim" type="button">▶</button>
+  </div>
+  <label>Frame <input id="frameSlider" type="range" min="0" max="1" value="0"></label>
+  <div id="animInfo" class="small"></div>
+  <label>Eyes <select id="eyeSelect"><option value="0">Blink</option><option value="1">Open</option><option value="2">Half</option><option value="3">Closed</option><option value="8">Dead</option></select></label>
+  <label>Hands <select id="handSelect"><option value="0">Fists</option><option value="1">Open</option><option value="2">Peace</option><option value="3">Holding cap</option></select></label>
+  <label><input id="capToggle" type="checkbox" checked> Cap on</label>
+  <p class="small"><a href="index.html">← Back to the game</a></p>
+</div>
+<script type="module" src="src/viewer.js"></script>
+</body>
+</html>
