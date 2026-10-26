@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (11.9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (10.8 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -147,9 +147,11 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Tail:</strong> a gold satin bow tied on at the back of the hem. A tan lamp cord hangs from it nearly to the floor and ends in a two-prong plug. The cord is a simulated rope: it swings behind the walk, bumps off the legs and coils on the floor when she sits.</li>
-          <li><strong>Panties:</strong> they now cover the crotch like real briefs. A gusset runs between the legs, the leg line runs diagonally from the gusset up to the hip at the front, and at the back it follows the underside of each buttock.</li>
-          <li><strong>Arm glitches fixed:</strong> in Exasperated (and in Crying and the Chicken Dance) a forearm sometimes spun half a turn in one frame. The elbow also popped as the fling started, and the hands' path round the cups had a corner. All three are smoothed out.</li>
+          <li><strong>Hands:</strong> the gloves are now cut from your Tripo model of the glove photo: long cream terry mittens with a thumb, and glossy black split hooves chipped red (left) and green (right). The terry is white-balanced back to cream, and each glove is one seamless mesh rigged to the hand, hoof and thumb bones.</li>
+          <li><strong>Underwear:</strong> it reads as stretched briefs now. It spans flat across the crotch as a taut band under the belly, with a leg line straight across the thighs at the front, a diagonal one across the cheeks at the back, and raised elastic trims.</li>
+          <li><strong>Back:</strong> a soft roll of back fat across the lower back overhangs the waistband as a lip.</li>
+          <li><strong>Tail:</strong> a gold satin bowtie on that roll, with the lamp cord now half as long (43 cm, to mid-thigh) ending in its plug.</li>
+          <li>Last round: the arm glitches in Exasperated, Crying and the Chicken Dance were fixed.</li>
           <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
           <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
         </ul>
@@ -162,13 +164,13 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
           <tbody>
             <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>2.8 mm</td></tr>
-            <tr><td>Run</td><td>0 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
+            <tr><td>Run</td><td>0.3 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
             <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
             <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Chicken Dance</td><td>0 mm</td><td>2.7 mm</td><td>3.0 mm</td></tr>
             <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>2.9 mm</td></tr>
-            <tr><td>Crouch and Sit</td><td>19.7 mm</td><td>0 mm</td><td>2.7 mm</td></tr>
+            <tr><td>Crouch and Sit</td><td>17.5 mm</td><td>0 mm</td><td>2.7 mm</td></tr>
             <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
@@ -299,7 +301,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (8.0 MB)...';
+    status.textContent = 'Loading the simplified copy (10.9 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

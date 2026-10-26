@@ -94,6 +94,8 @@ def hood_face(p):
 
 
 # ------------------------------------------------------------------ fur suit + hood
+BACK_ROLL_Y = .925       # the back-fat roll over the panty waistband
+
 def torso_sdf(p):
     return suit_parts(p, torso_only=True)['torso']
 
@@ -115,7 +117,11 @@ def suit_parts(p, torso_only=False):
     # underside: a shallow bowl (lowest under the front of the belly, rising to the sides and back),
     # with a soft fillet, so the padded belly reads round from below instead of sliced flat
     x, z = p[..., 0], p[..., 2]
-    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2
+    # a little back fat: a padded roll across the lower back that bulges out and overhangs the
+    # panty waistband as a lip, rather than the back ending flat (owner's note)
+    roll = S.ellipsoid(p, (0, BACK_ROLL_Y, -.128), (.170, .052, .082))
+    torso = S.smin(torso, roll, .035)
+    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2 - .048 * np.clip((-.06 - z) / .08, 0, 1)   # tucked lower under the roll
     torso = S.smax(torso, hem - p[..., 1], .08)
     out['torso'] = torso          # the trunk: what the arms are kept clear of
     if torso_only:

@@ -15,12 +15,12 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 635k triangles, real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 658k triangles, real-world scale in metres, all textures embedded. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 54-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch, the first tuft sheet and the long-lock sheet the tufts now use. |
-| `assets/` | `slippers_shy_cow.glb`: the knitted cow-head slippers cut from the Tripo Shy Cow model (made by `pipeline/tripo_slippers.py`). |
+| `assets/` | `slippers_shy_cow.glb`: the knitted cow-head slippers cut from the Tripo Shy Cow model (made by `pipeline/tripo_slippers.py`). `gloves_tripo.glb` and `gloves_tripo.json`: the hoof gloves cut from the owner's Tripo model of the glove photo (made by `pipeline/tripo_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
 
 Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
@@ -59,17 +59,16 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
-- **Panties.** They are cut like full-coverage granny briefs. A gusset runs under the crotch. At the front, the leg line runs diagonally from the gusset up to the hip. At the back, it follows the underside of each buttock before rising up the side. Before this, the pink stopped in a V above the crotch and the leggings showed between the legs.
-- **Tail.** A gold satin bow is tied on at the back, just above the suit's hem, with two puffed loops, a knot and two V-cut tails. A tan two-core lamp cord hangs from the knot nearly to the floor and ends in a two-prong plug with brass blades (`tail.py`). There are few photos of the tail, so its size is estimated: the bow is about 15 cm wide and the cord 86 cm long.
+- **Panties.** They read as stretched briefs (the Blue Shirt front and the photos). The briefs are their own surface over the leggings. Like real stretched fabric, they don't sink into every hollow: they span flat across the notch between the thighs at the front and across the cleft of the seat, while the gusset hugs the crotch underneath. At the front the leg line runs nearly straight across the tops of the thighs at crotch level, then rises to the hips, so the briefs show as a taut band under the belly. At the back it runs diagonally from the hip down across each cheek to the gluteal fold, leaving the lower outer cheeks in leggings. The leg openings are cut exactly along those lines and finished with raised elastic trims. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere. The previous version followed the leggings into the crotch and covered most of the seat, so it read as a pink smear rather than underwear.
+- **Tail.** A gold satin bowtie is tied on at the back, on the roll of back fat at the bottom of the white fur. It has two puffed, pleated wings flaring from a pinched centre knot and is about 12 cm wide. A tan two-core lamp cord hangs from the knot to about mid-thigh, 43 cm, and ends in a two-prong plug with brass blades (`tail.py`).
+- **Back.** The suit's back isn't flat: a padded roll of back fat across the lower back bulges out and overhangs the panty waistband as a lip, and the back hem tucks under it.
 - **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
 - **Slippers and socks.** The slippers are the knitted cow-head slippers cut from the Shy Cow model: low, round, popcorn-knit heads with horns, ears and a smiling white face on a fuzzy black rim. The costume is tights with black socks over the feet, pushed into the slippers. So below the calf the leggings are plain black knit, with no painted spots, and end in a ribbed cuff that stands slightly proud. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. The v04 slippers had a tall black padded collar that read as a boot.
-- **Gloves.** The gloves were rebuilt from the close-up glove photos (`gloves.py`):
-  - **Mitten:** a long cream terry-cloth mitten with a narrow cuff inside the sleeve, a wider flat palm and a rounded finger end. Its terry loops are a procedural tileable texture with a matching normal map.
-  - **Thumb:** a separate cloth thumb standing out from the side at about 40°.
-  - **Hoof halves:** shaped like a real cloven hoof, as in the Shy Cow reference. Each is a domed shell over the fingertips, with a rounded back and a flatter sole, curling toward the palm at its point. The halves sit side by side, splayed 3°, with straight inner edges along the split. The mitten narrows into them and its tip tucks inside.
-  - **Paint:** dark brown glossy lacquer with a brushed grain, and chips showing the printed card underneath, red on the left glove and green on the right, as in the photos.
-  - **Terry:** heathered: darker grey-brown loops are scattered through the cream.
-  - The v08 gloves had a stubby mitten with short round caps hanging under it and bristly fur cards. Their cuff poked out of the back of the sleeve as a white flap; that flap is gone with them.
+- **Gloves.** The gloves are the owner's Tripo model of the glove photo: the mask and both gloves lying on a mat (`pipeline/tripo_gloves.py`, `assets/gloves_tripo.glb`). Each glove was cut out and given its own frame from its shape: along the hand, across toward the thumb, and out of the palm. The red-chipped glove is the left and the green-chipped one the right. Each was then scaled so the model's horn span matches the v10 mask (×0.653), placed on the hand with the hoof tips 20 cm past the wrist, re-unwrapped, and its colour and roughness baked from the Tripo maps.
+  - **What they are:** a long cream terry mitten with a thumb, and two glossy black hoof halves over the fingertips, chipped to show red card on the left glove and green on the right, as in the photos.
+  - **Touch-ups:** the photo's lighting had left the terry grey-green, so it is white-balanced back to cream. The model's metallic map is ignored, so nothing on the glove reads as metal.
+  - **Rigging:** each glove is one seamless mesh, so nothing can crack where the mitten meets the hooves. The hoof halves follow the HoofFingers bone and the thumb the Thumb bone through smooth per-vertex weights. The thumb is found from the mesh as whatever stands out beyond the mitten's edge.
+  - The procedural gloves from earlier rounds remain in `gloves.py` as a fallback for builds without the asset.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
 
@@ -106,7 +105,7 @@ Peak hand acceleration fell from 82 to 23 m/s² in Look Around, from 53 to 12 in
 **Light physics (baked).** glTF has no live physics, so damped springs are simulated over three loops of each animation and the last loop is baked into the bones. It plays in any glTF viewer and every animation loops seamlessly.
 - **Teats:** each teat swings on its own bone and collides with the belly. In the dance it peaks at about 20° and averages about 5°.
 - **Shag patches:** six spring bones drag the tuft tips, with up to about 4 cm of lag at the elbows.
-- **Tail cord:** a 12-segment rope pinned to the bow, plus a 13th segment for the plug. It has gravity, damping and a little stiffness, so a lamp cord never folds sharply. It collides with the seat, thighs, shins, slippers and the floor, with friction, so it swings behind the walk and coils on the floor when she sits. Every segment keeps its exact length: the plug tips over and lies down rather than poking through the floor. The rope is simulated over three loops, and the last loop is cross-faded into the one before it, so its end state meets its start and the animation loops seamlessly.
+- **Tail cord:** a 12-segment rope pinned to the bowtie, plus a 13th segment for the plug. It has gravity, damping and a little stiffness, so a lamp cord never folds sharply. It collides with the seat, thighs, shins, slippers and the floor, with friction, so it swings behind the walk and drapes over her seat and the floor when she sits. Every segment keeps its exact length: the plug tips over and lies down rather than poking through the floor. The rope is simulated over three loops, and the last loop is cross-faded into the one before it, so its end state meets its start and the animation loops seamlessly.
 - **Belly and cups:** they jiggle; the cups are kept from sinking into the belly.
 
 ## Tripo references
@@ -165,28 +164,28 @@ All depths are the 99.5th percentile over every frame.
 
 | Animation | Arms into cups or torso | Teats into belly | Gloves into body | Leggings stretch, worst frame | Lowest slipper point | Lowest tail point (cord or plug) |
 |---|---|---|---|---|---|---|
-| Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor | 18.8 mm above floor |
-| Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor | 10.3 mm above floor |
-| Run | 0 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor | 5.7 mm above floor |
-| Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor | 6.3 mm above floor |
-| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor | 4.3 mm above floor |
-| Look Around | 0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor | 15.1 mm above floor |
-| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.17× | 3.0 mm above floor | 1.3 mm above floor |
-| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.38× | 2.9 mm above floor | 3.6 mm above floor |
-| Crouch and Sit | 19.7 mm | 0 mm | 0 mm | 5.14× | 2.7 mm above floor | 2.5 mm below floor |
-| Crying | 0 mm | 0 mm | 0 mm | 1.71× | 3.0 mm above floor | 12.6 mm above floor |
-| Exasperated | 0 mm | 0 mm | 0 mm | 1.32× | 3.0 mm above floor | 14.8 mm above floor |
-| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 13.0 mm above floor |
-| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.44× | 2.7 mm above floor | 3.9 mm above floor |
-| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.24× | 3.0 mm above floor | 3.6 mm above floor |
-| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor | 7.4 mm above floor |
-| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor | 6.7 mm above floor |
-| Look Around (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 11.0 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.2 mm | 2.14× | 3.0 mm above floor | 0.3 mm below floor |
+| Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor | 436 mm above floor |
+| Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor | 387 mm above floor |
+| Run | 0.3 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor | 400 mm above floor |
+| Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor | 400 mm above floor |
+| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor | 360 mm above floor |
+| Look Around | 0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor | 431 mm above floor |
+| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.17× | 3.0 mm above floor | 345 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.38× | 2.9 mm above floor | 390 mm above floor |
+| Crouch and Sit | 17.5 mm | 0 mm | 0 mm | 5.14× | 2.7 mm above floor | 1.3 mm above floor |
+| Crying | 0 mm | 0 mm | 0 mm | 1.71× | 3.0 mm above floor | 406 mm above floor |
+| Exasperated | 0 mm | 0 mm | 0 mm | 1.32× | 3.0 mm above floor | 430 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 420 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.44× | 2.7 mm above floor | 382 mm above floor |
+| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.24× | 3.0 mm above floor | 380 mm above floor |
+| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor | 399 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor | 368 mm above floor |
+| Look Around (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 420 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.4 mm | 2.14× | 3.0 mm above floor | 350 mm above floor |
 
-The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 19.7 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. In Crying the hooves press about 7 mm into the mask at the eyes; in Exasperated they stay clear. The tail's plug rests within 2.5 mm of the floor when it lies down; its corners can dip that far as it rolls. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
+The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 17.5 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. With the Tripo gloves the hooves no longer press into the mask in Crying (7 mm before); they stay clear in Exasperated too. The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the plug rests on the floor. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
-In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The new hooves reach about 22 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
+In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 2.2 mm (in Sneak, where the wrists bend). The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 20 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
 ## Measured over the dance
 
@@ -196,9 +195,9 @@ In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove 
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
 | Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
 | Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.56× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 23.9 mm and 24.2 mm (the slimmer mitten wrist sits loosely inside the sleeve end) |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 31.3 mm at both (the real mitten is slimmer than the sleeve end, which sits loosely round its wrist) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
-| Clap contact gap | not measured | 0.8 mm |
+| Clap contact gap | not measured | 0.3 mm |
 | Loop seam error | 0 | 0 |
 | Planted-foot drift | ~0 | 0.05 mm |
 
@@ -213,7 +212,7 @@ There are 54 joints:
 - **Helpers:** UpperArmRoot and Elbow on each side. Each takes half its joint's rotation.
 - **Teats:** four bones (Teat_L/R_bottom, Teat_L/R_outer).
 - **Shag:** six patch bones (Shag_chest_R, Shag_belly, Shag_back_upper_R, Shag_back_lower_L, Shag_elbow_L, Shag_elbow_R).
-- **Tail:** Tail_bow (rigid on the Hips), a chain of 12 cord bones (Tail_cord_1 to Tail_cord_12) and Tail_plug.
+- **Tail:** Tail_bow (the bowtie, rigid on the Hips), a chain of 12 cord bones (Tail_cord_1 to Tail_cord_12) and Tail_plug.
 
 The teat, shag, belly and udder bones carry the baked physics. If you use the rig in a game engine, those 12 bones and the 13 cord and plug bones are the ones to put live spring or "jiggle" components on; the dance clip then only needs the body bones. Bind rotations are identity, and all inverse bind matrices are translations.
 
@@ -238,7 +237,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 ## Rebuilding
 
 You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk`, plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
-- the review GLB, which supplies the mask scan and horns (the gloves come from `gloves.py` and the slippers from `assets/slippers_shy_cow.glb`);
+- the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_tripo.glb` and the slippers from `assets/slippers_shy_cow.glb`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
 ```bash
@@ -260,15 +259,19 @@ Add `--quick` to `build_v10.py` for a half-resolution build that takes about 5 m
 Where things live:
 - `design.py`: proportions, as signed-distance primitives;
 - `textures.py`: shag patch and spot placement;
-- `gloves.py`: the hoof gloves and their terry and hoof-paint textures;
+- `gloves.py`: places the Tripo gloves on the hands (and keeps the earlier procedural gloves as a fallback);
+- `tripo_gloves.py`: the one-off conversion of the gloves from the owner's Tripo model into `assets/gloves_tripo.glb`. It needs that OBJ and its texture folder, plus `pip install xatlas`;
 - `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
-- `tail.py`: the bow, the cord and plug meshes, and the cord's rope simulation;
+- `tail.py`: the bowtie, the cord and plug meshes, and the cord's rope simulation;
+- `web_textures.py`: downscales textures inside a GLB for the web copies;
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
 The web copies in `viewer/` were made with gltfpack 0.22:
-- `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail).
-- `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback), made from a copy of the animated master with every texture scaled down to at most 1024 px so its base64 copy stays under 16 MB. The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
+- `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).
+- `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). It is made from a copy with every texture capped at 1024 px (`python web_textures.py <in> <out> 1024`).
+
+Both copies keep their base64 versions under the viewer host's 16 MB limit. `web_textures.py` rewrites only the images and leaves everything else in the file byte for byte. An earlier copying step dropped the rig, so the plain fallback had no animations until this round. The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 

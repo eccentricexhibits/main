@@ -37,9 +37,13 @@ def main():
         clip = Cls(B)
         # calibrate clap contact from glove thickness along the palm normal
         for side, s in [('L', 1), ('R', -1)]:
+            # depth of the glove along its own palm normal (the claps turn the palms to face exactly),
+            # over the part past the wrist that can meet the other hand
+            import gloves as GL
+            o, hd, _, pn = GL.hand_frame(side)
             v = np.vstack([p['v'] for p in gloves[side]])
-            rel = (v - B[RG.ARM[side]['hand']]) @ np.array([-s, 0, 0.])
-            clip.palm_half[side] = float(np.percentile(rel, 99.5))
+            v = v[(v - o) @ hd > 0]
+            clip.palm_half[side] = float(np.percentile((v - o) @ pn, 99.5))
         times, Gs = clip.bake()
         clips[clip.name] = (clip, times, Gs)
         print('baked', clip.name, Gs.shape, f'{time.time()-t0:.0f}s', flush=True)
@@ -52,7 +56,7 @@ def main():
                                             'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in clip.phases]}})
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
                     'left': '+X (character left)'}
-    clean_parts = [{k: v for k, v in p.items() if k not in ('group',)} for p in model.parts]
+    clean_parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w')} for p in model.parts]
     groups = [p.get('group') for p in model.parts]
     model.parts = clean_parts
     name = 'Misanthropic_Cow_v10' + ('_quick' if quick else '')

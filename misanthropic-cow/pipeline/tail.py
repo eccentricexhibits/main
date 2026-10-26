@@ -1,4 +1,4 @@
-"""The tail: a gold satin bow tied on at the back of the suit's hem, with a tan two-core lamp cord
+"""The tail: a gold satin bowtie tied on at the back of the suit's hem, with a tan two-core lamp cord
 hanging from its knot down to the floor, ending in a two-prong plug (the owner's photos: shoot 0071
 and the back view with the bow).
 
@@ -11,10 +11,10 @@ import sdf as S
 import design as D
 import garments as Gm
 
-KNOT = np.array([0, .950, -.201])         # on the fur at the back, just above the suit hem (y ~ .90 at x = 0)
+KNOT = np.array([0, .935, -.217])         # on the back-fat roll at the bottom of the white fur, over the waistband
 ANCHOR = KNOT + np.array([0, -.014, -.004])
 N_SEG = 12
-SEG = .072                                 # 12 x 7.2 cm = 86 cm of cord
+SEG = .036                                 # 12 x 3.6 cm = 43 cm of cord
 PLUG_SEG = .050                            # cord end to blade tips: the plug rides its own rope segment
 CORD_A, CORD_B = .0036, .0019              # zip-cord half width / half thickness
 FLOOR = .0045
@@ -35,35 +35,22 @@ def _box(p, c, h):
 
 
 def bow_sdf(p):
-    """Two puffed ribbon loops, a gathered knot and two tails with V-cut ends; local frame at the knot
-    with x sideways, y up and z out of the back (world -z)."""
+    """A bowtie: two puffed wings flaring out from a pinched centre knot, each with two pleats
+    running out from the knot and a slightly concave outer edge.  Local frame at the knot with x
+    sideways, y up and z out of the back (world -z)."""
     q = p - KNOT
     x, y, z = q[..., 0], q[..., 1], -q[..., 2]
-    th = .0016
-    d = np.full(x.shape, 1e3)
-    for sg in (1, -1):
-        a = np.deg2rad(14) * sg                      # loops tilt up toward their outer ends
-        xl = x * np.cos(a) + y * np.sin(a)
-        yl = -x * np.sin(a) + y * np.cos(a)
-        cx, ax, az = sg * .036, .034, .0095
-        r = np.sqrt(((xl - cx) / ax) ** 2 + ((z - .007) / az) ** 2)
-        ring = (r - 1) * az
-        u = np.clip(sg * (xl - cx) / ax * .5 + .5, 0, 1)
-        hy = .0055 + .0105 * u ** .8 - .002 * u ** 4
-        loop = np.maximum(np.abs(ring) - th, np.abs(yl) - hy)
-        d = np.minimum(d, loop)
-        # tail: a flat ribbon strip falling down and out from the knot, V-notched at the end
-        a0, a1 = np.array([sg * .004, -.004]), np.array([sg * .028, -.078])
-        dv = a1 - a0; L = np.linalg.norm(dv); dv /= L
-        rel = np.stack([x - a0[0], y - a0[1]], -1)
-        t = rel @ dv
-        perp = rel @ np.array([-dv[1], dv[0]])
-        hw = .0085 + .003 * np.clip(t / L, 0, 1)
-        notch = .010 * (1 - np.clip(np.abs(perp) / hw, 0, 1))
-        strip = np.maximum.reduce([np.abs(z - .010 + .004 * np.clip(t / L, 0, 1)) - th, np.abs(perp) - hw, -t, t - (L - notch)])
-        d = np.minimum(d, strip)
-    knot = S.ellipsoid(np.stack([x, y, z], -1), (0, 0, .010), (.0105, .0125, .0085))
-    return S.smin(d, knot, .004)
+    ax = np.abs(x)
+    s = np.clip((ax - .008) / .052, 0, 1)                    # 0 at the knot .. 1 at the wing's end
+    h = .009 + .017 * (s * s * (3 - 2 * s)) ** .8            # half height, flaring out
+    yn = np.clip(y / np.maximum(h, 1e-4), -1, 1)
+    end = .060 - .005 * (1 - yn * yn)                         # concave ("butterfly") outer edge
+    pleat = 1 - .28 * (np.exp(-((yn - .38) / .13) ** 2) + np.exp(-((yn + .38) / .13) ** 2)) * (1 - s) ** .7
+    t = (.0026 + .0062 * np.sqrt(np.clip(1 - yn * yn, 0, 1)) * (.55 + .45 * s)) * pleat
+    zc = .008 - .007 * (ax / .06) ** 2                     # the wings follow the roll curving round the back
+    wing = np.maximum.reduce([np.abs(z - zc) - t, np.abs(y) - h, ax - end])
+    knot = S.ellipsoid(np.stack([x, y, z], -1), (0, 0, .011), (.0115, .0150, .0095))
+    return S.smin(wing, knot, .004)
 
 
 # ---------------------------------------------------------------- plug
@@ -142,9 +129,9 @@ def cord_weights(s, NB, bow_joint, cord_joints):
 def build(step=.0008):
     """Mesh parts (bind space): bow, cord, plug body, plug blades."""
     parts = []
-    lo, hi = KNOT - [.085, .095, .03], KNOT + [.085, .035, .03]
+    lo, hi = KNOT - [.075, .04, .03], KNOT + [.075, .04, .03]
     v, f = Gm.mesh_from(bow_sdf, lo, hi, step, 14000, smooth=5)
-    parts.append(('Tail_gold_satin_bow', v, f, 'bow'))
+    parts.append(('Tail_gold_satin_bowtie', v, f, 'bow'))
     end = rest_points()[N_SEG]
     lo, hi = end - [.025, .055, .015], end + [.025, .006, .015]
     v, f = Gm.mesh_from(plug_body_sdf, lo, hi, step * .7, 5000, smooth=2)

@@ -72,13 +72,8 @@ def bind_positions(glove_parts):
         B[UDDER[side]] = D.CUP_C[s] + [0, .02, -.04]
         for key, jn in [('shoulder', 'Shoulder'), ('upper', 'UpperArm'), ('fore', 'Forearm'), ('hand', 'Hand')]:
             B[ARM[side][key]] = D.J[f'{jn}_{side}']
-        caps = np.vstack([p['v'] for p in glove_parts[side] if 'hoof_cap' in p['name']])
-        top = caps[:, 1] > np.percentile(caps[:, 1], 88)
-        B[ARM[side]['fingers']] = caps[top].mean(0)
-        th = np.vstack([p['v'] for p in glove_parts[side] if p['name'].endswith('cloth_thumb')])
-        d = (D.J[f'Hand_{side}'] - D.J[f'Forearm_{side}']); d /= np.linalg.norm(d)
-        proj = (th - D.J[f'Hand_{side}']) @ d
-        B[ARM[side]['thumb']] = th[proj < np.percentile(proj, 15)].mean(0)
+        import gloves as GL
+        B[ARM[side]['fingers']], B[ARM[side]['thumb']] = GL.joint_points(glove_parts[side], side)
         for key, jn in [('thigh', 'Thigh'), ('shin', 'Shin'), ('foot', 'Foot')]:
             B[LEG[side][key]] = D.J[f'{jn}_{side}']
         sh, el, wr = D.arm_points(s)
@@ -226,6 +221,16 @@ def glove_weights(p, side):
     W = np.zeros((len(v), NB))
     name = p['name']
     up, fo, ha = arm_chain(v, side)
+    if 'hoof_w' in p:
+        # one seamless glove: the mitten as below, the hoof halves on HoofFingers, the thumb on Thumb
+        d = D.J[f'Hand_{side}'] - D.J[f'Forearm_{side}']; d /= np.linalg.norm(d)
+        t = (v - D.J[f'Hand_{side}']) @ d
+        above = 1 - ss(-.03, .005, t)
+        W[:, a['upper']] = above * up; W[:, a['fore']] = above * fo
+        W[:, a['hand']] = above * ha + (1 - above)
+        for k, j in ((p['hoof_w'], a['fingers']), (p['thumb_w'] * ss(-.03, .0, t), a['thumb'])):
+            W *= (1 - k)[:, None]; W[:, j] += k
+        return W
     if 'hoof_cap' in name:
         W[:, a['fingers']] = 1
     elif 'cloth_thumb' in name:

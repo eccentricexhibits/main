@@ -1,4 +1,13 @@
-"""Hoof gloves, rebuilt from the close-up glove photos (For_Next_Step: glove images 1-5) and shaped
+"""Hoof gloves.
+
+Since the hands round, the gloves are the owner's Tripo model of the glove photo, cut out and
+re-baked by tripo_gloves.py (assets/gloves_tripo.glb) and placed here on each hand: a long cream
+terry mitten with a thumb, and two glossy black hoof halves chipped to red card (left) and green
+card (right).  Each glove is one seamless mesh; the hoof halves follow the HoofFingers bone and the
+thumb the Thumb bone through smooth per-vertex weights (`hoof_w`, `thumb_w`).
+
+The procedural gloves below (used when the asset is missing) were the previous version, rebuilt from
+the close-up glove photos (For_Next_Step: glove images 1-5) and shaped
 after the Tripo "Shy Cow" model the owner liked.
 
 Each glove is a long heathered terry-cloth mitten with a separate cloth thumb standing out from the
@@ -13,6 +22,8 @@ Everything is built in the hand's own frame at the bind pose:
   a  across the palm, positive toward the thumb,
   w  out of the palm (the palm faces the body at rest).
 """
+import json
+from pathlib import Path
 import numpy as np
 from scipy.ndimage import gaussian_filter
 import sdf as S
@@ -21,6 +32,8 @@ import garments as Gm
 import textures as T
 
 CHIP = {'L': (.78, .27, .10), 'R': (.13, .55, .18)}       # card showing through the chipped paint
+ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'gloves_tripo.glb'
+_TRIPO = []
 
 
 def hand_frame(side):
@@ -129,8 +142,76 @@ def hoof_texture(side, size=512, seed=11):
     return np.clip(col, 0, 1), rough
 
 
+def _ss(a, b, x):
+    w = np.clip((x - a) / (b - a), 0, 1)
+    return w * w * (3 - 2 * w)
+
+
+def tripo_asset():
+    if not _TRIPO and ASSET.exists():
+        import glb as G
+        _TRIPO.append((G.read(str(ASSET)), json.loads(ASSET.with_suffix('.json').read_text())))
+    return _TRIPO[0] if _TRIPO else None
+
+
+def tripo_glove(side):
+    """The Tripo glove for one hand, moved from its own frame onto the hand at the bind pose."""
+    m, meta = tripo_asset()
+    p = [q for q in m.parts if q['name'] == f'Glove_{side}_tripo'][0]
+    u, a, w = p['v'].astype(float).T
+    hoof_u = meta['gloves'][side]['hoof_u']
+    # the mitten's edge on the thumb side: over most of its length the thumb is absent, so the median
+    # of the per-slice reach is the body's own edge; the thumb is what stands out beyond it
+    reach = []
+    for b0 in np.arange(-.08, hoof_u - .01, .01):
+        sl = (u >= b0) & (u < b0 + .01)
+        if sl.sum() > 30:
+            reach.append(np.percentile(a[sl], 97))
+    body_a = float(np.median(reach))
+    o, d, aa, pn = hand_frame(side)
+    v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
+    hoof_w = _ss(hoof_u - .022, hoof_u + .004, u)
+    thumb_w = _ss(body_a - .003, body_a + .009, a) * _ss(hoof_u - .004, hoof_u - .020, u)
+    return {'name': f'Glove_{side}_terry_mitten_thumb_and_black_hooves', 'v': v, 'f': p['f'].astype(np.int64),
+            'n': S.vertex_normals(v, p['f']), 'uv': p['uv'], 'uv1': None, 'kind': 'tripo',
+            'ao': (.75 + .25 * (1 - hoof_w * (1 - hoof_w) * 4)).astype(np.float32),     # a little shade where the mitten meets the hooves
+            'hoof_w': hoof_w, 'thumb_w': thumb_w, 'src_material': p['material']}
+
+
+def tripo_material(model, side):
+    """Copy the asset's baked material for one glove (and its images) into the model."""
+    m, _ = tripo_asset()
+    p = [q for q in m.parts if q['name'] == f'Glove_{side}_tripo'][0]
+    mat = json.loads(json.dumps(m.materials[p['material']]))
+    pb = mat['pbrMetallicRoughness']
+    for k in ('baseColorTexture', 'metallicRoughnessTexture'):
+        if k in pb:
+            pb[k]['image'] = model.add_image(*m.images[pb[k]['image']])
+    return model.add_material(mat)
+
+
+def joint_points(parts, side):
+    """Bind positions of the HoofFingers and Thumb bones from a glove's parts."""
+    o, d, aa, pn = hand_frame(side)
+    for p in parts:
+        if 'hoof_w' in p:
+            v = p['v']; t = (v - o) @ d
+            base = (p['hoof_w'] > .5) & (t < np.percentile(t[p['hoof_w'] > .5], 15))
+            th = p['thumb_w'] > .5
+            tt = t[th]
+            return v[base].mean(0), v[th][tt < np.percentile(tt, 15)].mean(0)
+    caps = np.vstack([p['v'] for p in parts if 'hoof_cap' in p['name']])
+    top = caps[:, 1] > np.percentile(caps[:, 1], 88)
+    th = np.vstack([p['v'] for p in parts if p['name'].endswith('cloth_thumb')])
+    proj = (th - o) @ d
+    return caps[top].mean(0), th[proj < np.percentile(proj, 15)].mean(0)
+
+
 def build(side, step=.0016):
-    """Return the glove parts for one side: mitten, thumb and the two hoof plates."""
+    """Return the glove parts for one side: the Tripo glove if its asset is present, otherwise the
+    procedural mitten, thumb and two hoof plates."""
+    if tripo_asset() is not None:
+        return [tripo_glove(side)]
     o, d, a, pn = hand_frame(side)
     lo = np.minimum(o - .08 * d, o + .25 * d) - .08
     hi = np.maximum(o - .08 * d, o + .25 * d) + .08

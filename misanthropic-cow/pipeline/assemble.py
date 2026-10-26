@@ -175,14 +175,19 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             'ao': ao_leg[ch['src']], 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'legs',
                             'W': W_leg[ch['src']]})
     # --- panties (pink satin, sits on the leggings)
-    pan = Gm.build_panties(leg)
+    pan = Gm.build_panties(step=.005 if quick else .0035, target=20000 if quick else 45000)
+    # the briefs move with the leggings under them: inverse-distance blend of the nearest few
+    dk, ik = cKDTree(leg['v']).query(pan['v'], 6)
+    wk = 1 / np.maximum(dk, 1e-4); wk /= wk.sum(1, keepdims=True)
+    W_pan = np.einsum('vk,vkj->vj', wk, W_leg[ik])
     satin = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.97, .79, .83))))
     mat = model.add_material({'name': 'Panties_pink_satin', 'pbrMetallicRoughness': {
-        'baseColorTexture': {'image': satin, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .42},
-        'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .12}, 'extensions': SHEEN(.5, .3)})
-    model.parts.append({'name': pan['name'], 'v': pan['v'].astype(np.float32), 'n': ln[pan['src']].astype(np.float32),
-                        'uv': pan['uv'].astype(np.float32), 'uv1': pan['uv1'].astype(np.float32), 'ao': ao_leg[pan['src']],
-                        'f': pan['f'].astype(np.int32), 'material': mat, 'group': 'legs', 'W': W_leg[pan['src']]})
+        'baseColorTexture': {'image': satin, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .58},
+        'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .30}, 'extensions': SHEEN(.45, .35)})
+    model.parts.append({'name': pan['name'], 'v': pan['v'].astype(np.float32), 'n': pan['n'].astype(np.float32),
+                        'uv': pan['uv'].astype(np.float32), 'uv1': pan['uv1'].astype(np.float32),
+                        'ao': (pan['ao'] * ao_leg[ik[:, 0]]).astype(np.float32),
+                        'f': pan['f'].astype(np.int32), 'material': mat, 'group': 'legs', 'W': W_pan})
     # --- udder
     pink = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.94, .66, .72))))
     umat = model.add_material({'name': 'Udder_soft_pink_cloth', 'pbrMetallicRoughness': {
@@ -245,13 +250,17 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         model.parts.append(q)
 
     # --- hoof gloves, rebuilt from the glove close-ups
-    gm = GL.materials(model)
+    gm = GL.materials(model) if GL.tripo_asset() is None else {}
     for side in 'LR':
         for p in GL.build(side, step=.0022 if quick else .0016):
+            mat = GL.tripo_material(model, side) if p['kind'] == 'tripo' else gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side]
             q = {'name': p['name'], 'v': p['v'].astype(np.float32), 'n': p['n'].astype(np.float32),
                  'f': p['f'].astype(np.int32), 'uv': p['uv'].astype(np.float32),
                  'uv1': None if p.get('uv1') is None else p['uv1'].astype(np.float32), 'ao': p['ao'],
-                 'material': gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side], 'group': f'glove_{side}'}
+                 'material': mat, 'group': f'glove_{side}'}
+            for k in ('hoof_w', 'thumb_w'):
+                if k in p:
+                    q[k] = p[k]
             q['W'] = RG.glove_weights(q, side)
             model.parts.append(q)
     # --- tail: gold satin bow on the back of the hem, a lamp cord down to the floor, a two-prong plug
