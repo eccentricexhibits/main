@@ -12,8 +12,12 @@ remembered in your browser's local storage (IndexedDB) so you don't have to pick
 
 ## Playing
 
-The page uses ES modules, so serve the folder over HTTP rather than opening the file
-directly:
+**Easiest:** download `dist/mario64-playground.html` and double-click it. It is a single
+self-contained file (code, styles and Three.js inlined) that runs straight from disk, no
+server needed. `dist/mario64-viewer.html` is the matching animation viewer.
+
+To work on the source, serve the folder over HTTP (the unbundled pages use ES modules,
+which browsers won't load from `file://`):
 
 ```sh
 cd mario64-web
@@ -22,6 +26,9 @@ python3 -m http.server 8000
 ```
 
 It also works from any static host (for example GitHub Pages).
+
+After changing the source, rebuild the standalone files with `npm install && npm run build`.
+The physics tests run with `ROM=path/to/sm64.z64 node tests/physics/run.mjs`.
 
 | Action | Keyboard | Gamepad |
 | --- | --- | --- |

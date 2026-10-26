@@ -5,9 +5,9 @@
 // parameters of the original are replaced by return values.
 
 import {
-    s16, s32, sins, coss, atan2s, approach_s32, vec3f_copy, vec3f_set, vec3s_set, vec3s_copy,
+    s16, s32, sins, coss, atan2s, vec3f_copy, vec3f_set, vec3s_set, vec3s_copy,
 } from '../engine/math_util.js';
-import { geo_update_animation_frame, ANIM_FLAG_2, ANIM_FLAG_BACKWARD } from '../engine/graph_node.js';
+import { ANIM_FLAG_2, ANIM_FLAG_BACKWARD } from '../engine/graph_node.js';
 import { createWallCollisionData, SURFACE_FLAG_DYNAMIC } from '../engine/surface.js';
 import * as S from '../engine/surface_terrains.js';
 import * as C from './constants.js';
@@ -29,8 +29,7 @@ const {
     PARTICLE_SHALLOW_WATER_SPLASH, PARTICLE_SHALLOW_WATER_WAVE, PARTICLE_DIRT, PARTICLE_SNOW,
     ACT_GROUP_MASK, ACT_GROUP_STATIONARY, ACT_GROUP_MOVING, ACT_GROUP_AIRBORNE, ACT_GROUP_SUBMERGED,
     ACT_GROUP_CUTSCENE, ACT_GROUP_AUTOMATIC, ACT_GROUP_OBJECT,
-    ACT_FLAG_AIR, ACT_FLAG_SWIMMING, ACT_FLAG_METAL_WATER, ACT_FLAG_INTANGIBLE, ACT_FLAG_SHORT_HITBOX,
-    ACT_FLAG_ALLOW_FIRST_PERSON, ACT_FLAG_INVULNERABLE,
+    ACT_FLAG_AIR, ACT_FLAG_SWIMMING, ACT_FLAG_INTANGIBLE, ACT_FLAG_SHORT_HITBOX,
     ACT_PUNCHING, ACT_MOVE_PUNCHING,
     ACT_CRAWLING, ACT_WALKING, ACT_HOLD_WALKING, ACT_BEGIN_SLIDING, ACT_BUTT_SLIDE, ACT_STOMACH_SLIDE,
     ACT_HOLD_BEGIN_SLIDING, ACT_HOLD_BUTT_SLIDE, ACT_HOLD_STOMACH_SLIDE,
@@ -39,10 +38,10 @@ const {
     ACT_WALL_KICK_AIR, ACT_TOP_OF_POLE_JUMP, ACT_SIDE_FLIP, ACT_STEEP_JUMP, ACT_LAVA_BOOST, ACT_DIVE,
     ACT_LONG_JUMP, ACT_SLIDE_KICK, ACT_JUMP_KICK,
     ACT_METAL_WATER_JUMP, ACT_HOLD_METAL_WATER_JUMP,
-    ACT_QUICKSAND_JUMP_LAND, ACT_HOLD_QUICKSAND_JUMP_LAND,
+    ACT_QUICKSAND_JUMP_LAND,
     ACT_JUMP_LAND, ACT_FREEFALL_LAND, ACT_SIDE_FLIP_LAND_STOP, ACT_DOUBLE_JUMP_LAND,
-    ACT_FREEFALL, ACT_HOLD_FREEFALL,
-    ACT_IDLE, ACT_FIRST_PERSON, ACT_SLEEPING,
+    ACT_FREEFALL,
+    ACT_FIRST_PERSON, ACT_SLEEPING,
 } = C;
 
 export const GRAPH_RENDER_INVISIBLE = 1 << 4;
@@ -256,11 +255,6 @@ export function is_anim_past_frame(m, animFrame) {
     }
 
     return isPastFrame;
-}
-
-/** Peek the frame the renderer will show this frame (geo_update_animation_frame without side effects). */
-export function peek_anim_frame(m) {
-    return geo_update_animation_frame(m.marioObj.header.gfx.animInfo, -1).frame;
 }
 
 /**************************************************

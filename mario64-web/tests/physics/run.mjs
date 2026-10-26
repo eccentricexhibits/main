@@ -307,28 +307,36 @@ scenario('punch / kick sequence', () => {
 // ---------------------------------------------------------------------------
 scenario('wall kick off the tall box', () => {
     // Tall box +x face is at x = -1500 (z in [1500, 2000]). Run toward -x and jump into it.
-    let result = null;
-    for (let jumpDist = 60; jumpDist <= 400 && !result; jumpDist += 20) {
+    function attempt(jumpDist, late) {
         const m = newMario([-500, 0, 1750], YAW_NX);
-        let jumped = false, aWasDown = false, kickVy = null;
-        run(m, 160, (mm, i) => {
+        let jumped = false, kickVy = null, prevButtons = 0, wallFrames = 0;
+        run(m, 160, (mm) => {
             if (mm.action === C.ACT_WALL_KICK_AIR && kickVy === null) kickVy = mm.vel[1] + 4;
             if (kickVy !== null && mm.action !== C.ACT_WALL_KICK_AIR) return null;
             let buttons = 0;
             if (!jumped && mm.pos[0] - (-1500) < jumpDist && mm.action === C.ACT_WALKING) { buttons = A_BUTTON; jumped = true; }
-            else if (mm.action === C.ACT_AIR_HIT_WALL || (mm.prevAction === C.ACT_AIR_HIT_WALL && mm.action === C.ACT_SOFT_BONK)) buttons = aWasDown ? 0 : A_BUTTON;
+            else if (!late && mm.action === C.ACT_AIR_HIT_WALL) buttons = A_BUTTON; // "firstie"
+            else if (late && mm.action === C.ACT_SOFT_BONK && mm.prevAction === C.ACT_AIR_HIT_WALL && ++wallFrames === 3) buttons = A_BUTTON;
             else if (mm.action === C.ACT_WALL_KICK_AIR) buttons = A_BUTTON;
-            aWasDown = !!(buttons & A_BUTTON);
+            // A must be a new press
+            if ((buttons & A_BUTTON) && (prevButtons & A_BUTTON) && mm.action !== C.ACT_WALL_KICK_AIR) buttons = 0;
+            prevButtons = buttons;
             return hold(camFor(YAW_NX), { buttons });
         });
-        if (kickVy !== null) result = { m, jumpDist, kickVy };
+        return kickVy !== null ? { m, jumpDist, kickVy } : null;
     }
-    check('wall kick performed', !!result, result ? `jump at ${result.jumpDist} units` : '');
-    if (result) {
-        console.log('  actions:', compress(result.m.log));
-        check('AIR_HIT_WALL > WALL_KICK_AIR', compress(result.m.log).includes('AIR_HIT_WALL > WALL_KICK_AIR') || compress(result.m.log).includes('SOFT_BONK > WALL_KICK_AIR'));
-        check('wall kick vy0 = 62', result.kickVy === 62, `vy0=${result.kickVy}`);
-        check('kicked away from wall (+x)', Math.abs(((result.m.faceAngle[1] - YAW_PX) << 16) >> 16) < 0x2000, `yaw=${result.m.faceAngle[1]}`);
+    for (const late of [false, true]) {
+        let result = null;
+        for (let jumpDist = 150; jumpDist <= 500 && !result; jumpDist += 10) result = attempt(jumpDist, late);
+        const label = late ? 'late wall kick (from SOFT_BONK, 5 frame window)' : 'first-frame wall kick';
+        check(label, !!result, result ? `jump at ${result.jumpDist} units` : '');
+        if (result) {
+            const s = compress(result.m.log);
+            console.log('  actions:', s);
+            check(late ? 'AIR_HIT_WALL > SOFT_BONK > WALL_KICK_AIR' : 'AIR_HIT_WALL > WALL_KICK_AIR', s.includes(late ? 'AIR_HIT_WALL > SOFT_BONK > WALL_KICK_AIR' : 'AIR_HIT_WALL > WALL_KICK_AIR'));
+            check('wall kick vy0 = 62', result.kickVy === 62, `vy0=${result.kickVy}`);
+            check('kicked away from wall (+x)', Math.abs(((result.m.faceAngle[1] - YAW_PX) << 16) >> 16) < 0x2000, `yaw=${result.m.faceAngle[1]}`);
+        }
     }
 });
 
@@ -339,7 +347,8 @@ scenario('crouch slide', () => {
     const fv0 = m.forwardVel;
     run(m, 60, (mm, i) => {
         if (mm.action === C.ACT_CROUCHING) return null;
-        return none(camFor(YAW_PZ), { buttons: Z_TRIG });
+        // Z pressed while the stick is still held (walking checks "no stick" -> braking before Z)
+        return i === 0 ? hold(camFor(YAW_PZ), { buttons: Z_TRIG }) : none(camFor(YAW_PZ), { buttons: Z_TRIG });
     });
     console.log('  actions:', compress(m.log));
     check('WALKING > CROUCH_SLIDE > CROUCHING', compress(m.log).includes('WALKING > CROUCH_SLIDE > CROUCHING'), `fv0=${fv0.toFixed(1)}`);
@@ -355,6 +364,43 @@ scenario('crouch slide', () => {
 });
 
 // ---------------------------------------------------------------------------
+scenario('crawling', () => {
+    const m = newMario([0, 0, -3500], YAW_PZ);
+    run(m, 3, () => none());
+    run(m, 10, () => none(camFor(YAW_PZ), { buttons: Z_TRIG }));
+    const z0 = m.pos[2];
+    run(m, 40, () => hold(camFor(YAW_PZ), { buttons: Z_TRIG }));
+    check('START_CROUCHING > CROUCHING > START_CRAWLING > CRAWLING', compress(m.log).includes('CROUCHING > START_CRAWLING > CRAWLING'), compress(m.log));
+    check('crawl speed is slow (intendedMag * 0.1 -> fv ~3.2)', m.forwardVel > 2 && m.forwardVel < 4 && m.pos[2] > z0, `fv=${m.forwardVel.toFixed(2)}`);
+    check('crawling aligns Mario to the floor (throwMatrix set)', Array.isArray(m.marioObj.header.gfx.throwMatrix));
+    run(m, 20, () => none(camFor(YAW_PZ)));
+    console.log('  actions:', compress(m.log));
+    check('releasing Z: STOP_CRAWLING > CROUCHING > STOP_CROUCHING > IDLE', compress(m.log).includes('CRAWLING > STOP_CRAWLING > CROUCHING > STOP_CROUCHING > IDLE'));
+});
+
+// ---------------------------------------------------------------------------
+scenario('walls: sidle / standing against wall, dive bonk knockback', () => {
+    // approach the tall box's +x face (x = -1500) at an angle -> sidestep along the wall
+    const yaw = YAW_NX + 0x1800;
+    const m = newMario([-1300, 0, 1600], yaw);
+    run(m, 30, () => hold(camFor(yaw)));
+    check('touching the wall at an angle sidles (actionState 1)', m.action === C.ACT_WALKING && m.actionState === 1 && Math.abs(m.pos[0] + 1450) < 1, `x=${m.pos[0].toFixed(1)} state=${m.actionState}`);
+    run(m, 5, () => none(camFor(yaw)));
+    console.log('  actions:', compress(m.log));
+    check('release stick -> STANDING_AGAINST_WALL', m.action === C.ACT_STANDING_AGAINST_WALL);
+
+    // dive into the wall -> bonk -> backward knockback
+    const m2 = newMario([-500, 0, 1750], YAW_NX);
+    run(m2, 120, (mm, i) => {
+        if (mm.action === C.ACT_IDLE && mm.log.includes('ACT_BACKWARD_GROUND_KB')) return null;
+        const b = (mm.action === C.ACT_WALKING && mm.pos[0] + 1500 < 250) ? B_BUTTON : 0;
+        return mm.log.includes('ACT_DIVE') ? none(camFor(YAW_NX)) : hold(camFor(YAW_NX), { buttons: b });
+    });
+    console.log('  dive bonk actions:', compress(m2.log));
+    check('DIVE > BACKWARD_AIR_KB > BACKWARD_GROUND_KB > IDLE', compress(m2.log).includes('DIVE > BACKWARD_AIR_KB > BACKWARD_GROUND_KB > IDLE'));
+});
+
+// ---------------------------------------------------------------------------
 scenario('ledge grab on the box top edge', () => {
     // Ledge box -x face at x = 1500, z in [1500, 2000], top at y = LEDGE_H. Approach toward +x.
     let result = null;
@@ -367,7 +413,8 @@ scenario('ledge grab on the box top edge', () => {
             let buttons = 0;
             if (!jumped && 1500 - mm.pos[0] < jumpDist && mm.action === C.ACT_WALKING) { buttons = A_BUTTON; jumped = true; }
             else if (mm.action === C.ACT_JUMP) buttons = A_BUTTON;
-            // climb: keep holding forward on the ledge
+            // climb: hold forward while hanging on the ledge (slow climb), then let go of the stick
+            if (mm.action === C.ACT_LEDGE_CLIMB_SLOW_1 || mm.action === C.ACT_LEDGE_CLIMB_SLOW_2 || (mm.action === C.ACT_IDLE && mm.log.includes('ACT_LEDGE_GRAB'))) return none(camFor(YAW_PX));
             return hold(camFor(YAW_PX), { buttons });
         });
         if (m.log.includes('ACT_LEDGE_GRAB')) result = { m, jumpDist };
@@ -377,16 +424,18 @@ scenario('ledge grab on the box top edge', () => {
     if (result) {
         const m = result.m;
         console.log('  actions:', compress(m.log));
-        check('LEDGE_GRAB > LEDGE_CLIMB_SLOW > IDLE on top', compress(m.log).includes('LEDGE_GRAB > LEDGE_CLIMB_SLOW_1 > LEDGE_CLIMB_SLOW_2 > IDLE') && m.pos[1] === LEDGE_H, `y=${m.pos[1]} x=${m.pos[0].toFixed(1)}`);
+        // (LEDGE_CLIMB_SLOW_2 is entered by direct assignment of m.action, as in the original)
+        check('LEDGE_GRAB > LEDGE_CLIMB_SLOW_1 > IDLE on top of the box', compress(m.log).includes('LEDGE_GRAB > LEDGE_CLIMB_SLOW_1 > IDLE') && m.pos[1] === LEDGE_H && m.pos[0] > 1500, `y=${m.pos[1]} x=${m.pos[0].toFixed(1)}`);
     }
     // fast climb with A
-    const m2 = newMario([1400, LEDGE_H - 140, 1750], YAW_PX);
+    const m2 = newMario([1440, LEDGE_H - 110, 1750], YAW_PX);
     m2.action = C.ACT_FREEFALL;
+    m2.forwardVel = 10;
     let grabbed = false;
     run(m2, 80, (mm, i) => {
         if (mm.action === C.ACT_IDLE && mm.pos[1] === LEDGE_H) return null;
         if (mm.action === C.ACT_LEDGE_GRAB) grabbed = true;
-        return { stickX: 0, stickY: 30, buttons: (mm.action === C.ACT_LEDGE_GRAB && mm.actionTimer === 3) ? A_BUTTON : 0, cameraYaw: camFor(YAW_PX) };
+        return { stickX: 0, stickY: 0, buttons: (mm.action === C.ACT_LEDGE_GRAB && mm.actionTimer === 3) ? A_BUTTON : 0, cameraYaw: camFor(YAW_PX) };
     });
     console.log('  fast climb actions:', compress(m2.log));
     check('LEDGE_GRAB > LEDGE_CLIMB_FAST > IDLE', compress(m2.log).includes('LEDGE_GRAB > LEDGE_CLIMB_FAST > IDLE') && m2.pos[1] === LEDGE_H);
@@ -395,19 +444,24 @@ scenario('ledge grab on the box top edge', () => {
 // ---------------------------------------------------------------------------
 scenario('steep slope slide', () => {
     // Ramp rises along +x (x in [2560, 3072]); stand Mario on it facing uphill.
-    const m = newMario([2900, 1000, 0], YAW_PX);
+    const rampY = (x) => world.find_floor(x, 10000, 0).height;
+    const m = newMario([2900, rampY(2900), 0], YAW_PX);
     const y0 = m.pos[1];
     run(m, 150, (mm) => (mm.action === C.ACT_IDLE && mm.frame > 20 ? null : none()));
     console.log('  actions:', compress(m.log));
     check('starts on the ramp', y0 > 300, `y0=${y0.toFixed(1)}`);
     check('slides (STOMACH_SLIDE or BUTT_SLIDE)', m.log.includes('ACT_STOMACH_SLIDE') || m.log.includes('ACT_BUTT_SLIDE'));
     check('ends at the bottom, downhill (-x)', m.pos[1] === 0 && m.pos[0] < 2560, `pos=${m.pos.map((v) => v.toFixed(1))}`);
-    // walking up the steep slope is not possible: jump on slope -> steep jump
-    const m2 = newMario([2700, 1000, 0], YAW_PX);
-    run(m2, 1, () => none());
-    run(m2, 30, (mm, i) => hold(camFor(YAW_PX), { buttons: i === 0 ? A_BUTTON : 0 }));
+    // jumping while facing up a steep slope -> steep jump
+    const m2 = newMario([2700, rampY(2700), 0], YAW_PX);
+    run(m2, 40, (mm, i) => (i > 3 && mm.action === C.ACT_IDLE ? null : hold(camFor(YAW_PX), { buttons: i === 0 ? A_BUTTON : 0 })));
     console.log('  jump on slope actions:', compress(m2.log));
-    check('cannot walk up: slides back', m2.log.includes('ACT_STOMACH_SLIDE') || m2.log.includes('ACT_BUTT_SLIDE') || m2.log.includes('ACT_STEEP_JUMP') || m2.log.includes('ACT_FREEFALL'));
+    check('A on a steep slope facing uphill -> STEEP_JUMP', m2.log[1] === 'ACT_STEEP_JUMP');
+    // walking up the slope is not possible
+    const m3 = newMario([2620, rampY(2620), 0], YAW_PX);
+    run(m3, 60, () => hold(camFor(YAW_PX)));
+    console.log('  walk uphill actions:', compress(m3.log), ' x', m3.pos[0].toFixed(1));
+    check('cannot walk up the steep slope', m3.pos[0] < 2700);
 });
 
 // ---------------------------------------------------------------------------
@@ -457,7 +511,7 @@ scenario('fall damage', () => {
 scenario('hang from SURFACE_HANGABLE ceiling', () => {
     const m = newMario([750, 0, -2750], YAW_PZ);
     run(m, 2, () => none());
-    run(m, 60, (mm, i) => (i > 40 ? null : none(0, { buttons: A_BUTTON })));
+    run(m, 90, (mm, i) => (mm.action === C.ACT_HANGING ? null : none(0, { buttons: A_BUTTON })));
     console.log('  actions:', compress(m.log));
     check('START_HANGING > HANGING', compress(m.log).includes('JUMP > START_HANGING > HANGING'));
     run(m, 30, () => hold(camFor(YAW_PZ), { buttons: A_BUTTON }));

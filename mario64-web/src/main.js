@@ -88,7 +88,7 @@ async function start(rom) {
   const world = new CollisionWorld(level.tris);
   const sfx = new Sfx(rom);
 
-  const m = createMario({ world, animations, sound: (name) => sfx.play(name) });
+  const m = createMario({ world, animations, sound: (name, extra) => sfx.play(name, extra) });
   const followCam = new FollowCamera(camera, level.mesh);
   const input = new Input(canvas);
   if (matchMedia('(pointer: coarse)').matches) {

@@ -62,10 +62,12 @@ export class Sfx {
   }
 
   /** Called by the physics port with SM64 SOUND_* names. */
-  play(name) {
+  play(name, extra) {
     if (this.muted || !this.ctx) return;
     const variants = this.voices && this.voices.variants(name);
-    if (variants) this.playVoice(variants[Math.floor(Math.random() * variants.length)]);
+    if (!variants) return;
+    const v = extra && Number.isInteger(extra.variant) && variants[extra.variant];
+    this.playVoice(v || variants[Math.floor(Math.random() * variants.length)]);
   }
 
   /** Mario has one voice channel: a new clip cuts off the previous one, like the original. */
