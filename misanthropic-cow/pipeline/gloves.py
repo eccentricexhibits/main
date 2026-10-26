@@ -1,10 +1,12 @@
-"""Hoof gloves, rebuilt from the close-up glove photos (For_Next_Step: glove images 1-5).
+"""Hoof gloves, rebuilt from the close-up glove photos (For_Next_Step: glove images 1-5) and shaped
+after the Tripo "Shy Cow" model the owner liked.
 
-Each glove is a long cream terry-cloth mitten with a separate cloth thumb standing out from the
-side, and two long black lacquered hoof plates over the fingertips: half-ovals with a straight inner
-edge, side by side and slightly splayed so they read as a cloven hoof.  The mitten's tip tucks inside
-the plates.  The plates are papier-mache over printed card; the black paint is chipped, showing red
-card on one glove and green on the other.
+Each glove is a long heathered terry-cloth mitten with a separate cloth thumb standing out from the
+side, and two dark brown lacquered hoof halves over the fingertips: domed shells with a straight
+inner edge, side by side and slightly splayed so they read as a cloven hoof, curling toward the palm
+at their points.  The mitten narrows into them and its tip tucks inside.  The halves are
+papier-mache over printed card; the paint is chipped, showing red card on one glove and green on
+the other.
 
 Everything is built in the hand's own frame at the bind pose:
   u  along the hand from the wrist joint toward the hoof tip,
@@ -47,7 +49,7 @@ def mitten_sdf(p, side):
     u, a, w = local(p, side)
     e1 = _ellipsoid(u, a, w, (-.020, 0, 0), (.050, .036, .020))
     e2 = _ellipsoid(u, a, w, (.045, .002, .001), (.055, .046, .023))
-    e3 = _ellipsoid(u, a, w, (.112, 0, 0), (.054, .044, .019))
+    e3 = _ellipsoid(u, a, w, (.108, 0, 0), (.050, .039, .018))      # tapers into the hoof
     return S.smin(S.smin(e1, e2, .02), e3, .02)
 
 
@@ -67,17 +69,21 @@ def thumb_sdf(p, side):
 
 
 def plate_sdf(p, side, h):
-    """One hoof half (h = +1 thumb side, -1 little-finger side): a long half-oval, thinning toward its
-    rounded point, with a straight inner edge along the split; splayed 3 degrees off the hand line."""
+    """One hoof half (h = +1 thumb side, -1 little-finger side), shaped like a real cloven hoof as in
+    the Shy Cow reference: a domed shell over the fingertips (rounded back, flatter sole), curling
+    toward the palm at its point, with a straight inner edge along the split, splayed 3 degrees."""
     u, a, w = local(p, side)
-    c = np.array([.148, h * .031, 0.])
+    c = np.array([.138, h * .030, 0.])
     sp = np.deg2rad(3) * h
     du, da = u - c[0], a - c[1]
     u2 = c[0] + du * np.cos(sp) + da * np.sin(sp)
     a2 = c[1] - du * np.sin(sp) + da * np.cos(sp)
-    taper = 1 - .25 * np.clip((u2 - c[0]) / .070, 0, 1)
-    e = _ellipsoid(u2, a2, w / taper, c, (.070, .034, .021)) * np.minimum(taper, 1)
-    edge = -(h * (a2 - c[1]) + .030)                     # straight inner edge, 1 mm off the split
+    t = np.clip((u2 - c[0]) / .062, -1, 1)
+    w2 = w - .016 * np.clip(t, 0, 1) ** 2              # the point curls toward the palm
+    w2 = w2 + .006                                       # dome on the back of the hand, flatter sole
+    narrow = 1 - .35 * np.clip(t, 0, 1) ** 1.5           # tapers to a rounded point
+    e = _ellipsoid(u2, (a2 - c[1]) / narrow + c[1], w2, c, (.062, .033, .026)) * np.minimum(narrow, 1)
+    edge = -(h * (a2 - c[1]) + .029)                     # straight inner edge, 1 mm off the split
     return S.smax(e, edge, .004)
 
 
@@ -93,8 +99,11 @@ def terry_tile(size=1024, seed=3):
     loops = np.clip((h + .3) / 1.6, 0, 1) ** .8           # separate little loop tops, not ridges
     soil = np.real(np.fft.ifft2(np.fft.fft2(rng.normal(size=(size, size))) * np.exp(-f / (2 * (3 / size) ** 2))))
     soil = (soil - soil.mean()) / soil.std()
-    base = np.array([.86, .83, .75])
+    base = np.array([.84, .81, .74])
     col = base[None, None] * (.80 + .22 * loops[..., None]) * (1 - .05 * np.clip(soil, 0, 3)[..., None])
+    # heathered yarn: scattered darker grey-brown loops through the cream (Shy Cow reference)
+    fleck = (rng.random((size, size)) < .07) * loops
+    col = col * (1 - .32 * gaussian_filter(fleck, .7, mode='wrap')[..., None] * 2.2)
     hgt = gaussian_filter(loops, .8, mode='wrap')
     gy, gx = np.gradient(hgt)
     nrm = np.dstack([-gx * 4, -gy * 4, np.ones_like(hgt)])
@@ -103,15 +112,18 @@ def terry_tile(size=1024, seed=3):
 
 
 def hoof_texture(side, size=512, seed=11):
-    """Glossy black paint with a few chips showing the printed card underneath."""
+    """Glossy dark brown paint with a few chips showing the printed card underneath."""
     rng = np.random.default_rng(seed + (0 if side == 'L' else 7))
     n = gaussian_filter(rng.normal(size=(size, size)), 18, mode='wrap')
     n2 = gaussian_filter(rng.normal(size=(size, size)), 3, mode='wrap')
     n = n / n.std() + .45 * n2 / n2.std()
     chip = gaussian_filter((n > 2.25).astype(float), 1.2)
     edge = np.clip(gaussian_filter((n > 2.0).astype(float), 2) - chip, 0, 1)
-    black = np.array([.022, .022, .026])
-    col = black[None, None] * (1 - chip[..., None]) + np.array(CHIP[side])[None, None] * chip[..., None]
+    # dark brown lacquer with a brushed grain along the hoof (Shy Cow, Ryerson photo)
+    grain = gaussian_filter(rng.normal(size=(size, size)), (14, 1.2), mode='wrap')
+    grain = grain / grain.std()
+    brown = np.array([.105, .058, .038])[None, None] * (1 + .22 * grain[..., None])
+    col = brown * (1 - chip[..., None]) + np.array(CHIP[side])[None, None] * chip[..., None]
     col = col * (1 - .5 * edge[..., None]) + np.array([.10, .10, .10]) * .5 * edge[..., None]
     rough = .32 + .45 * chip
     return np.clip(col, 0, 1), rough
@@ -166,7 +178,7 @@ def materials(model):
         mr = np.dstack([np.zeros_like(r), r, np.zeros_like(r)])          # glTF: G = roughness, B = metallic
         img_mr = model.add_image(T.to_jpeg(mr, 92), 'image/jpeg')
         out['hoof_' + side] = model.add_material({
-            'name': f'Glove_{side}_black_lacquer_hoof',
+            'name': f'Glove_{side}_dark_brown_lacquer_hoof',
             'pbrMetallicRoughness': {'baseColorTexture': {'image': img, 'texCoord': 0}, 'baseColorFactor': [1, 1, 1, 1],
                                      'metallicRoughnessTexture': {'image': img_mr, 'texCoord': 0},
                                      'metallicFactor': 1, 'roughnessFactor': 1}})

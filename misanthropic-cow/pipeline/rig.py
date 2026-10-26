@@ -240,7 +240,7 @@ def glove_weights(p, side):
 def udder_weights(v, side):
     W = np.zeros((len(v), NB))
     s = 1 if side == 'L' else -1
-    e = np.linalg.norm((v - D.CUP_C[s]) / D.CUP_R, axis=1)
+    e = np.linalg.norm((v - D.CUP_C[s]) / D.CUP_R[s], axis=1)
     front = ss(-.02, .09, v[:, 2] - .02)
     k = .25 + .6 * front
     W[:, UDDER[side]] = k

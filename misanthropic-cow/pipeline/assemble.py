@@ -235,6 +235,15 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         q['W'] = W
         model.parts.append(q)
 
+    # --- slippers: the knitted cow heads cut from the Shy Cow model
+    for q, grp in A.shy_cow_slippers(model):
+        q['group'] = grp
+        q['ao'] = np.ones(len(q['v']), np.float32)
+        q['uv1'] = None
+        W = np.zeros((len(q['v']), RG.NB)); W[:, RG.LEG[grp[-1]]['foot']] = 1
+        q['W'] = W
+        model.parts.append(q)
+
     # --- hoof gloves, rebuilt from the glove close-ups
     gm = GL.materials(model)
     for side in 'LR':

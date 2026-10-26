@@ -18,7 +18,7 @@ SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-
 def arm_points(s, d=None):
     d = d or {}
     sh = np.array([s * .170, 1.308, -.032])
-    up_angle = np.deg2rad(d.get('arm_abduction', 19.0))
+    up_angle = np.deg2rad(d.get('arm_abduction', 20.0))
     elbow = sh + .275 * np.array([s * np.sin(up_angle), -np.cos(up_angle), .07])
     fa = np.deg2rad(d.get('forearm_abduction', 11.0))
     wrist = elbow + .232 * np.array([s * np.sin(fa), -np.cos(fa), .30])
@@ -104,7 +104,7 @@ def suit_parts(p, torso_only=False):
     chest = S.ellipsoid(p, (0, 1.19, -.028), (.163, .205, .128))
     shoulders = S.capsule(p, (-.145, 1.318, -.036), (.145, 1.318, -.036), .062)
     neck = S.round_cone(p, (0, 1.30, -.034), (0, 1.43, -.030), .080, .070)
-    belly = S.ellipsoid(p, (0, .905, .058), (.226, .200, .222))
+    belly = S.ellipsoid(p, (0, .888, .072), (.236, .212, .234))     # full and low, as in Blue Shirt
     back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
@@ -191,13 +191,13 @@ def body_sdf(p):
 # ------------------------------------------------------------------ leggings
 def legging_parts(p):
     out = {}
-    pelvis = S.ellipsoid(p, (0, .885, -.030), (.178, .128, .128))
+    pelvis = S.ellipsoid(p, (0, .885, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
     for s, side in [(1, 'L'), (-1, 'R')]:
         hip, knee, ankle = J[f'Thigh_{side}'], J[f'Shin_{side}'], J[f'Foot_{side}']
-        thigh = S.round_cone(p, hip + [s * .006, .03, 0], knee, .104, .066)
+        thigh = S.round_cone(p, hip + [s * .010, .03, 0], knee, .110, .066)
         shin = S.round_cone(p, knee, ankle + [0, -.03, 0], .063, .040)
         calf = S.ellipsoid(p, (s * .098, .330, -.030), (.060, .110, .062))
-        butt = S.ellipsoid(p, (s * .078, .800, -.068), (.102, .105, .092))
+        butt = S.ellipsoid(p, (s * .084, .800, -.068), (.106, .105, .092))
         leg = S.smin(S.smin(thigh, shin, .03), calf, .045)
         out['leg_' + side] = leg
         pelvis = S.smin(pelvis, butt, .05)
@@ -216,22 +216,33 @@ def legging_sdf(p):
 
 
 # ------------------------------------------------------------------ udder cups
-CUP_C = {s: np.array([s * .100, 1.170, .090]) for s in SIDES}
-CUP_R = np.array([.106, .110, .130])
+# Udder cups: big stuffed-cloth pillows that hang low on the chest and press together in the middle,
+# as in the Blue Shirt reference (shoot 0120); each about 22 cm across, as in the photo.  The two are hand-made and not identical: the
+# character's left cup is a little larger and sits a little lower and further out than the right.
+CUP_C = {1: np.array([.100, 1.130, .100]), -1: np.array([-.096, 1.138, .097])}
+CUP_R = {1: np.array([.112, .114, .142]), -1: np.array([.108, .110, .138])}
+CUP_SAG = {1: (np.array([.006, -.040, .060]), np.array([.094, .080, .112])),
+           -1: (np.array([-.004, -.036, .056]), np.array([.090, .076, .108]))}
 
 
 def cup_sdf_one(p, s):
-    a = S.ellipsoid(p, CUP_C[s], CUP_R)
-    b = S.ellipsoid(p, CUP_C[s] + [s * .006, -.045, .018], (.094, .072, .108))   # sagging lower fullness
-    return S.smin(a, b, .05)
+    """A pillow wider than it is tall, its stuffing settled into a lobe that hangs forward and down,
+    so seen from the side the cup is a teardrop with the bottom teat at its lower front tip."""
+    a = S.ellipsoid(p, CUP_C[s], CUP_R[s])
+    off, r = CUP_SAG[s]
+    b = S.ellipsoid(p, CUP_C[s] + off, r)
+    return S.smin(a, b, .06)
 
 
 def teat_specs(s):
-    """(direction from cup centre to the base, teat pointing direction) per teat."""
-    return [
-        (np.array([s * -.26, -1.0, 1.45]), np.array([s * .06, -.80, 1.0])),   # bottom, hangs forward/down over the belly
-        (np.array([s * 1.0, -.62, .45]), np.array([s * .85, -.55, .18])),   # outer, points out and down
-    ]
+    """(direction from cup centre to the base, teat pointing direction) per teat: one under each cup
+    hanging forward and down, one on the outer side pointing out and down.  Sewn on by hand, so the
+    two sides do not mirror each other."""
+    if s == 1:
+        return [(np.array([-.22, -.70, 1.70]), np.array([.06, -.60, .92])),
+                (np.array([1.0, -.50, .62]), np.array([.90, -.45, .32]))]
+    return [(np.array([.12, -.75, 1.80]), np.array([.00, -.66, .84])),
+            (np.array([-1.0, -.66, .45]), np.array([-.82, -.60, .16]))]
 
 
 def surface_point(fn, origin, direction, tmax=.3):
@@ -251,7 +262,7 @@ def teats(s):
     for base_dir, point in teat_specs(s):
         base = surface_point(lambda q: cup_sdf_one(q, s), CUP_C[s] + [0, -.02, .02], base_dir)
         d = point / np.linalg.norm(point)
-        out.append((base - .012 * d, base + .060 * d))
+        out.append((base - .012 * d, base + .072 * d))
     return out
 
 
@@ -263,6 +274,6 @@ def udder_sdf(p):
     for s in SIDES:
         c = cup_sdf_one(p, s)
         for a, b in TEATS[s]:
-            c = S.smin(c, S.round_cone(p, a, b, .0155, .0115), .014)
+            c = S.smin(c, S.round_cone(p, a, b, .0160, .0122), .014)
         d = np.minimum(d, c)
     return d

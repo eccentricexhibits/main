@@ -47,6 +47,24 @@ def ik(a, target, l1, l2, pole, swivel=0.0):
     return elbow, wrist
 
 
+_SOLE = None
+
+
+def sole_points():
+    """The slippers' sole region relative to the ankle joint, in the foot's frame (both feet)."""
+    global _SOLE
+    if _SOLE is None:
+        import glb as G, assets as A
+        pts = []
+        for p in G.read(A.SLIPPER_ASSET).parts:
+            s = 1 if '_L_' in p['name'] else -1
+            v = p['v'][p['v'][:, 1] < .035]
+            v = v @ rot([0, 1, 0], s * np.deg2rad(7)).T
+            pts.append(v + np.array([0, A.SLIPPER_SOLE - D.J['Foot_L'][1], 0]))
+        _SOLE = np.vstack(pts)[::3]
+    return _SOLE
+
+
 def smooth(a, b, x):
     u = np.clip((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u)
 
@@ -71,12 +89,12 @@ class Dance:
             hinge = np.cross(bu, df); hinge /= np.linalg.norm(hinge)
             self.flex_sign[side] = 1 if (rot(hinge, .4) @ df)[2] > df[2] else -1
         # slipper contact points relative to the ankle (heel and toe), for keeping soles on the floor
-        self.heel = np.array([0, -.085, -.075]); self.toe = np.array([0, -.080, .215])
+        self.sole = sole_points()
 
     def ankle_height(self, pitch):
-        """Ankle height that keeps the lowest of heel/toe on the floor for a given foot pitch."""
+        """Ankle height that keeps the lowest point of the slipper sole on the floor at this pitch."""
         R = rot([1, 0, 0], pitch)
-        return max(-(R @ self.heel)[1], -(R @ self.toe)[1]) + .007
+        return float(-(self.sole @ R.T)[:, 1].min()) + .003
 
     def hand_rot(self, side, finger_dir, palm_normal):
         return frame(finger_dir, palm_normal) @ self.bind_hand[side].T

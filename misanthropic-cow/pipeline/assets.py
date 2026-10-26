@@ -1,4 +1,6 @@
 """Kept v09 assets (scanned mask, horns, wires, gloves, slippers, rear bow), refitted to the v10 body."""
+import json
+from pathlib import Path
 import numpy as np
 from scipy.spatial.transform import Rotation
 import design as D
@@ -46,9 +48,10 @@ def glove_transform(src, old_prefix, side):
     return lambda v: (v - top) @ Rm.T * GLOVE_SIZE + anchor, Rm
 
 
-def load(src, keep_gloves=False):
+def load(src, keep_gloves=False, keep_slippers=False):
     """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}.
-    The v08 gloves are replaced by the rebuilt ones in gloves.py unless keep_gloves is set."""
+    The v08 gloves are replaced by the rebuilt ones in gloves.py, and the v04 slippers by the Shy Cow
+    slippers (shy_cow_slippers below), unless keep_gloves / keep_slippers is set."""
     out = []
     for name in MASK_KEEP:
         p = dict(src.part(name))
@@ -84,7 +87,7 @@ def load(src, keep_gloves=False):
                     q['n'] = S.vertex_normals(v, p['f']).astype(np.float32)
                 q['name'] = f'Glove_{side}_' + p['name'][len(old):]
                 out.append((q, f'glove_{side}'))
-    for old, side in [('Right_slipper_v04_', 'L'), ('Left_slipper_v04_', 'R')]:
+    for old, side in ([('Right_slipper_v04_', 'L'), ('Left_slipper_v04_', 'R')] if keep_slippers else []):
         s = 1 if side == 'L' else -1
         ring = src.part(old + 'padded_ankle_opening')['v']
         c_old = np.array([ring[:, 0].mean(), 0, ring[:, 2].mean()])
@@ -98,4 +101,34 @@ def load(src, keep_gloves=False):
                 q['n'] = (p['n'] @ Ry.T).astype(np.float32)
                 q['name'] = f'Slipper_{side}_' + p['name'][len(old):]
                 out.append((q, f'foot_{side}'))
+    return out
+
+
+SLIPPER_ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'slippers_shy_cow.glb'
+SLIPPER_SOLE = .003          # lowest point of the sole above the floor
+
+
+def shy_cow_slippers(model):
+    """The knitted cow-head slippers cut from the Tripo "Shy Cow" model (see tripo_slippers.py), placed
+    with their ankle opening on each ankle and the usual 7 degree toe-out.  Adds their images and
+    materials to `model`; returns [(part, group)]."""
+    src = G.read(SLIPPER_ASSET)
+    img = [model.add_image(*im) for im in src.images]
+    mat = []
+    for m in src.materials:
+        m = json.loads(json.dumps(m))
+        m['pbrMetallicRoughness']['baseColorTexture']['image'] = img[m['pbrMetallicRoughness']['baseColorTexture']['image']]
+        mat.append(model.add_material(m))
+    out = []
+    for p in src.parts:
+        side = 'L' if '_L_' in p['name'] else 'R'
+        s = 1 if side == 'L' else -1
+        foot = D.J[f'Foot_{side}']
+        Ry = Rotation.from_euler('y', s * np.deg2rad(7)).as_matrix()
+        q = dict(p)
+        q['v'] = (p['v'] @ Ry.T + np.array([foot[0], SLIPPER_SOLE, foot[2]])).astype(np.float32)
+        q['n'] = (p['n'] @ Ry.T).astype(np.float32)
+        q['material'] = mat[p['material']]
+        q['name'] = f'Slipper_{side}_knitted_cow_head'
+        out.append((q, f'foot_{side}'))
     return out

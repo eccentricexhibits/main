@@ -137,7 +137,7 @@ def legging_spots(charts_leg, seed=12):
     spots = []
     for ch in charts_leg:
         v = ch['v']
-        cand = v[(v[:, 1] > .16) & (v[:, 1] < .76)]
+        cand = v[(v[:, 1] > .23) & (v[:, 1] < .76)]       # none on the black socks below the calf
         chosen = []
         for i in rng.permutation(len(cand)):
             p = cand[i]
@@ -151,6 +151,14 @@ def legging_spots(charts_leg, seed=12):
     return spots
 
 
+SOCK_TOP = .192          # top of the black socks' ribbed cuff (m)
+
+
+def sock_cuff(y):
+    """1 on the sock's ribbed cuff band, 0 elsewhere."""
+    return np.clip((y - (SOCK_TOP - .026)) / .004, 0, 1) * np.clip((SOCK_TOP - y) / .004, 0, 1)
+
+
 def legging_color(p, n, cotton, spots):
     base = triplanar(cotton, p, n, TILE * .6)
     lum = base.mean(-1, keepdims=True)
@@ -158,7 +166,14 @@ def legging_color(p, n, cotton, spots):
     m = blob_mask(p, spots, rough=.45, edge=.10, seed=21)
     brush = .88 + .12 * N.fbm(p * 160, 2, seed=4)[..., None]
     paint = np.array([.94, .94, .92]) * brush
-    return black * (1 - m[..., None]) + paint * m[..., None]
+    out = black * (1 - m[..., None]) + paint * m[..., None]
+    # black socks pulled up over the tights' feet: plain knit with a ribbed cuff at the top
+    cuff = sock_cuff(p[..., 1])
+    ang = np.arctan2(p[..., 2] + .02, np.abs(p[..., 0]) - .10)
+    rib = .5 + .5 * np.sin(ang * 46)
+    sock = np.array([.060, .060, .066]) * (.85 + .3 * lum) * (1 + .35 * cuff[..., None] * rib[..., None])
+    under = (p[..., 1] < SOCK_TOP)[..., None]
+    return np.where(under, sock, out)
 
 
 def mild_lift(rgb):

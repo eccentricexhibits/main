@@ -105,6 +105,34 @@ def fur_displace(v, n, amp=.0045):
     return v + n * (amp * k)[:, None]
 
 
+def belly_fold(v, n):
+    """The padded belly sags over the panty waistband: a soft horizontal fold a few centimetres above
+    the hem across the front, deepest in the middle (Blue Shirt reference)."""
+    x, y, z = v[:, 0], v[:, 1], v[:, 2]
+    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2
+    front = np.clip((z - .06) / .14, 0, 1) * np.exp(-(x / .20) ** 2)
+    fold = np.exp(-((y - hem - .045) / .010) ** 2) * front
+    return v - n * (.007 * fold)[:, None]
+
+
+def sleeve_folds(v, n, s):
+    """The fur sleeves are roomy, so the costume's arms fold rather than bend like tubes (Shy Cow
+    reference): soft folds gather round the elbow, deepest in its crook, the cuff bunches above the
+    glove, and the rest of the sleeve has a loose, uneven drape."""
+    sh, el, wr = D.arm_points(s)
+    du = (el - sh) / np.linalg.norm(el - sh); df = (wr - el) / np.linalg.norm(wr - el)
+    t_el = np.where((v - el) @ df > 0, (v - el) @ df, (v - el) @ du)      # signed distance from the elbow
+    t_wr = (v - wr) @ df                                                 # negative up the forearm
+    crook = np.clip(n @ np.array([0, 0, 1.]), 0, 1)                      # front of the elbow folds most
+    ang = np.arctan2(n[:, 2], n[:, 0] * s)
+    wob = N.fbm(v * 25 + s * 1.7, 2, seed=23)                            # folds wander and break up
+    arcs = np.clip(.55 + .45 * np.sin(1.3 * ang + 2.5 * wob) + .4 * crook, 0, 1)
+    elbow = np.exp(-(t_el / .050) ** 2) * (.30 + .70 * crook) * arcs * np.sin(2 * np.pi * t_el / .038 + 1.8 * wob + .8 * np.sin(ang))
+    cuff = np.exp(-((t_wr + .030) / .022) ** 2) * arcs * np.sin(2 * np.pi * t_wr / .030 + 2.2 * wob)
+    drape = N.fbm(v * np.array([12, 7, 12]) + s * 3.1, 3, seed=17)
+    return v + n * (.0045 * elbow + .0025 * cuff + .0032 * drape)[:, None]
+
+
 def build_suit(step=.0042, target=170000):
     """Torso, hood, horn tube and two sleeves as separate surfaces (each piece of the costume is its
     own garment).  Returns unified arrays (for weights/AO) plus per-piece UV charts.
@@ -129,6 +157,10 @@ def build_suit(step=.0042, target=170000):
         v, f = mesh_from(fn, lo, hi, step * stepk, int(target * frac))
         n = S.vertex_normals(v, f)
         v = fur_displace(v, n, .0045 if lab != 4 else .002)
+        if lab == 0:
+            v = belly_fold(v, S.vertex_normals(v, f))
+        if lab in (2, 3):
+            v = sleeve_folds(v, S.vertex_normals(v, f), 1 if lab == 2 else -1)
         n = S.vertex_normals(v, f)
         lab_f = np.full(len(f), lab)
         ch = make_chart(v, f, lab_f, lab, uvfn, name)
@@ -171,7 +203,10 @@ def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018)):
 
 # ---------------------------------------------------------------- leggings
 def build_leggings(step=.0040, target=90000):
+    import textures as T
     v, f = mesh_from(D.legging_sdf, (-.27, .03, -.21), (.27, 1.05, .17), step, target)
+    n = S.vertex_normals(v, f)
+    v = v + n * (.0022 * T.sock_cuff(v[:, 1]))[:, None]      # the sock's ribbed cuff stands slightly proud
     n = S.vertex_normals(v, f)
     c = v[f].mean(1)
     parts = D.legging_parts(c)
@@ -215,10 +250,26 @@ def build_udder(step=.0028, target=50000):
     wr = N.fbm(v * np.array([30, 55, 30]), 3, seed=31)
     seam = np.zeros(len(v))
     for s in D.SIDES:
-        rel = (v - D.CUP_C[s]) / D.CUP_R
+        rel = (v - D.CUP_C[s]) / D.CUP_R[s]
         dz = rel[:, 2] + .15
         seam += np.exp(-(dz / .06) ** 2) * (np.sign(v[:, 0]) == s)
     v = v + n * (.0016 * wr - .0018 * seam)[:, None]
+    # sewn-on teats gather the cloth: radial puckers fanning out round each teat's base
+    n = S.vertex_normals(v, f)
+    puck = np.zeros(len(v))
+    for s in D.SIDES:
+        for k, (a, b) in enumerate(D.TEATS[s]):
+            d = (b - a) / np.linalg.norm(b - a)
+            base = a + .012 * d
+            r = v - base
+            along = r @ d
+            radial = r - along[:, None] * d
+            dist = np.linalg.norm(radial, axis=1)
+            e1 = np.cross(d, [0, 1, 0]); e1 /= np.linalg.norm(e1); e2 = np.cross(d, e1)
+            ang = np.arctan2(radial @ e2, radial @ e1)
+            ring = np.exp(-((dist - .026) / .012) ** 2) * (along < .012)
+            puck += ring * np.cos(7 * ang + 1.3 * k + s)
+    v = v + n * (.0018 * puck)[:, None]
     out = []
     for s, side in [(1, 'L'), (-1, 'R')]:
         c = v[f].mean(1)

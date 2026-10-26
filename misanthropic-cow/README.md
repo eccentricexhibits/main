@@ -10,15 +10,17 @@ Later v10 passes added:
 - a rounded belly underside;
 - an animation library: Idle, Walk, Run, Sneak, Jumping Jacks, Look Around and the Chicken Dance;
 - the mask seated on the hood, shoulders that grow out of the body, and the shag tufts rebuilt from the user's long-lock sheet;
-- four mood animations (Depressed Walk, Crouch and Sit, Crying, Exasperated) and an "alt" set that plays the first seven heavy, awkward and slumped.
+- four mood animations (Depressed Walk, Crouch and Sit, Crying, Exasperated) and an "alt" set that plays the first seven heavy, awkward and slumped;
+- a pass informed by two models the owner made with Tripo (see "Tripo references" below): Blue Shirt's udders, belly and hips, Shy Cow's hoof hands, folding sleeves and slippers.
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 626k triangles, real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 598k triangles, real-world scale in metres, all textures embedded. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 40-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
-| `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the showcase video, the standard-vs-alt video and the validation JSON. |
+| `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch, the first tuft sheet and the long-lock sheet the tufts now use. |
+| `assets/` | `slippers_shy_cow.glb`: the knitted cow-head slippers cut from the Tripo Shy Cow model (made by `pipeline/tripo_slippers.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
 
 Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
@@ -41,7 +43,11 @@ The wearer is built at about 1.60 m. v09 had scaled the whole figure to fit an o
 The white paint in the mask photo gets a lift; the eyes, the muzzle and the weathered grey wash keep their colour.
 
 **Udder, shag and leggings.**
-- The udder is two large, soft pink cups. Each has one teat hanging forward over the belly and one pointing out and down.
+- The udder is two large, soft, stuffed-cloth pink cups. Each has one teat hanging forward over the belly and one pointing out and down. Following the Blue Shirt reference, the cups:
+  - are pillows wider than they are tall, each about 22 cm across as in the photo, hanging low on the chest and pressing together in the middle;
+  - settle into a lobe that hangs forward and down, so from the side each cup is a teardrop with the bottom teat at its lower front tip;
+  - are hand-made and not identical: the character's left cup is slightly larger, lower and further out, and the teats sit at different angles on the two sides;
+  - have teats that stand out about 7 cm, with the cloth puckered in radial folds round each teat where it is sewn on.
 - The black shag follows the patch layout in the photos:
   - upper chest and shoulder on the wearer's right;
   - low belly;
@@ -52,11 +58,15 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
+- The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
+- **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
+- **Slippers and socks.** The slippers are the knitted cow-head slippers cut from the Shy Cow model: low, round, popcorn-knit heads with horns, ears and a smiling white face on a fuzzy black rim. The costume is tights with black socks over the feet, pushed into the slippers. So below the calf the leggings are plain black knit, with no painted spots, and end in a ribbed cuff that stands slightly proud. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. The v04 slippers had a tall black padded collar that read as a boot.
 - **Gloves.** The gloves were rebuilt from the close-up glove photos (`gloves.py`):
   - **Mitten:** a long cream terry-cloth mitten with a narrow cuff inside the sleeve, a wider flat palm and a rounded finger end. Its terry loops are a procedural tileable texture with a matching normal map.
   - **Thumb:** a separate cloth thumb standing out from the side at about 40°.
-  - **Hoof plates:** two long, flat, D-shaped plates over the fingertips, side by side and splayed 3° so they read as a cloven hoof. Each has a straight inner edge along the split and thins toward its rounded point, and the mitten's tip tucks inside them.
-  - **Paint:** the plates are glossy black lacquer with chips showing the printed card underneath, red on the left glove and green on the right, as in the photos.
+  - **Hoof halves:** shaped like a real cloven hoof, as in the Shy Cow reference. Each is a domed shell over the fingertips, with a rounded back and a flatter sole, curling toward the palm at its point. The halves sit side by side, splayed 3°, with straight inner edges along the split. The mitten narrows into them and its tip tucks inside.
+  - **Paint:** dark brown glossy lacquer with a brushed grain, and chips showing the printed card underneath, red on the left glove and green on the right, as in the photos.
+  - **Terry:** heathered: darker grey-brown loops are scattered through the cream.
   - The v08 gloves had a stubby mitten with short round caps hanging under it and bristly fur cards. Their cuff poked out of the back of the sleeve as a white flap; that flap is gone with them.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
@@ -72,7 +82,7 @@ The second pass made the shoulders lower and less bulky:
 - The pivot is 2.7 cm lower than in the first v10 pass.
 - The cap's radius dropped from 7.1 to 6.4 cm, and it blends into the trapezius with a smaller fillet.
 - The upper sleeve is 5 mm slimmer.
-- The arms hang at 19°.
+- The arms hang at 20° (one more degree in the Tripo pass, so the relaxed arms clear the fuller udder).
 
 Where a sleeve meets the torso, both pieces are shaded with the normals of one smoothly blended surface, which removes the seam line. The sleeve also leaves the cap at a shallow 17° angle instead of 29°.
 
@@ -89,6 +99,25 @@ Where a sleeve meets the torso, both pieces are shaded with the normals of one s
 - **Teats:** each teat swings on its own bone and collides with the belly. In the dance it peaks at about 20° and averages about 5°.
 - **Shag patches:** six spring bones drag the tuft tips, with up to about 4 cm of lag at the elbows.
 - **Belly and cups:** they jiggle; the cups are kept from sinking into the belly.
+
+## Tripo references
+
+The owner tried a different modelling approach with Tripo and judged two results. Only the parts the owner singled out were used. Everything else was ignored: the head, the back, Blue Shirt's shirt and hat, and the stuffing poking out of its belly.
+
+- **Blue Shirt** (from shoot 0120). The owner praised:
+  - the size of the belly and the udders;
+  - the teats' size and position;
+  - udders that are somewhat asymmetrical, with teats that don't line up exactly;
+  - the fluff and udder texture;
+  - hips and thighs whose width shows as the panties stretch over them.
+
+  Its shapes were matched in the cups, teats, belly, belly fold and hips described above. The model was compared with ours at the same scale: slipper sole to horn tip, aligned at the knees. The black belly patch stays a flat shag patch with hanging locks: Tripo had modelled it as a solid lump, which the owner disliked.
+- **Shy Cow** (from the Ryerson photo). The owner praised:
+  - the hoof hands' shape and texture;
+  - arms that fold the way the costume does;
+  - slippers that read as slippers, with black socks inside.
+
+  The hooves and the sleeve folds were rebuilt to match. The slippers themselves were cut out of the Shy Cow mesh and given a new UV layout. Their colour was baked from its 8K texture, and they are rigid on the foot bones.
 
 ## Animations
 
@@ -127,26 +156,26 @@ All depths are the 99.5th percentile over every frame.
 
 | Animation | Arms into cups or torso | Teats into belly | Gloves into body | Leggings stretch, worst frame | Lowest slipper point |
 |---|---|---|---|---|---|
-| Idle | 0 mm | 0 mm | 0 mm | 1.17× | 6.0 mm above floor |
-| Walk | 0 mm | 0 mm | 0 mm | 2.52× | 1.2 mm above floor |
-| Run | 0 mm | 0 mm | 0 mm | 3.50× | 1.4 mm above floor |
-| Sneak | 0 mm | 0 mm | 0 mm | 3.61× | 2.6 mm above floor |
-| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.24× | 6.0 mm above floor |
-| Look Around | 6.5 mm | 0 mm | 0 mm | 1.28× | 6.0 mm above floor |
-| Chicken Dance | 0 mm | 1.7 mm | 0 mm | 2.11× | 6.0 mm above floor |
-| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.32× | 1.1 mm above floor |
-| Crouch and Sit | 25.0 mm | 0 mm | 0 mm | 5.04× | 6.0 mm above floor |
-| Crying | 6.5 mm | 0 mm | 0 mm | 1.68× | 6.0 mm above floor |
-| Exasperated | 7.7 mm | 0 mm | 0 mm | 1.31× | 6.0 mm above floor |
-| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.49× | 6.0 mm above floor |
-| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.37× | 1.1 mm above floor |
-| Run (alt) | 0 mm | 2.8 mm | 0 mm | 3.15× | 1.4 mm above floor |
-| Sneak (alt) | 0 mm | 1.3 mm | 0 mm | 3.28× | 2.1 mm above floor |
-| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.24× | 4.8 mm above floor |
-| Look Around (alt) | 7.8 mm | 0 mm | 0 mm | 1.49× | 6.0 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.0 mm | 1.5 mm | 2.08× | 6.0 mm above floor |
+| Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor |
+| Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor |
+| Run | 0 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor |
+| Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor |
+| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor |
+| Look Around | 2.0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor |
+| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.17× | 3.0 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.38× | 2.9 mm above floor |
+| Crouch and Sit | 19.7 mm | 0 mm | 0 mm | 5.14× | 2.7 mm above floor |
+| Crying | 2.0 mm | 0 mm | 0 mm | 1.71× | 3.0 mm above floor |
+| Exasperated | 2.7 mm | 0 mm | 0 mm | 1.32× | 3.0 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.44× | 2.7 mm above floor |
+| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.24× | 3.0 mm above floor |
+| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor |
+| Look Around (alt) | 4.6 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.2 mm | 2.14× | 3.0 mm above floor |
 
-The figures of about 7 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 25.0 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The alt Chicken Dance's slump puts the teats 5 mm into the belly at the bottom of the Wiggle squat. In Crying and Exasperated the hooves press about 5 mm into the mask at the eyes and brow. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
+The figures of 2 to 5 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 19.7 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats now touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. In Crying the hooves press about 7 mm into the mask at the eyes; in Exasperated they stay clear. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
 In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The new hooves reach about 22 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
@@ -155,10 +184,10 @@ In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove 
 | Check | v09 | v10 |
 |---|---|---|
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
-| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 1.7 mm at the bottom of the Wiggle squat |
-| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 2.00× |
-| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.86× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 25.0 mm and 25.2 mm (the slimmer mitten wrist sits loosely inside the sleeve end) |
+| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
+| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
+| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.80× |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 23.9 mm and 24.2 mm (the slimmer mitten wrist sits loosely inside the sleeve end) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
 | Clap contact gap | not measured | 0.8 mm |
 | Loop seam error | 0 | 0 |
@@ -199,7 +228,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 ## Rebuilding
 
 You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk`, plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
-- the review GLB, which supplies the mask scan, horns and slippers (the gloves are generated by `gloves.py`);
+- the review GLB, which supplies the mask scan and horns (the gloves come from `gloves.py` and the slippers from `assets/slippers_shy_cow.glb`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
 ```bash
@@ -222,12 +251,13 @@ Where things live:
 - `design.py`: proportions, as signed-distance primitives;
 - `textures.py`: shag patch and spot placement;
 - `gloves.py`: the hoof gloves and their terry and hoof-paint textures;
+- `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail).
-- `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
+- `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback), made from a copy of the animated master with every texture scaled down to at most 1024 px so its base64 copy stays under 16 MB. The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 
