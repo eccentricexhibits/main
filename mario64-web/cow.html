@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Leave Me Alone</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="loading" class="gate">
+  <div class="gate-card">
+    <h1>Leave Me Alone</h1>
+    <p>The Misanthropic Cow just wants to get to her couch.</p>
+    <p class="small">Loading the cow…</p>
+  </div>
+</div>
+
+<div id="hud" class="hud" hidden>
+  <div>
+    <div title="Phones silenced">☎ <span id="phones">0/8</span></div>
+    <div id="breakdowns" class="small"></div>
+  </div>
+  <div class="right"><div id="timer">0'00"0</div></div>
+</div>
+<div id="meter" class="meter" hidden><span id="meterLabel">Balance</span><div class="meter-bar"><div id="meterFill"></div></div></div>
+<div id="hint" class="hintbox" hidden></div>
+<div id="help" class="help" hidden>
+  <b>Lumber</b> <kbd>WASD</kbd> · <b>Hop</b> <kbd>Space</kbd> · <b>Crouch-jump</b> hold <kbd>Shift</kbd> then <kbd>Space</kbd> ·
+  <b>Stomp</b> <kbd>Shift</kbd> in the air · <b>Stampede</b> hold <kbd>J</kbd> · <b>Tiptoe</b> hold <kbd>Ctrl</kbd> ·
+  <b>Camera</b> drag / <kbd>Q</kbd><kbd>E</kbd> · <b>Pause</b> <kbd>Esc</kbd> · gamepad supported
+  <br>Get her to the couch. Silence the phones on the way if you like. <a href="#" id="hideHelp">hide</a>
+</div>
+<div id="pause" class="gate" hidden>
+  <div class="gate-card">
+    <h1>Paused</h1>
+    <p class="small">She's heavy: she takes a while to get going, turns wide at speed and skids if you reverse.
+      Hops are low; crouch first for a big one. Long falls make her stumble, or sit down and cry.</p>
+    <div class="row">
+      <button id="resume" type="button">Resume</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+    <p class="small"><a href="index.html">Mario-physics playground</a> · <a href="viewer.html">Animation viewer</a></p>
+  </div>
+</div>
+<div id="finish" class="gate finish" hidden>
+  <div class="gate-card">
+    <h1>Finally. Peace and quiet.</h1>
+    <p id="finishStats"></p>
+    <div class="row"><button id="again" type="button">Do it again (ugh)</button></div>
+  </div>
+</div>
+<div id="touch" class="touch" hidden>
+  <div class="stick"><div class="knob"></div></div>
+  <div class="tbtn" data-btn="z" style="right:168px;bottom:40px">⤓</div>
+  <div class="tbtn" data-btn="b" style="right:96px;bottom:96px">≫</div>
+  <div class="tbtn" data-btn="a" style="right:24px;bottom:40px">⤒</div>
+</div>
+
+<script type="module" src="src/cowgame/main.js"></script>
+</body>
+</html>

@@ -79,3 +79,19 @@ a { color: #8fb8ff; }
 .settings { display: grid; gap: 10px; margin: 0 0 16px; text-align: left; }
 .settings label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--ink); }
 .settings select { background: #0f1420; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+.hintbox {
+  position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 6;
+  max-width: min(560px, calc(100vw - 32px)); text-align: center; white-space: pre-line;
+  background: rgba(15, 20, 32, .85); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 16px; font-size: .95rem; pointer-events: none;
+}
+.meter { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); z-index: 6; text-align: center;
+  font-size: .8rem; font-weight: 700; text-shadow: 0 1px 2px #000; pointer-events: none; }
+.meter-bar { width: 180px; height: 10px; margin-top: 4px; border-radius: 6px; background: rgba(0,0,0,.5); border: 2px solid #fff; overflow: hidden; }
+.meter-bar > div { height: 100%; width: 0; }
+.finish { background: rgba(15, 20, 32, .35); }
+.finish .gate-card p { color: var(--ink); font-size: 1.1rem; line-height: 1.7; }
+.finish { align-items: end; padding-bottom: 32px; }
+.finish .gate-card { padding: 16px 20px; max-width: 520px; }
+.finish .gate-card h1 { font-size: 1.3rem; margin-bottom: 4px; }
+.finish .gate-card p { font-size: .95rem; margin: 6px 0 12px; }

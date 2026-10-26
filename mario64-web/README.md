@@ -3,7 +3,9 @@
 A small browser game starring **The Misanthropic Cow**, moving with Mario's physics and
 animations from *Super Mario 64*. Mario himself is still selectable from the pause menu.
 
-There are two cows, picked from the pause menu (and in the animation viewer):
+There is also **Leave Me Alone** (`cow.html`), a separate game built around the detailed
+cow (see below). In the Mario-physics playground there are two cows, picked from the pause
+menu (and in the animation viewer):
 
 - **Cow 64** (default): a low-poly (about 3,000 triangles), Mario-proportioned version with a
   big head, chunky body and short legs, drawn at 1.2x Mario's size. Each body part is a rigid
@@ -15,7 +17,60 @@ There are two cows, picked from the pause menu (and in the animation viewer):
   no image files.
 - **Detailed cow**: the original 3D model with its own skeleton, described below.
 
-## The detailed cow
+## Leave Me Alone (`cow.html`)
+
+A separate game built for the detailed cow, with new physics, mechanics and level design
+around a heavy, clumsy character. **It does not use the Super Mario 64 ROM at all**: she
+moves with her own physics (`src/cowgame/controller.js`) and animates only with her own
+clips plus procedural layers (`src/cowgame/animator.js`).
+
+The goal is to get her down a hedge-lined course to her couch, silencing ringing phones
+along the way if you like.
+
+**Moving**
+- **Heavy movement:** slow to get going (about 0.7 s to running speed) and slow to stop,
+  with wide turns at speed and a skid when you reverse.
+- **Jumps:** a low hop (three quarters of her height) and a heavy fall. Hold Shift, then
+  Space, for a crouch-jump about twice as high that leaps the way you're steering.
+
+**Using her weight**
+- **Stampede:** hold J. It's faster but steers badly. It smashes flimsy fences and crates,
+  and bounces her off solid walls.
+- **Stomp:** Shift in mid-air. It breaks cracked floors and crates, and a stomp onto a
+  springboard launches her high, where a plain landing barely bounces.
+
+**Clumsiness**
+- **Falls:** long falls make her stumble, and very long ones make her sit down and cry
+  (counted as "breakdowns"). After three breakdowns she switches to her Depressed Walk.
+- **Beams:** on narrow beams she wobbles as she rushes or turns. Tiptoe (Ctrl) or she
+  falls off.
+- **Slopes and water:** steep slopes send her sliding on her backside, and she can't swim.
+
+**The course**
+- **Back yard:** hurdles, and a box that needs a crouch-jump.
+- **Fence:** a flimsy fence only a stampede gets through.
+- **Bridge:** crumbling planks that drop if she stands still.
+- **Pit:** a cracked slab over a springboard pit below a plateau.
+- **Beam:** a narrow beam over water.
+- **Slope:** a slippery slope.
+- **Pond:** rafts that sink under her weight.
+- **Gate:** a gate opened by two pressure plates only she can press.
+- **Terraces:** crouch-jump terraces up to the couch.
+- **Checkpoints:** "DO NOT DISTURB" signs.
+
+**Animation**
+- **Her own clips:** Idle, Look Around, Walk, Run, Run (alt) and Sneak cover moving.
+  Segments of Jumping Jacks, Crouch and Sit, Crying and Exasperated cover jumping,
+  crouching, stomping, butt-sliding, stumbling, crying, the facepalm after a dunk, and
+  sitting on the couch.
+- **Procedural layers:** leaning into speed, rolling into turns, arms out on beams, belly
+  and udder jiggle that lags behind her body, and squash on heavy landings.
+- **Sound:** synthesized (no samples).
+
+`tests/cowgame/mechanics.cjs` checks each mechanic with a deterministic simulation in a
+headless browser.
+
+## The detailed cow in the Mario-physics playground
 
 - Model: `assets/misanthropic_cow.glb` (not committed; see below), a game-ready copy of
   *Misanthropic_Cow_v11_FirstPass_Animated.glb*. Triangles were cut from 620k to 133k (the
@@ -58,7 +113,8 @@ remembered in your browser's local storage (IndexedDB) so you don't have to pick
 
 **Easiest:** double-click `dist/mario64-playground.html` (built locally with `npm run build`). It is a single
 self-contained file (code, styles and Three.js inlined) that runs straight from disk, no
-server needed. `dist/mario64-viewer.html` is the matching animation viewer.
+server needed. `dist/mario64-viewer.html` is the matching animation viewer, and
+`dist/leave-me-alone.html` is the cow's own game (no ROM needed).
 
 To work on the source, serve the folder over HTTP (the unbundled pages use ES modules,
 which browsers won't load from `file://`):

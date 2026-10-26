@@ -66,6 +66,40 @@ const TEXTURES = {
     g.fillStyle = '#e8d24a'; g.fillRect(0, 0, s, s);
     g.fillStyle = '#3a63c9'; g.fillRect(0, 0, s / 2, s / 2); g.fillRect(s / 2, s / 2, s / 2, s / 2);
   }),
+  hedge: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#2f6b2a'; g.fillRect(0, 0, s, s);
+    noise(g, s, ['#245a20', '#3d8034', '#1d4a1a', '#4a9040'], 520, 3);
+  }),
+  plank: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#a8763f'; g.fillRect(0, 0, s, s);
+    g.fillStyle = '#6e4a22';
+    for (let i = 0; i < 4; i++) g.fillRect(i * 16, 0, 2, s);
+    noise(g, s, ['#97693a', '#b98549'], 200, 2);
+  }),
+  crate: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#c48a46'; g.fillRect(0, 0, s, s);
+    g.strokeStyle = '#7a5226'; g.lineWidth = 6; g.strokeRect(3, 3, s - 6, s - 6);
+    g.beginPath(); g.moveTo(6, 6); g.lineTo(s - 6, s - 6); g.moveTo(s - 6, 6); g.lineTo(6, s - 6); g.stroke();
+  }),
+  crack: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#9d9a90'; g.fillRect(0, 0, s, s);
+    noise(g, s, ['#8a877d', '#aeaba1'], 200);
+    g.strokeStyle = '#3d3a35'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(8, 10); g.lineTo(26, 30); g.lineTo(20, 52); g.moveTo(26, 30); g.lineTo(50, 24); g.lineTo(58, 44); g.stroke();
+  }),
+  pad: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#c23b2e'; g.fillRect(0, 0, s, s);
+    g.strokeStyle = '#ffd34a'; g.lineWidth = 4; g.strokeRect(6, 6, s - 12, s - 12);
+  }),
+  spring: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#e8483b'; g.fillRect(0, 0, s, s);
+    g.fillStyle = '#ffffff';
+    g.beginPath(); g.arc(s / 2, s / 2, 12, 0, Math.PI * 2); g.fill();
+  }),
+  couch: () => canvasTexture(64, (g, s) => {
+    g.fillStyle = '#7b3f8f'; g.fillRect(0, 0, s, s);
+    noise(g, s, ['#6c3580', '#8a4ca0'], 260);
+  }),
   slide: () => canvasTexture(64, (g, s) => {
     g.fillStyle = '#5cc0e8'; g.fillRect(0, 0, s, s);
     g.fillStyle = '#86d6f2';
@@ -74,6 +108,8 @@ const TEXTURES = {
 };
 
 // ---------------------------------------------------------------------------
+
+export { TEXTURES };
 
 export class LevelBuilder {
   constructor() {

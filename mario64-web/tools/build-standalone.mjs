@@ -13,9 +13,10 @@ const dist = path.join(root, 'dist');
 const PAGES = [
   { html: 'index.html', entry: 'src/main.js', out: 'mario64-playground.html' },
   { html: 'viewer.html', entry: 'src/viewer.js', out: 'mario64-viewer.html' },
+  { html: 'cow.html', entry: 'src/cowgame/main.js', out: 'leave-me-alone.html' },
 ];
 // Links between the pages point at the bundled file names.
-const LINKS = { 'href="viewer.html"': 'href="mario64-viewer.html"', 'href="index.html"': 'href="mario64-playground.html"' };
+const LINKS = { 'href="viewer.html"': 'href="mario64-viewer.html"', 'href="index.html"': 'href="mario64-playground.html"', 'href="cow.html"': 'href="leave-me-alone.html"' };
 
 // Browsers refuse fetch() from file:// pages, so the cow model is embedded as base64
 // and handed to the loader as a blob: URL.
