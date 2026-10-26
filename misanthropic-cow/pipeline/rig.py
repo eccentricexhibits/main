@@ -53,6 +53,12 @@ for side in 'LR':
 SHAG_NAMES = ['Shag_chest_R', 'Shag_belly', 'Shag_back_upper_R', 'Shag_back_lower_L', 'Shag_elbow_L', 'Shag_elbow_R']
 SHAG_PARENTS = ['Chest', 'Belly', 'Chest', 'Spine', 'Elbow_L', 'Elbow_R']
 SHAG = [_j(n, p) for n, p in zip(SHAG_NAMES, SHAG_PARENTS)]
+# the tail: a bow on the back of the hem (rigid with the hips) and a chain of bones down the cord
+TAIL_BOW = _j('Tail_bow', 'Hips')
+TAIL = []
+for _i in range(12):
+    TAIL.append(_j(f'Tail_cord_{_i + 1}', 'Tail_bow' if _i == 0 else f'Tail_cord_{_i}'))
+TAIL.append(_j('Tail_plug', 'Tail_cord_12'))
 NB = len(NAMES)
 BELLY_C = np.array([0, .925, .085])
 
@@ -84,6 +90,9 @@ def bind_positions(glove_parts):
     import textures as T
     for j, (c, r) in zip(SHAG, T.all_patches()):
         B[j] = c
+    import tail as TL
+    B[TAIL_BOW] = TL.KNOT
+    B[TAIL] = TL.rest_points()[:-1]
     return B
 
 

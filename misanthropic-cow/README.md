@@ -15,8 +15,8 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 598k triangles, real-world scale in metres, all textures embedded. |
-| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 40-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 635k triangles, real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 54-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch, the first tuft sheet and the long-lock sheet the tufts now use. |
@@ -59,6 +59,8 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
+- **Panties.** They are cut like full-coverage granny briefs. A gusset runs under the crotch. At the front, the leg line runs diagonally from the gusset up to the hip. At the back, it follows the underside of each buttock before rising up the side. Before this, the pink stopped in a V above the crotch and the leggings showed between the legs.
+- **Tail.** A gold satin bow is tied on at the back, just above the suit's hem, with two puffed loops, a knot and two V-cut tails. A tan two-core lamp cord hangs from the knot nearly to the floor and ends in a two-prong plug with brass blades (`tail.py`). There are few photos of the tail, so its size is estimated: the bow is about 15 cm wide and the cord 86 cm long.
 - **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
 - **Slippers and socks.** The slippers are the knitted cow-head slippers cut from the Shy Cow model: low, round, popcorn-knit heads with horns, ears and a smiling white face on a fuzzy black rim. The costume is tights with black socks over the feet, pushed into the slippers. So below the calf the leggings are plain black knit, with no painted spots, and end in a ribbed cuff that stands slightly proud. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. The v04 slippers had a tall black padded collar that read as a boot.
 - **Gloves.** The gloves were rebuilt from the close-up glove photos (`gloves.py`):
@@ -88,6 +90,12 @@ Where a sleeve meets the torso, both pieces are shaded with the normals of one s
 
 **Hands that don't connect (fixed).** Each glove's cuff tucks up inside its sleeve end. The sleeve and the glove are weighted by the same function of position along the forearm, so they move as one. In the wing pose the fists follow the forearm instead of being bent 90° at the wrist. v08's flared cuff ring and its halo strands were removed, because at this scale they z-fought with the sleeve.
 
+**Glitching arms (fixed).** In Exasperated, Crying and the Chicken Dance a forearm sometimes spun half a turn in a single frame. The wrist twist was read from a rotation whose sign can flip, and when the hoof was rolled far over (palms up in the fling, on the face in the face-palm), the twist given to the forearm jumped by 180°. It is now kept continuous over time. The largest forearm rotation between frames fell from 178° to 15–30° in every animation. Two other jerks are smoothed out as well:
+- an elbow pop when an arm moved in from just out of reach (at the start of Exasperated's fling);
+- a corner in the hands' path round the cups (Look Around, Crying and the face-palm).
+
+Peak hand acceleration fell from 82 to 23 m/s² in Look Around, from 53 to 12 in Crying and from 38 to 18 in Exasperated.
+
 **Clipping (fixed).**
 - Each elbow swings around its shoulder-wrist line to stay clear of the udder cups and torso. The swing is chosen frame by frame from a collision cost and kept continuous with a Viterbi pass, then smoothed around the loop.
 - Half-rotation helper joints at the sleeve head and the elbow keep both joints full when they bend.
@@ -98,6 +106,7 @@ Where a sleeve meets the torso, both pieces are shaded with the normals of one s
 **Light physics (baked).** glTF has no live physics, so damped springs are simulated over three loops of each animation and the last loop is baked into the bones. It plays in any glTF viewer and every animation loops seamlessly.
 - **Teats:** each teat swings on its own bone and collides with the belly. In the dance it peaks at about 20° and averages about 5°.
 - **Shag patches:** six spring bones drag the tuft tips, with up to about 4 cm of lag at the elbows.
+- **Tail cord:** a 12-segment rope pinned to the bow, plus a 13th segment for the plug. It has gravity, damping and a little stiffness, so a lamp cord never folds sharply. It collides with the seat, thighs, shins, slippers and the floor, with friction, so it swings behind the walk and coils on the floor when she sits. Every segment keeps its exact length: the plug tips over and lies down rather than poking through the floor. The rope is simulated over three loops, and the last loop is cross-faded into the one before it, so its end state meets its start and the animation loops seamlessly.
 - **Belly and cups:** they jiggle; the cups are kept from sinking into the belly.
 
 ## Tripo references
@@ -154,28 +163,28 @@ The **default pose** is the rest pose: arms relaxed and down at the sides. In th
 
 All depths are the 99.5th percentile over every frame.
 
-| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Leggings stretch, worst frame | Lowest slipper point |
-|---|---|---|---|---|---|
-| Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor |
-| Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor |
-| Run | 0 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor |
-| Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor |
-| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor |
-| Look Around | 2.0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor |
-| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.17× | 3.0 mm above floor |
-| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.38× | 2.9 mm above floor |
-| Crouch and Sit | 19.7 mm | 0 mm | 0 mm | 5.14× | 2.7 mm above floor |
-| Crying | 2.0 mm | 0 mm | 0 mm | 1.71× | 3.0 mm above floor |
-| Exasperated | 2.7 mm | 0 mm | 0 mm | 1.32× | 3.0 mm above floor |
-| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor |
-| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.44× | 2.7 mm above floor |
-| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.24× | 3.0 mm above floor |
-| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor |
-| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor |
-| Look Around (alt) | 4.6 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.2 mm | 2.14× | 3.0 mm above floor |
+| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Leggings stretch, worst frame | Lowest slipper point | Lowest tail point (cord or plug) |
+|---|---|---|---|---|---|---|
+| Idle | 0 mm | 0 mm | 0 mm | 1.18× | 3.0 mm above floor | 18.8 mm above floor |
+| Walk | 0 mm | 0 mm | 0 mm | 2.59× | 2.8 mm above floor | 10.3 mm above floor |
+| Run | 0 mm | 0.2 mm | 0 mm | 3.61× | 2.7 mm above floor | 5.7 mm above floor |
+| Sneak | 0 mm | 0 mm | 0 mm | 3.64× | 2.6 mm above floor | 6.3 mm above floor |
+| Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.23× | 3.0 mm above floor | 4.3 mm above floor |
+| Look Around | 0 mm | 0 mm | 0 mm | 1.28× | 3.0 mm above floor | 15.1 mm above floor |
+| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.17× | 3.0 mm above floor | 1.3 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 2.38× | 2.9 mm above floor | 3.6 mm above floor |
+| Crouch and Sit | 19.7 mm | 0 mm | 0 mm | 5.14× | 2.7 mm above floor | 2.5 mm below floor |
+| Crying | 0 mm | 0 mm | 0 mm | 1.71× | 3.0 mm above floor | 12.6 mm above floor |
+| Exasperated | 0 mm | 0 mm | 0 mm | 1.32× | 3.0 mm above floor | 14.8 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 13.0 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 2.44× | 2.7 mm above floor | 3.9 mm above floor |
+| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.24× | 3.0 mm above floor | 3.6 mm above floor |
+| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.30× | 2.4 mm above floor | 7.4 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.22× | 3.0 mm above floor | 6.7 mm above floor |
+| Look Around (alt) | 0 mm | 0 mm | 0 mm | 1.50× | 3.0 mm above floor | 11.0 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.8 mm | 2.2 mm | 2.14× | 3.0 mm above floor | 0.3 mm below floor |
 
-The figures of 2 to 5 mm (Look Around, Crying, Exasperated) are the relaxed arms resting against the plush sides of the torso. Crouch and Sit is higher, 19.7 mm, because at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats now touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. In Crying the hooves press about 7 mm into the mask at the eyes; in Exasperated they stay clear. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
+The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 19.7 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. In Crying the hooves press about 7 mm into the mask at the eyes; in Exasperated they stay clear. The tail's plug rests within 2.5 mm of the floor when it lies down; its corners can dip that far as it rolls. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
 In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove distance never changes by more than 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The new hooves reach about 22 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
@@ -186,7 +195,7 @@ In every animation the gloves stay tucked into the sleeves: the sleeve-to-glove 
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
 | Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
-| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.80× |
+| Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.56× |
 | Sleeve end to glove distance, at rest and at the worst frame | not measured | 23.9 mm and 24.2 mm (the slimmer mitten wrist sits loosely inside the sleeve end) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
 | Clap contact gap | not measured | 0.8 mm |
@@ -197,18 +206,19 @@ Most of the remaining sleeve stretch is on the outside of the elbow at the top o
 
 ## The rig
 
-There are 40 joints:
+There are 54 joints:
 - **Spine and head:** Hips, Spine, Belly, Chest, Neck, Head.
 - **Each side:** Shoulder (clavicle), UpperArm, Forearm, Hand, HoofFingers, Thumb, Thigh, Shin and Foot.
 - **Udder:** one Udder bone per cup.
 - **Helpers:** UpperArmRoot and Elbow on each side. Each takes half its joint's rotation.
 - **Teats:** four bones (Teat_L/R_bottom, Teat_L/R_outer).
 - **Shag:** six patch bones (Shag_chest_R, Shag_belly, Shag_back_upper_R, Shag_back_lower_L, Shag_elbow_L, Shag_elbow_R).
+- **Tail:** Tail_bow (rigid on the Hips), a chain of 12 cord bones (Tail_cord_1 to Tail_cord_12) and Tail_plug.
 
-The teat, shag, belly and udder bones carry the baked physics. If you use the rig in a game engine, those 12 bones are the ones to put live spring or "jiggle" components on; the dance clip then only needs the body bones. Bind rotations are identity, and all inverse bind matrices are translations.
+The teat, shag, belly and udder bones carry the baked physics. If you use the rig in a game engine, those 12 bones and the 13 cord and plug bones are the ones to put live spring or "jiggle" components on; the dance clip then only needs the body bones. Bind rotations are identity, and all inverse bind matrices are translations.
 
 The solver is shared by all the animations:
-- **Arms:** IK or FK, with the elbow swivel for collision avoidance.
+- **Arms:** IK or FK, with the elbow swivel for collision avoidance. The IK is soft for the last 2 cm of reach, so an arm straightens gradually instead of the elbow popping when a target moves in from just out of reach. The wrist twist is kept continuous from frame to frame, and half of it goes to the forearm, so a hoof rolled far over never flips the forearm half a turn. Hand reaches that travel round the cups (shading the eyes, the face-palms) follow B-spline paths with no corners.
 - **Legs:** foot IK with heel and toe contact.
 - **Helpers:** the half-rotation joints.
 - **Physics:** the baked springs.
@@ -252,6 +262,7 @@ Where things live:
 - `textures.py`: shag patch and spot placement;
 - `gloves.py`: the hoof gloves and their terry and hoof-paint textures;
 - `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
+- `tail.py`: the bow, the cord and plug meshes, and the cord's rope simulation;
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
@@ -266,7 +277,7 @@ To view them locally, run `python3 -m http.server` inside `viewer/` and open the
 - The proportions come from photos at an assumed 1.6 m height. Nothing was measured from the costume.
 - The side-jaw photo projection on the mask is still stretched in pure side views, as in v09.
 - The black shag is a texture plus alpha-cut lock cards, not a simulated groom. In a web viewer the cards use an alpha test, so very thin tips can flicker when the model is small on screen. The viewer lowers the cutoff and turns on anisotropic filtering to reduce this.
-- The physics is baked springs, not live simulation. Only the teats collide with anything (the belly).
+- The physics is baked springs, not live simulation. Only the teats (with the belly) and the tail cord (with the seat, legs, slippers and floor) collide with anything. The cord does not collide with the arms or with itself.
 - Locomotion plays in place; feet slide back during stance like a treadmill, so add root motion in your engine.
 - There's no cloth simulation. The suit deforms by skinning only.
 - The elbow stretch noted above remains.

@@ -6,8 +6,10 @@ import numpy as np
 from scipy.spatial.transform import Rotation, Slerp
 import design as D
 import rig as RG
+import tail as TL
 
 FPS = 30
+SOFT_REACH = .02        # soft-IK band at full arm reach (m)
 DURATION = 12.0
 PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps']
 
@@ -35,8 +37,14 @@ def frame(direction, normal):
     return np.stack([x, z, np.cross(x, z)], 1)
 
 
-def ik(a, target, l1, l2, pole, swivel=0.0):
+def ik(a, target, l1, l2, pole, swivel=0.0, soft=0.0):
     d = target - a; dist = np.linalg.norm(d); d /= dist
+    if soft:
+        # soft IK: near full reach the arm straightens gradually instead of snapping, so the elbow
+        # never pops when a target moves in from just out of reach
+        s0 = l1 + l2 - soft
+        if dist > s0:
+            dist = s0 + soft * (1 - np.exp(-(dist - s0) / soft))
     dist = np.clip(dist, abs(l1 - l2) + 1e-3, l1 + l2 - 1e-3)
     wrist = a + d * dist
     along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist)
@@ -90,6 +98,7 @@ class Dance:
             self.flex_sign[side] = 1 if (rot(hinge, .4) @ df)[2] > df[2] else -1
         # slipper contact points relative to the ankle (heel and toe), for keeping soles on the floor
         self.sole = sole_points()
+        self._twist = {}
 
     def ankle_height(self, pitch):
         """Ankle height that keeps the lowest point of the slipper sole on the floor at this pitch."""
@@ -213,9 +222,9 @@ class Dance:
         for i, t in enumerate(times):
             G, arm = self.pose(t, solve=True)
             for side in 'LR':
-                sh, target, l1, l2, pole = arm[side]
+                sh, target, l1, l2, pole, soft = arm[side]
                 for c, phi in enumerate(cand):
-                    el, wr = ik(sh, target, l1, l2, pole, phi)
+                    el, wr = ik(sh, target, l1, l2, pole, phi, soft)
                     costs[side][i, c] = self.arm_cost(G, sh, el, wr) + 2e-4 * phi * phi
         for side in 'LR':
             C = costs[side]
@@ -322,8 +331,9 @@ class Dance:
                 w = p.get('world_w', {}).get(side, 1.)
                 target = target * (1 - w) + np.asarray(p['hand_world'][side], float) * w
                 pole = pole * (1 - w) + np.asarray(p['pole_world'][side], float) * w
-            arm_in[side] = (sh, target, l1, l2, pole)
-            elbow, wrist = ik(sh, target, l1, l2, pole, self.swivel_at(t, side))
+            soft = 0. if side in p.get('fk', {}) else SOFT_REACH     # FK targets are exactly reachable
+            arm_in[side] = (sh, target, l1, l2, pole, soft)
+            elbow, wrist = ik(sh, target, l1, l2, pole, self.swivel_at(t, side), soft)
             bu = B[a['fore']] - B[a['upper']]; bf = B[a['hand']] - B[a['fore']]
             hinge_b = np.cross(bu, bf); hinge_b /= np.linalg.norm(hinge_b)
             nu = elbow - sh; nf = wrist - elbow
@@ -344,8 +354,16 @@ class Dance:
             Rhand = resolve(p['hrot'][side])
             rel = Rf.T @ Rhand
             q = Rotation.from_matrix(rel).as_quat()
+            if q[3] < 0:
+                q = -q
             ax = bf / np.linalg.norm(bf)
             twist = 2 * np.arctan2(q[:3] @ ax, q[3])
+            # keep the wrist twist continuous from one sample to the next (poses are evaluated in time
+            # order), so a hand rolled near 180 degrees never flips the forearm half a turn
+            prev = self._twist.get(side)
+            if prev is not None:
+                twist += 2 * np.pi * np.round((prev - twist) / (2 * np.pi))
+            self._twist[side] = twist
             Rf = Rf @ rot(ax, .5 * twist)
             G[a['upper'], :3, :3] = Ru; G[a['upper'], :3, 3] = sh
             G[a['fore'], :3, :3] = Rf; G[a['fore'], :3, 3] = elbow
@@ -361,6 +379,17 @@ class Dance:
         for j, parent in zip(RG.SHAG, RG.SHAG_PARENTS):
             pi = RG.NAMES.index(parent)
             at(j, pi, G[pi, :3, :3])
+        # the tail: bow rigid on the hips; the cord follows the baked rope (or hangs rigidly without it)
+        Rh = G[RG.HIPS, :3, :3]
+        at(RG.TAIL_BOW, RG.HIPS, Rh)
+        rope = dyn.get('tail')
+        for i, j in enumerate(RG.TAIL):
+            if rope is None:
+                at(j, RG.PARENTS[j], Rh)
+            else:
+                rest = (B[RG.TAIL[i + 1]] if i + 1 < len(RG.TAIL) else B[j] + [0, -TL.PLUG_SEG, 0]) - B[j]
+                G[j, :3, :3] = align(rest, rope[i + 1] - rope[i])
+                G[j, :3, 3] = rope[i]
         if solve:
             return G, arm_in
         return G
@@ -434,12 +463,19 @@ class Dance:
                 dirs.append(dvec / np.linalg.norm(dvec))
                 o = tip - rest[i]
             teat_hist[j] = np.array(dirs)
+        # the tail cord: a rope pinned to the bow, colliding with the seat, legs, slippers and floor
+        anchors = np.array([g[RG.TAIL_BOW, :3, :3] @ (TL.ANCHOR - self.B[RG.TAIL_BOW]) + g[RG.TAIL_BOW, :3, 3] for g in posed])
+        rope = TL.simulate(anchors, posed, self.B, RG, fps)
         last = tt >= 2 * D_ - 1e-9
         idx = np.searchsorted(tt[last], (times % D_) + 2 * D_ - 1e-9).clip(0, last.sum() - 1)
+        per = int(round(D_ * fps))
         out = []
         for i in range(len(times)):
             k = np.nonzero(last)[0][idx[i]]
-            out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: teat_hist[j][k] for j in teat_hist}})
+            # cross-fade the third loop into the second over the clip, so the rope's end state meets its start
+            u = smooth(0, 1, (times[i] % D_) / D_)
+            out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: teat_hist[j][k] for j in teat_hist},
+                        'tail': TL.relength(rope[k] * (1 - u) + rope[max(k - per, 0)] * u)})
         return out
 
     def bake(self, fps=FPS):

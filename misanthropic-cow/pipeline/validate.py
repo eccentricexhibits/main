@@ -122,4 +122,25 @@ def validate(model, groups, B, Gs, mats, times, dance):
     if clap:
         m['clap_min_glove_distance_m'] = clap
     m['lowest_slipper_point_m'] = min(sole)
+    m.update(tail_metrics(model, groups, B, Gs, mats))
     return m
+
+
+def tail_metrics(model, groups, B, Gs, mats):
+    """Tail cord: lowest point over the clip (floor is y = 0) and deepest dip of a cord bone into
+    the leg and slipper capsules the rope collides with."""
+    import tail as TL
+    tail_idx = [i for i, g in enumerate(groups) if g == 'tail']
+    if not tail_idx:
+        return {}
+    low, into = 1e3, 0.
+    for k in range(0, len(Gs), 2):
+        P = posed(model, mats[k])
+        low = min(low, min(float(P[i]['v'][:, 1].min()) for i in tail_idx))
+        x = Gs[k][RG.TAIL, :3, 3]
+        for a, b, ra, rb in TL.body_capsules(Gs[k], B, RG):
+            ab = b - a
+            t = np.clip(((x - a) @ ab) / (ab @ ab), 0, 1)
+            d = np.linalg.norm(x - (a + t[:, None] * ab), axis=1) - (ra + (rb - ra) * t)
+            into = max(into, float(np.max(-d)))
+    return {'tail_lowest_point_m': low, 'tail_cord_into_legs_max_m': max(0., into)}

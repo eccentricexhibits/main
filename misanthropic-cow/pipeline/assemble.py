@@ -254,6 +254,29 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                  'material': gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side], 'group': f'glove_{side}'}
             q['W'] = RG.glove_weights(q, side)
             model.parts.append(q)
+    # --- tail: gold satin bow on the back of the hem, a lamp cord down to the floor, a two-prong plug
+    import tail as TL
+    tm = {'bow': model.add_material({'name': 'Tail_gold_satin_bow', 'pbrMetallicRoughness': {
+              'baseColorFactor': [.80, .56, .20, 1], 'metallicFactor': 0, 'roughnessFactor': .34}, 'extensions': SHEEN(.55, .35)}),
+          'cord': model.add_material({'name': 'Tail_tan_lamp_cord_plastic', 'pbrMetallicRoughness': {
+              'baseColorFactor': [.72, .52, .24, 1], 'metallicFactor': 0, 'roughnessFactor': .38}})}
+    tm['plug'] = tm['cord']
+    tm['blades'] = model.add_material({'name': 'Tail_plug_brass_blades', 'pbrMetallicRoughness': {
+        'baseColorFactor': [.86, .72, .45, 1], 'metallicFactor': 1, 'roughnessFactor': .32}})
+    tail_parts = TL.build(step=.0011 if quick else .0008)
+    cv, cf, cuv, cs = TL.cord_mesh()
+    tail_parts.append(('Tail_tan_lamp_cord', cv, cf, 'cord'))
+    for name, v, f, kind in tail_parts:
+        n = S.vertex_normals(v, f)
+        if kind == 'cord':
+            W = TL.cord_weights(cs, RG.NB, RG.TAIL_BOW, RG.TAIL)
+            uv = cuv
+        else:
+            W = np.zeros((len(v), RG.NB)); W[:, RG.TAIL_BOW if kind == 'bow' else RG.TAIL[-1]] = 1
+            uv = None
+        model.parts.append({'name': name, 'v': v.astype(np.float32), 'n': n.astype(np.float32), 'f': f.astype(np.int32),
+                            'uv': None if uv is None else uv.astype(np.float32), 'uv1': None,
+                            'ao': np.ones(len(v), np.float32), 'material': tm[kind], 'group': 'tail', 'W': W})
     report['triangles'] = int(sum(len(p['f']) for p in model.parts))
     report['vertices'] = int(sum(len(p['v']) for p in model.parts))
     return model, report

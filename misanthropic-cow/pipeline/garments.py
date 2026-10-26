@@ -224,10 +224,17 @@ def build_leggings(step=.0040, target=90000):
 
 
 def leg_opening(p):
-    """Height of the panty leg opening: low at the crotch, rising over the hip."""
-    x = np.abs(p[..., 0])
-    back = np.clip(-(p[..., 2] + .02) / .12, 0, 1)
-    return .728 + .128 * np.clip(x / .185, 0, 1) ** 1.25 + .012 * back
+    """Height of the panty leg opening, cut like full-coverage briefs: a gusset under the crotch, the
+    leg line running diagonally from the gusset up to the hip at the front, and at the back round
+    under the seat (the gluteal fold) before rising up the side."""
+    x, z = np.abs(p[..., 0]), p[..., 2]
+    t = np.clip((x - .032) / (.185 - .032), 0, 1)
+    front = .600 + .256 * t ** 1.15
+    sm = lambda a, b, u: (lambda w: w * w * (3 - 2 * w))(np.clip((u - a) / (b - a), 0, 1))
+    u = np.clip((x - .032) / (.110 - .032), 0, 1)
+    back = .600 + .092 * (1 - (1 - u) ** 1.4) + .164 * sm(.55, 1, t) ** 1.3     # follows each buttock's underside
+    w = sm(.01, -.08, z)
+    return front * (1 - w) + back * w
 
 
 def build_panties(leg):

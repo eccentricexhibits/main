@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (11.6 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (11.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -147,9 +147,10 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li>From your Tripo <strong>Blue Shirt</strong>: bigger, lower, pillow-shaped udder cups that hang forward like teardrops. The two cups aren't identical, and the teats are longer and sit at different angles. The cloth puckers where each teat is sewn on. The belly is fuller and sags over the panty band in a soft fold, over wider hips.</li>
-          <li>From your Tripo <strong>Shy Cow</strong>: hooves shaped like real cloven hooves (domed, curling over the fingertips, very dark brown) on a heathered terry mitten. The sleeves now fold and bunch at the elbows and cuffs.</li>
-          <li>Shy Cow&rsquo;s knitted cow-head slippers, cut from its model with their own texture. Black socks with a ribbed cuff rise out of them into the tights.</li>
+          <li><strong>Tail:</strong> a gold satin bow tied on at the back of the hem. A tan lamp cord hangs from it nearly to the floor and ends in a two-prong plug. The cord is a simulated rope: it swings behind the walk, bumps off the legs and coils on the floor when she sits.</li>
+          <li><strong>Panties:</strong> they now cover the crotch like real briefs. A gusset runs between the legs, the leg line runs diagonally from the gusset up to the hip at the front, and at the back it follows the underside of each buttock.</li>
+          <li><strong>Arm glitches fixed:</strong> in Exasperated (and in Crying and the Chicken Dance) a forearm sometimes spun half a turn in one frame. The elbow also popped as the fling started, and the hands' path round the cups had a corner. All three are smoothed out.</li>
+          <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
           <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
         </ul>
       </section>
@@ -164,18 +165,18 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
             <tr><td>Run</td><td>0 mm</td><td>0.2 mm</td><td>2.7 mm</td></tr>
             <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>2.6 mm</td></tr>
             <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Look Around</td><td>2.0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Chicken Dance</td><td>0 mm</td><td>2.7 mm</td><td>3.0 mm</td></tr>
             <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>2.9 mm</td></tr>
             <tr><td>Crouch and Sit</td><td>19.7 mm</td><td>0 mm</td><td>2.7 mm</td></tr>
-            <tr><td>Crying</td><td>2.0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Exasperated</td><td>2.7 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>2.7 mm</td></tr>
             <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>3.8 mm</td><td>3.0 mm</td></tr>
             <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>2.3 mm</td><td>2.4 mm</td></tr>
             <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Look Around <span class="note">alt</span></td><td>4.6 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>5.8 mm</td><td>3.0 mm</td></tr>
           </tbody>
         </table>
@@ -298,7 +299,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (7.9 MB)...';
+    status.textContent = 'Loading the simplified copy (8.0 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

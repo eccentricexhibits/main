@@ -212,15 +212,9 @@ class LookAround(AN.Dance):
             pole_rest = self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])
             brow = neck + rot([0, 1, 0], yaw) @ (np.array([s * .035, 1.585, .25]) - neck)
             # out and up at the side first (clear of the cup), then in over the brow (clear of the muzzle)
-            side_hi = np.array([s * .40, 1.52, .04])
-            if shade < .5:
-                u = shade / .5
-                c1 = np.array([s * .47, 1.12, -.02])
-                tgt = rest * (1 - u) ** 2 + c1 * 2 * u * (1 - u) + side_hi * u * u
-            else:
-                u = (shade - .5) / .5
-                c2 = neck + rot([0, 1, 0], yaw) @ (np.array([s * .24, 1.66, .20]) - neck)
-                tgt = side_hi * (1 - u) ** 2 + c2 * 2 * u * (1 - u) + brow * u * u
+            c1 = np.array([s * .47, 1.12, -.02])
+            c2 = neck + rot([0, 1, 0], yaw) @ (np.array([s * .24, 1.66, .20]) - neck)
+            tgt = bspline_reach(rest, c1, c2, brow, shade)
             p['hand'][side] = tgt + np.array([0, 0, .02 * lean]) * (1 - shade)
             p['pole'][side] = pole_rest * (1 - shade) + np.array([s * .60, 1.40, -.12]) * shade
             flat = self.hand_rot(side, rot([0, 1, 0], yaw) @ np.array([-s, .12, .30]), [0, -1, 0])
@@ -252,13 +246,23 @@ def head_point(clip, p, P):
     return Rh @ (np.asarray(P, float) - B[RG.HEAD]) + head, Rh
 
 
-def bezier_reach(rest, side_lo, side_hi, c2, end, u):
-    """Hand path from rest, out round the side of the cup, up, then in to `end` (u in 0..1)."""
+def bspline_reach(rest, c1, c2, end, u):
+    """Hand path from rest to `end` (u in 0..1) along a quadratic B-spline with control points
+    rest, c1, c2, end: two arcs that meet half-way between c1 and c2 with a shared tangent, so the
+    hand never changes direction abruptly."""
+    m = (c1 + c2) / 2
     if u < .5:
         a = u / .5
-        return rest * (1 - a) ** 2 + side_lo * 2 * a * (1 - a) + side_hi * a * a
+        return rest * (1 - a) ** 2 + c1 * 2 * a * (1 - a) + m * a * a
     a = (u - .5) / .5
-    return side_hi * (1 - a) ** 2 + c2 * 2 * a * (1 - a) + end * a * a
+    return m * (1 - a) ** 2 + c2 * 2 * a * (1 - a) + end * a * a
+
+
+def bezier_reach(rest, side_lo, side_hi, c2, end, u):
+    """Hand path from rest, out round the side of the cup, up, then in to `end` (u in 0..1).
+    It runs as a B-spline over side_lo and c2, which keeps it smooth through the turn; side_hi (the
+    old join point) is kept in the signature for the callers' readability."""
+    return bspline_reach(rest, side_lo, c2, end, u)
 
 
 def keyed(keys, t, duration, fields):
