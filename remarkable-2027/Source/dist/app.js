@@ -27,7 +27,7 @@
 
   function closing() {
     return `<section class="closing" aria-labelledby="closing-title"><div class="wrap closing-inner">
-      <div class="closing-copy"><h2 id="closing-title">Be part of<br>what comes next.</h2><div class="closing-actions" role="group" aria-label="Choose how to attend"><button class="attendance-option" data-register="inperson" aria-label="Register in person"><span class="attendance-copy"><span class="attendance-title">Register in person</span><span class="attendance-detail">Hilton Toronto</span></span>${arrow('attendance-arrow')}</button><button class="attendance-option" data-register="virtual" aria-label="Join virtually"><span class="attendance-copy"><span class="attendance-title">Join virtually</span><span class="attendance-detail">Main-stage livestream</span></span>${arrow('attendance-arrow')}</button></div></div>
+      <div class="closing-copy"><h2 id="closing-title">Be part of<br>what comes next.</h2><div class="closing-actions">${registerButton('Register now','closing-register','choose')}</div></div>
       ${pixels('closing-pixels')}
     </div></section>`;
   }

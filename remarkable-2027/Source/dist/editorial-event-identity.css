@@ -6,7 +6,7 @@
    position:relative (not static) keeps the gradient rule anchored under the header. */
 .site-header{position:relative;}
 .site-header {background:var(--event-ink);color:#fff;border-bottom:0;}
-.site-header:after {content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--event-glow);pointer-events:none;}
+.site-header:after {content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--event-glow);pointer-events:none;}
 /* Inside pages: header and title panel read as one black block; its rule sits at the panel's lower edge. */
 body:not([data-page="index"]) .site-header:after {display:none;}
 .site-nav>a {color:#fff;}
@@ -21,9 +21,9 @@ body:not([data-page="index"]) .site-header:after {display:none;}
 /* The three black opening sections retain the original title layouts. */
 body:not([data-page="index"]) .inner-hero {position:relative;isolation:isolate;color:#fff;}
 body:not([data-page="index"]) .inner-hero:before {content:"";position:absolute;z-index:-2;inset:0 calc(50% - 50vw);background:radial-gradient(ellipse 48% 105% at 98% 2%,rgba(146,29,136,.18),transparent 87%),var(--event-ink);}
-body:not([data-page="index"]) .inner-hero:after {content:"";position:absolute;z-index:-1;left:calc(50% - 50vw);right:calc(50% - 50vw);bottom:0;height:6px;background:var(--event-glow);}
+body:not([data-page="index"]) .inner-hero:after {content:"";position:absolute;z-index:-1;left:calc(50% - 50vw);right:calc(50% - 50vw);bottom:0;height:4px;background:var(--event-glow);}
 body:not([data-page="index"]) .edition-row {border-bottom-color:rgba(255,255,255,.28);}
-body:not([data-page="index"]) .edition-row>a>span {color:#ff56b9;}
+body:not([data-page="index"]) .edition-row>a>span {color:var(--magenta);}
 body:not([data-page="index"]) .inner-title-row .eyebrow {color:var(--magenta);}
 
 /* Matching foreground/ghost shape stacks: the ghost is a true offset of the same silhouette. */
@@ -31,7 +31,7 @@ body:not([data-page="index"]) .inner-title-row .eyebrow {color:var(--magenta);}
 .ornament-stack{position:relative;display:block;flex-shrink:0;overflow:visible;isolation:isolate;}
 .ornament-stack>.ornament-solid,.ornament-stack>.ornament-shadow{position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none;display:block;}
 .ornament-stack>.ornament-solid{z-index:2;background:var(--magenta);}
-.ornament-stack>.ornament-shadow{z-index:1;background:rgba(235,8,138,.24);transform:translate(var(--sx,13px),var(--sy,14px));pointer-events:none;}
+.ornament-stack>.ornament-shadow{z-index:1;background:rgba(235,8,138,.17);transform:translate(var(--sx,13px),var(--sy,14px));pointer-events:none;}
 .ornament-stack.agenda-hero-pluses{width:clamp(110px,13vw,175px);aspect-ratio:400/330;margin:0 22px 8px 20px;align-self:center;}
 .ornament-stack.speaker-hero-pixels{aspect-ratio:2160.8701/1811;}
 .ornament-stack.faq-hero-arrow{aspect-ratio:876.8442/1243.8169;}
@@ -48,7 +48,7 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 
 /* Restore the black footer with a full-width lower gradient rule. */
 .site-footer {background:var(--event-ink);color:#fff;position:relative;padding-bottom:30px;}
-.site-footer:before {content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--event-glow);}
+.site-footer:before {content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--event-glow);}
 .site-footer .footer-links,.site-footer .footer-bottom {border-color:rgba(255,255,255,.24);}
 .site-footer .footer-contact>a {border-bottom-color:rgba(255,255,255,.70);}
 .site-footer .legal,.site-footer .footer-bottom {color:#dad3dc;}
@@ -101,3 +101,39 @@ body:not([data-page="index"]) .inner-title-row>.ornament-stack {position:absolut
 
 /* Home: the "B" of "Brilliant minds." carries a wide built-in side-bearing; pull it back to the label edge. */
 .home-speakers .display-heading {margin-left:-.07em;}
+
+/* Stats caption in magenta. */
+.stats-header p {color:var(--magenta);}
+
+/* Optical left alignment: large letters carry built-in side-bearings (R about .07em, S/G about .035em),
+   which pushed these headings right of the small labels and body text that share their left edge. */
+.event-title {margin-left:-.073em;}
+.hero-year {margin-left:-.006em;}
+.hero-date {margin-left:-.06em;}
+.day-number {margin-left:-.036em;}
+.edition-row>a {margin-left:-.055em;}
+.venue-section h2 {margin-left:-.062em;}
+body[data-page="speakers"] .inner-title-row h1 {margin-left:-.031em;}
+body[data-page="faq"] .inner-title-row h1 {margin-left:-.034em;}
+
+/* Closing panel: one Register now action in place of the two-option attendance bar. */
+.closing .closing-register {background:#fff;color:#000;font-size:28px;font-weight:600;min-height:80px;padding:22px 34px;gap:60px;border-radius:12px;box-shadow:0 10px 28px rgba(28,0,44,.16);}
+.closing .closing-register .button-arrow {width:18px;background:#000;transition:transform .22s;}
+.closing .closing-register:hover {background:#000;color:#fff;}
+.closing .closing-register:hover .button-arrow {background:#fff;transform:translate(3px,-4px);}
+.closing .closing-register:focus-visible {outline:3px solid #000;outline-offset:3px;}
+@media(max-width:600px) {
+ .closing .closing-register {font-size:21px;min-height:62px;padding:16px 22px;gap:32px;width:100%;}
+ .closing .closing-register .button-arrow {width:15px;}
+}
+.closing .closing-actions {display:flex;background:none;box-shadow:none;max-width:none;overflow:visible;border-radius:0;}
+
+/* Home people section: "Remarkable AI" gradient artwork (gradient + AI letterforms + plus field).
+   The letterforms and pluses blend with "lighten", as in the supplied artwork. */
+.home-speakers {position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(48deg,#e9078b 6%,#e4088c 11%,#cc128e 20%,#b21b91 30%,#9a2294 40%,#852996 50%,#722e98 60%,#633299 70%,#58359a 80%,#52379b 89%);}
+.home-speakers:before,.home-speakers:after {content:"";position:absolute;z-index:-1;pointer-events:none;mix-blend-mode:lighten;background-repeat:no-repeat;background-size:contain;background-position:center bottom;}
+.home-speakers:before {left:-6%;right:-6%;bottom:0;aspect-ratio:1796.71/277.957;background-image:url('assets/brand-elements/remarkable-plus-field.png');opacity:.7;}
+@media(max-width:860px) {.home-speakers:before {left:-45%;right:-45%;}}
+.home-speakers:after {left:50%;bottom:0;width:clamp(150px,23vw,380px);aspect-ratio:357.436/219.365;transform:translateX(-50%);background-image:url('assets/brand-elements/remarkable-ai-symbol.png');opacity:.85;}
+/* Room under the speaker cards for the AI letterforms and plus field. */
+.home-speakers>.section-space {padding-bottom:clamp(150px,15vw,230px);}

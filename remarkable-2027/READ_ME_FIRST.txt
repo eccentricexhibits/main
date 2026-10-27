@@ -33,6 +33,22 @@ ROUND 2
 - Bold text: weights in the CSS are unchanged; headings use Karbon Medium (500). Without the
   Medium font file they fall back to Regular and look unbolded, so keep Karbon-Medium.woff in fonts/.
 
+ROUND 3
+- Closing panel ("Be part of what comes next."): one white "Register now" button replaces the
+  two-option bar; it opens the registration dialog, which still offers in-person and virtual.
+- Gradient rules around the black sections are thinner (6px -> 4px).
+- Shadow shapes on Agenda / Speakers / FAQ are lighter (24% -> 17% opacity).
+- "2027" in the Agenda / Speakers / FAQ "Remarkable 2027" line is the brand magenta (#EB088A).
+- "Remarkable 2026 by the numbers" is magenta.
+- Optical left alignment: large letters (R, S, G, B and the 0 of the day numbers) have built-in
+  side space, so the big "Remarkable", "2027.", hero date, day numbers, "Remarkable 2027" line,
+  "Speakers." / "Good questions." and "Right at the heart of it." are pulled left to share the
+  exact left edge of the small labels (checked to within 0.5px at 1440 and 390px).
+- Home people section uses the new "Remarkable AI" artwork: the gradient is rebuilt in CSS, and the
+  AI letterforms and plus field (assets/brand-elements/remarkable-ai-symbol.png and
+  remarkable-plus-field.png, exported from the supplied PDFs) sit along the bottom edge, blended
+  with "lighten" as in the artwork. Extra space below the cards keeps the letterforms visible.
+
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
 
