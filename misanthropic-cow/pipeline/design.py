@@ -110,7 +110,7 @@ def suit_parts(p, torso_only=False):
     back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
-    torso = S.smin(torso, belly, .10)
+    torso = S.smin(torso, belly, .15)          # a soft, round join where the belly meets the sides
     torso = S.smin(torso, neck, .05)
     # neckline: the torso garment stops at the base of the neck; the hood's neck tucks inside it
     torso = S.smax(torso, p[..., 1] - 1.405, .02)
@@ -121,7 +121,9 @@ def suit_parts(p, torso_only=False):
     # panty waistband as a lip, rather than the back ending flat (owner's note)
     roll = S.ellipsoid(p, (0, BACK_ROLL_Y, -.128), (.170, .052, .082))
     torso = S.smin(torso, roll, .035)
-    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2 - .048 * np.clip((-.06 - z) / .08, 0, 1)   # tucked lower under the roll
+    # the hem rises gently round the sides, so the bottom of the belly stays round instead of being sliced
+    # off on a diagonal (owner's note); at the back it ends where it did, tucked under the roll
+    hem = .768 + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
     torso = S.smax(torso, hem - p[..., 1], .08)
     out['torso'] = torso          # the trunk: what the arms are kept clear of
     if torso_only:

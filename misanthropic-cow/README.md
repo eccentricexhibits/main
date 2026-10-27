@@ -48,6 +48,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - settle into a lobe that hangs forward and down, so from the side each cup is a teardrop with the bottom teat at its lower front tip;
   - are hand-made and not identical: the character's left cup is slightly larger, lower and further out, and the teats sit at different angles on the two sides;
   - have teats that stand out about 7 cm, with the cloth puckered in radial folds round each teat where it is sewn on.
+  - are closed at every teat tip. The two forward teats used to reach past the edge of the volume the udder was meshed in, which left a hole in each tip.
 - The black shag follows the patch layout in the photos:
   - upper chest and shoulder on the wearer's right;
   - low belly;
@@ -58,10 +59,11 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
+- The sides of the belly are rounded off (owner's note). The belly blends into the sides with a wider, softer join, and the suit's hem rises more gently round the sides, so the bottom of the belly stays round from the side instead of being cut off on a steep diagonal. At the back the hem still tucks under the roll of back fat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
 - **Legs.** The legs are separated a little more (owner's note). Each thigh's axis sits 2.4 cm out from the hip joint, and the thigh is slimmer at the top, so the hips keep their width while the inner thighs part below a natural crotch at about 0.71 m, as in the Blue Shirt photo. Before, the thighs overlapped down to 0.66 m and left only a narrow slot below.
 - **Panties.** The briefs are their own surface over the leggings and follow the contours of the hips, thighs and crotch. They ease a little over the front of the crotch and span the cleft of the seat, as stretched fabric does.
-  - **Front:** the leg line runs low and nearly straight across the tops of the thighs (about 0.69 m) and rises into the crotch at the middle and at the outer hip. The briefs show as a band below the belly, as in the photos, and stay in view while walking.
+  - **Front:** cut like full briefs, following the owner's reference photos and videos of the same kind of briefs worn over black tights. Each leg line runs diagonally from a gusset about 7 cm wide at the crotch up to high on the hip (about 0.87 m), so the front panel is a wide trapezoid narrowing into the crotch and the tights show in a V on the front of each thigh. Earlier the front was a low band straight across the tops of the thighs.
   - **Back:** the leg line runs diagonally from the hip down across each cheek, leaving the lower outer cheeks in leggings.
   - **Gusset:** a strip under the crotch joins front and back and wraps just onto the tops of the inner thighs, so the crotch shows pink when the legs spread (Jumping Jacks).
   - **Fabric cues:** the briefs sit 4.5 mm proud of the leggings. The leg openings are cut exactly along those lines and finished with rolled elastic edges about 3 mm proud, with the fabric just inside gathered into small ruches. The leggings take a contact shadow along every edge, so the briefs read as a layer on top rather than a painted-on texture. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere.

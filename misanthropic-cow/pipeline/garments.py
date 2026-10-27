@@ -247,13 +247,15 @@ def panty_sdf(p):
 
 
 def leg_opening(p):
-    """Height of the leg openings, cut like the briefs in the photos.  At the front the leg line runs
-    low and nearly straight across the tops of the thighs (about 0.69 m), rising into the crotch at
-    the middle and at the outer hip, so the briefs show as a band below the belly.  At the back it runs diagonally from the hip down across each cheek, leaving the lower
-    outer cheeks in leggings.  The gusset (below) joins front and back under the crotch."""
+    """Height of the leg openings, cut like full briefs (the owner's reference photos and videos of
+    the same kind of briefs worn over black tights).  At the front each leg line runs diagonally
+    from a gusset about 7 cm wide at the crotch up to high on the hip, so the front panel is a wide
+    trapezoid narrowing into the crotch and the tights show in a V on the front of each thigh.  At
+    the back it runs diagonally from the hip down across each cheek to the gluteal fold, leaving the
+    lower outer cheeks in leggings.  The gusset (below) joins front and back under the crotch."""
     x, z = np.abs(p[..., 0]), p[..., 2]
-    t = np.clip(x / .19, 0, 1)
-    front = .688 + .012 * _sm(0, .5, t) + .115 * _sm(.55, 1, t) ** 1.6 + .055 * _sm(.050, .012, x)   # up into the crotch
+    t = np.clip((x - .035) / .155, 0, 1)
+    front = .700 + .165 * t ** 1.25
     tb = np.clip((x - .02) / .175, 0, 1)
     back = .735 + .110 * tb ** 1.1
     wb = _sm(.0, -.075, z)
@@ -352,7 +354,7 @@ def build_panties(step=.0035, target=45000):
 
 # ---------------------------------------------------------------- udder
 def build_udder(step=.0028, target=50000):
-    v, f = mesh_from(D.udder_sdf, (-.34, .97, -.07), (.34, 1.34, .31), step, target, smooth=4)
+    v, f = mesh_from(D.udder_sdf, (-.34, .97, -.07), (.34, 1.34, .37), step, target, smooth=4)   # room for the forward teats' tips
     # stuffed-cloth softness: shallow wrinkles + a gathered seam ring where each cup meets the suit
     n = S.vertex_normals(v, f)
     wr = N.fbm(v * np.array([30, 55, 30]), 3, seed=31)
