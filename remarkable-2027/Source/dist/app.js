@@ -48,7 +48,7 @@
       <section class="home-hero wrap" aria-labelledby="event-title"><div class="hero-kicker"><p>Vector Institute presents</p><p>Hilton Toronto</p></div>
         <h1 class="event-title" id="event-title"><span class="event-word">Remarkable</span><span class="sr-only"> 2027</span></h1>
         <div class="hero-composition"><div class="hero-left"><div class="hero-year" aria-hidden="true">2027<span class="year-period">.</span></div><p class="hero-date">February 18–19, 2027</p>${arrow('mobile-hero-arrow')}<h2>Where AI possibilities<br>come to life.</h2><div class="hero-actions">${registerButton('Register now','button-dark button-hero','inperson')}</div></div>
-          <div class="hero-visual">${photo('assets/photos-2026/auditorium-crowd.jpg','The Remarkable 2026 community gathered in a magenta-lit auditorium.','hero-photo',true)}${arrow('hero-arrow')}<span class="photo-caption">The Remarkable community, 2026</span></div></div>
+          <div class="hero-visual">${photo('assets/photos-2026/auditorium-crowd.jpg','The Remarkable 2026 community gathered in a magenta-lit auditorium.','hero-photo',true)}${arrow('hero-arrow')}<span class="photo-caption"><strong>R E M A R K A B L E</strong><small>THE COMMUNITY · 2026</small></span></div></div>
       </section>
       <div class="event-ribbon"><div class="wrap"><span>World-class research.</span><span>Real-world impact.</span><span>Remarkable in progress.</span></div></div>
       <section class="about-section wrap section-space" id="about">${sectionLabel('01', 'The meeting point')}<div class="about-grid"><h2 class="display-heading">AI ambition.<br>Meet <span>AI action.</span></h2><div class="about-copy"><p class="lead">${E(C.intro[0])}</p><p>${E(C.intro[1])}</p><p>${E(C.intro[2])}</p></div></div></section>
