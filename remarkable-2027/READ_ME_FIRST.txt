@@ -89,7 +89,9 @@ ROUND 7: ALTERNATE INNER-PAGE HEADER (from the Classy Black / Concept D mockup)
 
 ROUND 8
 - Home people section: speaker card text (session, name, role, organisation, View profile link and
-  its underline and +) is white.
+  its underline and +) is white, and the cards' glass fill drops from 32% to 12% white so the text
+  has more contrast (about 5-6:1 on most of each card; about 4.2-4.4:1 in the first card's lower-left,
+  where the gradient is hottest pink).
 
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
