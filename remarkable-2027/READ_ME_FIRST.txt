@@ -83,6 +83,8 @@ ROUND 7: ALTERNATE INNER-PAGE HEADER (from the Classy Black / Concept D mockup)
 - Mobile Alt: no split; the same photo sits under the title and fades in from black.
 - Photos (copied from the Concept D package): Agenda stage-remarkable-backdrop.jpg, Speakers
   speaker-at-podium.jpg, FAQ posters-discussion.jpg.
+- The split starts at 37% of the content width (moved left), and each photo is framed on a focal
+  point (HERO_PHOTOS fx/fy in app.js) so its subject stays in view as the area changes shape.
 - Live pages: add ?hero=split to agenda.html, speakers.html or faq.html to see the alternate header.
 
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder

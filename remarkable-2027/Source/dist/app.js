@@ -5,9 +5,10 @@
   // Alternate inner-page header (split arrow photo): ?hero=split on the live pages, or set by the review viewer.
   if (window.REMARKABLE_ALT_HERO || /[?&]hero=split\b/.test(location.search)) document.documentElement.classList.add('alt-hero');
   const HERO_PHOTOS = {
-    agenda: {src:'assets/photos-2026/stage-remarkable-backdrop.jpg', alt:'The Remarkable 2026 main stage backdrop.', align:'xMaxYMid', phone:'65% 50%'},
-    speakers: {src:'assets/photos-2026/speaker-at-podium.jpg', alt:'A speaker at the podium at Remarkable 2026.', align:'xMidYMin', phone:'50% 0%'},
-    faq: {src:'assets/photos-2026/posters-discussion.jpg', alt:'Attendees discussing research posters at Remarkable 2026.', align:'xMidYMid', phone:'50% 20%'}
+    // w/h: the photo's pixel size; fx/fy: desktop focal point (0-1, like object-position); phone: mobile object-position
+    agenda: {src:'assets/photos-2026/stage-remarkable-backdrop.jpg', alt:'The Remarkable 2026 main stage backdrop.', w:1814, h:1029, fx:.75, fy:.4, phone:'65% 50%'},
+    speakers: {src:'assets/photos-2026/speaker-at-podium.jpg', alt:'A speaker at the podium at Remarkable 2026.', w:878, h:865, fx:.6, fy:.2, phone:'50% 0%'},
+    faq: {src:'assets/photos-2026/posters-discussion.jpg', alt:'Attendees discussing research posters at Remarkable 2026.', w:1208, h:805, fx:.55, fy:.3, phone:'50% 20%'}
   };
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const arrow = (cls = '', white = false) => `<span class="vector-arrow ${cls}${white ? ' is-white' : ''}" aria-hidden="true"></span>`;
@@ -94,9 +95,12 @@
     const topX = seam + ARROW_K * H;
     const src = (window.REMARKABLE_ASSETS && window.REMARKABLE_ASSETS[hp.src]) || hp.src;
     const id = 'split-' + page;
+    // Cover the photo area (from the seam's bottom to the right edge) and frame it on the focal point.
+    const aw = W - seam, sc = Math.max(aw / hp.w, H / hp.h), iw = hp.w * sc, ih = hp.h * sc;
+    const ix = seam + (aw - iw) * hp.fx, iy = (H - ih) * hp.fy;
     el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid slice" width="100%" height="100%" focusable="false">
       <defs><clipPath id="${id}"><polygon points="${seam},${H} ${topX},0 ${W},0 ${W},${H}"/></clipPath></defs>
-      <image href="${E(src)}" x="${seam}" y="0" width="${W - seam}" height="${H}" preserveAspectRatio="${hp.align} slice" clip-path="url(#${id})"/>
+      <image href="${E(src)}" x="${ix.toFixed(1)}" y="${iy.toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="none" clip-path="url(#${id})"/>
       <path d="${ARROW_PATH}" fill="#EB088A" transform="translate(${Ax.toFixed(2)} 0) scale(${s.toFixed(4)})"/>
     </svg>`;
   }
