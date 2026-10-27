@@ -59,7 +59,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
-- The sides of the belly are rounded off (owner's note). The belly blends into the sides with a wider, softer join, and the suit's hem rises more gently round the sides, so the bottom of the belly stays round from the side instead of being cut off on a steep diagonal. At the back the hem still tucks under the roll of back fat.
+- The sides of the belly are rounded off (owner's note). Below the waist the belly blends into the sides with a wider, softer join (above it, under the cups, it is unchanged), and the suit's hem rises more gently round the sides, so the bottom of the belly stays round from the side instead of being cut off on a steep diagonal. At the back the hem still tucks under the roll of back fat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
 - **Legs.** The legs are separated a little more (owner's note). Each thigh's axis sits 2.4 cm out from the hip joint, and the thigh is slimmer at the top, so the hips keep their width while the inner thighs part below a natural crotch at about 0.71 m, as in the Blue Shirt photo. Before, the thighs overlapped down to 0.66 m and left only a narrow slot below.
 - **Panties.** The briefs are their own surface over the leggings and follow the contours of the hips, thighs and crotch. They ease a little over the front of the crotch and span the cleft of the seat, as stretched fabric does.
@@ -175,24 +175,24 @@ All depths are the 99.5th percentile over every frame.
 |---|---|---|---|---|---|---|
 | Idle | 0 mm | 0 mm | 0 mm | 1.16× | 3.0 mm above floor | 436 mm above floor |
 | Walk | 0 mm | 0 mm | 0 mm | 2.50× | 2.8 mm above floor | 387 mm above floor |
-| Run | 1.3 mm | 0.2 mm | 0 mm | 3.47× | 2.7 mm above floor | 400 mm above floor |
+| Run | 1.3 mm | 0.1 mm | 0 mm | 3.47× | 2.7 mm above floor | 400 mm above floor |
 | Sneak | 0 mm | 0 mm | 0 mm | 3.49× | 2.6 mm above floor | 400 mm above floor |
 | Jumping Jacks | 0 mm | 0 mm | 0 mm | 2.15× | 3.0 mm above floor | 360 mm above floor |
 | Look Around | 0 mm | 0 mm | 0 mm | 1.26× | 3.0 mm above floor | 431 mm above floor |
 | Chicken Dance | 0 mm | 2.7 mm | 0 mm | 2.10× | 3.0 mm above floor | 345 mm above floor |
 | Depressed Walk | 0 mm | 0 mm | 0 mm | 2.30× | 2.9 mm above floor | 390 mm above floor |
-| Crouch and Sit | 17.5 mm | 0 mm | 0 mm | 5.02× | 2.7 mm above floor | 1.3 mm above floor |
+| Crouch and Sit | 18.9 mm | 0 mm | 0 mm | 5.02× | 2.7 mm above floor | 1.3 mm above floor |
 | Crying | 0 mm | 0 mm | 0 mm | 1.66× | 3.0 mm above floor | 406 mm above floor |
 | Exasperated | 0 mm | 0 mm | 0 mm | 1.30× | 3.0 mm above floor | 430 mm above floor |
 | Idle (alt) | 0 mm | 0 mm | 0 mm | 1.47× | 3.0 mm above floor | 420 mm above floor |
 | Walk (alt) | 0 mm | 0 mm | 0 mm | 2.36× | 2.7 mm above floor | 382 mm above floor |
-| Run (alt) | 0 mm | 3.8 mm | 0 mm | 3.12× | 3.0 mm above floor | 380 mm above floor |
-| Sneak (alt) | 0 mm | 2.3 mm | 0 mm | 3.17× | 2.4 mm above floor | 399 mm above floor |
+| Run (alt) | 0 mm | 3.7 mm | 0 mm | 3.12× | 3.0 mm above floor | 380 mm above floor |
+| Sneak (alt) | 0 mm | 2.0 mm | 0 mm | 3.17× | 2.4 mm above floor | 399 mm above floor |
 | Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 2.03× | 3.0 mm above floor | 368 mm above floor |
 | Look Around (alt) | 0 mm | 0 mm | 0 mm | 1.47× | 3.0 mm above floor | 420 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.8 mm | 1.4 mm | 2.07× | 3.0 mm above floor | 350 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.7 mm | 1.4 mm | 2.07× | 3.0 mm above floor | 350 mm above floor |
 
-The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 17.5 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.8 mm in the slumped alt Chicken Dance. With the Tripo gloves the hooves no longer press into the mask in Crying (7 mm before); they stay clear in Exasperated too. The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the plug rests on the floor. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
+The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. Crouch and Sit is the exception, at 18.9 mm: at the bottom of the squat the upper arms press into the sides of the soft udder cups. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.7 mm in the slumped alt Chicken Dance. With the Tripo gloves the hooves no longer press into the mask in Crying (7 mm before); they stay clear in Exasperated too. The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the plug rests on the floor. While seated in Crouch and Sit, the suit's hem rests on the floor, 0 to 2 cm above it, and the leggings stretch up to 5.0× at the seat. That is the 90° seated hip bend, which linear skinning handles poorly.
 
 In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 20 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
