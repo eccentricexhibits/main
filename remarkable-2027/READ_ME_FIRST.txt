@@ -70,8 +70,20 @@ ROUND 5
   letter-spacing and baseline).
 
 ROUND 6
-- People section plus field: alt-colour wider artwork, drawn at full strength with normal blending
-  (previously 70% with "lighten"), so the pluses stand apart from the gradient.
+- People section plus field: alt-colour wider artwork, blended with "lighten" at 80% (the original
+  was 70%).
+
+ROUND 7: ALTERNATE INNER-PAGE HEADER (from the Classy Black / Concept D mockup)
+- Preview: four view buttons, Desktop / Mobile / Desktop Alt / Mobile Alt. The Alt views switch the
+  Agenda, Speakers and FAQ black sections to the alternate header; everything else is identical.
+- Desktop Alt: a 2026 photo fills the right side of the black section, cut along the shaft of the
+  long Vector arrow (assets/brand-elements/vector-arrow-extended.svg, unrotated), with the arrow's tip
+  touching the "Remarkable 2027" rule and its tail running off the bottom. The SVG is redrawn at the
+  area's real proportions (on load and on resize), so the arrow is never cropped.
+- Mobile Alt: no split; the same photo sits under the title and fades in from black.
+- Photos (copied from the Concept D package): Agenda stage-remarkable-backdrop.jpg, Speakers
+  speaker-at-podium.jpg, FAQ posters-discussion.jpg.
+- Live pages: add ?hero=split to agenda.html, speakers.html or faq.html to see the alternate header.
 
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.

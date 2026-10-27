@@ -2,6 +2,13 @@
   'use strict';
   const C = window.REMARKABLE_COPY;
   const page = document.body.dataset.page || 'index';
+  // Alternate inner-page header (split arrow photo): ?hero=split on the live pages, or set by the review viewer.
+  if (window.REMARKABLE_ALT_HERO || /[?&]hero=split\b/.test(location.search)) document.documentElement.classList.add('alt-hero');
+  const HERO_PHOTOS = {
+    agenda: {src:'assets/photos-2026/stage-remarkable-backdrop.jpg', alt:'The Remarkable 2026 main stage backdrop.', align:'xMaxYMid', phone:'65% 50%'},
+    speakers: {src:'assets/photos-2026/speaker-at-podium.jpg', alt:'A speaker at the podium at Remarkable 2026.', align:'xMidYMin', phone:'50% 0%'},
+    faq: {src:'assets/photos-2026/posters-discussion.jpg', alt:'Attendees discussing research posters at Remarkable 2026.', align:'xMidYMid', phone:'50% 20%'}
+  };
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const arrow = (cls = '', white = false) => `<span class="vector-arrow ${cls}${white ? ' is-white' : ''}" aria-hidden="true"></span>`;
   const pixels = cls => `<span class="vector-pixels ${cls || ''}" aria-hidden="true"></span>`;
@@ -65,8 +72,35 @@
   }
 
   function innerHeader(title, label, extraClass = '', ornament = '') {
-    return `<section class="inner-hero wrap ${extraClass}">${editionRow()}<div class="inner-title-row"><div><p class="eyebrow">${label}</p><h1>${title}</h1></div>${ornament}</div></section>`;
+    const hp = HERO_PHOTOS[page];
+    const split = hp ? `<div class="inner-split" aria-hidden="true"></div>` : '';
+    const fade = hp ? `<div class="inner-fade" aria-hidden="true">${photo(hp.src, '', '', true).replace('<img ', `<img style="object-position:${hp.phone}" `)}</div>` : '';
+    return `<section class="inner-hero wrap ${extraClass}">${editionRow()}<div class="inner-title-row"><div><p class="eyebrow">${label}</p><h1>${title}</h1></div>${ornament}${split}</div>${fade}</section>`;
   }
+
+  /* Split header: the photo is cut along the shaft of the extended Vector arrow (brand guide p. 6).
+     Arrow path from assets/brand-elements/vector-arrow-extended.svg (194 x 390); its shaft centre line is
+     x = 11.2 + K * (390 - y), so it leans right by K per unit of height. The frame is redrawn at its real
+     proportions, so nothing is cropped and the arrow tip touches the top edge. */
+  const ARROW_PATH = 'M167.314 0L106.322 26.684L95.732 51.671L143.899 32.362L0 389.936L22.473 390L162.07 39.437L183.41 87.036L194 61.837Z';
+  const ARROW_K = 0.4006;
+  function drawSplit(el) {
+    const hp = HERO_PHOTOS[page]; const r = el.getBoundingClientRect();
+    if (!hp || r.width < 10 || r.height < 10) return;
+    const H = 480, W = Math.round(r.width * H / r.height);
+    const seam = Math.min(160, W * .25);                 // where the shaft meets the bottom edge
+    const Ha = H * 1.08, s = Ha / 390;                   // arrow slightly taller than the frame; tail runs off the bottom
+    const Ax = seam - s * (11.2 + ARROW_K * (390 - H / s));
+    const topX = seam + ARROW_K * H;
+    const src = (window.REMARKABLE_ASSETS && window.REMARKABLE_ASSETS[hp.src]) || hp.src;
+    const id = 'split-' + page;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid slice" width="100%" height="100%" focusable="false">
+      <defs><clipPath id="${id}"><polygon points="${seam},${H} ${topX},0 ${W},0 ${W},${H}"/></clipPath></defs>
+      <image href="${E(src)}" x="${seam}" y="0" width="${W - seam}" height="${H}" preserveAspectRatio="${hp.align} slice" clip-path="url(#${id})"/>
+      <path d="${ARROW_PATH}" fill="#EB088A" transform="translate(${Ax.toFixed(2)} 0) scale(${s.toFixed(4)})"/>
+    </svg>`;
+  }
+
 
   function agenda() {
     return `<main id="main">${innerHeader('Agenda.','The program','agenda-hero',ornamentPair('pluses','agenda-hero-pluses'))}
@@ -139,6 +173,9 @@
   function selectDay(i, updateURL=true) {dayTabs.forEach((t,j)=>{t.setAttribute('aria-selected',String(j===i));t.tabIndex=j===i?0:-1;document.getElementById(`day-panel-${j+1}`).hidden=j!==i;});if(updateURL){const url=new URL(location.href);url.searchParams.set('day',String(i+1));url.hash='';history.replaceState(null,'',url);}}
   dayTabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectDay(i));tab.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?dayTabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+dayTabs.length)%dayTabs.length;selectDay(n);dayTabs[n].focus();}});});
   if(dayTabs.length){const n=Number(new URLSearchParams(location.search).get('day'));const hashMatch=location.hash.match(/^#session-(\d)-/);selectDay(hashMatch?Number(hashMatch[1])-1:n===2?1:0,false);if(hashMatch){const target=document.getElementById(location.hash.slice(1));if(target){target.open=true;requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));}}}
+
+  const splits=document.querySelectorAll('.inner-split');
+  if(splits.length){const redraw=()=>splits.forEach(drawSplit);redraw();if('ResizeObserver' in window){const ro=new ResizeObserver(redraw);splits.forEach(el=>ro.observe(el));}}
 
   const revealTargets=document.querySelectorAll('.about-grid,.experience-heading,.day-story,.speaker-card,.recap-grid,.stats-grid,.gallery-heading');
   if('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target);}});},{threshold:.06});revealTargets.forEach(el=>{el.classList.add('reveal');observer.observe(el);});}

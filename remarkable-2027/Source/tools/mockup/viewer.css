@@ -60,3 +60,11 @@ body[data-mode="mobile"] .preview-device iframe{border-radius:32px}
 }
 @media(max-width:380px){.mockup-toolbar{padding-inline:12px}.mode-toggle svg{display:none}.mode-toggle button{padding-inline:10px;font-size:15px}h1{font-size:21px}.view-options{gap:10px}.view-options label{gap:6px}#section-jump{min-width:123px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+/* Four view modes (Desktop, Mobile, Desktop Alt, Mobile Alt): keep labels on one line and move the page tabs to
+   their own row before the toolbar runs out of width. */
+.mode-toggle button{white-space:nowrap}
+@media(max-width:1280px){
+  .toolbar-main{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 18px}
+  .page-tabs{grid-column:1/-1;justify-content:flex-start}
+}
+@media(max-width:760px){.mode-toggle{display:grid;grid-template-columns:1fr 1fr;grid-column:1/-1}}
