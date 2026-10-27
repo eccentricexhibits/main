@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#E9E8E8">
+  <title>Mobile mockup · Remarkable 2027</title>
+  <link rel="icon" href="assets/brand-elements/vector-arrow-compact.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="mobile-preview.css">
+  <script defer src="mobile-preview.js"></script>
+</head>
+<body>
+  <main class="review-layout">
+    <section class="review-controls" aria-label="Mobile mockup controls">
+      <a class="review-brand" href="index.html" aria-label="Vector Institute, Remarkable 2027 home"><img src="assets/logos/logo-bilingual-colour.png" alt="Vector Institute | Institut Vecteur"></a>
+      <p class="review-eyebrow">Remarkable 2027 / Mobile mockup</p>
+      <h1>Remarkable.<br>On mobile.</h1>
+      <p class="review-intro">Explore all four pages.<br>Scroll inside the phone to see more.</p>
+      <div class="review-pages" role="group" aria-label="Choose a page">
+        <button data-page="index" aria-pressed="true"><span>01</span>Home<i aria-hidden="true"></i></button>
+        <button data-page="agenda" aria-pressed="false"><span>02</span>Agenda<i aria-hidden="true"></i></button>
+        <button data-page="speakers" aria-pressed="false"><span>03</span>Speakers<i aria-hidden="true"></i></button>
+        <button data-page="faq" aria-pressed="false"><span>04</span>FAQ<i aria-hidden="true"></i></button>
+      </div>
+      <label class="review-jump" for="section-jump">Jump to section<select id="section-jump" aria-label="Jump to section"><option value="">Opening</option></select></label>
+      <div class="review-options">
+        <label for="phone-width">Phone width<select id="phone-width" aria-label="Phone width"><option value="320">320 px</option><option value="390" selected>390 px</option><option value="430">430 px</option></select></label>
+        <a id="open-page" href="index.html" target="_blank" rel="noopener">Open page <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="review-date">February 18–19, 2027<br><span>Hilton Toronto</span></p>
+      <p id="review-status" class="sr-only" role="status">Home page selected.</p>
+    </section>
+    <section class="review-stage" aria-label="Phone preview">
+      <div class="device"><div class="device-screen"><iframe id="phone-preview" src="index.html" title="Remarkable 2027 mobile Home" allow="fullscreen"></iframe></div></div>
+      <p class="device-caption"><span id="page-name">Home</span><span id="width-label">390 px</span></p>
+    </section>
+  </main>
+</body>
+</html>

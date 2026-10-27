@@ -1,0 +1,179 @@
+/* Editorial layout, with translucent panels confined to people and registration. */
+:root{
+  --violet:#8A25C9;
+  --panel-fill:rgba(255,255,255,.32);
+  --panel-shadow:0 16px 38px rgba(28,0,44,.16),0 3px 10px rgba(28,0,44,.06);
+}
+.glass-panel{background:var(--panel-fill);border:0;box-shadow:var(--panel-shadow)}
+.event-ribbon{color:#fff}
+
+/* Give event dates a clear place in the opening and program hierarchy. */
+.hero-date{font-size:clamp(28px,3vw,46px);font-weight:500;line-height:1.08;letter-spacing:-.015em;margin-top:22px}
+.hero-left h2{margin-top:24px}
+.day-date{font-size:36px;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.day-date>span{font-size:18px;font-weight:400;letter-spacing:0;white-space:nowrap}
+
+/* Align the official arrow with the lower edge of the Agenda title. */
+.agenda-hero .inner-title-row{align-items:flex-end}
+.agenda-hero .inner-arrow{align-self:flex-end;position:static;width:clamp(42px,9vw,125px);transform:none;margin:0 0 0 24px}
+
+/* Agenda day choices share the rounded paired form of the attendance bar. */
+.agenda-tabs{border:0;border-radius:16px;overflow:hidden;background:rgba(0,0,0,.16);box-shadow:0 7px 22px rgba(0,0,0,.09)}
+.agenda-tabs>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 20px;padding:22px 28px;color:#000}
+.agenda-tabs>button>span.agenda-tab-day{grid-column:1;grid-row:1;font-size:18px;font-weight:400;letter-spacing:.04em;line-height:1;margin:0;text-transform:uppercase}
+.agenda-tabs>button>span.agenda-tab-date{display:block;grid-column:1;grid-row:2;font-size:clamp(28px,2.8vw,38px);font-weight:500;line-height:1.05}
+.agenda-tab-weekday{display:block;font-size:22px;font-weight:400;line-height:1.1;margin-bottom:4px}
+.agenda-tab-calendar{display:block}
+.agenda-tabs small{font-size:16px;font-weight:400;line-height:1.1;margin-top:8px}
+.agenda-tabs .agenda-tab-arrow{grid-column:2;grid-row:2;align-self:center}
+.agenda-tabs>button:first-child{border-radius:16px 0 0 16px}
+.agenda-tabs>button:last-child{border-radius:0 16px 16px 0}
+.agenda-tabs>button[aria-selected="true"]{color:#fff}
+.agenda-tabs>button[aria-selected="true"] .vector-arrow{background:#fff}
+.agenda-tabs>button:focus-visible{outline:3px solid #000;outline-offset:-5px}
+
+/* People: magenta to cobalt, with translucent white containers. */
+.home-speakers{background:linear-gradient(90deg,var(--magenta),var(--cobalt));color:#fff}
+.home-speakers .speaker-trio{gap:24px}
+.home-speakers .speaker-card{padding:24px;background:var(--panel-fill);border:0;border-radius:20px;box-shadow:var(--panel-shadow);color:#000}
+.home-speakers .speaker-open{height:100%}
+.home-speakers .portrait{border:0}
+.home-speakers .section-title-row>.text-link{color:#fff;font-size:24px}
+.home-speakers .section-title-row>.text-link:hover{color:#fff;opacity:.78}
+.home-speakers :focus-visible{outline-color:#fff}
+.speakers-section{padding-bottom:70px}
+
+/* Keep the textured closing composition, with softer and more opaque glass. */
+.closing{background:var(--magenta) url('assets/brand-elements/gradient-flow.png') center/cover no-repeat}
+.closing-inner{padding:56px 48px;margin-block:30px;background:var(--panel-fill);border:0;border-radius:24px;box-shadow:var(--panel-shadow);overflow:hidden}
+
+.closing h2{font-size:clamp(68px,7.8vw,125px);max-width:calc(100% - 180px);margin-bottom:38px}
+.closing-pixels{width:350px;right:-100px;top:55px}
+.closing-copy{max-width:100%}
+
+/* A photo-led program section echoes the venue panels on the other pages. */
+.speaker-program{background:var(--grey);color:#000;padding-block:75px}
+.speaker-program>.speaker-program-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.speaker-program .section-label{margin-bottom:32px}
+.speaker-program h2{font-size:76px;line-height:.94;letter-spacing:-.02em}
+.speaker-program-copy>.text-link{margin-top:30px}
+.speaker-program-visual{position:relative;min-width:0}
+.speaker-program-photo{border-radius:12px;aspect-ratio:1.2;object-fit:cover}
+
+
+/* One shared surface makes the two attendance choices part of the panel. */
+.closing-actions{display:flex;gap:0;max-width:860px;background:rgba(255,255,255,.64);border:0;border-radius:16px;box-shadow:0 8px 24px rgba(28,0,44,.10);overflow:hidden;color:#000}
+.attendance-option{display:flex;flex:1 1 0;align-items:center;justify-content:space-between;gap:24px;padding:23px 27px;min-height:101px;text-align:left;min-width:0;border:0;transition:background .22s}
+.attendance-option+.attendance-option{border-left:1px solid rgba(0,0,0,.15)}
+.attendance-option:hover{background:rgba(255,255,255,.46)}
+.attendance-option:focus-visible{outline:3px solid #000;outline-offset:-5px;border-radius:12px}
+.attendance-copy{display:flex;flex-direction:column;gap:7px;min-width:0}
+.attendance-title{font-size:28px;font-weight:500;line-height:1.05;letter-spacing:-.01em}
+.attendance-detail{font-size:18px;line-height:1.1;color:#333}
+.attendance-arrow{width:18px;background:#000;transition:transform .22s}
+.attendance-option:hover .attendance-arrow{transform:translate(3px,-4px)}
+
+
+@media(max-width:1200px){
+  .speaker-program>.speaker-program-grid{gap:60px}
+  .speaker-program h2{font-size:68px}
+  .home-speakers .speaker-trio{gap:22px}
+  .home-speakers .speaker-card{padding:21px}
+  .closing-inner{padding:40px}
+  .closing h2{font-size:8.1vw;max-width:calc(100% - 150px)}
+  .closing-pixels{width:300px;right:-110px;top:55px}
+  .attendance-option{padding:22px 24px;gap:20px}
+  .attendance-title{font-size:26px}
+}
+@media(max-width:1000px){
+  .day-date{font-size:30px}
+  .day-date>span{display:block;margin:8px 0 0;font-size:17px}
+  .agenda-tabs>button{padding:20px 23px}
+  .speaker-program>.speaker-program-grid{gap:50px}
+  .speaker-program h2{font-size:60px}
+  .home-speakers .speaker-card{padding:18px}
+  .home-speakers .speaker-name{font-size:28px}
+  .closing-inner{padding:35px}
+  .closing h2{font-size:8.5vw;max-width:calc(100% - 130px)}
+  .closing-pixels{width:260px;right:-110px;top:55px}
+  .attendance-option{padding:21px 22px;gap:18px}
+  .attendance-title{font-size:25px}
+  .attendance-detail{font-size:17px}
+  .attendance-arrow{width:16px}
+}
+@media(max-width:860px){
+  .speaker-program>.speaker-program-grid{gap:40px}
+  .speaker-program h2{font-size:58px}
+  .speaker-program-photo{aspect-ratio:.9}
+  .home-speakers .speaker-trio{gap:18px}
+  .home-speakers .speaker-card{padding:17px}
+  .home-speakers .speaker-name{font-size:27px}
+  .home-speakers .speaker-role,.home-speakers .speaker-org{font-size:18px}
+  .home-speakers .speaker-session{font-size:12px}
+  .closing-inner{padding:32px;margin-block:25px}
+
+  .closing h2{font-size:8.5vw;max-width:calc(100% - 90px)}
+  .closing-pixels{width:230px;right:-130px;top:50px}
+
+  .attendance-option{padding:20px;gap:16px}
+  .attendance-title{font-size:24px}
+}
+@media(max-width:600px){
+  .hero-date{font-size:30px;margin-top:20px}
+  .hero-left h2{margin-top:24px}
+  .day-date{font-size:27px}
+  .day-date>span{font-size:16px}
+  .agenda-hero .inner-title-row h1{font-size:22vw}
+  .agenda-hero .inner-arrow{width:clamp(32px,9vw,42px);margin-left:12px}
+  .agenda-tabs>button{padding:20px 16px;gap:9px 0}
+  .agenda-tabs>button>span.agenda-tab-day{font-size:16px}
+  .agenda-tabs>button>span.agenda-tab-date{font-size:27px}
+  .agenda-tab-weekday{font-size:19px}
+  .agenda-tabs small{font-size:14px}
+  .speaker-program{padding-block:50px}
+  .speaker-program>.speaker-program-grid{grid-template-columns:1fr;gap:33px}
+  .speaker-program .section-label{margin-bottom:25px}
+  .speaker-program h2{font-size:53px}
+  .speaker-program-copy>.text-link{margin-top:25px}
+  .speaker-program-photo{aspect-ratio:1.3;border-radius:9px}
+
+  .home-speakers .speaker-trio{gap:18px}
+  .home-speakers .speaker-card{padding:19px;border-radius:18px}
+  .home-speakers .speaker-open{grid-template-columns:100px 1fr;gap:20px}
+  .home-speakers .speaker-name{font-size:28px}
+  .home-speakers .speaker-role,.home-speakers .speaker-org{font-size:18px}
+  .home-speakers .speaker-session{font-size:11px}
+  .home-speakers .section-title-row>.text-link{font-size:22px}
+  .speakers-section{padding-bottom:50px}
+  .closing-inner{padding:26px 20px;margin-block:20px;border-radius:18px}
+
+
+  .closing h2{font-size:13.3vw;max-width:100%;line-height:.98;margin-bottom:28px}
+  .closing-pixels{width:160px;right:-110px;top:25px}
+  .closing-actions{flex-direction:column;border-radius:14px}
+  .attendance-option{flex:auto;padding:18px 20px;min-height:88px;gap:20px;width:100%}
+  .attendance-option+.attendance-option{border-left:0;border-top:1px solid rgba(0,0,0,.15)}
+  .attendance-title{font-size:24px}
+  .attendance-detail{font-size:17px}
+  .attendance-arrow{width:16px}
+
+}
+@media(max-width:360px){
+  .hero-date{font-size:27px}
+  .day-date{font-size:24px}
+  .agenda-tabs>button{padding:18px 13px}
+  .agenda-tabs>button>span.agenda-tab-date{font-size:24px}
+  .agenda-tab-weekday{font-size:18px}
+  .home-speakers .speaker-card{padding:15px}
+  .home-speakers .speaker-open{grid-template-columns:82px 1fr;gap:16px}
+  .home-speakers .speaker-name{font-size:25px}
+  .home-speakers .speaker-role,.home-speakers .speaker-org{font-size:17px}
+  .home-speakers .profile-link{font-size:16px}
+  .closing-inner{padding:25px 17px}
+
+  .closing h2{font-size:13.4vw}
+  .attendance-option{padding:18px 16px;gap:17px;min-height:84px}
+  .attendance-title{font-size:22px}
+  .attendance-detail{font-size:16px}
+  .attendance-arrow{width:14px}
+}
