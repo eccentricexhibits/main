@@ -90,7 +90,7 @@ ROUND 7: ALTERNATE INNER-PAGE HEADER (from the Classy Black / Concept D mockup)
 ROUND 8
 - Home people section: speaker card text (session, name, role, organisation, View profile link and
   its underline and +) is white, with a soft shadow behind the smaller lines.
-- One glass fill (--panel-fill, 20% white; was 32%) for the speaker cards and the closing
+- One glass fill (--panel-fill, 25% white; was 32%) for the speaker cards and the closing
   "Be part of what comes next." panel, so they match.
 
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder

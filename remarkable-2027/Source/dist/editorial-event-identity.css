@@ -204,6 +204,6 @@ body:not([data-page="index"]) .inner-title-row>.ornament-stack>* {-webkit-mask-p
  .alt-hero .inner-fade:after {content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--event-ink) 0%,rgba(9,6,14,.6) 16%,rgba(9,6,14,0) 42%);}
 }
 /* One glass fill for the speaker cards and the closing panel, light enough for white text. */
-:root {--panel-fill:rgba(255,255,255,.2);}
+:root {--panel-fill:rgba(255,255,255,.25);}
 /* Soft shadow behind the small card text so it holds up on the brightest pink. */
 .home-speakers .speaker-session,.home-speakers .speaker-role,.home-speakers .speaker-org,.home-speakers .profile-link {text-shadow:0 1px 2px rgba(40,0,50,.35),0 0 10px rgba(40,0,50,.3);}
