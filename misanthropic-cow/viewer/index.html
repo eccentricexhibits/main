@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (10.9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (12.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -147,7 +147,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
+          <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
+          <li>Round 11 &middot; <strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
           <li><strong>Belly:</strong> the sides are rounded off, and the hem rises gently round the sides instead of cutting the belly off on a diagonal.</li>
           <li><strong>Teats:</strong> the holes at the tips of the two forward teats are closed.</li>
           <li>Last round: separated legs, underwear that follows the hips and crotch, the wrist flare, and hoof and thumb motion.</li>
@@ -279,26 +280,38 @@ const restPose = [];   // every bone's rest transform, recorded at load (the def
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
 const meshes = [];
 
-// Each model ships as a .glb (local copy) and as base64 text (.b64.txt, for hosts that only serve text).
-async function fetchBytes(names) {
-  for (const name of names) {
-    try {
-      const res = await fetch(name);
-      if (!res.ok) continue;
-      if (name.endsWith('.txt')) {
-        const bin = atob((await res.text()).trim());
-        const bytes = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        return bytes.buffer;
-      }
-      return await res.arrayBuffer();
-    } catch (e) { /* try the next copy */ }
+// Each model ships as a .glb (local copy) and as base64 text for hosts that only serve text: one
+// .b64.txt file, or numbered parts (.b64.1.txt, .b64.2.txt, ...) when one file would pass the
+// host's 16 MB limit.
+async function fetchText(name) {
+  const res = await fetch(name);
+  if (!res.ok) throw new Error(name + ': ' + res.status);
+  return (await res.text()).trim();
+}
+async function fetchBytes(base) {
+  try {
+    const res = await fetch(base + '.glb');
+    if (res.ok) return await res.arrayBuffer();
+  } catch (e) { /* try the text copies */ }
+  let text;
+  try {
+    text = await fetchText(base + '.b64.txt');
+  } catch (e) {
+    const parts = [];
+    for (let i = 1; ; i++) {
+      try { parts.push(await fetchText(`${base}.b64.${i}.txt`)); } catch (e) { break; }
+    }
+    if (!parts.length) throw new Error('no copy of ' + base + ' could be fetched');
+    text = parts.join('');
   }
-  throw new Error('no copy of ' + names[0] + ' could be fetched');
+  const bin = atob(text);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
 }
 
 async function load(base, useMeshopt) {
-  const buffer = await fetchBytes([base + '.glb', base + '.b64.txt']);
+  const buffer = await fetchBytes(base);
   status.textContent = 'Preparing the model...';
   const loader = new GLTFLoader();
   if (useMeshopt) loader.setMeshoptDecoder(MeshoptDecoder);
@@ -311,7 +324,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (11.1 MB)...';
+    status.textContent = 'Loading the simplified copy (12.7 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
@@ -321,12 +334,6 @@ async function start() {
       o.frustumCulled = false;
       o.userData.mat = o.material;
       meshes.push(o);
-      const m = o.material;
-      if (m && m.name && m.name.includes('tuft')) {
-        // keep the thin lock tips from dropping out when the texture is minified
-        m.side = THREE.DoubleSide; m.alphaTest = 0.3;
-        if (m.map) m.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      }
     }
   });
   scene.add(root);

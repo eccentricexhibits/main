@@ -11,15 +11,16 @@ Later v10 passes added:
 - an animation library: Idle, Walk, Run, Sneak, Jumping Jacks, Look Around and the Chicken Dance;
 - the mask seated on the hood, shoulders that grow out of the body, and the shag tufts rebuilt from the user's long-lock sheet;
 - four mood animations (Depressed Walk, Crouch and Sit, Crying, Exasperated) and an "alt" set that plays the first seven heavy, awkward and slumped;
-- a pass informed by two models the owner made with Tripo (see "Tripo references" below): Blue Shirt's udders, belly and hips, Shy Cow's hoof hands, folding sleeves and slippers.
+- a pass informed by two models the owner made with Tripo (see "Tripo references" below): Blue Shirt's udders, belly and hips, Shy Cow's hoof hands, folding sleeves and slippers;
+- the black shag regrown as real strands (clumped, tapered fibre tubes over a short undercoat) instead of flat lock cards, which read as feathers.
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 662k triangles, real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 970k triangles (310k of them the shag strands), real-world scale in metres, all textures embedded. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 54-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
-| `textures/` | The user-supplied black shag swatch, the first tuft sheet and the long-lock sheet the tufts now use. |
+| `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
 | `assets/` | `slippers_shy_cow.glb`: the knitted cow-head slippers cut from the Tripo Shy Cow model (made by `pipeline/tripo_slippers.py`). `gloves_tripo.glb` and `gloves_tripo.json`: the hoof gloves cut from the owner's Tripo model of the glove photo (made by `pipeline/tripo_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
 
@@ -54,8 +55,14 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - low belly;
   - both elbows;
   - upper back right and lower back left.
-- The shag uses the user's black shag swatch (`textures/black_shag_tile.jpg`) as its base, with edges that break into hanging tufts.
-- On top of the base sit hanging lock cards (5–7.6 cm long, about 2.5 cm wide). They are alpha-cut from the user's long-lock sheet (`textures/black_shag_locks_sheet.png`): the white background becomes transparency, and each card uses one of the 12 locks. The cards lie along the fur and only their tips lift, by about 1 cm. They overlap densely (about 3,000 per m² of patch) and are rolled slightly at random. Together this reads as one shaggy mat. The previous cards were short, wide and lifted 2–3 cm at the tip, so each one stood out like a feather.
+- Under the strands, each patch is painted on the suit from the user's black shag swatch (`textures/black_shag_tile.jpg`), with edges that break into hanging tufts. It is painted at half brightness, because it is only seen in the gaps between strands, as shadow at the roots.
+- The shag itself is grown as strands (`groom.py`), about 15,000 of them in two layers:
+  - an undercoat of short strands (1.4–2.6 cm) in loose clumps of 5–8. They stand off the suit at 40–80° in all directions and give each patch its matted volume;
+  - long locks (4.5–7.6 cm) over it. Each lock is a clump of 8–12 strands that root in a disc 7–13 mm across, leave the suit at 30–62°, droop under gravity with a gentle wave, and gather toward the tip. About one strand in eight is a stray that stays loose and kinks outward, which breaks up the outline the way the costume's fur does.
+  - Toward a patch's edge the locks get shorter and flatter, so the strands end where the painted patch does.
+- Each strand is a solid 3-sided tube, about 1 mm across at the root and tapering to a point. It has no texture and no alpha cut: its round shading and a tone that runs from dark roots to slightly lighter tips do the work. Every strand point is kept outside the body, belly and cups, so long locks never dive into them.
+- The strands replace hanging lock cards, which were flat panes alpha-cut from the user's long-lock sheet (`textures/black_shag_locks_sheet.png`). However they were laid, their outlines and the grey highlights in the photo read as feathers. `reviews/shag/` compares the two from six views.
+- The strand material is near-black with little specular and no sheen. In the viewer's room lighting, thousands of thin glossy tubes otherwise catch light from every side and the black turns charcoal grey.
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
 - The leggings use smaller, irregular painted white spots.
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
@@ -112,7 +119,7 @@ Peak hand acceleration fell from 82 to 23 m/s² in Look Around, from 53 to 12 in
 
 **Light physics (baked).** glTF has no live physics, so damped springs are simulated over three loops of each animation and the last loop is baked into the bones. It plays in any glTF viewer and every animation loops seamlessly.
 - **Teats:** each teat swings on its own bone and collides with the belly. In the dance it peaks at about 20° and averages about 5°.
-- **Shag patches:** six spring bones drag the tuft tips, with up to about 4 cm of lag at the elbows.
+- **Shag patches:** six spring bones drag the strand tips, with up to about 4 cm of lag at the elbows. A strand's root follows the suit face it grows from, and its weight shifts to its patch's spring bone toward the tip.
 - **Hooves and thumbs:** each hand's HoofFingers and Thumb bones carry a damped spring driven by the hand's swing: its angular acceleration about the hinge and its acceleration toward the palm. The hooves and thumb lag a swing and settle after it, with a soft limit of about 13°. The Chicken Dance damps this where the hooves are posed on purpose (the beak snaps and the claps), so the claps still meet cleanly. On top of that, resting hands keep the hooves and thumb slightly curled. A slow, small curl-and-release, out of step between the hands, keeps them from looking frozen; it is a whole number of cycles per clip, so it loops.
 - **Tail cord:** a 12-segment rope pinned to the bowtie, plus a 13th segment for the plug. It has gravity, damping and a little stiffness, so a lamp cord never folds sharply. It collides with the seat, thighs, shins, slippers and the floor, with friction, so it swings behind the walk and drapes over her seat and the floor when she sits. Every segment keeps its exact length: the plug tips over and lies down rather than poking through the floor. The rope is simulated over three loops, and the last loop is cross-faded into the one before it, so its end state meets its start and the animation loops seamlessly.
 - **Belly and cups:** they jiggle; the cups are kept from sinking into the belly.
@@ -128,7 +135,7 @@ The owner tried a different modelling approach with Tripo and judged two results
   - the fluff and udder texture;
   - hips and thighs whose width shows as the panties stretch over them.
 
-  Its shapes were matched in the cups, teats, belly, belly fold and hips described above. The model was compared with ours at the same scale: slipper sole to horn tip, aligned at the knees. The black belly patch stays a flat shag patch with hanging locks: Tripo had modelled it as a solid lump, which the owner disliked.
+  Its shapes were matched in the cups, teats, belly, belly fold and hips described above. The model was compared with ours at the same scale: slipper sole to horn tip, aligned at the knees. The black belly patch stays a flat shag patch with hanging locks (now strands): Tripo had modelled it as a solid lump, which the owner disliked.
 - **Shy Cow** (from the Ryerson photo). The owner praised:
   - the hoof hands' shape and texture;
   - arms that fold the way the costume does;
@@ -268,6 +275,8 @@ Add `--quick` to `build_v10.py` for a half-resolution build that takes about 5 m
 Where things live:
 - `design.py`: proportions, as signed-distance primitives;
 - `textures.py`: shag patch and spot placement;
+- `groom.py`: grows the shag strands on the patches;
+- `render_shag.py`: before/after close-ups of the shag (`reviews/shag/`);
 - `gloves.py`: places the Tripo gloves on the hands (and keeps the earlier procedural gloves as a fallback);
 - `tripo_gloves.py`: the one-off conversion of the gloves from the owner's Tripo model into `assets/gloves_tripo.glb`. It needs that OBJ and its texture folder, plus `pip install xatlas`;
 - `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
@@ -280,7 +289,9 @@ The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).
 - `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). It is made from a copy with every texture capped at 1024 px (`python web_textures.py <in> <out> 1024`).
 
-Both copies keep their base64 versions under the viewer host's 16 MB limit. `web_textures.py` rewrites only the images and leaves everything else in the file byte for byte. An earlier copying step dropped the rig, so the plain fallback had no animations until this round. The page also accepts base64 copies (`cow-meshopt.b64.txt`, `cow-plain.b64.txt`) for hosts that only serve text; make them with `base64 -w0`.
+`web_textures.py` rewrites only the images and leaves everything else in the file byte for byte. An earlier copying step dropped the rig, so the plain fallback had no animations until this round. The page also accepts base64 copies for hosts that only serve text. Make them with `base64 -w0`. With the strands, each base64 copy is about 17 MB, over the viewer host's 16 MB limit per file, so split it into numbered parts (`cow-meshopt.b64.1.txt`, `cow-meshopt.b64.2.txt`, ...). The page tries `<name>.glb`, then `<name>.b64.txt`, then the numbered parts in order. A split at any point works, because the page joins the parts before decoding.
+
+The plain fallback's simplification (`-si 0.3`) thins the shag strands noticeably; the full-detail copy keeps every strand.
 
 The page zooms with the scroll wheel in proportion to how far the wheel or trackpad scrolled. three.js r160's OrbitControls divides the scroll by `devicePixelRatio | 0`, which is 0 when the browser is zoomed out below 100%, so one wheel tick used to jump straight to the closest distance. Pinch zoom is still OrbitControls'.
 
@@ -290,7 +301,7 @@ To view them locally, run `python3 -m http.server` inside `viewer/` and open the
 
 - The proportions come from photos at an assumed 1.6 m height. Nothing was measured from the costume.
 - The side-jaw photo projection on the mask is still stretched in pure side views, as in v09.
-- The black shag is a texture plus alpha-cut lock cards, not a simulated groom. In a web viewer the cards use an alpha test, so very thin tips can flicker when the model is small on screen. The viewer lowers the cutoff and turns on anisotropic filtering to reduce this.
+- The black shag is a static groom of strand meshes that follow six baked spring bones; it is not a simulated groom. Strands don't collide with the arms, so an arm that swings against a patch can pass through its strands. The strands add about 310k triangles and 2 MB to the compressed web copy.
 - The physics is baked springs, not live simulation. Only the teats (with the belly) and the tail cord (with the seat, legs, slippers and floor) collide with anything. The cord does not collide with the arms or with itself.
 - Locomotion plays in place; feet slide back during stance like a treadmill, so add root motion in your engine.
 - There's no cloth simulation. The suit deforms by skinning only.

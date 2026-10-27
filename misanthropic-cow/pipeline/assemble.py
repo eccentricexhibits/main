@@ -35,58 +35,6 @@ def tinted_tile(tile, colour):
     return np.clip(t * np.asarray(colour), 0, 1)
 
 
-def tuft_cards(v, f, n, m, cells, density=3.0e3, seed=7):
-    """Hanging lock cards (alpha-cut photos of long black shag locks) rooted on the patch areas.
-    Each card lies along the surface, hanging down, and only its tip lifts a few millimetres, so
-    the overlapping locks read as one shaggy mat rather than as separate scales or feathers.
-    A small random roll about the hang direction keeps neighbouring locks from lining up flat.
-    Returns verts, faces, normals, uv, t-along (0 root..1 tip), card id, roots, source face, barycentrics."""
-    rng = np.random.default_rng(seed)
-    a, b, c = v[f[:, 0]], v[f[:, 1]], v[f[:, 2]]
-    area = .5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    w = area * np.clip((m - .45) / .55, 0, 1)
-    count = int(w.sum() * density)
-    fi = rng.choice(len(f), count, p=w / w.sum())
-    r1, r2 = rng.random(count), rng.random(count)
-    s1 = np.sqrt(r1)
-    bc = np.stack([1 - s1, s1 * (1 - r2), s1 * r2], 1)
-    root = np.einsum('ij,ijk->ik', bc, v[f[fi]])
-    nr = np.einsum('ij,ijk->ik', bc, n[f[fi]]); nr /= np.linalg.norm(nr, axis=1, keepdims=True)
-    down = np.array([0, -1, 0.]) + rng.normal(0, .25, (count, 3))
-    hang = down - nr * np.einsum('ij,ij->i', down, nr)[:, None]
-    bad = np.linalg.norm(hang, axis=1) < 1e-3
-    hang[bad] = np.cross(nr[bad], [1, 0, 0])
-    hang /= np.linalg.norm(hang, axis=1, keepdims=True)
-    side = np.cross(nr, hang)
-    roll = rng.normal(0, .22, count)
-    side_r = side * np.cos(roll)[:, None] + nr * np.sin(roll)[:, None]
-    cell = rng.integers(0, len(cells), count)
-    C = np.asarray(cells)[cell]
-    aspect = (C[:, 3] - C[:, 1]) / (C[:, 2] - C[:, 0])
-    L = rng.uniform(.050, .076, count)
-    W = L / aspect
-    flip = rng.random(count) < .5
-    segs = 3
-    ts = np.linspace(0, 1, segs + 1)
-    verts, uvs = [], []
-    for t in ts:
-        lift = -.002 + .011 * t ** 1.5          # root tucked into the pile, tip lifts slightly
-        ctr = root + hang * (L * t)[:, None] + nr * lift
-        for sgn in (-1, 1):
-            verts.append(ctr + side_r * (sgn * W / 2)[:, None])
-            uu = np.where(flip, 1 - (sgn + 1) / 2, (sgn + 1) / 2)
-            uvs.append(np.stack([C[:, 0] + uu * (C[:, 2] - C[:, 0]), C[:, 1] + t * (C[:, 3] - C[:, 1])], 1))
-    V = np.stack(verts, 1).reshape(-1, 3)
-    UV = np.stack(uvs, 1).reshape(-1, 2)
-    idx = np.arange(count)[:, None] * (2 * (segs + 1))
-    F = []
-    for k in range(segs):
-        a0, a1, b0, b1 = 2 * k, 2 * k + 1, 2 * k + 2, 2 * k + 3
-        F += [np.hstack([idx + a0, idx + b1, idx + a1]), np.hstack([idx + a0, idx + b0, idx + b1])]
-    return (V, np.vstack(F), np.repeat(nr, 2 * (segs + 1), 0), UV, np.tile(np.repeat(ts, 2), count),
-            np.repeat(np.arange(count), 2 * (segs + 1)), root, fi, bc)
-
-
 def build(v09_path, tex_dir, out_dir, quick=False):
     out_dir = Path(out_dir); out_dir.mkdir(parents=True, exist_ok=True)
     src = G.read(v09_path)
@@ -131,8 +79,9 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     for k in range(3):
         sel = piece == k
         m_face[sel] = T.shag_mask(cen[sel], allowed[k])
-    atlas_png, cells = T.tuft_atlas(Path(__file__).resolve().parent.parent / 'textures' / 'black_shag_locks_sheet.png')
-    sv2, sf2, sn2, tuv, tco, sid, roots, rface, rbc = tuft_cards(sv, sf, sn, m_face, cells, density=(1.7e3 if quick else 3.0e3))
+    import groom as GR
+    hair = GR.shag_strands(sv, sf, sn, m_face, scene_sdf, scale=(.6 if quick else 1.0))
+    tco, sid, roots, rface, rbc = hair['t'], hair['cid'], hair['roots'], hair['face'], hair['bc']
     # strand roots follow the face they grew from; tips swing with that piece's own patch spring bone
     W_root = np.einsum('ij,ijk->ik', rbc, W_suit[sf[rface]])
     pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
@@ -145,15 +94,27 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     k = (.85 * tco ** 1.2)[:, None]
     tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[patch[sid]]] = 1
     W_strand = W_strand * (1 - k) + tipw * k
-    tuft_img = model.add_image(atlas_png, 'image/png')
-    shag_mat = model.add_material({'name': 'Black_shag_tuft_cards', 'doubleSided': True, 'alphaMode': 'MASK', 'alphaCutoff': .35,
-                                   'pbrMetallicRoughness': {'baseColorTexture': {'image': tuft_img, 'texCoord': 0},
-                                                            'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 0, 'roughnessFactor': .6},
-                                   'extensions': SHEEN(.05, .5)})
-    model.parts.append({'name': 'Suit_black_shag_tufts', 'v': sv2.astype(np.float32), 'n': sn2.astype(np.float32),
-                        'uv': tuv.astype(np.float32), 'uv1': None, 'ao': (.6 + .4 * tco).astype(np.float32), 'f': sf2.astype(np.int32),
-                        'material': shag_mat, 'group': 'suit', 'W': W_strand})
-    report['shag_tuft_cards'] = int(len(roots))
+    # opaque, untextured strands: the tubes' own round shading and the root-to-tip tone do the work.
+    # Specular is turned down and there is no sheen: thousands of thin glossy tubes otherwise pick up
+    # the viewer's room lighting from every side and the black turns charcoal grey.
+    shag_mat = model.add_material({'name': 'Black_shag_strands',
+                                   'pbrMetallicRoughness': {'baseColorFactor': [.040, .038, .042, 1], 'metallicFactor': 0,
+                                                            'roughnessFactor': .55},
+                                   'extensions': {'KHR_materials_specular': {'specularFactor': .45}}})
+    # split into pieces of whole strands under 65,536 vertices, so each can use 16-bit indices
+    starts = hair['starts']
+    cuts = [0]
+    while cuts[-1] < len(starts) - 1:
+        cuts.append(int(np.searchsorted(starts, starts[cuts[-1]] + 65536, 'right')) - 1)
+    for k, (s0, s1) in enumerate(zip(cuts[:-1], cuts[1:])):
+        v0, v1 = starts[s0], starts[s1]
+        fsel = (hair['f'][:, 0] >= v0) & (hair['f'][:, 0] < v1)
+        model.parts.append({'name': f'Suit_black_shag_strands_{k + 1}', 'v': hair['v'][v0:v1].astype(np.float32),
+                            'n': hair['n'][v0:v1].astype(np.float32), 'uv': None, 'uv1': None,
+                            'ao': hair['ao'][v0:v1].astype(np.float32), 'f': (hair['f'][fsel] - v0).astype(np.int32),
+                            'material': shag_mat, 'group': 'suit', 'W': W_strand[v0:v1]})
+    report['shag_clumps'] = int(len(roots))
+    report['shag_strands'] = int(hair['strands'])
 
     # --- leggings
     leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)

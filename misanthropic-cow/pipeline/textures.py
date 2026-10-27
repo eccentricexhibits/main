@@ -124,7 +124,8 @@ def shag_detail(p, black):
 def suit_color(p, n, white, black, which=None):
     m = shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
-    bc = shag_detail(p, triplanar(black, p, n, .22))
+    # under the strands the patch is only seen in the gaps, as shadow at the roots of the pile
+    bc = shag_detail(p, triplanar(black, p, n, .22)) * .5
     # very slight low-frequency warmth/soil variation in the white plush
     var = 1 + .035 * N.fbm(p * 6, 3, seed=11)[..., None]
     wc = np.clip(wc * var * np.array([1.0, .992, .975]), 0, 1)
@@ -184,29 +185,3 @@ def mild_lift(rgb):
     lift = np.clip((l - .22) / .35, 0, 1) * np.clip(1 - sat * 2.5, 0, 1)   # white paint only, not eyes/muzzle
     out = a + (1 - (1 - a) ** 1.8 - a) * lift
     return out
-
-
-# ----------------------------------------------------------------- tuft cards from a photo sheet
-def tuft_atlas(path, size=1024):
-    """Turn a sheet of black tufts on white into an RGBA atlas (alpha from the white background,
-    colour un-premultiplied) and find each tuft's cell.  Returns (png bytes, [(u0, v0, u1, v1), ...])."""
-    from scipy import ndimage as ndi
-    im = Image.open(path).convert('RGB').resize((size, size), Image.LANCZOS)
-    a = np.asarray(im).astype(np.float32) / 255
-    L = a.mean(-1)
-    alpha = np.clip((.965 - L) / .80, 0, 1) ** .85
-    col = (a - (1 - alpha[..., None])) / np.maximum(alpha[..., None], 1e-3)
-    col = np.clip(col, 0, .12) * .55          # match the near-black shag swatch underneath
-    col[alpha < .12] = .03
-    blob = ndi.binary_closing(ndi.gaussian_filter(alpha, 4) > .18, iterations=6)
-    lab, n = ndi.label(blob)
-    cells = []
-    for sl in ndi.find_objects(lab):
-        h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
-        if h * w < (size * .05) ** 2:
-            continue
-        cells.append((sl[1].start / size, sl[0].start / size, sl[1].stop / size, sl[0].stop / size))
-    rgba = np.dstack([col, alpha])
-    b = io.BytesIO()
-    Image.fromarray(np.uint8(np.clip(rgba, 0, 1) * 255 + .5), 'RGBA').save(b, 'PNG', optimize=True)
-    return b.getvalue(), cells
