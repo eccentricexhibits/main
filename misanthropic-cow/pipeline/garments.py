@@ -242,8 +242,11 @@ BRIEFS_OFFSET = .0012      # the briefs lie this far over the leggings
 # of briefs over black tights): low under the crotch, rising diagonally across the front of the
 # thigh to the side, and at the back diagonally from the gluteal fold up across the cheek.  The back
 # keeps the shape the owner approved in round 9.  The side sits at about 0.80 m, below the suit's
-# hem, so the side panel shows under the belly from the front and the side.
+# hem, so the side panel shows under the belly from the front and the side.  Along the centre of the
+# back the line drops (MID_DROP, within about 2 cm of the midline, behind the crotch only), so the
+# back panel runs down the cleft and joins the crotch instead of stopping in a V above it.
 LEG_LINE = [(0, .805), (45, .772), (90, .742), (135, .712), (180, .692), (225, .742), (270, .788), (315, .832)]
+MID_DROP = .045
 
 
 def leg_line(p):
@@ -254,7 +257,7 @@ def leg_line(p):
     s = np.where(x >= 0, 1., -1.)
     cx = D.J['Thigh_L'][0] + D.THIGH_OUT              # the thigh's axis at the top (mirrored for the right leg)
     phi = np.degrees(np.arctan2(z - D.J['Thigh_L'][2], s * x - cx)) % 360
-    return cs(phi)
+    return cs(phi) - MID_DROP * np.exp(-(x / .022) ** 2) * _sm(0., -.04, z)
 
 
 def clip_mesh(v, f, g):

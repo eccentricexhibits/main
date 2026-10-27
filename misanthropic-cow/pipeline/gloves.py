@@ -1,7 +1,8 @@
 """Hoof gloves.
 
 Since the hands round, the gloves are the owner's Tripo model of the glove photo, cut out and
-re-baked by tripo_gloves.py (assets/gloves_tripo.glb) and placed here on each hand: a long cream
+re-baked by tripo_gloves.py, closed by repair_gloves.py and rebuilt as smooth solids with a cuff that
+fits the sleeve by rebuild_gloves.py (assets/gloves_tripo.glb), and placed here on each hand: a long cream
 terry mitten with a thumb, and two glossy black hoof halves chipped to red card (left) and green
 card (right).  Each glove is one seamless mesh; the hoof halves follow the HoofFingers bone and the
 thumb the Thumb bone through smooth per-vertex weights (`hoof_w`, `thumb_w`).
@@ -184,41 +185,8 @@ def _tripo_glove(side):
     o, d, aa, pn = hand_frame(side)
     v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
     f = p['f'].astype(np.int64)
-    # touch-up: the Tripo cuff is wider than the sleeve end on the little-finger side and poked out
-    # through the back of the sleeve.  Where it is hidden inside the sleeve, pull it in toward the arm
-    # until it sits 8 mm inside the sleeve's surface (smoothed so the mitten keeps its shape).
-    inside = _ss(.010, -.002, u)
-    for _ in range(2):
-        ds = D.sleeve_sdf(v, side)
-        push = np.maximum(ds + .008, 0) * inside
-        for _ in range(12):
-            nb = np.zeros(len(v)); cnt = np.zeros(len(v))
-            for k in range(3):
-                np.add.at(nb, f[:, k], push[f[:, (k + 1) % 3]]); np.add.at(cnt, f[:, k], 1)
-            push = np.maximum(push, .5 * push + .5 * nb / np.maximum(cnt, 1)) * (inside > 0)
-        push *= inside
-        rlen = np.maximum(np.hypot(a, w), 1e-6)
-        shrink = np.clip(1 - push / rlen, .3, 1)
-        a, w = a * shrink, w * shrink
-        v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
-    # touch-up: the Tripo mitten's wrist is slimmer than the sleeve end, so the hand looked as if it
-    # floated in the opening.  Flare the wrist out to fill the sleeve: up to 1 cm inside the sleeve's
-    # surface where it is hidden, fading out gently over the first 6 cm past the sleeve's end.  Only the
-    # back and sides of the wrist flare; the palm side stays as it is, so the claps still meet palm to palm.
-    sh, el, wr = D.arm_points(1 if side == 'L' else -1)
-    Lf = np.linalg.norm(wr - el)
-    target = .048 + .011 * np.clip(-u / Lf, 0, 1) - .011
-    facing = w / np.maximum(np.hypot(a, w), 1e-6)                    # 1 = straight out of the palm
-    grow = np.maximum(target - np.hypot(a, w), 0) * _ss(.065, -.01, u) * _ss(.55, .05, facing)   # back and sides only
-    for _ in range(24):
-        nb = np.zeros(len(v)); cnt = np.zeros(len(v))
-        for k in range(3):
-            np.add.at(nb, f[:, k], grow[f[:, (k + 1) % 3]]); np.add.at(cnt, f[:, k], 1)
-        grow = .5 * grow + .5 * nb / np.maximum(cnt, 1)
-    rlen = np.maximum(np.hypot(a, w), 1e-6)
-    a, w = a * (1 + grow / rlen), w * (1 + grow / rlen)
-    v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
-    a = p['v'][:, 1].astype(float)             # the thumb is found in the glove's original shape
+    # the asset already fits the sleeve: rebuild_gloves.py eased its wrist into the sleeve opening and
+    # gave it a round cuff that fills the sleeve to 8 mm inside its surface, so it is placed rigidly
     hoof_w = _ss(hoof_u - .022, hoof_u + .004, u)
     line = _thumb_line(u)
     thumb_w = _ss(line - .002, line + .008, a) * _ss(THUMB_U[0], THUMB_U[1], u) * _ss(THUMB_U[3], THUMB_U[2], u)

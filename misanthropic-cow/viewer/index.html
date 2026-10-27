@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (12.9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (12.8 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -156,15 +156,16 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
-          <li><strong>Gloves:</strong> the hairline cracks in both gloves are closed. Each glove is now one closed surface, with the same shape and texture.</li>
-          <li>Last round &middot; <strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
+          <li><strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
+          <li><strong>Gloves rebuilt:</strong> each glove is rebuilt as one smooth solid from your Tripo glove, with the same shape, thumb, hooves and texture but without the spiky edges, and with a clean round cuff that fits inside the sleeve instead of the ragged wrist.</li>
+          <li>Last round &middot; <strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
+          <li>Earlier &middot; <strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
           <li><strong>No baked shadows:</strong> the model no longer carries any shading of its own; the dark band under the arms and the grey under the cups were baked in. All light and shadow now come from the viewer. Try the four rigs under <em>Light</em>.</li>
           <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
           <li>Round 11 &middot; <strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
           <li><strong>Belly:</strong> the sides are rounded off, and the hem rises gently round the sides instead of cutting the belly off on a diagonal.</li>
           <li><strong>Teats:</strong> the holes at the tips of the two forward teats are closed.</li>
-          <li>Last round: separated legs, underwear that follows the hips and crotch, the wrist flare, and hoof and thumb motion.</li>
+          <li>Round 10: separated legs, underwear that follows the hips and crotch, the wrist flare, and hoof and thumb motion.</li>
           <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
           <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
         </ul>
@@ -355,7 +356,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (13.2 MB)...';
+    status.textContent = 'Loading the simplified copy (13.1 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
