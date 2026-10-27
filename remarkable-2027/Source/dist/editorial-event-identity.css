@@ -31,13 +31,13 @@ body:not([data-page="index"]) .inner-title-row .eyebrow {color:var(--magenta);}
 .ornament-stack{position:relative;display:block;flex-shrink:0;overflow:visible;isolation:isolate;}
 .ornament-stack>.ornament-solid,.ornament-stack>.ornament-shadow{position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none;display:block;}
 .ornament-stack>.ornament-solid{z-index:2;background:var(--magenta);}
-.ornament-stack>.ornament-shadow{z-index:1;background:rgba(235,8,138,.24);transform:translate(13px,14px);pointer-events:none;}
+.ornament-stack>.ornament-shadow{z-index:1;background:rgba(235,8,138,.24);transform:translate(var(--sx,13px),var(--sy,14px));pointer-events:none;}
 .ornament-stack.agenda-hero-pluses{width:clamp(110px,13vw,175px);aspect-ratio:400/330;margin:0 22px 8px 20px;align-self:center;}
 .ornament-stack.speaker-hero-pixels{aspect-ratio:2160.8701/1811;}
 .ornament-stack.faq-hero-arrow{aspect-ratio:876.8442/1243.8169;}
 body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative;z-index:3;}
-@media(max-width:1000px){.ornament-stack>.ornament-shadow{transform:translate(10px,11px);}.ornament-stack.agenda-hero-pluses{width:clamp(85px,13vw,130px);margin-right:10px;}}
-@media(max-width:600px){.ornament-stack>.ornament-shadow{transform:translate(6px,7px);}.ornament-stack.agenda-hero-pluses{width:clamp(58px,16vw,70px);margin:0 0 0 8px;align-self:flex-end;}.ornament-stack.faq-hero-arrow{right:10px;}.ornament-stack.speaker-hero-pixels{right:8px;}}
+@media(max-width:1000px){.ornament-stack.agenda-hero-pluses{width:clamp(85px,13vw,130px);margin-right:10px;}}
+@media(max-width:600px){.ornament-stack.agenda-hero-pluses{width:clamp(58px,16vw,70px);margin:0 0 0 8px;align-self:flex-end;}.ornament-stack.faq-hero-arrow{right:10px;}.ornament-stack.speaker-hero-pixels{right:8px;}}
 /* Original editorial layout and glass speaker cards retained, with existing colour treatment. */
 .home-speakers {background:var(--event-glow);color:#fff;}
 .home-speakers .section-title-row>.text-link {color:#fff;}
@@ -54,13 +54,14 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 .site-footer .legal,.site-footer .footer-bottom {color:#dad3dc;}
 
 /* Home: only requested CTA/corner changes. */
-.hero-actions .button-hero {font-size:20px;min-height:64px;padding:17px 29px;gap:46px;}
+.hero-actions .button-hero {font-size:23px;min-height:66px;padding:17px 30px;gap:46px;}
+.hero-visual {margin-left:clamp(56px,7vw,120px);}
 .hero-arrow {left:0;top:-19px;translate:-70% 0;}
 
-/* Hero photo identity label (from the earlier mockup): dark plate, tracked wordmark. */
-.photo-caption {right:20px;bottom:18px;z-index:3;color:#fff;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);border-radius:0;padding:10px 13px 8px;display:flex;flex-direction:column;gap:3px;text-align:right;max-width:45%;}
+/* Hero photo identity label (from the earlier mockup): tracked wordmark set straight on the photo. */
+.photo-caption {right:22px;bottom:18px;z-index:3;color:#fff;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;text-shadow:0 1px 3px rgba(0,0,0,.65),0 0 14px rgba(0,0,0,.45);border-radius:0;padding:10px 13px 8px;display:flex;flex-direction:column;gap:3px;text-align:right;max-width:45%;}
 .photo-caption strong {font-size:13px;letter-spacing:.13em;line-height:1.1;font-weight:600;white-space:nowrap;}
-.photo-caption small {font-size:11px;letter-spacing:.07em;line-height:1.25;}
+.photo-caption small {font-size:11px;letter-spacing:.07em;line-height:1.25;white-space:nowrap;}
 
 /* Font weights restored from the earlier event-branding layer (Karbon Semibold accents). */
 .nav-register {font-weight:600;}
@@ -69,31 +70,34 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 .event-ribbon>.wrap {font-weight:600;}
 .closing .attendance-title {font-weight:600;}
 @media(max-width:600px) {
- .hero-actions .button-hero {font-size:18px;min-height:55px;padding:13px 22px;gap:26px;}
+ .hero-actions .button-hero {font-size:20px;min-height:58px;padding:14px 22px;gap:26px;}
  .photo-caption {bottom:10px;right:10px;max-width:58%;padding:7px 8px 6px;gap:2px;}
  .photo-caption strong {font-size:8px;letter-spacing:.07em;}
  .photo-caption small {font-size:9px;}
 }
 @media(max-width:860px) and (min-width:601px) {.photo-caption strong {letter-spacing:.09em;font-size:11px;}}
-/* Narrower layouts: the text column runs right up to the photo, so the arrow sits further onto the image. */
-@media(max-width:1000px) and (min-width:601px) {.hero-arrow {translate:-48% 0;}}
-@media(max-width:860px) and (min-width:601px) {.hero-arrow {translate:-42% 0;}}
+@media(max-width:600px) {.hero-visual {margin-left:0;}}
 
 /* Inside-page title panels: one ornament size on every tab, vertically centred at the right,
    with clearance between the headline's descenders and the panel's lower gradient rule. */
 body:not([data-page="index"]) .inner-hero {padding-bottom:0;}
-body:not([data-page="index"]) .inner-title-row {padding-block:48px 72px;padding-right:calc(var(--orn) + 48px);--orn:clamp(130px,13vw,200px);}
+body:not([data-page="index"]) .inner-title-row {padding-block:48px 72px;padding-right:calc(var(--orn) + 48px);--orn:clamp(160px,18vw,270px);--sx:22px;--sy:24px;}
 body:not([data-page="index"]) .inner-title-row h1 {font-size:clamp(88px,11.5vw,180px);line-height:.86;}
 body:not([data-page="index"]) .faq-hero .inner-title-row h1 {font-size:clamp(80px,9.6vw,150px);line-height:.9;}
-body:not([data-page="index"]) .inner-title-row>.ornament-stack {position:absolute;right:13px;top:50%;width:var(--orn);height:var(--orn);aspect-ratio:auto;margin:0;transform:translateY(-50%);align-self:auto;}
+body:not([data-page="index"]) .inner-title-row>.ornament-stack {position:absolute;right:var(--sx);top:50%;width:var(--orn);height:var(--orn);aspect-ratio:auto;margin:0;transform:translateY(-50%);align-self:auto;}
 @media(max-width:860px) {
- body:not([data-page="index"]) .inner-title-row {padding-block:40px 56px;--orn:clamp(96px,14vw,120px);padding-right:calc(var(--orn) + 28px);}
+ body:not([data-page="index"]) .inner-title-row {padding-block:40px 56px;--orn:clamp(120px,18vw,160px);--sx:15px;--sy:16px;padding-right:calc(var(--orn) + 28px);}
 }
 @media(max-width:600px) {
- body:not([data-page="index"]) .inner-title-row {padding-block:30px 40px;--orn:70px;padding-right:calc(var(--orn) + 14px);}
+ body:not([data-page="index"]) .inner-title-row {padding-block:30px 40px;--orn:82px;--sx:8px;--sy:9px;padding-right:calc(var(--orn) + 14px);}
  body:not([data-page="index"]) .inner-title-row h1,
  body:not([data-page="index"]) .agenda-hero .inner-title-row h1,
  body:not([data-page="index"]) .speakers-hero .inner-title-row h1 {font-size:min(17vw,88px);}
  body:not([data-page="index"]) .faq-hero .inner-title-row h1 {font-size:min(15.5vw,80px);}
- body:not([data-page="index"]) .inner-title-row>.ornament-stack {right:7px;}
 }
+
+/* Agenda: the Day 1 / Day 2 tabs stay in place in the page flow (no sticky scrolling). */
+.agenda-tabs {position:static;}
+
+/* Home: the "B" of "Brilliant minds." carries a wide built-in side-bearing; pull it back to the label edge. */
+.home-speakers .display-heading {margin-left:-.07em;}

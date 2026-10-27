@@ -1,4 +1,4 @@
-REMARKABLE 2027 — EDITORIAL, FIVE REFINEMENTS (builds on "Four Corrections")
+REMARKABLE 2027 — EDITORIAL, FIVE REFINEMENTS + ROUND 2 (builds on "Four Corrections")
 
 All edits live in Source/dist/editorial-event-identity.css, plus one markup change in
 Source/dist/app.js (hero photo label). styles.css, gradient-panels.css and mobile.css are unchanged.
@@ -18,6 +18,20 @@ Source/dist/app.js (hero photo label). styles.css, gradient-panels.css and mobil
    (It sits a little further onto the photo below 1000px wide, where the text column runs up to it.)
 5) Home: the photo label uses the earlier mockup's design: dark translucent plate,
    tracked "R E M A R K A B L E" over "THE COMMUNITY · 2026".
+
+ROUND 2
+- Agenda: the Day 01 / Day 02 tabs no longer stick to the top while scrolling.
+- Home: the photo is cropped from the left (narrower) so the arrow still covers its corner
+  but has clear space from the 2027 / date / tagline text at every desktop width.
+- Home: section numbers 01-04 already share the headings' left edge (measured within 1px);
+  "Brilliant minds." is nudged left because the large "B" has extra built-in space.
+- Home: "Register now" label is larger (23px desktop, 20px phone).
+- Agenda / Speakers / FAQ: larger ornaments (about 260px at 1440px wide) and a larger offset
+  for the lighter shadow shape (22/24px desktop, 15/16px tablet, 8/9px phone).
+- Home: the dark plate behind the photo label is removed; the text sits on the photo with a soft shadow.
+- FAQ: the arrow is already the official Vector "Arrow Regular" shape (kept as is).
+- Bold text: weights in the CSS are unchanged; headings use Karbon Medium (500). Without the
+  Medium font file they fall back to Regular and look unbolded, so keep Karbon-Medium.woff in fonts/.
 
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
