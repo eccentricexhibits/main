@@ -110,7 +110,9 @@ def suit_parts(p, torso_only=False):
     back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
-    torso = S.smin(torso, belly, .15)          # a soft, round join where the belly meets the sides
+    # a soft, round join where the lower belly meets the sides (owner's note); above the waist the join
+    # stays tighter, so the belly doesn't grow under the cups where the teats hang and the arms rest
+    torso = S.smin(torso, belly, .10 + .05 * np.clip((.93 - p[..., 1]) / .12, 0, 1))
     torso = S.smin(torso, neck, .05)
     # neckline: the torso garment stops at the base of the neck; the hood's neck tucks inside it
     torso = S.smax(torso, p[..., 1] - 1.405, .02)
