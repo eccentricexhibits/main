@@ -245,7 +245,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 
 ## Rebuilding
 
-You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk`, plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
+You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk xatlas` (xatlas unwraps the briefs), plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
 - the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_tripo.glb` and the slippers from `assets/slippers_shy_cow.glb`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
