@@ -66,7 +66,6 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 /* Font weights restored from the earlier event-branding layer (Karbon Semibold accents). */
 .nav-register {font-weight:600;}
 .hero-kicker {font-weight:600;}
-.section-label>span:first-child {font-weight:600;}
 .event-ribbon>.wrap {font-weight:600;}
 .closing .attendance-title {font-weight:600;}
 @media(max-width:600px) {
@@ -132,8 +131,9 @@ body[data-page="faq"] .inner-title-row h1 {margin-left:-.034em;}
    The letterforms and pluses blend with "lighten", as in the supplied artwork. */
 .home-speakers {position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(48deg,#e9078b 6%,#e4088c 11%,#cc128e 20%,#b21b91 30%,#9a2294 40%,#852996 50%,#722e98 60%,#633299 70%,#58359a 80%,#52379b 89%);}
 .home-speakers:before,.home-speakers:after {content:"";position:absolute;z-index:-1;pointer-events:none;mix-blend-mode:lighten;background-repeat:no-repeat;background-size:contain;background-position:center bottom;}
-.home-speakers:before {left:-6%;right:-6%;bottom:0;aspect-ratio:1796.71/277.957;background-image:url('assets/brand-elements/remarkable-plus-field.png');opacity:.7;}
-@media(max-width:860px) {.home-speakers:before {left:-45%;right:-45%;}}
+/* Wider plus field (3600pt) centred on the original 1796.71pt artwork: same placement, scaled by 3600/1796.71. */
+.home-speakers:before {left:50%;width:calc(112% * 3600 / 1796.71);transform:translateX(-50%);bottom:0;aspect-ratio:3600/277.957;background-image:url('assets/brand-elements/remarkable-plus-field.png');opacity:.7;}
+@media(max-width:860px) {.home-speakers:before {width:calc(190% * 3600 / 1796.71);}}
 .home-speakers:after {left:50%;bottom:0;width:clamp(150px,23vw,380px);aspect-ratio:357.436/219.365;transform:translateX(-50%);background-image:url('assets/brand-elements/remarkable-ai-symbol.png');opacity:.85;}
 /* Room under the speaker cards for the AI letterforms and plus field. */
 .home-speakers>.section-space {padding-bottom:clamp(150px,15vw,230px);}
@@ -171,7 +171,7 @@ body:not([data-page="index"]) .inner-title-row>.ornament-stack>* {-webkit-mask-p
 @media(max-width:600px){.stats-header p {font-size:13px;}}
 
 /* Speakers page portraits: magenta-to-cobalt gradient ring. */
-.speaker-card-full .portrait,.profile-dialog-top>.portrait {border:2px solid transparent;background:linear-gradient(var(--grey),var(--grey)) padding-box,linear-gradient(135deg,var(--magenta),var(--cobalt)) border-box;}
+.speaker-card-full .portrait,.profile-dialog-top>.portrait {border:2px solid transparent;background:linear-gradient(var(--grey),var(--grey)) padding-box,linear-gradient(135deg,var(--magenta) 0%,var(--magenta) 40%,var(--cobalt) 100%) border-box;}
 
 /* FAQ topic list: numbers share the label's baseline. */
 .faq-topics>a {align-items:baseline;}
@@ -180,3 +180,4 @@ body:not([data-page="index"]) .inner-title-row>.ornament-stack>* {-webkit-mask-p
 @media(max-width:600px){.faq-topics>a {flex-wrap:wrap;align-content:center;}}
 .speaker-program h2 {margin-left:-.03em;}
 @media(max-width:600px){.mobile-hero-arrow {right:0;}}
+@media(max-width:600px){.event-ribbon>.wrap {justify-content:center;} .event-ribbon span {text-align:center;}}

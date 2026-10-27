@@ -61,6 +61,14 @@ ROUND 4
   every width). Button, padding and pixel motif were scaled down to suit.
 - FAQ topic list: the 01-04 numbers sit on the same baseline as their labels (desktop and mobile).
 
+ROUND 5
+- Speakers page portrait rings: more magenta (solid magenta for the first 40%, then into cobalt).
+- People section: plus field replaced with the wider 3600pt artwork (same placement, centred on the
+  original), so the pluses run edge to edge.
+- Mobile ribbon: "World-class research." / "Real-world impact." centred.
+- Section numbers 01-04 now use the same weight as their labels (they already matched in size,
+  letter-spacing and baseline).
+
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
 
