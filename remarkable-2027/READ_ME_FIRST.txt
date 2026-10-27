@@ -87,6 +87,10 @@ ROUND 7: ALTERNATE INNER-PAGE HEADER (from the Classy Black / Concept D mockup)
   point (HERO_PHOTOS fx/fy in app.js) so its subject stays in view as the area changes shape.
 - Live pages: add ?hero=split to agenda.html, speakers.html or faq.html to see the alternate header.
 
+ROUND 8
+- Home people section: speaker card text (session, name, role, organisation, View profile link and
+  its underline and +) is white.
+
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
 

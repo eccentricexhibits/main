@@ -41,7 +41,9 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 /* Original editorial layout and glass speaker cards retained, with existing colour treatment. */
 .home-speakers {background:var(--event-glow);color:#fff;}
 .home-speakers .section-title-row>.text-link {color:#fff;}
-.home-speakers .speaker-card {color:#000;}
+.home-speakers .speaker-card {color:#fff;}
+.home-speakers .speaker-card .profile-link {border-bottom-color:currentColor;}
+.home-speakers .speaker-card .disclosure-plus:before,.home-speakers .speaker-card .disclosure-plus:after {background:currentColor;}
 .home-speakers .text-link:hover {color:#fff;}
 .gallery-heading .eyebrow {color:#EB088A;}
 .speaker-program {background:var(--grey);color:#000;}
