@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (12.3 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (12.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -156,7 +156,9 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
+          <li><strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
+          <li><strong>Gloves:</strong> the hairline cracks in both gloves are closed. Each glove is now one closed surface, with the same shape and texture.</li>
+          <li>Last round &middot; <strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
           <li><strong>No baked shadows:</strong> the model no longer carries any shading of its own; the dark band under the arms and the grey under the cups were baked in. All light and shadow now come from the viewer. Try the four rigs under <em>Light</em>.</li>
           <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
           <li>Round 11 &middot; <strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
@@ -353,7 +355,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (12.3 MB)...';
+    status.textContent = 'Loading the simplified copy (13.2 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

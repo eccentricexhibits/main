@@ -16,7 +16,6 @@ import gloves as GL
 import glb as G
 import noise as N
 import rig as RG
-from scipy.spatial import cKDTree
 
 SHEEN = lambda c, r: {'KHR_materials_sheen': {'sheenColorFactor': [c, c, c], 'sheenRoughnessFactor': r}}
 
@@ -115,8 +114,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
     lv, lf, ln = leg['v'], leg['f'], leg['n']
     W_leg = RG.leg_weights(lv, lf)
-    pan = Gm.build_panties(step=.005 if quick else .0035, target=20000 if quick else 45000)
-    dk, ik = cKDTree(lv).query(pan['v'], 6)
+    pan = Gm.build_briefs(lv, lf, ln, W_leg)
     spots = T.legging_spots([c for c in leg['charts'] if 'seat' not in c['name']])
     for ch in leg['charts']:
         W, H = [int(x * sc) for x in ((1024, 512) if 'seat' in ch['name'] else (1024, 2048))]
@@ -131,10 +129,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
                             'ao': None, 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'legs',
                             'W': W_leg[ch['src']]})
-    # --- panties (pink satin, sits on the leggings)
-    # the briefs move with the leggings under them: inverse-distance blend of the nearest few
-    wk = 1 / np.maximum(dk, 1e-4); wk /= wk.sum(1, keepdims=True)
-    W_pan = np.einsum('vk,vkj->vj', wk, W_leg[ik])
+    # --- briefs (pink satin over the leggings; they carry the leggings' own weights)
+    W_pan = pan['W']
     satin = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.97, .79, .83))))
     mat = model.add_material({'name': 'Panties_pink_satin', 'pbrMetallicRoughness': {
         'baseColorTexture': {'image': satin, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .58},
