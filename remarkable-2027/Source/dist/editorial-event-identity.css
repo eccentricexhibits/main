@@ -1,5 +1,5 @@
-/* Remarkable 2027: art-direction-only refinements to Editorial Complete.
-   Preserves original layout, grid, type weights, speaker cards, agenda, and responsive CSS. */
+/* Remarkable 2027: event-identity layer over Editorial Complete (styles.css, gradient-panels.css, mobile.css).
+   Loaded last; every visual refinement since the Four Corrections handoff lives here. See HANDOFF.md. */
 :root { --event-ink:#09060e; --event-glow:linear-gradient(102deg,#EB088A 0%,#b317ab 45%,#6720aa 77%,#313CFF 100%); }
 
 /* Black event navigation; scrolls away normally instead of staying sticky.

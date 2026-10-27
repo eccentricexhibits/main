@@ -1,3 +1,10 @@
+# Changelog
+
+Every revision round since the "Four Corrections" handoff, oldest first. Later rounds sometimes reverse
+earlier ones (for example, the round-1 Semibold section numbers and the dark photo-label plate were later
+removed); `HANDOFF.md` describes the current design.
+
+```
 REMARKABLE 2027 — EDITORIAL, FIVE REFINEMENTS + ROUND 2 (builds on "Four Corrections")
 
 All edits live in Source/dist/editorial-event-identity.css, plus one markup change in
@@ -99,3 +106,4 @@ FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts f
 PREVIEW: open OPEN_INTERACTIVE_PREVIEW.html (keep it next to the Source folder so it finds the fonts),
 or open Source/dist/index.html. Rebuild the preview after edits with:
   cd Source && python3 tools/export-mockup.py --output ../OPEN_INTERACTIVE_PREVIEW.html
+```
