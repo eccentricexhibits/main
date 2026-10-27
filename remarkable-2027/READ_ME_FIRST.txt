@@ -69,6 +69,10 @@ ROUND 5
 - Section numbers 01-04 now use the same weight as their labels (they already matched in size,
   letter-spacing and baseline).
 
+ROUND 6
+- People section plus field: alt-colour wider artwork, drawn at full strength with normal blending
+  (previously 70% with "lighten"), so the pluses stand apart from the gradient.
+
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
 

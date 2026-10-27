@@ -131,8 +131,9 @@ body[data-page="faq"] .inner-title-row h1 {margin-left:-.034em;}
    The letterforms and pluses blend with "lighten", as in the supplied artwork. */
 .home-speakers {position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(48deg,#e9078b 6%,#e4088c 11%,#cc128e 20%,#b21b91 30%,#9a2294 40%,#852996 50%,#722e98 60%,#633299 70%,#58359a 80%,#52379b 89%);}
 .home-speakers:before,.home-speakers:after {content:"";position:absolute;z-index:-1;pointer-events:none;mix-blend-mode:lighten;background-repeat:no-repeat;background-size:contain;background-position:center bottom;}
-/* Wider plus field (3600pt) centred on the original 1796.71pt artwork: same placement, scaled by 3600/1796.71. */
-.home-speakers:before {left:50%;width:calc(112% * 3600 / 1796.71);transform:translateX(-50%);bottom:0;aspect-ratio:3600/277.957;background-image:url('assets/brand-elements/remarkable-plus-field.png');opacity:.7;}
+/* Wider plus field (3600pt, alt colour) centred on the original 1796.71pt artwork: same placement, scaled by 3600/1796.71.
+   Drawn at full strength without blending so the pluses separate clearly from the gradient. */
+.home-speakers:before {left:50%;width:calc(112% * 3600 / 1796.71);transform:translateX(-50%);bottom:0;aspect-ratio:3600/277.957;background-image:url('assets/brand-elements/remarkable-plus-field.png');opacity:1;mix-blend-mode:normal;}
 @media(max-width:860px) {.home-speakers:before {width:calc(190% * 3600 / 1796.71);}}
 .home-speakers:after {left:50%;bottom:0;width:clamp(150px,23vw,380px);aspect-ratio:357.436/219.365;transform:translateX(-50%);background-image:url('assets/brand-elements/remarkable-ai-symbol.png');opacity:.85;}
 /* Room under the speaker cards for the AI letterforms and plus field. */
