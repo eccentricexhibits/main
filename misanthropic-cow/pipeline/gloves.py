@@ -224,7 +224,6 @@ def _tripo_glove(side):
     thumb_w = _ss(line - .002, line + .008, a) * _ss(THUMB_U[0], THUMB_U[1], u) * _ss(THUMB_U[3], THUMB_U[2], u)
     return {'name': f'Glove_{side}_terry_mitten_thumb_and_black_hooves', 'v': v, 'f': f,
             'n': S.vertex_normals(v, f), 'uv': p['uv'], 'uv1': None, 'kind': 'tripo',
-            'ao': (.75 + .25 * (1 - hoof_w * (1 - hoof_w) * 4)).astype(np.float32),     # a little shade where the mitten meets the hooves
             'hoof_w': hoof_w, 'thumb_w': thumb_w, 'src_material': p['material']}
 
 
@@ -293,14 +292,6 @@ def build(side, step=.0016):
         uv = np.stack([(u_ - .07) / .16, (h * a_) / .085 + .5 * (w_ > 0)], 1)
         parts.append({'name': f'Glove_{side}_{name}', 'v': v, 'f': f, 'n': S.vertex_normals(v, f), 'uv': uv,
                       'uv1': None, 'kind': 'hoof'})
-    # contact shadow where the mitten disappears into the hoof plates and where the thumb meets it
-    plates = lambda q: np.minimum(plate_sdf(q, side, 1), plate_sdf(q, side, -1))
-    for p in parts:
-        if p['kind'] == 'terry':
-            dist = np.minimum(plates(p['v']), thumb_sdf(p['v'], side) if 'mitten' in p['name'] else mitten_sdf(p['v'], side))
-            p['ao'] = (.55 + .45 * np.clip(dist / .012, 0, 1)).astype(np.float32)
-        else:
-            p['ao'] = (.65 + .35 * np.clip(mitten_sdf(p['v'], side) / .010, 0, 1)).astype(np.float32)
     return parts
 
 

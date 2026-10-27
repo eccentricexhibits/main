@@ -133,10 +133,10 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
             b0 = a0 + SIDES; b1 = a1 + SIDES
             faces += [np.hstack([base + a0, base + a1, base + b1]), np.hstack([base + a0, base + b1, base + b0])]
     tv = np.repeat(np.tile(t, S), SIDES)
-    # dark roots, lifting toward glossy tips; each strand a slightly different black
+    # each strand a slightly different black (fibre colour only; shading is left to the renderer)
     tone = np.repeat(rng.uniform(.78, 1.0, S), nper)
     return {'v': V.reshape(-1, 3), 'n': ring.reshape(-1, 3), 'f': np.vstack(faces), 't': tv,
-            'ao': np.clip((.30 + .70 * tv ** .7) * tone, 0, 1), 'cid': np.repeat(cid, nper),
+            'tone': tone, 'cid': np.repeat(cid, nper),
             'roots': root, 'face': fi, 'bc': bc, 'nper': np.full(S, nper)}
 
 
@@ -144,10 +144,10 @@ def shag_strands(v, f, n, m, sdf, scale=1.0, seed=7):
     """Grow the undercoat and the locks on the faces of (v, f) where the patch mask m (per face) is set.
     scale multiplies both clump densities (the quick build uses fewer).
 
-    Returns per-vertex arrays (v, n, t along the strand 0 root..1 tip, ao, clump id), faces, the
+    Returns per-vertex arrays (v, n, t along the strand 0 root..1 tip, tone, clump id), faces, the
     vertex offset where each strand starts, and per-clump roots, source faces and barycentrics."""
     rng = np.random.default_rng(seed)
-    out = {k: [] for k in ('v', 'n', 'f', 't', 'ao', 'cid', 'roots', 'face', 'bc', 'nper')}
+    out = {k: [] for k in ('v', 'n', 'f', 't', 'tone', 'cid', 'roots', 'face', 'bc', 'nper')}
     nv = nc = 0
     for P in (UNDERCOAT, LOCKS):
         h = _layer(rng, v, f, n, m, sdf, P, scale)

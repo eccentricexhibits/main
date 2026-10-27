@@ -55,12 +55,12 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - low belly;
   - both elbows;
   - upper back right and lower back left.
-- Under the strands, each patch is painted on the suit from the user's black shag swatch (`textures/black_shag_tile.jpg`), with edges that break into hanging tufts. It is painted at half brightness, because it is only seen in the gaps between strands, as shadow at the roots.
+- Under the strands, each patch is painted on the suit from the user's black shag swatch (`textures/black_shag_tile.jpg`), with edges that break into hanging tufts. It is painted at half brightness: only the black backing shows in the gaps between strands, and the swatch photo is lighter than that.
 - The shag itself is grown as strands (`groom.py`), about 15,000 of them in two layers:
   - an undercoat of short strands (1.4–2.6 cm) in loose clumps of 5–8. They stand off the suit at 40–80° in all directions and give each patch its matted volume;
   - long locks (4.5–7.6 cm) over it. Each lock is a clump of 8–12 strands that root in a disc 7–13 mm across, leave the suit at 30–62°, droop under gravity with a gentle wave, and gather toward the tip. About one strand in eight is a stray that stays loose and kinks outward, which breaks up the outline the way the costume's fur does.
   - Toward a patch's edge the locks get shorter and flatter, so the strands end where the painted patch does.
-- Each strand is a solid 3-sided tube, about 1 mm across at the root and tapering to a point. It has no texture and no alpha cut: its round shading and a tone that runs from dark roots to slightly lighter tips do the work. Every strand point is kept outside the body, belly and cups, so long locks never dive into them.
+- Each strand is a solid 3-sided tube, about 1 mm across at the root and tapering to a point. It has no texture and no alpha cut: its round shading does the work, and each strand is a slightly different black. Every strand point is kept outside the body, belly and cups, so long locks never dive into them.
 - The strands replace hanging lock cards, which were flat panes alpha-cut from the user's long-lock sheet (`textures/black_shag_locks_sheet.png`). However they were laid, their outlines and the grey highlights in the photo read as feathers. `reviews/shag/` compares the two from six views.
 - The strand material is near-black with little specular and no sheen. In the viewer's room lighting, thousands of thin glossy tubes otherwise catch light from every side and the black turns charcoal grey.
 - Each patch belongs to one garment piece only, so no patch spills across a sleeve seam.
@@ -73,7 +73,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - **Front:** cut like full briefs, following the owner's reference photos and videos of the same kind of briefs worn over black tights. Each leg line runs diagonally from a gusset about 7 cm wide at the crotch up to high on the hip (about 0.87 m), so the front panel is a wide trapezoid narrowing into the crotch and the tights show in a V on the front of each thigh. Earlier the front was a low band straight across the tops of the thighs.
   - **Back:** the leg line runs diagonally from the hip down across each cheek, leaving the lower outer cheeks in leggings.
   - **Gusset:** a strip under the crotch joins front and back and wraps just onto the tops of the inner thighs, so the crotch shows pink when the legs spread (Jumping Jacks).
-  - **Fabric cues:** the briefs sit 4.5 mm proud of the leggings. The leg openings are cut exactly along those lines and finished with rolled elastic edges about 3 mm proud, with the fabric just inside gathered into small ruches. The leggings take a contact shadow along every edge, so the briefs read as a layer on top rather than a painted-on texture. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere.
+  - **Fabric cues:** the briefs sit 4.5 mm proud of the leggings. The leg openings are cut exactly along those lines and finished with rolled elastic edges about 3 mm proud, with the fabric just inside gathered into small ruches. The raised trims make the briefs read as a layer on top rather than a painted-on texture. A few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere.
 - **Tail.** A gold satin bowtie is tied on at the back, on the roll of back fat at the bottom of the white fur. It has two puffed, pleated wings flaring from a pinched centre knot and is about 12 cm wide. A tan two-core lamp cord hangs from the knot to about mid-thigh, 43 cm, and ends in a two-prong plug with brass blades (`tail.py`).
 - **Back.** The suit's back isn't flat: a padded roll of back fat across the lower back bulges out and overhangs the panty waistband as a lip, and the back hem tucks under it.
 - **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
@@ -100,7 +100,7 @@ The second pass made the shoulders lower and less bulky:
 - The upper sleeve is 5 mm slimmer.
 - The arms hang at 20° (one more degree in the Tripo pass, so the relaxed arms clear the fuller udder).
 
-Where a sleeve meets the torso, both pieces are shaded with the normals of one smoothly blended surface, which removes the seam line. The sleeve also leaves the cap at a shallow 17° angle instead of 29°.
+Where a sleeve meets the torso at the shoulder, both pieces are shaded with the normals of one smoothly blended surface, which removes the seam line. The blend reaches only 7.5–11 cm from the shoulder pivot. It used to reach anywhere the sleeve came within 18 mm of the torso, which in the rest pose is the whole side of the body under the hanging arm. When the arm rose, that strip kept normals bent toward where the arm had been, and the side of the belly and the inner sleeves shaded as a crease with bright spots that looked like holes. `reviews/v10_sides_before_after.jpg` shows the Claps pose before and after. The sleeve also leaves the cap at a shallow 17° angle instead of 29°.
 
 **Hands that don't connect (fixed).** Each glove's cuff tucks up inside its sleeve end. The sleeve and the glove are weighted by the same function of position along the forearm, so they move as one. In the wing pose the fists follow the forearm instead of being bent 90° at the wrist. v08's flared cuff ring and its halo strands were removed, because at this scale they z-fought with the sleeve.
 
@@ -249,6 +249,23 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 - +Y is up and +Z is the way the character faces. The model is in metres.
 - **+X is the character's left.** Bone and mesh names now use the character's own left and right.
 - v09 named some parts by screen side. Its "Left" glove was the character's right. The broken horn with the exposed wire is on the character's right (-X), which matches the photos.
+
+## Lighting
+
+The model carries no lighting: no ambient occlusion or contact shadows in its vertex colours or textures. Shading is left to whatever renders it, so it follows the pose. Until round 12 the suit, leggings, briefs, udder, gloves and the v09 mask and horns had ambient occlusion baked into their vertex colours in the rest pose (the suit averaged 68% brightness, the briefs 50%). When the arms rose, the dark band where the arm had hung stayed on the side of the body.
+
+What remains is colour only:
+- the photographed textures (the mask scan, the Tripo gloves and slippers, the fabric swatches) keep whatever light was in their photos;
+- the black patch under the shag is painted darker than the swatch;
+- each shag strand has its own shade of black (the strands' only vertex colour).
+
+If an engine wants ambient occlusion, compute it there (screen-space AO), or bake it into a glTF `occlusionTexture`. Engines apply that only to ambient light, not to the direct lights.
+
+The viewer has four lighting rigs:
+- **Studio:** key and rim lights over a soft room reflection (the default);
+- **Soft:** even light from every side;
+- **Spotlight:** one spotlight from above and in front, casting real shadows on the body and the floor;
+- **No lighting:** the materials' own colours, unshaded.
 
 ## Rebuilding
 

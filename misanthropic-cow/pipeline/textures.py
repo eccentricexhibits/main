@@ -124,7 +124,7 @@ def shag_detail(p, black):
 def suit_color(p, n, white, black, which=None):
     m = shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
-    # under the strands the patch is only seen in the gaps, as shadow at the roots of the pile
+    # under the strands only the black backing shows in the gaps; the swatch photo is too light for it
     bc = shag_detail(p, triplanar(black, p, n, .22)) * .5
     # very slight low-frequency warmth/soil variation in the white plush
     var = 1 + .035 * N.fbm(p * 6, 3, seed=11)[..., None]

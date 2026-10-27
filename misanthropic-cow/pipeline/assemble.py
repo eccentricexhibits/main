@@ -1,4 +1,8 @@
-"""Assemble the static (unrigged) v10 model: garments + baked textures + kept assets + shag + AO."""
+"""Assemble the static (unrigged) v10 model: garments + baked textures + kept assets + shag.
+
+No lighting is baked into the model: no ambient occlusion or contact shadows in the vertex colours or
+the textures.  Shading belongs to whatever renders the model (the viewer, a game engine), where it
+follows the pose; occlusion baked in the rest pose stays put when the arms move."""
 import io, json
 from pathlib import Path
 import numpy as np
@@ -19,14 +23,6 @@ SHEEN = lambda c, r: {'KHR_materials_sheen': {'sheenColorFactor': [c, c, c], 'sh
 
 def scene_sdf(p):
     return np.minimum(np.minimum(D.body_sdf(p), D.legging_sdf(p)), D.udder_sdf(p))
-
-
-def sdf_ao(v, n, k=1.0, steps=5, h=.013):
-    occ = np.zeros(len(v))
-    for i in range(1, steps + 1):
-        d = scene_sdf(v + n * (h * i))
-        occ += (h * i - np.minimum(d, h * i)) / (2 ** (i - 1))
-    return np.clip(1 - k * occ / h * .38, .35, 1).astype(np.float32)
 
 
 def tinted_tile(tile, colour):
@@ -51,7 +47,6 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     # --- suit
     suit = Gm.build_suit(step=.006 if quick else .0042, target=60000 if quick else 170000)
     sv, sf, sn = suit['v'], suit['f'], suit['n']
-    ao_suit = sdf_ao(sv, sn)
     W_suit = RG.suit_weights(sv, sf, suit['labels'])
     sizes = {'Suit_torso': (2048, 2048), 'Hood_white': (1024, 1024), 'Suit_sleeve_L': (1024, 1024), 'Suit_sleeve_R': (1024, 1024),
              'Mask_horn': (512, 512)}
@@ -68,7 +63,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             'normalTexture': {'image': img_fur_n, 'texCoord': 1, 'scale': .6}, 'extensions': SHEEN(.75, .55)})
         model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': sn[ch['src']].astype(np.float32),
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
-                            'ao': ao_suit[ch['src']], 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'suit',
+                            'ao': None, 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'suit',
                             'W': W_suit[ch['src']]})
     # shag strands on the black patches
     fl = suit['labels']
@@ -111,7 +106,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         fsel = (hair['f'][:, 0] >= v0) & (hair['f'][:, 0] < v1)
         model.parts.append({'name': f'Suit_black_shag_strands_{k + 1}', 'v': hair['v'][v0:v1].astype(np.float32),
                             'n': hair['n'][v0:v1].astype(np.float32), 'uv': None, 'uv1': None,
-                            'ao': hair['ao'][v0:v1].astype(np.float32), 'f': (hair['f'][fsel] - v0).astype(np.int32),
+                            'ao': hair['tone'][v0:v1].astype(np.float32), 'f': (hair['f'][fsel] - v0).astype(np.int32),
                             'material': shag_mat, 'group': 'suit', 'W': W_strand[v0:v1]})
     report['shag_clumps'] = int(len(roots))
     report['shag_strands'] = int(hair['strands'])
@@ -119,15 +114,9 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     # --- leggings
     leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
     lv, lf, ln = leg['v'], leg['f'], leg['n']
-    ao_leg = sdf_ao(lv, ln)
     W_leg = RG.leg_weights(lv, lf)
-    # the briefs (built first so the leggings can take a contact shadow along their edges, which makes
-    # the briefs read as a layer on top rather than a painted-on texture)
     pan = Gm.build_panties(step=.005 if quick else .0035, target=20000 if quick else 45000)
     dk, ik = cKDTree(lv).query(pan['v'], 6)
-    pan_ao = (pan['ao'] * ao_leg[ik[:, 0]]).astype(np.float32)
-    de, _ = cKDTree(pan['trim_pts']).query(lv)
-    ao_leg = ao_leg * (.60 + .40 * Gm._sm(.002, .016, de)).astype(np.float32)
     spots = T.legging_spots([c for c in leg['charts'] if 'seat' not in c['name']])
     for ch in leg['charts']:
         W, H = [int(x * sc) for x in ((1024, 512) if 'seat' in ch['name'] else (1024, 2048))]
@@ -140,7 +129,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .35}})
         model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': ln[ch['src']].astype(np.float32),
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
-                            'ao': ao_leg[ch['src']], 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'legs',
+                            'ao': None, 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'legs',
                             'W': W_leg[ch['src']]})
     # --- panties (pink satin, sits on the leggings)
     # the briefs move with the leggings under them: inverse-distance blend of the nearest few
@@ -152,7 +141,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .30}, 'extensions': SHEEN(.45, .35)})
     model.parts.append({'name': pan['name'], 'v': pan['v'].astype(np.float32), 'n': pan['n'].astype(np.float32),
                         'uv': pan['uv'].astype(np.float32), 'uv1': pan['uv1'].astype(np.float32),
-                        'ao': pan_ao,
+                        'ao': None,
                         'f': pan['f'].astype(np.int32), 'material': mat, 'group': 'legs', 'W': W_pan})
     # --- udder
     pink = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.94, .66, .72))))
@@ -163,7 +152,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         n = S.vertex_normals(ch['v'], ch['f'])
         model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': n.astype(np.float32),
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
-                            'ao': sdf_ao(ch['v'], n, .6), 'f': ch['f'].astype(np.int32), 'material': umat, 'group': 'udder',
+                            'ao': None, 'f': ch['f'].astype(np.int32), 'material': umat, 'group': 'udder',
                             'W': RG.udder_weights(ch['v'], 'L' if '_L_' in ch['name'] else 'R')})
 
     # --- kept assets (mask, horns, wire, gloves, slippers)
@@ -192,8 +181,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                 mat['pbrMetallicRoughness']['roughnessFactor'] = .42
             remap[mi] = model.add_material(mat)
         q = dict(p); q['material'] = remap[mi]; q['group'] = grp
-        if q.get('ao') is None:
-            q['ao'] = np.ones(len(q['v']), np.float32)
+        q['ao'] = None              # v09 carried ambient occlusion in its vertex colours
         if q.get('uv') is None:
             q['uv1'] = None
         W = np.zeros((len(q['v']), RG.NB))
@@ -209,7 +197,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     # --- slippers: the knitted cow heads cut from the Shy Cow model
     for q, grp in A.shy_cow_slippers(model):
         q['group'] = grp
-        q['ao'] = np.ones(len(q['v']), np.float32)
+        q['ao'] = None
         q['uv1'] = None
         W = np.zeros((len(q['v']), RG.NB)); W[:, RG.LEG[grp[-1]]['foot']] = 1
         q['W'] = W
@@ -222,7 +210,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             mat = GL.tripo_material(model, side) if p['kind'] == 'tripo' else gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side]
             q = {'name': p['name'], 'v': p['v'].astype(np.float32), 'n': p['n'].astype(np.float32),
                  'f': p['f'].astype(np.int32), 'uv': p['uv'].astype(np.float32),
-                 'uv1': None if p.get('uv1') is None else p['uv1'].astype(np.float32), 'ao': p['ao'],
+                 'uv1': None if p.get('uv1') is None else p['uv1'].astype(np.float32), 'ao': None,
                  'material': mat, 'group': f'glove_{side}'}
             for k in ('hoof_w', 'thumb_w'):
                 if k in p:
@@ -251,7 +239,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             uv = None
         model.parts.append({'name': name, 'v': v.astype(np.float32), 'n': n.astype(np.float32), 'f': f.astype(np.int32),
                             'uv': None if uv is None else uv.astype(np.float32), 'uv1': None,
-                            'ao': np.ones(len(v), np.float32), 'material': tm[kind], 'group': 'tail', 'W': W})
+                            'ao': None, 'material': tm[kind], 'group': 'tail', 'W': W})
     report['triangles'] = int(sum(len(p['f']) for p in model.parts))
     report['vertices'] = int(sum(len(p['v']) for p in model.parts))
     return model, report

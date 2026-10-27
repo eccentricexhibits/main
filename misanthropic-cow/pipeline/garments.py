@@ -172,9 +172,13 @@ def build_suit(step=.0042, target=170000):
     return {'v': v, 'f': f, 'n': junction_normals(v, f, n, lab), 'labels': lab, 'charts': charts}
 
 
-def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018)):
+def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018), reach=(.075, .11)):
     """Where a sleeve meets the torso (shoulder cap, armpit), shade both pieces with the normals of
-    one smoothly blended surface, so the junction reads as continuous fur rather than a seam line."""
+    one smoothly blended surface, so the junction reads as continuous fur rather than a seam line.
+    Only within `reach` of the shoulder pivot: in the rest pose the hanging arm also lies close to
+    the side of the body, but that is not a seam, and normals blended there stay bent toward the
+    arm's position, so when the arm rises the side of the torso and the inner sleeve shade as a
+    crease with bright spots."""
     vl = np.zeros(len(v), int)
     for c in range(3):
         vl[f[:, c]] = face_labels
@@ -182,10 +186,11 @@ def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018)):
     torso = D.suit_sdf
     for side, lab in [('L', 2), ('R', 3)]:
         sleeve = lambda q, sd=side: D.sleeve_sdf(q, sd)
+        sh = D.arm_points(1 if side == 'L' else -1)[0]
         for mine, other in [(vl == 0, sleeve), (vl == lab, torso)]:
             idx = np.nonzero(mine)[0]
             d = np.abs(other(v[idx]))
-            near = d < band[1]
+            near = (d < band[1]) & (np.linalg.norm(v[idx] - sh, axis=1) < reach[1])
             idx, d = idx[near], d[near]
             if not len(idx):
                 continue
@@ -195,7 +200,7 @@ def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018)):
             g = np.stack([blend(q + dd) - blend(q - dd) for dd in np.eye(3) * e], 1)
             g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-9)
             w = np.clip((band[1] - d) / (band[1] - band[0]), 0, 1)
-            w = w * w * (3 - 2 * w)
+            w = w * w * (3 - 2 * w) * _sm(reach[1], reach[0], np.linalg.norm(q - sh, axis=1))
             m = n[idx] * (1 - w)[:, None] + g * w[:, None]
             n[idx] = m / np.maximum(np.linalg.norm(m, axis=1, keepdims=True), 1e-9)
     return n
@@ -311,8 +316,7 @@ def clip_mesh(v, f, g):
 def build_panties(step=.0035, target=45000):
     """Briefs: their own stretched surface (panty_sdf), cut along the leg openings and below the
     waistband (hidden under the suit), with raised elastic trims and ruching at the leg openings, a
-    few shallow tension wrinkles fanning from the crotch over the front, and world-scale fabric UVs.
-    trim_pts (the leg-opening edges) let the leggings take a contact shadow along them."""
+    few shallow tension wrinkles fanning from the crotch over the front, and world-scale fabric UVs."""
     import xatlas
     v, f = mesh_from(panty_sdf, (-.27, .50, -.22), (.27, 1.0, .17), step, target, smooth=4)
     v, f = clip_mesh(v, f, np.maximum(v[:, 1] - leg_opening(v), gusset(v, S.vertex_normals(v, f))))
@@ -339,7 +343,6 @@ def build_panties(step=.0035, target=45000):
     fan = np.sin(ang * 7.0) * _sm(.02, .06, r) * _sm(.17, .08, r) * _sm(0, .05, v[:, 2]) * (1 - trim)
     v = v + n * (lift + .0006 * ruche + .0011 * fan)[:, None]
     n = S.vertex_normals(v, f)
-    trim_pts = v[bv]
     # world-scale UVs (one fabric tile every TILE / 1.6 metres) from a low-distortion unwrap
     vmap, fi, uvx = xatlas.parametrize(v.astype(np.float32), f.astype(np.uint32))
     v2, n2 = v[vmap], n[vmap]
@@ -347,9 +350,7 @@ def build_panties(step=.0035, target=45000):
     u2 = np.c_[uvx, np.zeros(len(uvx))]
     a2 = np.linalg.norm(np.cross(u2[fi[:, 1]] - u2[fi[:, 0]], u2[fi[:, 2]] - u2[fi[:, 0]]), axis=1).sum()
     uv = uvx * np.sqrt(a3 / a2) / TILE * 1.6
-    ao = (1 - .22 * trim[vmap] * (1 - trim[vmap]) * 4).astype(np.float32)        # shade the trim's edge
-    return {'name': 'Panties_pink_satin', 'v': v2, 'f': fi.astype(np.int64), 'n': n2, 'uv': uv, 'uv1': uv, 'ao': ao,
-            'trim_pts': trim_pts}
+    return {'name': 'Panties_pink_satin', 'v': v2, 'f': fi.astype(np.int64), 'n': n2, 'uv': uv, 'uv1': uv}
 
 
 # ---------------------------------------------------------------- udder

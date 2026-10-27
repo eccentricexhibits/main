@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (12.9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (12.3 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -136,6 +136,15 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-view="hands">Hands</button>
       </div>
 
+      <div class="row" id="lights">
+        <span class="label">Light</span>
+        <button data-light="studio" aria-pressed="true">Studio</button>
+        <button data-light="soft" aria-pressed="false">Soft</button>
+        <button data-light="spot" aria-pressed="false">Spotlight</button>
+        <button data-light="none" aria-pressed="false">No lighting</button>
+        <span class="note" id="lightNote">Key and rim lights over a soft room reflection.</span>
+      </div>
+
       <div class="row">
         <span class="label">Surface</span>
         <button id="clay" aria-pressed="false">Clay</button>
@@ -147,6 +156,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
+          <li><strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
+          <li><strong>No baked shadows:</strong> the model no longer carries any shading of its own; the dark band under the arms and the grey under the cups were baked in. All light and shadow now come from the viewer. Try the four rigs under <em>Light</em>.</li>
           <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
           <li>Round 11 &middot; <strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
           <li><strong>Belly:</strong> the sides are rounded off, and the hem rises gently round the sides instead of cutting the belly off on a diagonal.</li>
@@ -228,9 +239,23 @@ stage.prepend(renderer.domElement);
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+// The model carries colour only, with no shading baked in, so all of its light and shadow comes from
+// the rig chosen here, the way it would in a game engine or renderer.
 const key = new THREE.DirectionalLight(0xfff1e8, 1.6); key.position.set(-1.2, 2.4, 2.2); scene.add(key);
 const rim = new THREE.DirectionalLight(0xffc6dc, 1.1); rim.position.set(1.6, 1.8, -2.0); scene.add(rim);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x6a4a5a, 0.35));
+const hemi = new THREE.HemisphereLight(0xffffff, 0x6a4a5a, 0.35); scene.add(hemi);
+const spot = new THREE.SpotLight(0xfff4ea, 26, 9, Math.PI / 7.5, 0.5, 2);
+spot.position.set(-0.9, 3.3, 1.7); spot.target.position.set(0, 0.85, 0);
+spot.castShadow = true; spot.shadow.mapSize.set(2048, 2048); spot.shadow.bias = -0.0003; spot.shadow.normalBias = 0.015;
+scene.add(spot, spot.target);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const LIGHTS = {
+  studio: { env: 1, key: 1.6, rim: 1.1, hemi: 0.35, spot: false, note: 'Key and rim lights over a soft room reflection.' },
+  soft:   { env: 1.2, key: 0, rim: 0, hemi: 1.1, spot: false, note: 'Even light from every side, with no direction.' },
+  spot:   { env: 0.2, key: 0, rim: 0.35, hemi: 0.12, spot: true, note: 'One spotlight from above and in front, casting real shadows on the body and the floor.' },
+  none:   { unlit: true, note: 'Colours only: no lighting or shading at all.' },
+};
+let lightMode = 'studio', clayOn = false;
 
 // soft floor shadow
 const sh = document.createElement('canvas'); sh.width = sh.height = 128;
@@ -238,6 +263,9 @@ const g = sh.getContext('2d'); const grd = g.createRadialGradient(64, 64, 4, 64,
 grd.addColorStop(0, 'rgba(20,8,16,0.55)'); grd.addColorStop(1, 'rgba(20,8,16,0)'); g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sh), transparent: true, depthWrite: false }));
 floor.rotation.x = -Math.PI / 2; floor.position.y = 0.002; scene.add(floor);
+// in Spotlight the floor takes the real cast shadow instead
+const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.ShadowMaterial({ color: 0x1a0812, opacity: 0.4 }));
+shadowFloor.rotation.x = -Math.PI / 2; shadowFloor.receiveShadow = true; scene.add(shadowFloor);
 
 const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.05, 30);
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -278,6 +306,7 @@ let mixer = null, action = null, playing = true, clipName = 'Chicken Dance', bas
 const clipMap = {};
 const restPose = [];   // every bone's rest transform, recorded at load (the default pose)
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
+const clayFlat = new THREE.MeshBasicMaterial({ color: 0xcfc6bd });
 const meshes = [];
 
 // Each model ships as a .glb (local copy) and as base64 text for hosts that only serve text: one
@@ -324,7 +353,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (12.7 MB)...';
+    status.textContent = 'Loading the simplified copy (12.3 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;
@@ -332,11 +361,17 @@ async function start() {
     if (o.isBone) restPose.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]);
     if (o.isMesh) {
       o.frustumCulled = false;
+      o.castShadow = o.receiveShadow = true;
       o.userData.mat = o.material;
+      o.userData.env = o.material.envMapIntensity ?? 1;
+      const m = o.material;      // the unlit copy shows each material's own colours, untouched by tone mapping
+      o.userData.flat = new THREE.MeshBasicMaterial({ name: m.name, map: m.map, color: m.color, vertexColors: m.vertexColors,
+        side: m.side, transparent: m.transparent, alphaTest: m.alphaTest, toneMapped: false });
       meshes.push(o);
     }
   });
   scene.add(root);
+  setLight(lightMode);
   mixer = new THREE.AnimationMixer(root);
   gltf.animations.forEach(c => { clipMap[c.name] = c; });
   selectClip('Chicken Dance');
@@ -393,11 +428,29 @@ document.querySelectorAll('#phases button').forEach(b => b.addEventListener('cli
   seek((parseFloat(b.dataset.t) + 0.6) * k);
 }));
 document.querySelectorAll('#views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+function applyMaterials() {
+  const flat = !!LIGHTS[lightMode].unlit;
+  meshes.forEach(m => { m.material = clayOn ? (flat ? clayFlat : clayMat) : (flat ? m.userData.flat : m.userData.mat); });
+}
+function setLight(name) {
+  const L = LIGHTS[name];
+  lightMode = name;
+  key.intensity = L.key ?? 0; rim.intensity = L.rim ?? 0; hemi.intensity = L.hemi ?? 0;
+  key.visible = key.intensity > 0; rim.visible = rim.intensity > 0; hemi.visible = hemi.intensity > 0;
+  spot.visible = !!L.spot;
+  floor.visible = !L.spot; shadowFloor.visible = !!L.spot;
+  meshes.forEach(m => { m.userData.mat.envMapIntensity = m.userData.env * (L.env ?? 0); });
+  clayMat.envMapIntensity = L.env ?? 0;
+  applyMaterials();
+  document.getElementById('lightNote').textContent = L.note;
+  document.querySelectorAll('#lights button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.light === name)));
+}
+document.querySelectorAll('#lights button').forEach(b => b.addEventListener('click', () => setLight(b.dataset.light)));
 const clayBtn = document.getElementById('clay');
 clayBtn.addEventListener('click', () => {
-  const on = clayBtn.getAttribute('aria-pressed') !== 'true';
-  clayBtn.setAttribute('aria-pressed', String(on));
-  meshes.forEach(m => { m.material = on ? clayMat : m.userData.mat; });
+  clayOn = clayBtn.getAttribute('aria-pressed') !== 'true';
+  clayBtn.setAttribute('aria-pressed', String(clayOn));
+  applyMaterials();
 });
 
 const clock = new THREE.Clock();
