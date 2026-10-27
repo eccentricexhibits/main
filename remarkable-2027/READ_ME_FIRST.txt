@@ -49,6 +49,18 @@ ROUND 3
   remarkable-plus-field.png, exported from the supplied PDFs) sit along the bottom edge, blended
   with "lighten" as in the artwork. Extra space below the cards keeps the letterforms visible.
 
+ROUND 4
+- Right edges checked on every page at 1440 and 390px. Fixed: closing pixel motif now sits fully
+  inside the panel (no longer clipped); FAQ arrow (narrower than the other ornaments) now right-aligns
+  in its box; Home day arrows and Agenda session "+" icons sit flush with the content edge;
+  "HILTON TORONTO" compensates for its trailing letter-spacing; mobile hero arrow flush right.
+- "Remarkable 2026 by the numbers": uppercase, same size/tracking as "Remarkable 2026 in photos".
+- Speakers page (and speaker pop-up) portraits: magenta-to-cobalt gradient ring.
+- "Be part of what comes next." now uses the same size scale as "See where the conversation goes."
+  and "Right at the heart of it." (76 / 68 / 62 / 58px, and 46-58px on phones; the three now match at
+  every width). Button, padding and pixel motif were scaled down to suit.
+- FAQ topic list: the 01-04 numbers sit on the same baseline as their labels (desktop and mobile).
+
 FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts folder
 (Karbon-Regular/Medium/Semibold/Bold .woff) in place.
 
