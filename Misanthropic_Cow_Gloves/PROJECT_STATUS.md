@@ -55,7 +55,7 @@ the mat), and each part is scaled at its own height. Cross-checks: the beads mea
 | 2 ChatGPT multiview kit | done: `02_chatgpt_kit/` (5 step zips + fix-ups). Guide page with copy buttons is published as a private artifact. **User runs Steps 1–5.** |
 | 2b Approved views | done: `02_approved_views/` (front, little-finger side, thumb side; all round 1, no fixes needed). Hoof 35–36 % of the height in all three; side views mirror each other (silhouette IoU 0.80, the thumb accounts for most of the difference). |
 | 3 Normalise Tripo inputs | done: `03_tripo_inputs/` (palm view = mirrored front). Slots: Left = thumb side (the object's own left, same convention as the slippers), Right = little-finger side. |
-| 4 Evaluate Tripo model | next: the user runs Tripo multiview and uploads the zip |
+| 4 Evaluate Tripo model | done: `04_tripo_v1_evaluation/`. Tripo v1 = `furry_glove_3d_model` (OBJ 186 MB, kept with the user; too big for the repo). 1.86 M triangles, one connected piece, no twist. Silhouette vs input views IoU 0.92–0.94. Hoof 37 % of length (real 36 %), wrist 8.3–8.9 cm, hand 5.3–5.8 cm thick (estimate was 4–5). Problems: metallic 0.92 on the hoof (must be 0); bead-like bumps down both side seams of the terry (invented, flatten); cuff is a closed flat cap; hoof toes fused (cleft groove only 6–9 mm deep each side of a 50 mm hoof). Scale: model is 0.972 units tall → 1 unit ≈ 25.4 cm. **Waiting for the user's go-ahead (gate 4).** |
 | 5 Round 2 if needed | – |
 | 6 Cleanup + split hoof toes into separate objects with knuckle pivots | – |
 | 7–9 Optimise, UVs, bakes, materials (terry + satin black paint) | – |

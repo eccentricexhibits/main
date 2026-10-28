@@ -1,0 +1,17 @@
+triangles 1,863,202  vertices 948,007  extent X 0.482 Y 0.972 Z 0.258  (1 unit = 25.4 cm)
+hoof (dark) from 63% height up -> hoof = top 37% of length (real ~36%)
+hoof width at 85%: 6.9 cm
+  at  5%: width   8.9 cm (all incl. thumb)  thickness  6.5 cm
+  at 25%: width   8.3 cm (all incl. thumb)  thickness  5.7 cm
+  at 45%: width  10.3 cm (all incl. thumb)  thickness  5.8 cm
+  at 60%: width  11.5 cm (all incl. thumb)  thickness  5.5 cm
+  at 70%: width   8.4 cm (all incl. thumb)  thickness  5.3 cm
+  at 85%: width   6.9 cm (all incl. thumb)  thickness  4.5 cm
+  at 95%: width   3.3 cm (all incl. thumb)  thickness  2.3 cm
+thumb: tip at 75% height, sticks out 3.1 cm beyond the wrist line
+cleft at 70% height: groove depth front 9.3 mm, back 7.0 mm, hoof thickness 53 mm
+cleft at 80% height: groove depth front 7.3 mm, back 6.4 mm, hoof thickness 50 mm
+cleft at 90% height: groove depth front 2.6 mm, back 2.8 mm, hoof thickness 36 mm
+metallic: mean 0.335  p50 0.149  p95 0.933  max 0.980  | hoof mean 0.923  terry mean 0.133
+roughness: mean 0.840  p50 0.863  p95 0.902  max 0.965  | hoof mean 0.750  terry mean 0.871
+connected components: 1, faces in largest 1,863,202 (100.00%), others total 0
