@@ -1,0 +1,4 @@
+sounds/*.bin
+sounds/*.b64.txt
+local/
+__pycache__/

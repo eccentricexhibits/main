@@ -1,0 +1,714 @@
+{
+  "format": "patchbay-session",
+  "version": 2,
+  "savedAt": "2026-10-27T20:39:09.483Z",
+  "midi": {
+    "name": "Wasting My Time",
+    "files": [
+      "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid"
+    ],
+    "duration": 165.39,
+    "notes": 8256
+  },
+  "master": {
+    "level": 80,
+    "room": 50
+  },
+  "channels": [
+    {
+      "part": 1,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 1,
+      "track": "Piccolo",
+      "drums": false,
+      "fileProgram": 73,
+      "instrument": {
+        "name": "Piccolo",
+        "category": "Orchestral",
+        "family": "Pipe",
+        "bank": 0,
+        "program": 73,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -10,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 2,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 2,
+      "track": "Flute 1·2",
+      "drums": false,
+      "fileProgram": 74,
+      "instrument": {
+        "name": "Flute",
+        "category": "Orchestral",
+        "family": "Pipe",
+        "bank": 0,
+        "program": 74,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -7,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 3,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 3,
+      "track": "Oboe 1·2",
+      "drums": false,
+      "fileProgram": 69,
+      "instrument": {
+        "name": "Oboe",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 69,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 5,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 4,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 4,
+      "track": "English Horn",
+      "drums": false,
+      "fileProgram": 70,
+      "instrument": {
+        "name": "English Horn",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 70,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 7,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 5,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 5,
+      "track": "Clarinet 1·2 in Bb",
+      "drums": false,
+      "fileProgram": 72,
+      "instrument": {
+        "name": "Clarinet",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 72,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -4,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 6,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 6,
+      "track": "Bass Clarinet in Bb",
+      "drums": false,
+      "fileProgram": 72,
+      "instrument": {
+        "name": "Clarinet",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 72,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -6,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 7,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 7,
+      "track": "Bassoon 1·2",
+      "drums": false,
+      "fileProgram": 71,
+      "instrument": {
+        "name": "Bassoon",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 71,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 7,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 8,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 8,
+      "track": "Contrabassoon",
+      "drums": false,
+      "fileProgram": 71,
+      "instrument": {
+        "name": "Bassoon",
+        "category": "Orchestral",
+        "family": "Reed",
+        "bank": 0,
+        "program": 71,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 13,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 9,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 9,
+      "track": "Horn 1·2 in F",
+      "drums": false,
+      "fileProgram": 61,
+      "instrument": {
+        "name": "French Horns",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 61,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -19,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 10,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 11,
+      "track": "Horn 3·4 in F",
+      "drums": false,
+      "fileProgram": 61,
+      "instrument": {
+        "name": "French Horns",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 61,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -26,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 11,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 12,
+      "track": "Trumpet 1·2·3 in Bb",
+      "drums": false,
+      "fileProgram": 57,
+      "instrument": {
+        "name": "Trumpet",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 57,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 15,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 12,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 13,
+      "track": "Trombone 1·2",
+      "drums": false,
+      "fileProgram": 58,
+      "instrument": {
+        "name": "Trombone",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 58,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 23,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 13,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 14,
+      "track": "Bass Trombone",
+      "drums": false,
+      "fileProgram": 58,
+      "instrument": {
+        "name": "Trombone",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 58,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 28,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 14,
+      "file": "fc1d9713-Wasting_My_Time_orchestral_VI_part1_winds_brass.mid",
+      "channel": 15,
+      "track": "Tuba",
+      "drums": false,
+      "fileProgram": 59,
+      "instrument": {
+        "name": "Tuba",
+        "category": "Orchestral",
+        "family": "Brass",
+        "bank": 0,
+        "program": 59,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 31,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 15,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 1,
+      "track": "Timpani",
+      "drums": false,
+      "fileProgram": 48,
+      "instrument": {
+        "name": "Timpani",
+        "category": "Orchestral",
+        "family": "Strings",
+        "bank": 0,
+        "program": 48,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 6,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 16,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 2,
+      "track": "Glockenspiel",
+      "drums": false,
+      "fileProgram": 10,
+      "instrument": {
+        "name": "Glockenspiel",
+        "category": "Keys & Piano",
+        "family": "Chromatic percussion",
+        "bank": 0,
+        "program": 10,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -23,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 17,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 3,
+      "track": "Tubular Bells",
+      "drums": false,
+      "fileProgram": 15,
+      "instrument": {
+        "name": "Tubular Bells",
+        "category": "Keys & Piano",
+        "family": "Chromatic percussion",
+        "bank": 0,
+        "program": 15,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 18,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 18,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 10,
+      "track": "Snare Drum",
+      "drums": true,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Orchestral",
+        "category": "Drums & Band",
+        "family": "Drum kit",
+        "bank": 128,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 3,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 19,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 10,
+      "track": "Bass Drum · Cymbals",
+      "drums": true,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Orchestral",
+        "category": "Drums & Band",
+        "family": "Drum kit",
+        "bank": 128,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": 11,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 20,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 10,
+      "track": "Suspended Cymbal · Triangle",
+      "drums": true,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Orchestral",
+        "category": "Drums & Band",
+        "family": "Drum kit",
+        "bank": 128,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -8,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 21,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 4,
+      "track": "Harp",
+      "drums": false,
+      "fileProgram": 47,
+      "instrument": {
+        "name": "Orchestral Harp",
+        "category": "Orchestral",
+        "family": "Strings",
+        "bank": 0,
+        "program": 47,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [],
+      "volume": 100,
+      "pan": -35,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 22,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 5,
+      "track": "Violin I",
+      "drums": false,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Fast Strings",
+        "category": "Orchestral",
+        "family": "Ensemble",
+        "bank": 0,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [
+        {
+          "fileProgram": 45,
+          "notes": 39,
+          "instrument": {
+            "name": "Tremolo Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 45,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        },
+        {
+          "fileProgram": 41,
+          "notes": 16,
+          "instrument": {
+            "name": "Violin",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 41,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        }
+      ],
+      "volume": 100,
+      "pan": -38,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 23,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 6,
+      "track": "Violin II",
+      "drums": false,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Fast Strings",
+        "category": "Orchestral",
+        "family": "Ensemble",
+        "bank": 0,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [
+        {
+          "fileProgram": 45,
+          "notes": 68,
+          "instrument": {
+            "name": "Tremolo Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 45,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        },
+        {
+          "fileProgram": 46,
+          "notes": 48,
+          "instrument": {
+            "name": "Pizzicato Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 46,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        }
+      ],
+      "volume": 100,
+      "pan": -18,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 24,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 7,
+      "track": "Viola",
+      "drums": false,
+      "fileProgram": 49,
+      "instrument": {
+        "name": "Fast Strings",
+        "category": "Orchestral",
+        "family": "Ensemble",
+        "bank": 0,
+        "program": 49,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [
+        {
+          "fileProgram": 45,
+          "notes": 50,
+          "instrument": {
+            "name": "Tremolo Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 45,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        }
+      ],
+      "volume": 100,
+      "pan": 13,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 25,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 8,
+      "track": "Violoncello",
+      "drums": false,
+      "fileProgram": 43,
+      "instrument": {
+        "name": "Cello",
+        "category": "Orchestral",
+        "family": "Strings",
+        "bank": 0,
+        "program": 43,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [
+        {
+          "fileProgram": 46,
+          "notes": 57,
+          "instrument": {
+            "name": "Pizzicato Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 46,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        }
+      ],
+      "volume": 100,
+      "pan": 28,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    },
+    {
+      "part": 26,
+      "file": "fef83f01-Wasting_My_Time_orchestral_VI_part2_perc_harp_strings.mid",
+      "channel": 9,
+      "track": "Contrabass",
+      "drums": false,
+      "fileProgram": 44,
+      "instrument": {
+        "name": "Double Bass",
+        "category": "Orchestral",
+        "family": "Strings",
+        "bank": 0,
+        "program": 44,
+        "soundfont": "GeneralUser GS",
+        "plugin": null
+      },
+      "articulations": [
+        {
+          "fileProgram": 46,
+          "notes": 82,
+          "instrument": {
+            "name": "Pizzicato Strings",
+            "category": "Orchestral",
+            "family": "Strings",
+            "bank": 0,
+            "program": 46,
+            "soundfont": "GeneralUser GS",
+            "plugin": null
+          }
+        }
+      ],
+      "volume": 100,
+      "pan": 37,
+      "reverb": 45,
+      "mute": false,
+      "solo": false
+    }
+  ]
+}
