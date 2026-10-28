@@ -1,5 +1,8 @@
 """Wasting My Time, electronic arrangement: built from v18 (the approved orchestral version).
 
+Revision 2: the pickups into each pre-chorus (violins I's A4, the oboes' "F . F") were being
+dropped at the verse/pre-chorus boundary; they're routed now.
+
 usage: python3 electronic.py [out folder]   (default: this script's folder)
 
 The melody, harmony, form, tempo map (including the 156→228 BPM ending) and the cold hit all
@@ -134,6 +137,7 @@ CONDUCTOR = mido.MidiFile(SRC_A).tracks[0]
 # (track name or its first word(s), first bar, last bar + 1, role, options). The first matching rule wins;
 # notes no rule matches are dropped (v18's bass and percussion: their jobs are regenerated).
 # options: tr = transpose, vel = velocity scale, vmax = velocity cap, maxlen = length cap in beats,
+# beat_from / beat_to = only notes starting in that part of the bar, spill = bars a long lead note may ring past the range,
 # short = (beats, role) send notes shorter than that to another role, gate = chop into 16ths, echo = add dotted-8th repeats.
 ROUTES = []
 def R(src, a, b, role, **o): ROUTES.append((src, a, b, role, o))
@@ -183,6 +187,12 @@ for a, b, k in SECTIONS:
     elif k == 'hit':
         R('Violin I', a, b, 'lead'); R('Violin II', a, b, 'harm'); R('Trumpet', a, b, 'stab', vmax=110)
         R('Horn 1·2', a, b, 'brass', vmax=100)
+# Pickups that start in a verse's last bar but belong to what follows: violins I's A4 on beat 4,
+# the pre-chorus melody's first note, and the oboes' "F . F" answer on beats 2-2½.
+for a, b, k in SECTIONS:
+    if k in ('verse', 'verse4'):
+        if k == 'verse': R('Violin I', b - 1, b, 'lead', echo='echo', beat_from=4)
+        R('Oboe', b - 1, b, 'counter', vel=1.0, beat_from=2, beat_to=3)
 R('Glockenspiel', 1, 108, 'bells', vel=0.85); R('Tubular', 1, 108, 'bells', vel=0.9)
 
 LEADS = ('lead_v', 'lead', 'harm', 'stack', 'counter', 'echo', 'echo_v')
@@ -194,12 +204,14 @@ for name, ns in SRCN.items():
     for s, e, p, v in ns:
         bar = s // BAR + 1
         for src, a, b, role, o in ROUTES:
-            if (name == src or name.startswith(src + ' ')) and a <= bar < b: break
+            if (name == src or name.startswith(src + ' ')) and a <= bar < b and \
+               (o.get('beat_from', 1) - 1) * BEAT <= s % BAR < (o.get('beat_to', 5) - 1) * BEAT: break
         else: continue
         p += o.get('tr', 0); v = min(v * o.get('vel', 1.0), o.get('vmax', 127))
         if 'short' in o and (e - s) < o['short'][0] * BEAT: role = o['short'][1]
         if 'maxlen' in o: e = min(e, s + int(o['maxlen'] * BEAT))
-        if role in LEADS: e = min(e, T(b))   # a held orchestral tail would drone on a synth lead
+        if role in LEADS and e - s > 4 * BEAT:   # a long held orchestral tail would drone on a synth lead
+            e = min(e, T(b + o.get('spill', 0)))
         if o.get('gate'):   # trance gate: 16th slices, every other one accented
             for i, t in enumerate(range(s, e, 120)): add(role, t, min(t + 84, e), p, v * (1.0 if i % 2 == 0 else 0.72))
             continue

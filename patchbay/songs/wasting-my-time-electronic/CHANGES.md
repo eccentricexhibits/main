@@ -12,6 +12,35 @@ This is a new arrangement, not a v19. It's built from the approved **v18**:
 It stays **melancholic but anthemic**. The verses are half-time and spacious, the choruses
 drop into a driving two-step beat, and the bridge is a lush pad wall.
 
+## Revision 2: the pickups into the pre-choruses
+
+You noticed missing notes in the melody at 0:17 and 0:40. Two short phrases that lead into
+each pre-chorus start in the last bar of the verse, and the routing only took the verse tune
+from that bar, so it dropped them:
+- **Violins I's A4 on beat 4:** the pre-chorus melody's first note, held into the next bar.
+  It's now on the hook lead, with its echo, at the end of verses 1–3 (0:17, 0:40, 1:09).
+- **The oboes' "F . F" answer on beats 2–2½:** before pre-choruses 1 and 2. It's now on the
+  counter lead.
+- **Verse 4's pickup (2:05):** it was being cut to one beat at the section line, against its
+  full two in v18. Lead notes now ring across a section boundary; only held tails longer than
+  a bar are still cut (the one at 0:31 would drone on a synth).
+
+An audit of every v18 line found no other dropped melody notes. What the routing leaves out on
+purpose:
+- doublings of lines the leads already play
+- the orchestral bass and percussion
+- held chord tones the pads cover
+
+**Checks:**
+- **Unchanged elsewhere:** the render differs from the previous one only at 0:17–0:20,
+  0:38–0:41, 1:08–1:10 and 2:05–2:07.
+- **Verse balance:** V1 +2.1, V2 +1.8, V3 +1.6 dB. The verses themselves are unchanged. The
+  small drop for V1 and V2 is the new pickup falling inside the verse's measuring window.
+- **Whole song:** −15.1 LUFS.
+
+**Clip:** `Wasting My Time (electronic) - pre-chorus pickups, before and after (0m13-0m22,
+0m35-0m44).mp3` plays 0:13–0:22 before and after, then 0:35–0:44 before and after.
+
 ## How it was made
 
 `electronic.py` reads v18's MIDI and rebuilds it in four steps:
@@ -80,7 +109,7 @@ Any of these can be swapped in Patchbay's instrument browser without touching th
 ## Checks
 
 - **Verse tune over the rest** (mix minus the tune soloed): V1 **+2.3**, V2 **+2.1**, V3
-  **+1.6 dB**. Your v18 values are +2.2 / +2.2 / +1.6.
+  **+1.6 dB** (first version; see revision 2). Your v18 values are +2.2 / +2.2 / +1.6.
   - The tune is played at G4–A4 in all three verses. In v18, verses 1 and 2 had it an octave
     lower, among the accompaniment. On a lead synth it needs its own register to come through.
 - **Drop:** the choruses are about 4 LU louder than the verses.

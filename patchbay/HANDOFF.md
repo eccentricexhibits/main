@@ -23,7 +23,10 @@ it as the base for any further song work; don't redo it.
   - verse tune over the rest: V1 +2.3, V2 +2.1, V3 +1.6 dB
   - choruses about 4 LU over the verses
   - −15.1 LUFS overall
-- **Waiting on:** the user's first listen.
+- **Revision 2:** the user heard missing melody notes at 0:17 and 0:40. These were the
+  pickups into each pre-chorus (violins I's A4, the oboes' "F . F"), dropped at the
+  verse/pre-chorus boundary. Now routed.
+- **Waiting on:** the user's next listen.
 - **Plugins:** `electronic-instruments.md` lists free VST3s, effects and CC0 SoundFonts that
   would enrich it, mapped part by part, with a starter pack.
 
