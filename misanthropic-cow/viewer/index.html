@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (12.8 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (15.9 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -156,9 +156,10 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
+          <li><strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
+          <li>Last round &middot; <strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
           <li><strong>Gloves rebuilt:</strong> each glove is rebuilt as one smooth solid from your Tripo glove, with the same shape, thumb, hooves and texture but without the spiky edges, and with a clean round cuff that fits inside the sleeve instead of the ragged wrist.</li>
-          <li>Last round &middot; <strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
+          <li>Earlier &middot; <strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
           <li>Earlier &middot; <strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
           <li><strong>No baked shadows:</strong> the model no longer carries any shading of its own; the dark band under the arms and the grey under the cups were baked in. All light and shadow now come from the viewer. Try the four rigs under <em>Light</em>.</li>
           <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
@@ -356,7 +357,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (13.1 MB)...';
+    status.textContent = 'Loading the simplified copy (17.0 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

@@ -200,6 +200,7 @@ def body_sdf(p):
 
 # ------------------------------------------------------------------ leggings
 THIGH_OUT, THIGH_R = .024, .096
+FOOTBED = .032           # top of the slippers' footbed (just under it), where the socked foot stands
 def legging_parts(p):
     out = {}
     pelvis = S.ellipsoid(p, (0, .885, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
@@ -212,6 +213,13 @@ def legging_parts(p):
         calf = S.ellipsoid(p, (s * .098, .330, -.030), (.060, .110, .062))
         butt = S.ellipsoid(p, (s * .084, .800, -.068), (.106, .105, .092))
         leg = S.smin(S.smin(thigh, shin, .03), calf, .045)
+        # the black-socked foot standing in the open-back mule slipper: the heel shows on the footbed and
+        # the front of the foot runs into the slipper's head, where it ends hidden; toed out 7 degrees
+        # like the slippers
+        fwd = np.array([s * np.sin(np.deg2rad(7)), 0, np.cos(np.deg2rad(7))])
+        heel = S.ellipsoid(p, ankle + [0, -.040, 0] - .035 * fwd, (.031, .026, .034))
+        sole = S.round_cone(p, ankle + [0, -.035, 0], ankle + [0, -.050, 0] + .085 * fwd, .032, .026)
+        leg = S.smin(leg, S.smin(heel, sole, .02), .03)
         out['leg_' + side] = leg
         pelvis = S.smin(pelvis, butt, .05)
     out['pelvis'] = pelvis
@@ -224,7 +232,7 @@ def legging_sdf(p):
     d = S.smin(d, c['leg_R'], .045)
     d = np.minimum(d, np.minimum(c['leg_L'], c['leg_R']))
     d = S.smax(d, p[..., 1] - 1.02, .02)     # top hidden inside the suit
-    d = S.smax(d, .060 - p[..., 1], .01)     # ends inside the slippers
+    d = S.smax(d, FOOTBED - p[..., 1], .004)  # the sock's sole rests on the slippers' footbed
     return d
 
 

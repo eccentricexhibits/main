@@ -50,8 +50,8 @@ def glove_transform(src, old_prefix, side):
 
 def load(src, keep_gloves=False, keep_slippers=False):
     """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}.
-    The v08 gloves are replaced by the rebuilt ones in gloves.py, and the v04 slippers by the Shy Cow
-    slippers (shy_cow_slippers below), unless keep_gloves / keep_slippers is set."""
+    The v08 gloves are replaced by the rebuilt ones in gloves.py, and the v04 slippers by the owner's
+    cow mule slippers (slippers below), unless keep_gloves / keep_slippers is set."""
     out = []
     for name in MASK_KEEP:
         p = dict(src.part(name))
@@ -104,20 +104,23 @@ def load(src, keep_gloves=False, keep_slippers=False):
     return out
 
 
-SLIPPER_ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'slippers_shy_cow.glb'
+SLIPPER_ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'slippers_cow_mule.glb'
 SLIPPER_SOLE = .003          # lowest point of the sole above the floor
 
 
-def shy_cow_slippers(model):
-    """The knitted cow-head slippers cut from the Tripo "Shy Cow" model (see tripo_slippers.py), placed
-    with their ankle opening on each ankle and the usual 7 degree toe-out.  Adds their images and
-    materials to `model`; returns [(part, group)]."""
+def slippers(model):
+    """The owner's cow mule slippers (see cow_mule_slippers.py), placed with their ankle axis on each
+    ankle and the usual 7 degree toe-out.  Adds their images and material to `model`; returns
+    [(part, group)]."""
     src = G.read(SLIPPER_ASSET)
     img = [model.add_image(*im) for im in src.images]
     mat = []
     for m in src.materials:
         m = json.loads(json.dumps(m))
-        m['pbrMetallicRoughness']['baseColorTexture']['image'] = img[m['pbrMetallicRoughness']['baseColorTexture']['image']]
+        for holder in (m.get('pbrMetallicRoughness', {}), m):
+            for k, t in holder.items():
+                if k.endswith('Texture') and isinstance(t, dict) and 'image' in t:
+                    t['image'] = img[t['image']]
         mat.append(model.add_material(m))
     out = []
     for p in src.parts:
@@ -129,6 +132,5 @@ def shy_cow_slippers(model):
         q['v'] = (p['v'] @ Ry.T + np.array([foot[0], SLIPPER_SOLE, foot[2]])).astype(np.float32)
         q['n'] = (p['n'] @ Ry.T).astype(np.float32)
         q['material'] = mat[p['material']]
-        q['name'] = f'Slipper_{side}_knitted_cow_head'
         out.append((q, f'foot_{side}'))
     return out

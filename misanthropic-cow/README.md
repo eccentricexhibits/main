@@ -16,12 +16,12 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 1.05M triangles (310k of them the shag strands, 120k the briefs), real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 1.28M triangles (310k of them the shag strands, 300k the slippers, 120k the briefs), real-world scale in metres, all textures embedded. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 54-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
-| `assets/` | `slippers_shy_cow.glb`: the knitted cow-head slippers cut from the Tripo Shy Cow model (made by `pipeline/tripo_slippers.py`). `gloves_tripo.glb` and `gloves_tripo.json`: the hoof gloves cut from the owner's Tripo model of the glove photo (made by `pipeline/tripo_gloves.py`, closed by `pipeline/repair_gloves.py` into `gloves_tripo_closed.glb`, then rebuilt as smooth solids by `pipeline/rebuild_gloves.py`). |
+| `assets/` | `slippers_cow_mule.glb`: the owner's own model of the costume slippers, open-back cow mules (made by `pipeline/cow_mule_slippers.py`). `gloves_tripo.glb` and `gloves_tripo.json`: the hoof gloves cut from the owner's Tripo model of the glove photo (made by `pipeline/tripo_gloves.py`, closed by `pipeline/repair_gloves.py` into `gloves_tripo_closed.glb`, then rebuilt as smooth solids by `pipeline/rebuild_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
 
 Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
@@ -76,7 +76,13 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - **Tail.** A gold satin bowtie is tied on at the back, on the roll of back fat at the bottom of the white fur. It has two puffed, pleated wings flaring from a pinched centre knot and is about 12 cm wide. A tan two-core lamp cord hangs from the knot to about mid-thigh, 43 cm, and ends in a two-prong plug with brass blades (`tail.py`).
 - **Back.** The suit's back isn't flat: a padded roll of back fat across the lower back bulges out and overhangs the panty waistband as a lip, and the back hem tucks under it.
 - **Sleeves.** The fur sleeves are roomy and fold the way the costume's do (Shy Cow): soft, uneven folds gather round each elbow, deepest in its crook, the cuff bunches above the glove, and the rest of the sleeve has a loose drape.
-- **Slippers and socks.** The slippers are the knitted cow-head slippers cut from the Shy Cow model: low, round, popcorn-knit heads with horns, ears and a smiling white face on a fuzzy black rim. The costume is tights with black socks over the feet, pushed into the slippers. So below the calf the leggings are plain black knit, with no painted spots, and end in a ribbed cuff that stands slightly proud. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. The v04 slippers had a tall black padded collar that read as a boot.
+- **Slippers and socks.** The slippers are the owner's own model of the real handmade prop (round 15, from their slipper project's "v3 fabric" GLB; `pipeline/cow_mule_slippers.py`). They are open-back mules, 27 cm long:
+  - a white plush muzzle with a stitched black smile and magenta nostrils, bead eyes on the seam, two stubby tan velour horns, floppy black-and-magenta ears with a pearl on each;
+  - a cream mop-chenille head with black chenille patches, a shaggy black chenille fringe round the sole, and a flat black plush footbed open for the rear ~42 %;
+  - one 150k-triangle mesh with the project's 4K baked colour, roughness and normal maps. The right slipper is the left one mirrored, as in the owner's file.
+
+  The costume is tights with black socks over the feet. Below the calf the leggings are plain black knit, with no painted spots, and a ribbed cuff that stands slightly proud. Because the slippers are open at the back, the leggings now end in a socked foot (`design.legging_parts`): the heel stands on the footbed, 1 mm into it, and the front of the foot runs into the slipper's head, where it ends hidden. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. Until round 15 the slippers were the knitted cow heads cut from the Tripo Shy Cow model, and the leggings ended at the ankle inside them.
+  - The slipper project baked ambient occlusion into the colour texture (at 0.6). That goes against the no-baked-lighting rule; it stays until the AO map from that project (its Part 3, `ao_4096`) is available to take it back out.
 - **Gloves.** The gloves are the owner's Tripo model of the glove photo: the mask and both gloves lying on a mat (`pipeline/tripo_gloves.py`, `assets/gloves_tripo.glb`). Each glove was cut out and given its own frame from its shape: along the hand, across toward the thumb, and out of the palm. The red-chipped glove is the left and the green-chipped one the right. Each was then scaled so the model's horn span matches the v10 mask (×0.653), placed on the hand with the hoof tips 20 cm past the wrist, re-unwrapped, and its colour and roughness baked from the Tripo maps.
   - **Closed surface (round 13):** the conversion reduced the Tripo gloves before welding the mesh's split seams, so each glove had about 300 hairline cracks (over 6,000 open edges). They opened as the hand moved and showed as dark lines on the mitten. `pipeline/repair_gloves.py` rebuilt each glove as one closed surface: every gap narrower than about 2 mm closed on a 0.5 mm grid, the surface moved back to its original size, and colour and roughness re-baked from the old textures. Each glove has no open edges and the same bounds to the millimetre. The closed gloves are kept as `assets/gloves_tripo_closed.glb`.
   - **Rebuilt as smooth solids (round 14):** the closed gloves still had saw-tooth spikes along their edges. Worse, gloves.py bent their cuffs vertex by vertex to fit the sleeves (pulling the cuff in, flaring the wrist), which folded the surface into ragged frills at the wrist. `pipeline/rebuild_gloves.py` rebuilds each glove from `gloves_tripo_closed.glb` in the hand's own frame. The glove becomes a signed distance field on a 0.6 mm grid, smoothed by 1.2 mm to take off the spikes while keeping its shape, thumb and hoof halves. At the wrist it eases in to 4.0 cm, 4 mm inside the sleeve's rim. Inside the sleeve it ends in a clean round cuff that fills the sleeve to 8–13 mm inside its surface, flattened on the palm side so the claps still meet. The result is meshed evenly (40k triangles per glove) and its colour and roughness re-baked from the Tripo textures. gloves.py now only places the glove on the hand (`reviews/v10_gloves_before_after.jpg`).
@@ -142,7 +148,7 @@ The owner tried a different modelling approach with Tripo and judged two results
   - arms that fold the way the costume does;
   - slippers that read as slippers, with black socks inside.
 
-  The hooves and the sleeve folds were rebuilt to match. The slippers themselves were cut out of the Shy Cow mesh and given a new UV layout. Their colour was baked from its 8K texture, and they are rigid on the foot bones.
+  The hooves and the sleeve folds were rebuilt to match. The slippers were cut out of the Shy Cow mesh at first; since round 15 they are the owner's own slipper model.
 
 ## Animations
 
@@ -256,7 +262,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 The model carries no lighting: no ambient occlusion or contact shadows in its vertex colours or textures. Shading is left to whatever renders it, so it follows the pose. Until round 12 the suit, leggings, briefs, udder, gloves and the v09 mask and horns had ambient occlusion baked into their vertex colours in the rest pose (the suit averaged 68% brightness, the briefs 50%). When the arms rose, the dark band where the arm had hung stayed on the side of the body.
 
 What remains is colour only:
-- the photographed textures (the mask scan, the Tripo gloves and slippers, the fabric swatches) keep whatever light was in their photos;
+- the photographed textures (the mask scan, the Tripo gloves, the fabric swatches) keep whatever light was in their photos, and the slippers' colour map still has its project's ambient occlusion baked in (see Slippers and socks);
 - the black patch under the shag is painted darker than the swatch;
 - each shag strand has its own shade of black (the strands' only vertex colour).
 
@@ -271,7 +277,7 @@ The viewer has four lighting rigs:
 ## Rebuilding
 
 You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk xatlas` (xatlas unwraps the briefs), plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
-- the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_tripo.glb` and the slippers from `assets/slippers_shy_cow.glb`);
+- the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_tripo.glb` and the slippers from `assets/slippers_cow_mule.glb`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
 ```bash
@@ -299,7 +305,8 @@ Where things live:
 - `tripo_gloves.py`: the one-off conversion of the gloves from the owner's Tripo model into `assets/gloves_tripo.glb`. It needs that OBJ and its texture folder, plus `pip install xatlas`;
 - `repair_gloves.py`: the one-off repair that closed the cracks in the converted gloves (`assets/gloves_tripo_closed.glb`);
 - `rebuild_gloves.py`: the one-off rebuild of the closed gloves as smooth solids with a cuff that fits the sleeve (`assets/gloves_tripo.glb`). If the gloves are ever converted again, run `tripo_gloves.py`, then `repair_gloves.py`, then `rebuild_gloves.py`; rerun the rebuild if the sleeves change;
-- `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
+- `cow_mule_slippers.py`: the one-off conversion of the owner's slipper model (`Cow_Slippers_pair.glb`) into `assets/slippers_cow_mule.glb`: scaled to metres, ankle axis at the origin, right slipper mirrored;
+- `tripo_slippers.py`: the earlier conversion of the Shy Cow slippers (no longer used; `tripo_gloves.py` still borrows its OBJ reader);
 - `tail.py`: the bowtie, the cord and plug meshes, and the cord's rope simulation;
 - `web_textures.py`: downscales textures inside a GLB for the web copies;
 - `rig.py`: skin weights;

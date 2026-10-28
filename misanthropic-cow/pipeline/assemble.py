@@ -190,8 +190,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         q['W'] = W
         model.parts.append(q)
 
-    # --- slippers: the knitted cow heads cut from the Shy Cow model
-    for q, grp in A.shy_cow_slippers(model):
+    # --- slippers: the owner's cow mule slippers
+    for q, grp in A.slippers(model):
         q['group'] = grp
         q['ao'] = None
         q['uv1'] = None
