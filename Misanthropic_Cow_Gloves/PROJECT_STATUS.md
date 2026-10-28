@@ -1,5 +1,7 @@
 # The Misanthropic Cow: Hoof Gloves 3D Model, Project Status
 
+**Status: DONE (v2). Full handoff: `HANDOFF_gloves.md`.**
+
 Process: `3D_Model_Pipeline_PLAYBOOK` (photos → ChatGPT multiview → Tripo → cleanup in Blender `bpy`).
 Worked example followed: the Misanthropic Cow slippers.
 
@@ -62,8 +64,8 @@ the mat), and each part is scaled at its own height. Cross-checks: the beads mea
 | 7 Optimise | done: `06_optimise_uv_bake/`. 100k triangles per glove (palm 60k, each toe 20k): silhouette mismatch 0.06 %, shading difference 3.0/255 vs the full mesh (150k and 64k also tested). `bl_optimize_parts.py`, `compare_glove_lods.py`. |
 | 8 UVs + bakes | done. One shared 4K atlas for the three parts (64 islands, 63.9 % coverage; `bl_unwrap_parts.py`), colour + tangent normal baked from the full mesh (`bl_bake_parts.py`), cap-edge sharp edges, cut walls painted into the maps (`bl_fix_cap_texels.py`), roughness derived from colour. |
 | v1 delivery | `07_deliverables_v1/`: `Glove_pair.glb` (6.3 MB, both gloves, right = mirrored node sharing the meshes), `Glove_L.glb`, `Glove_pair.blend` + `textures/` (relative paths, moved-copy tested). Real size: 24.7 cm tall, metres, Z-up in Blender; left cuff at x −0.12 m, right at +0.12 m; toe pivots 13.9 cm above the cuff. Surface = Tripo's own texture, cleaned (playbook route 9a). |
-| 9 Surface | user chose the slipper look (9c), keeping the hoof's long brush strokes. Tile kit `08_fabric_tiles/Glove_Tile_Kit.zip` (terry 4 cm, hoof paint 6 cm with vertical strokes; swatches from the photos rotated so strokes run base to tip). Regions from geometry, not colour: paint = finger-pair texels above the hoof base plane (`bl_bake_geom_parts.py` → `make_masks_glove.py`, unbaked texels take the nearest class); region map `08_fabric_tiles/material_region_map.jpg`. Plan: tiles box-projected in each part's own coordinates (strokes follow the toe when it moves), plus the baked detail normal (Tripo's stroke grooves). **Waiting for the two tiles.** |
-| 10–11 Final deliver + handoff | – |
+| 9 Surface | done (slipper look, 9c). Tiles `08_fabric_tiles/` (raw + prepared), live material `bl_glove_material.py` (tiles in each part's own coordinates; strokes follow the toes), AO normalised ×0.5, final 4K bakes. Live vs baked match (`09_final/renders/check_live_top_vs_baked_bottom.jpg`). |
+| 10–11 Deliver + handoff | done: `09_final/` (GLB pair 14.5 MB, baked .blend, live .blend, renders) and `HANDOFF_gloves.md`. Handoff parts (each < 29 MB) sent as zips in the chat. `07_deliverables_v1/` is superseded. |
 | 10–11 Deliver pair, package for handoff (<29 MB per file) | – |
 
 ## Plan for the separate hoof toes (stage 6)
