@@ -52,7 +52,7 @@ def video(data, out, size=(720, 960), angle=-14):
 
 
 SHOWCASE = [('Idle', 1), ('Walk', 3), ('Run', 4), ('Sneak', 2), ('Jumping Jacks', 1), ('Look Around', 1), ('Chicken Dance', 1),
-            ('Depressed Walk', 3), ('Crouch and Sit', 1), ('Crying', 1), ('Exasperated', 1)]
+            ('Depressed Walk', 3), ('Sit Cross-Legged', 1), ('Crying', 1), ('Exasperated', 1)]
 ALT_PLAN = [('Idle', 1), ('Walk', 3), ('Run', 4), ('Sneak', 2), ('Jumping Jacks', 1), ('Look Around', 1), ('Chicken Dance', 1)]
 
 
@@ -131,6 +131,6 @@ if __name__ == '__main__':
     elif mode == 'sheet':
         clip_sheet(data, sys.argv[3], ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around'])
     elif mode == 'moodsheet':
-        clip_sheet(data, sys.argv[3], ['Depressed Walk', 'Crouch and Sit', 'Crying', 'Exasperated'], per=6)
+        clip_sheet(data, sys.argv[3], ['Depressed Walk', 'Sit Cross-Legged', 'Crying', 'Exasperated'], per=6)
     elif mode == 'altsheet':
         clip_sheet(data, sys.argv[3], [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']])

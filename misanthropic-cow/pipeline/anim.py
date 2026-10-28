@@ -55,6 +55,8 @@ def ik(a, target, l1, l2, pole, swivel=0.0, soft=0.0):
     return elbow, wrist
 
 
+HEM_GAIN, HEM_FREE, HEM_SOFT = 1.2, .2, .08
+
 _SOLE = None
 
 
@@ -110,9 +112,10 @@ class Dance:
                 sg = 1 if (rot(ax, .3) @ dr) @ pn > 0 else -1
                 self.thumb_hinge[side] = (ax, sg)
 
-    def ankle_height(self, pitch):
-        """Ankle height that keeps the lowest point of the slipper sole on the floor at this pitch."""
-        R = rot([1, 0, 0], pitch)
+    def ankle_height(self, pitch, roll=0.):
+        """Ankle height that keeps the lowest point of the slipper sole on the floor at this pitch (and
+        roll about the foot's length, for a foot resting on its edge)."""
+        R = rot([1, 0, 0], pitch) @ rot([0, 0, 1], roll)
         return float(-(self.sole @ R.T)[:, 1].min()) + .003
 
     def hand_rot(self, side, finger_dir, palm_normal):
@@ -278,7 +281,9 @@ class Dance:
         Rh = euler(p['hips'])
         G[RG.HIPS, :3, :3] = Rh; G[RG.HIPS, :3, 3] = B[RG.HIPS] + p['shift']
         at(RG.SPINE, RG.HIPS, Rh @ euler(p['spine']))
-        at(RG.BELLY, RG.SPINE, G[RG.SPINE, :3, :3])
+        # a clip can lift the belly (seated, it rides up onto the thighs instead of passing through them)
+        at(RG.BELLY, RG.SPINE, G[RG.SPINE, :3, :3] @ euler(p.get('belly', np.zeros(3))))
+        G[RG.BELLY, :3, 3] += G[RG.SPINE, :3, :3] @ np.asarray(p.get('belly_lift', np.zeros(3)))
         at(RG.CHEST, RG.SPINE, G[RG.SPINE, :3, :3] @ euler(p['chest']))
         Rc = G[RG.CHEST, :3, :3]
         for side in 'LR':
@@ -299,7 +304,7 @@ class Dance:
                 ankle, Rfoot = B[L['foot']].copy(), np.eye(3)
             else:
                 ankle = np.asarray(ft['pos'], float)
-                Rfoot = rot([0, 1, 0], ft.get('yaw', 0.)) @ rot([1, 0, 0], ft.get('pitch', 0.))
+                Rfoot = rot([0, 1, 0], ft.get('yaw', 0.)) @ rot([1, 0, 0], ft.get('pitch', 0.)) @ rot([0, 0, 1], ft.get('roll', 0.))
             l1 = np.linalg.norm(B[L['shin']] - B[L['thigh']]); l2 = np.linalg.norm(B[L['foot']] - B[L['shin']])
             knee_dir = np.asarray((ft or {}).get('knee', (0, -.35, .8)), float)   # (0, .8, .35) for knees up when seated
             knee_pole = hip + rot([0, 1, 0], (ft or {}).get('yaw', 0.)) @ knee_dir
@@ -307,6 +312,17 @@ class Dance:
             for j, st, en, rest in [(L['thigh'], hip, knee, B[L['shin']] - B[L['thigh']]), (L['shin'], knee, ankle, B[L['foot']] - B[L['shin']])]:
                 G[j, :3, :3] = align(rest, en - st); G[j, :3, 3] = st
             G[L['foot'], :3, :3] = Rfoot; G[L['foot'], :3, 3] = ankle
+            # in clips that ask for it (p['hem'], sitting), the hem rides up with the thigh as it lifts,
+            # forward or out to the side: a growing share of the thigh's turn past ~10 degrees
+            lift = 0.
+            if p.get('hem', 0.) > 0:
+                th = G[RG.HIPS, :3, :3].T @ (knee - hip); r0 = B[L['shin']] - B[L['thigh']]
+                th, r0 = th / np.linalg.norm(th), r0 / np.linalg.norm(r0)
+                ang = np.arccos(np.clip(th @ r0, -1, 1)); axis = np.cross(r0, th)
+                sp = lambda a: HEM_SOFT * np.logaddexp(0, (a - HEM_FREE) / HEM_SOFT)
+                lift = p['hem'] * min(ang, HEM_GAIN * (sp(ang) - sp(0.)))
+            Rlift = rot(axis, lift) if lift > 1e-6 else np.eye(3)
+            at(RG.HEM[side], RG.HIPS, G[RG.HIPS, :3, :3] @ Rlift)
         arm_in = {}
         for side, s in [('L', 1), ('R', -1)]:
             a = RG.ARM[side]

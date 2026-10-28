@@ -59,6 +59,9 @@ TAIL = []
 for _i in range(12):
     TAIL.append(_j(f'Tail_cord_{_i + 1}', 'Tail_bow' if _i == 0 else f'Tail_cord_{_i}'))
 TAIL.append(_j('Tail_plug', 'Tail_cord_12'))
+# corrective helpers on the front hem: driven by each thigh's forward lift (anim.py), so the hem rides
+# up over a raised leg (crouching, sitting) instead of the leggings passing through it
+HEM = {side: _j(f'Hem_{side}', 'Hips') for side in 'LR'}
 NB = len(NAMES)
 BELLY_C = np.array([0, .925, .085])
 
@@ -85,6 +88,8 @@ def bind_positions(glove_parts):
     import textures as T
     for j, (c, r) in zip(SHAG, T.all_patches()):
         B[j] = c
+    for side in 'LR':
+        B[HEM[side]] = D.J[f'Thigh_{side}']
     import tail as TL
     B[TAIL_BOW] = TL.KNOT
     B[TAIL] = TL.rest_points()[:-1]
@@ -94,6 +99,17 @@ def bind_positions(glove_parts):
 def ss(a, b, x):
     u = np.clip((x - a) / (b - a), 0, 1)
     return u * u * (3 - 2 * u)
+
+
+def hem_weights(v, side):
+    """Share of the front hem that rides with a lifted thigh: the band of suit just above the leg line,
+    from the side of the hip round to the front of the thigh, fading out up into the belly."""
+    s = 1 if side == 'L' else -1
+    e = np.linalg.norm((v - np.array(HEM_C) * [s, 1, 1]) / HEM_R, axis=1)
+    return HEM_W * ss(1.0, HEM_CORE, e) * ss(.0, .06, s * v[:, 0])
+
+
+HEM_C, HEM_R, HEM_W, HEM_CORE, HEM_SMOOTH = (.155, .815, .055), (.19, .15, .24), .8, 0., 0
 
 
 def arm_chain(p, side):
@@ -167,6 +183,10 @@ def suit_weights(v, f, face_labels):
     torso_mask = ~(sleeve['L'] | sleeve['R'] | (vl == 4))
     ft = f[np.all(torso_mask[f], axis=1)]
     W[torso_mask] = smooth_weights(W, ft, 6)[torso_mask]
+    H = np.stack([hem_weights(v, side) * torso_mask for side in 'LR'], 1)
+    H = smooth_weights(H, ft, HEM_SMOOTH)
+    for k, side in enumerate('LR'):
+        W *= (1 - H[:, k])[:, None]; W[:, HEM[side]] += H[:, k]
     for side, s in [('L', 1), ('R', -1)]:
         a = ARM[side]
         m = sleeve[side]

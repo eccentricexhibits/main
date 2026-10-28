@@ -2,7 +2,7 @@
 
 Two sets: the standard clips, and an "alt" version of each original clip (`lumbering`) that plays
 them as the character is: heavy, awkward, a little depressed.  The new mood clips (Depressed Walk,
-Crouch and Sit, Crying, Exasperated) are written in that style from the start.
+Sit Cross-Legged, Crying, Exasperated) are written in that style from the start.
 
 Every clip loops seamlessly and plays in place (no root travel), so it can be dropped into a viewer or
 an engine's locomotion system.  Arms are given either as IK targets (hand position in the chest's
@@ -311,60 +311,89 @@ class DepressedWalk(AN.Dance):
         return p
 
 
-class CrouchSit(AN.Dance):
-    """Crouch, reach back and sit down heavily on the floor, stretch the legs out and slump with the
-    hooves on the knees, then pull the feet in, push up to a crouch and stand."""
-    name = 'Crouch and Sit'
+class SitCrossLegged(AN.Dance):
+    """Step one foot across the other, sink down with the knees falling open, reach back and land
+    heavily cross-legged on the floor; slump with the hooves on the knees and sigh, then lean
+    push off the floor and rise back up on crossed feet and step out of it.
+
+    Seated, the body leans back and the belly settles onto the thighs; the hem helper bones
+    (rig.HEM, driven in anim.pose) let the front of the suit ride up over the lifted thighs."""
+    name = 'Sit Cross-Legged'
     duration = 11.0
-    phases = [('Crouch and Sit', 0, 11.0)]
+    phases = [('Sit Cross-Legged', 0, 11.0)]
     use_swivel = True
     spring_k, spring_gain = .8, 1.1
-    KEYS = [(0.0, {}), (1.2, dict(crouch=1)), (1.8, dict(crouch=1, support=.7)),
-            (2.6, dict(sit=1, ext=.5, support=1)), (3.4, dict(sit=1, ext=1, support=1)),
-            (4.4, dict(sit=1, ext=1, lap=1, slump=1)), (7.4, dict(sit=1, ext=1, lap=1, slump=1)),
-            (8.2, dict(sit=1, ext=.3, support=1, slump=.3)), (9.0, dict(crouch=1, support=.5)),
-            (9.6, dict(crouch=1)), (10.8, {}), (11.0, {})]
-    FIELDS = ['crouch', 'sit', 'ext', 'support', 'lap', 'slump']
+    KEYS = [(0.0, {}), (1.0, dict(cross=1)), (1.5, dict(cross=1, down=.12)),
+            (2.3, dict(cross=1, down=.62, support=.5)), (2.75, dict(cross=1, down=1, support=1)),
+            (3.6, dict(cross=1, down=1, support=1, slump=.3)), (4.5, dict(cross=1, down=1, lap=1, slump=1)),
+            (7.4, dict(cross=1, down=1, lap=1, slump=1)), (8.2, dict(cross=1, down=1, support=1, slump=.3)),
+            (9.1, dict(cross=1, down=.62, support=.5)), (9.7, dict(cross=1, down=.12)),
+            (10.3, dict(cross=1)), (11.0, {})]
+    FIELDS = ['cross', 'down', 'support', 'lap', 'slump']
+    # seated: (x, z, extra height) of each ankle, the knee's target point, the foot's yaw and roll
+    # (the right foot rests on the left shin, soles turned out)
+    SEAT = {'L': ((-.06, .12, 0.), (.36, .13, -.06), -1.2, .9), 'R': ((.06, .20, .07), (-.36, .15, .0), 1.2, -.9)}
+    # standing with the feet crossed: the right foot steps across in front of the left
+    STAND = {'L': ((.08, -.02), .12), 'R': ((.0, .22), -.30)}
+    DROP, BACK = .71, .30
+    # seated, the hooves rest on the outside of the knees, elbows out clear of the belly
+    LAP_OFF, LAP_POLE = (.10, .14, -.06), (1.0, .3, -.4)
+    # reaching back, the hooves land beside and behind the hips (relative to the seated hips)
+    SUPPORT, SUPPORT_POLE = (.34, .21, -.26), (.7, .7, -.5)
 
-    def key(self, t, crouch=0., sit=0., ext=0., support=0., lap=0., slump=0.):
+    def key(self, t, cross=0., down=0., support=0., lap=0., slump=0.):
         p = neutral(self)
-        c = crouch * (1 - sit)
         u = (t / self.duration) % 1.0
         sigh = np.sin(2 * np.pi * 3 * u) * slump
-        p['shift'] = np.array([0, -.33 * c - (.738 - .016 * slump) * sit - .004 * sigh, -.09 * c - .10 * sit])
-        p['hips'] = np.array([.12 * c - .34 * sit, 0, 0])
-        p['spine'] = np.array([.06 * c + (.28 + .16 * slump) * sit, 0, 0])
-        p['chest'] = np.array([.06 * c + (.02 + .02 * slump) * sit + .02 * sigh, 0, 0])
-        p['neck'] = np.array([.05 * c + (.12 + .16 * slump) * sit, 0, 0])
-        p['head'] = np.array([(.08 + .22 * slump) * sit + .02 * sigh, .06 * slump * np.sin(2 * np.pi * u), .05 * slump])
+        k = smooth(.25, 1, down)                     # how far the feet and knees have gone to the seated pose
+        fall = down * down * (3 - 2 * down)
+        p['shift'] = np.array([.02 * cross * (1 - down), -self.DROP * fall - .004 * sigh + .012 * slump * down,
+                               .03 * cross * (1 - down) - self.BACK * fall])
+        # lowering, the body pitches forward to keep balance over the feet, then leans back on landing
+        bal = np.sin(np.pi * min(down, 1.))
+        p['hips'] = np.array([.30 * bal - .45 * fall, 0, 0])
+        p['spine'] = np.array([.10 * bal + .12 * fall + .16 * slump, 0, 0])
+        # the chest stays back as she slumps, so the cups don't fold down onto the belly
+        p['chest'] = np.array([.04 * bal - .03 * fall - .03 * slump + .015 * sigh, 0, 0])
+        p['neck'] = np.array([.05 * bal + .33 * fall + .10 * slump - .12 * bal * fall, 0, 0])
+        p['head'] = np.array([.20 * fall + .20 * slump + .02 * sigh, .06 * slump * np.sin(2 * np.pi * u), .05 * slump])
+        p['hem'] = 1.                                # the front hem rides up over the lifted thighs
         p['feet'] = {}
+        Rh = AN.euler(p['hips'])
         for side, s in [('L', 1), ('R', -1)]:
-            pitch = -.55 * sit * (.4 + .6 * ext)
-            pos = np.array([self.B[RG.LEG[side]['foot']][0] + s * (.03 * c + .07 * sit),
-                            self.ankle_height(pitch), -.022 + .04 * c + (.46 + .14 * ext) * sit])
-            p['feet'][side] = {'pos': pos, 'pitch': pitch, 'yaw': s * (.15 * c + .25 * sit),
-                               'knee': (0, -.35 + 1.15 * sit, .8 - .45 * sit)}
+            (sx, sz), syaw = self.STAND[side]
+            rest = self.B[RG.LEG[side]['foot']]
+            stand = np.array([rest[0] + (sx - rest[0]) * cross, 0, rest[2] + (sz - rest[2]) * cross])
+            (cx, cz, lift), knee_at, yaw1, roll1 = self.SEAT[side]
+            seat = np.array([cx, 0, cz])
+            pos = stand * (1 - k) + seat * k
+            yaw = syaw * cross * (1 - k) + yaw1 * k
+            roll = roll1 * k
+            # the top foot lifts over the other on its way across
+            pos[1] = self.ankle_height(0., roll) + lift * k + (.09 * np.sin(np.pi * k) if lift else 0.)
+            hip = Rh @ (self.B[RG.LEG[side]['thigh']] - self.B[RG.HIPS]) + self.B[RG.HIPS] + p['shift']
+            knee_seat = AN.rot([0, 1, 0], -yaw) @ (np.array(knee_at) - hip)
+            knee_seat /= np.linalg.norm(knee_seat)
+            knee_mid = np.array([s * .75, -.1, .65])          # sinking, the knees fall open
+            knee_stand = np.array([0, -.35, .8])
+            knee = knee_stand * (1 - smooth(0, .5, down)) + knee_mid * smooth(0, .5, down)
+            knee = knee * (1 - k) + knee_seat * k
+            p['feet'][side] = {'pos': pos, 'pitch': 0., 'yaw': yaw, 'roll': roll, 'knee': tuple(knee)}
         p.pop('fk')
-        p['hand'], p['pole'], p['hand_world'], p['pole_world'], p['world_w'] = {}, {}, {}, {}, {}
-        p['hand_joint'] = {}
+        p['hand'], p['pole'], p['hand_world'], p['pole_world'], p['world_w'], p['hand_joint'] = {}, {}, {}, {}, {}, {}
         for side, s in [('L', 1), ('R', -1)]:
             p['hand'][side] = rest_hand(self, side, s)
             p['pole'][side] = self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])
-            # crouched or seated with the feet out, the hooves rest on the knees
-            on_knee = max(c, lap)
-            if on_knee > 1e-6:
-                shin = RG.LEG[side]['shin']
-                # crouched, on the outside of the knee (the arms go round the belly); seated, on top of it
-                off = np.array([s * .22, .14, -.06]) * (1 - sit) + np.array([s * .04, .09, .03]) * sit
-                p['hand_joint'][side] = (shin, off, np.array([s * .90, .95, .10]) * (1 - sit)
-                                         + np.array([s * .60, .60, .05]) * sit, on_knee)
+            if lap > 1e-6:
+                p['hand_joint'][side] = (RG.LEG[side]['shin'], np.array(self.LAP_OFF) * [s, 1, 1],
+                                         np.array(self.LAP_POLE) * [s, 1, 1], lap)
             if support > 1e-6:
-                # hooves planted beside and behind the hips, reached for round the outside of the body
-                p['hand_world'][side] = np.array([s * .31, .15, -.14]) + np.array([s * .20, .06, 0]) * 4 * lap * support
-                p['pole_world'][side] = np.array([s * .55, .55, -.45])
+                # hooves planted on the floor beside and behind the hips
+                p['hand_world'][side] = np.array(self.SUPPORT) * [s, 1, 1] - [0, 0, self.BACK]
+                p['pole_world'][side] = np.array(self.SUPPORT_POLE) * [s, 1, 1] - [0, 0, self.BACK]
                 p['world_w'][side] = support
             p['hrot'][side] = ('follow', .12)
-            p['clav'][side] = .10 * c - .04 * slump        # crouched, the shoulders hunch up and out over the knees
+            p['clav'][side] = .06 * bal - .04 * slump
         p['fingers'] = -.2
         return p
 
@@ -526,7 +555,7 @@ def lumbering(Base, slow=SLOW, lag=.07):
 
 
 BASE = [AN.Dance, Idle, Walk, Run, Sneak, JumpingJacks, LookAround]
-MOOD = [DepressedWalk, CrouchSit, Crying, Exasperated]
+MOOD = [DepressedWalk, SitCrossLegged, Crying, Exasperated]
 ALT = [lumbering(C) for C in BASE]
 ALL = BASE + MOOD + ALT
 ORDER = (['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']

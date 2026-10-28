@@ -4,11 +4,11 @@
     "shag_strands": 15002,
     "triangles": 1283447,
     "vertices": 848206,
-    "glb_bytes": 79783832
+    "glb_bytes": 79960648
   },
   "clips": {
     "Idle": {
-      "joints": 54,
+      "joints": 56,
       "frames": 121,
       "fps": 30,
       "duration_seconds": 4.0,
@@ -33,10 +33,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.43578481674194336,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.0
     },
     "Walk": {
-      "joints": 54,
+      "joints": 56,
       "frames": 35,
       "fps": 30,
       "duration_seconds": 1.12,
@@ -60,10 +62,12 @@
       },
       "lowest_slipper_point_m": 0.00299999862909317,
       "tail_lowest_point_m": 0.38662850856781006,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0021023322059773105,
+      "legs_into_body_p995_max_m": 0.045333406087011155
     },
     "Run": {
-      "joints": 54,
+      "joints": 56,
       "frames": 23,
       "fps": 30,
       "duration_seconds": 0.72,
@@ -87,10 +91,12 @@
       },
       "lowest_slipper_point_m": 0.00299999862909317,
       "tail_lowest_point_m": 0.3999040424823761,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.019855401953682402,
+      "legs_into_body_p995_max_m": 0.0729908887296915
     },
     "Sneak": {
-      "joints": 54,
+      "joints": 56,
       "frames": 79,
       "fps": 30,
       "duration_seconds": 2.6,
@@ -114,10 +120,12 @@
       },
       "lowest_slipper_point_m": 0.0029999911785125732,
       "tail_lowest_point_m": 0.40026405453681946,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.032504389006644506,
+      "legs_into_body_p995_max_m": 0.07328718155622482
     },
     "Jumping Jacks": {
-      "joints": 54,
+      "joints": 56,
       "frames": 121,
       "fps": 30,
       "duration_seconds": 4.0,
@@ -141,10 +149,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.35979998111724854,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.00013709787424887182,
+      "legs_into_body_p995_max_m": 0.033142849802970886
     },
     "Look Around": {
-      "joints": 54,
+      "joints": 56,
       "frames": 181,
       "fps": 30,
       "duration_seconds": 6.0,
@@ -168,10 +178,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.43130144476890564,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.05577381614595657
     },
     "Chicken Dance": {
-      "joints": 54,
+      "joints": 56,
       "frames": 361,
       "fps": 30,
       "duration_seconds": 12.0,
@@ -211,10 +223,12 @@
       ],
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.34547659754753113,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.02586321840994062
     },
     "Depressed Walk": {
-      "joints": 54,
+      "joints": 56,
       "frames": 49,
       "fps": 30,
       "duration_seconds": 1.6,
@@ -238,10 +252,12 @@
       },
       "lowest_slipper_point_m": 0.00299999862909317,
       "tail_lowest_point_m": 0.38974529504776,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0033524606376889015,
+      "legs_into_body_p995_max_m": 0.037425585184246324
     },
-    "Crouch and Sit": {
-      "joints": 54,
+    "Sit Cross-Legged": {
+      "joints": 56,
       "frames": 331,
       "fps": 30,
       "duration_seconds": 11.0,
@@ -250,25 +266,27 @@
       "joint_indices_valid": true,
       "loop_matrix_max_error": 3.608224830031759e-16,
       "arm_into_cups_or_torso_p995_m": {
-        "Crouch and Sit": 0.019665900600460202
+        "Sit Cross-Legged": 0.001972951685229674
       },
       "teats_into_belly_p995_m": {
-        "Crouch and Sit": 0.0
+        "Sit Cross-Legged": 0.002086275424640482
       },
-      "suit_torso_edge_stretch_p999_max": 1.9829901456832886,
-      "sleeve_edge_stretch_p999_max": 2.0585436820983887,
-      "leggings_edge_stretch_p999_max": 5.00204610824585,
+      "suit_torso_edge_stretch_p999_max": 1.6497644186019897,
+      "sleeve_edge_stretch_p999_max": 1.9953585863113403,
+      "leggings_edge_stretch_p999_max": 4.6091084480285645,
       "sleeve_end_to_glove_gap_p95_rest_m": 0.025781337861069467,
-      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025968000433377443,
+      "sleeve_end_to_glove_gap_p95_max_during_dance_m": 0.025967968914398405,
       "glove_into_body_penetration_p995_m": {
-        "Crouch and Sit": 0.0
+        "Sit Cross-Legged": 0.0
       },
-      "lowest_slipper_point_m": 0.002931445837020874,
-      "tail_lowest_point_m": 0.0012689762515947223,
-      "tail_cord_into_legs_max_m": 0.0
+      "lowest_slipper_point_m": 0.003000000026077032,
+      "tail_lowest_point_m": -0.0004292801022529602,
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0025979593989905025,
+      "legs_into_body_p995_max_m": 0.046347957495600445
     },
     "Crying": {
-      "joints": 54,
+      "joints": 56,
       "frames": 211,
       "fps": 30,
       "duration_seconds": 7.0,
@@ -293,10 +311,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.40587925910949707,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.01773135961033404
     },
     "Exasperated": {
-      "joints": 54,
+      "joints": 56,
       "frames": 196,
       "fps": 30,
       "duration_seconds": 6.5,
@@ -321,10 +341,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.430232435464859,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.004857924662064823
     },
     "Idle (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 151,
       "fps": 30,
       "duration_seconds": 5.0,
@@ -349,10 +371,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.4199438691139221,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.009316527862102051
     },
     "Walk (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 43,
       "fps": 30,
       "duration_seconds": 1.4000000000000001,
@@ -376,10 +400,12 @@
       },
       "lowest_slipper_point_m": 0.00299999862909317,
       "tail_lowest_point_m": 0.38235586881637573,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0011173241760116294,
+      "legs_into_body_p995_max_m": 0.03852370882406838
     },
     "Run (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 28,
       "fps": 30,
       "duration_seconds": 0.8999999999999999,
@@ -403,10 +429,12 @@
       },
       "lowest_slipper_point_m": 0.0029999949038028717,
       "tail_lowest_point_m": 0.38037168979644775,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.018606140455231422,
+      "legs_into_body_p995_max_m": 0.07022200074046851
     },
     "Sneak (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 99,
       "fps": 30,
       "duration_seconds": 3.25,
@@ -430,10 +458,12 @@
       },
       "lowest_slipper_point_m": 0.0029999911785125732,
       "tail_lowest_point_m": 0.39910364151000977,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.02830282848328397,
+      "legs_into_body_p995_max_m": 0.0711629277840257
     },
     "Jumping Jacks (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 151,
       "fps": 30,
       "duration_seconds": 5.0,
@@ -457,10 +487,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.3677999973297119,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0007267877893173172,
+      "legs_into_body_p995_max_m": 0.030311496285721672
     },
     "Look Around (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 226,
       "fps": 30,
       "duration_seconds": 7.5,
@@ -485,10 +517,12 @@
       },
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.4199916124343872,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.014706289395689964
     },
     "Chicken Dance (alt)": {
-      "joints": 54,
+      "joints": 56,
       "frames": 451,
       "fps": 30,
       "duration_seconds": 15.0,
@@ -528,7 +562,9 @@
       ],
       "lowest_slipper_point_m": 0.003000000026077032,
       "tail_lowest_point_m": 0.3504406809806824,
-      "tail_cord_into_legs_max_m": 0.0
+      "tail_cord_into_legs_max_m": 0.0,
+      "body_into_legs_p995_max_m": 0.0,
+      "legs_into_body_p995_max_m": 0.024641166711226316
     }
   }
 }
