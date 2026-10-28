@@ -12,6 +12,36 @@ This is a new arrangement, not a v19. It's built from the approved **v18**:
 It stays **melancholic but anthemic**. The verses are half-time and spacious, the choruses
 drop into a driving two-step beat, and the bridge is a lush pad wall.
 
+## Revision 3: the figure at 0:07 back on the lead, and a fuller bridge opening
+
+**0:07, the interlude's descending figure** (bar 6: A5 F5 C5 A4 over F5 C5 A4 F4):
+- In v18 the whole orchestra plays it in octaves, led by the oboes and clarinets.
+- In the first version it went to the pluck and bells, which are backing parts.
+- It's now on the hook lead (the oboe line, with its echo) and the harmony lead (the
+  clarinet line).
+- The same figure after the bridge (1:53) was already on the lead, because violins I play it
+  there.
+
+**1:29–1:31, the bridge's first bar** had little more than the sub bass, plus a pad wall that
+swells in too slowly to be heard yet (about −37 dB). Three things fill it now:
+- **A reverse-cymbal swell** into the bridge's downbeat (from 1:28).
+- **A warm pad** on the bridge chords (Am7, B♭add9 over A, Gm7add11, C9) for its first three
+  bars. It fades (112 → 98 → 80) as the wall arrives.
+- **The harp's sweeps** on the pluck for those bars, where they were faint on the bells.
+
+Nothing new is brass or drums, so the bridge stays pad- and string-centred.
+
+**Checks:**
+- **Bridge opening:** −20.4 → −19.3 LUFS, and it still builds (−16.4, −14.6, −12.6 over the
+  next statements). Bar by bar it now climbs from the first bar.
+- **Interlude:** −15.6 → −14.5 LUFS, because the figure is on a lead now.
+- **Unchanged elsewhere:** the render differs from revision 2 only at 0:07–0:10 and
+  1:27–1:37.
+- **Whole song:** −15.0 LUFS.
+
+**Clip:** `Wasting My Time (electronic) - interlude figure and bridge opening, before and
+after (0m05-0m11, 1m26-1m35).mp3`. The "v18 vs electronic, bridge" clip is updated too.
+
 ## Revision 2: the pickups into the pre-choruses
 
 You noticed missing notes in the melody at 0:17 and 0:40. Two short phrases that lead into

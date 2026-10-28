@@ -2,6 +2,8 @@
 
 Revision 2: the pickups into each pre-chorus (violins I's A4, the oboes' "F . F") were being
 dropped at the verse/pre-chorus boundary; they're routed now.
+Revision 3: bar 6's descending figure (0:07) on the lead; the bridge's first bars (1:29) filled
+with a reverse-cymbal swell, a fading warm pad and the harp sweeps on the pluck.
 
 usage: python3 electronic.py [out folder]   (default: this script's folder)
 
@@ -145,6 +147,8 @@ for a, b, k in SECTIONS:
     if k == 'intro':
         R('Violin I', a, b, 'arp', vel=0.95, echo='arp'); R('Flute', a, b, 'bells', vel=0.8)
     elif k in ('inter', 'inter2'):
+        if k == 'inter':   # bar 6's descending F-major figure is the tune here: oboes on the lead, clarinets under
+            R('Oboe', a + 1, b, 'lead', echo='echo'); R('Clarinet', a + 1, b, 'harm', vel=0.9)
         R('Violin I', a, b, 'lead', vel=0.9, echo='echo'); R('Violin II', a, b, 'harm', vel=0.85)
         R('Clarinet', a, b, 'arp', vel=0.9); R('Oboe', a, b, 'bells', vel=0.7)
     elif k == 'verse':
@@ -175,7 +179,8 @@ for a, b, k in SECTIONS:
         R('Violin I', a, b, 'lead', echo='echo'); R('Solo Violin', a, b, 'counter', vel=0.95)
         R('Violin II', a, b, 'harm', vel=0.85); R('Viola', a, b, 'strings'); R('Violoncello', a, b, 'strings', vel=0.9)
         R('Strings (pad)', a, b, 'wall'); R('Strings (tremolo)', a, b, 'gate', gate=True)
-        R('Strings (pizzicato)', a, b, 'arp', vel=1.0); R('Harp', a, b, 'bells', vel=0.55)
+        R('Strings (pizzicato)', a, b, 'arp', vel=1.0)
+        R('Harp', a, a + 3, 'arp', vel=1.05); R('Harp', a, b, 'bells', vel=0.55)   # sweeps on the pluck while the wall swells in
         R('Choir', a, b, 'choir'); R('Piano', a, b, 'ep', vel=0.9)
     elif k == 'outro':
         R('Violin I', a, b, 'arp', vel=0.95, echo='arp'); R('Flute', a, b, 'counter', vel=0.9)
@@ -251,6 +256,7 @@ for a, b, k in SECTIONS:
     elif k in ('verse', 'pre', 'break'): chord_pad('pad', a, b, 74 if k != 'break' else 66)
     elif k in ('inter',): chord_pad('pad', a, b, 80)
     elif k == 'outro': chord_pad('pad', a, b, 70)
+    elif k == 'bridge': chord_pad('pad', a, a + 3, 92)   # fills the bridge's opening, fading as the slow wall arrives
     elif k in ('chorus', 'tag', 'verse4', 'final', 'inter2'): chord_pad('pump', a, b, 88, lo=55, hi=79, split=True)
     elif k == 'ending': chord_pad('pump', a, b, 92, lo=55, hi=79, split=True)
 
@@ -384,7 +390,7 @@ for a, b in RISERS:
     n = (e - s) // 60
     for j in range(n + 1): BEND['riser'].append((s + j * 60, int(-8192 + 16383 * (j / n) ** 1.6)))
     BEND['riser'].append((e + 30, 0))
-for target in (5, 17, 31, 40, 50, 62, 66, 71, 83, 100):   # a reverse cymbal swelling into each
+for target in (5, 17, 31, 40, 50, 59, 62, 66, 71, 83, 100):   # a reverse cymbal swelling into each
     add('revcym', T(target) - BAR, T(target), 60, 96)
 for target in (17, 31, 50, 59, 62, 64, 66, 68, 71, 83, 100, 108):
     add('boom', T(target), T(target) + 2 * BEAT, 38, 110 if target not in (59, 62, 64) else 84)
@@ -407,6 +413,7 @@ def level(role, bar):
     if k == 'verse': return 104
     if k == 'pre': return int(106 + 16 * f)
     if k == 'break': return 92
+    if k == 'bridge' and role == 'pad': return (112, 98, 80)[min(2, bar - 59)]
     if k == 'bridge':
         return int(84 + 36 * (bar - 59) / 11) if role in ('wall', 'strings', 'gate', 'choir', 'arp', 'bells', 'sub') else 112
     if k == 'outro': return 98 if bar < 98 else int(100 + 12 * (bar - 98))

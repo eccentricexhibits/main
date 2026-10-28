@@ -26,6 +26,10 @@ it as the base for any further song work; don't redo it.
 - **Revision 2:** the user heard missing melody notes at 0:17 and 0:40. These were the
   pickups into each pre-chorus (violins I's A4, the oboes' "F . F"), dropped at the
   verse/pre-chorus boundary. Now routed.
+- **Revision 3:**
+  - bar 6's descending figure (0:07) moved from the pluck and bells to the leads
+  - the bridge's first bar (1:29) filled: a reverse cymbal, a fading warm pad, and the harp on
+    the pluck
 - **Waiting on:** the user's next listen.
 - **Plugins:** `electronic-instruments.md` lists free VST3s, effects and CC0 SoundFonts that
   would enrich it, mapped part by part, with a starter pack.
