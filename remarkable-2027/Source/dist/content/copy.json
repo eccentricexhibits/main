@@ -26,8 +26,7 @@
     "anniversary_mark": {
       "src": "assets/logos/anniversary-10-years-colour.png",
       "alt": "Vector Institute 10th anniversary mark: 10 Years | Ans"
-    },
-    "venue_address": "145 Richmond St W, Toronto, ON"
+    }
   },
   "intro": [
     "Vector Institute's Remarkable conference returns, where groundbreaking research meets real-world innovation.",
@@ -363,11 +362,11 @@
         "items": [
           {
             "q": "Where is Remarkable 2027 held?",
-            "a": "Hilton Toronto, 145 Richmond St W, Toronto, ON."
+            "a": "Hilton Toronto, in downtown Toronto. The full address is included in your registration confirmation email."
           },
           {
             "q": "How do I get there?",
-            "a": "The hotel is in Toronto’s Financial District, a short walk from Osgoode station on TTC Line 1."
+            "a": "Directions and travel details are sent with your registration confirmation email."
           },
           {
             "q": "Is the venue accessible?",

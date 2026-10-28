@@ -17,7 +17,7 @@ h1{font-weight:500;font-size:65px;line-height:.96;letter-spacing:-.025em}
 .review-pages{display:grid;gap:9px}
 .review-pages button{display:flex;align-items:center;gap:17px;text-align:left;min-height:57px;border:0;border-radius:12px;background:#fff;padding:13px 20px;font-size:25px;font-weight:500;transition:background .2s,color .2s}
 .review-pages button>span{font-size:14px;color:#777;font-weight:400}
-.review-pages button i{margin-left:auto;width:13px;aspect-ratio:876.8442/1243.8169;background:var(--magenta);mask:url('assets/brand-elements/vector-arrow-compact.svg') center/contain no-repeat;-webkit-mask:url('assets/brand-elements/vector-arrow-compact.svg') center/contain no-repeat}
+.review-pages button i{margin-left:auto;width:12px;aspect-ratio:1;background:var(--magenta);mask:url('assets/brand-elements/vector-plus-single.svg') center/contain no-repeat;-webkit-mask:url('assets/brand-elements/vector-plus-single.svg') center/contain no-repeat}
 .review-pages button[aria-pressed="true"]{background:#000;color:#fff}
 .review-pages button[aria-pressed="true"]>span{color:#aaa}
 .review-pages button[aria-pressed="true"] i{background:#fff}

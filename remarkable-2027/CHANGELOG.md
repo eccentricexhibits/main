@@ -106,4 +106,20 @@ FONTS: as before, fonts are not included. Keep your existing Source/dist/fonts f
 PREVIEW: open OPEN_INTERACTIVE_PREVIEW.html (keep it next to the Source folder so it finds the fonts),
 or open Source/dist/index.html. Rebuild the preview after edits with:
   cd Source && python3 tools/export-mockup.py --output ../OPEN_INTERACTIVE_PREVIEW.html
+
+ROUND 9: CLIENT FEEDBACK (October 28, 2026)
+- Version 1 (main design) chosen; the alternate split-arrow header, its viewer buttons, PNGs and the three
+  photos it used are removed.
+- CTA buttons: no arrows; label centred; larger type (nav 22px, Register now 26px desktop / 22px phone,
+  dialog buttons 22px).
+- One graphic device, the official Vector plus symbol ("Vector Official Plus Symbol.svg"), replaces the
+  hand-drawn plus pattern, the pixel symbol and every Vector arrow:
+  hero plus cluster over the photo's corner (magenta on the page, white on the photo; beside "2027." on
+  phones); the same cluster on the Agenda, Speakers and FAQ headers; white cluster in the closing panel;
+  a single plus on text links and the Home day rows; plus favicon. Arrows removed from the Agenda day tabs
+  and back-to-top.
+- Hero photo returns to full width (the crop that made room for the arrow is gone).
+- Closing panel background: the flat Remarkable AI gradient replaces the grainy gradient-flow texture.
+- Venue street address removed from the venue section and FAQ (it goes out with registration
+  confirmations); see Source/dist/content/COPY-CHANGES.md.
 ```

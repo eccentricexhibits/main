@@ -55,3 +55,10 @@ Event JSON and all event wording are unchanged. This design-only revision aligns
 ## Karbon and pixels refinement — October 22, 2026
 
 Per the requester, removed visible internal-preview, fictitious-speaker, sample-program and video-source notes. The speaker page intro retains its first sentence. The video accessible label is now “Remarkable 2026 recap video”; destination tooltips are removed and portrait alt text uses speaker names. Only `speakers_note`, `speakers_page.intro`, `agenda_page.note` and `ui.video_placeholder` change in JSON. All event descriptions, session content, speaker profiles and logistics remain unchanged. Content status is retained in the handoff.
+
+## Venue address removed (October 28, 2026)
+
+Per client feedback, the venue's street address is not published on the public site; it goes out with the
+registration confirmation emails. Removed: "145 Richmond St W" from the venue section, the street address
+from the FAQ answer "Where is Remarkable 2027 held?", the Osgoode-station directions from "How do I get
+there?", and the unused `hero.venue_address` key. The venue name, Hilton Toronto, stays.
