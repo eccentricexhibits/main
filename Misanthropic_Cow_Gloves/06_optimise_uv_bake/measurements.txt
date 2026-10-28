@@ -1,0 +1,13 @@
+Decimation (playbook stage 7), all three parts, compared with the 1.88 M-triangle split mesh from 8 identical cameras:
+  150k: mean shading difference 2.58 (0-255), silhouette mismatch 0.05%
+  100k: mean shading difference 3.03 (0-255), silhouette mismatch 0.06%   <- chosen (palm 60k, each toe 20k)
+   64k: mean shading difference 3.57 (0-255), silhouette mismatch 0.08%   (hoof rim turns jagged, more specks)
+UV atlas (one texture set for all three parts): smart-project charts on smoothed proxies, islands < 40 faces merged
+into neighbours, angle-based unwrap per chart -> 64 islands, 63.9% coverage. Texel weights: painted hoof 1.3,
+terry 1.0, toe inner walls 0.6, cuff bottom 0.3, palm top at the web 0.25.
+First attempt (plain smart-project): ~1,800 islands, ~1.5% of faces in 1-4-face islands smaller than a texel ->
+black specks on the terry, white on the hoof (MISTAKE_sliver_islands_specks.jpg).
+Bakes: 4096 px, 2 samples, cage 0.012, max ray 0.03, margin 16: colour ~63 s, normal ~50 s, roughness ~53 s (CPU).
+Tripo's roughness map did not come through the OBJ import (bake was ~1.0 everywhere); the delivered roughness map
+is derived from the colour (terry 0.90, painted hoof 0.55). Cut walls are painted into the maps directly
+(paint 0.75 rough / terry), because coplanar low/high caps bake badly.
