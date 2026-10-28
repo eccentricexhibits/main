@@ -1,0 +1,461 @@
+<title>Hoof Glove View Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single working column, one section per step, like a prop-shop job sheet: attach strip, prompt slip, check-off list. */
+:root {
+  --paper: #fbf9f8;
+  --card: #ffffff;
+  --ink: #1d1a1c;
+  --muted: #6b6468;
+  --line: #e6dfe2;
+  --chenille: #f1ece3;
+  --magenta: #a8206f;
+  --magenta-soft: #f7e4ef;
+  --on-magenta: #ffffff;
+  --code-bg: #f5f1f3;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #161315; --card: #1f1b1e; --ink: #f1ecee; --muted: #a79ea3; --line: #352f33;
+    --chenille: #2a2522; --magenta: #e05aa7; --magenta-soft: #3a1f2e; --on-magenta: #1a0d14; --code-bg: #151214;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #161315; --card: #1f1b1e; --ink: #f1ecee; --muted: #a79ea3; --line: #352f33;
+  --chenille: #2a2522; --magenta: #e05aa7; --magenta-soft: #3a1f2e; --on-magenta: #1a0d14; --code-bg: #151214;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 960px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 5.5vw, 3.4rem); font-weight: 800; line-height: 1.02; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.6rem, 3.6vw, 2.1rem); font-weight: 700; line-height: 1.1; }
+h3 { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.86em; background: var(--code-bg); border: 1px solid var(--line); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: var(--magenta); }
+:focus-visible { outline: 3px solid var(--magenta); outline-offset: 2px; }
+
+.top { padding-top: 40px; display: grid; gap: 18px; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--magenta); }
+.lede { font-size: 1.15rem; max-width: 62ch; }
+.howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 4px 0 0; counter-reset: h; }
+.howto li { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 0.95rem; }
+.howto b { display: block; font-family: var(--f-display); font-size: 1.05rem; }
+nav.steps ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+nav.steps a { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink); background: var(--card); font-size: 0.95rem; }
+nav.steps a span { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--magenta); color: var(--on-magenta); font-weight: 700; font-size: 0.8rem; }
+nav.steps a:hover { border-color: var(--magenta); }
+
+.rules { background: var(--chenille); border-radius: 14px; padding: 20px 22px; display: grid; gap: 10px; }
+.rules ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+
+.key { display: grid; gap: 12px; }
+.key figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.key img { display: block; width: 100%; height: auto; }
+.key figcaption { color: var(--muted); font-size: 0.95rem; }
+
+.step { display: grid; gap: 16px; padding-top: 28px; border-top: 2px solid var(--ink); scroll-margin-top: 16px; }
+.step-head { display: grid; gap: 6px; }
+.step-no { font-family: var(--f-mono); font-size: 0.85rem; font-weight: 600; color: var(--magenta); letter-spacing: 0.06em; text-transform: uppercase; }
+.step-no small { color: var(--muted); font-size: 1em; }
+.goal { font-size: 1.08rem; max-width: 64ch; }
+.where { color: var(--muted); font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tile { position: relative; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.tile img, .tile .ph { width: 100%; height: auto; aspect-ratio: 1; max-width: 100%; border-radius: 10px; border: 1px solid var(--line); background: #fff; object-fit: contain; display: block; }
+.tile .ph { display: grid; place-items: center; background: var(--magenta-soft); border: 2px dashed var(--magenta); color: var(--magenta); font-family: var(--f-display); font-weight: 700; }
+.ord { position: absolute; top: 8px; left: 8px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; z-index: 1; }
+.yours .ord { background: var(--magenta); color: var(--on-magenta); }
+.fn { font-family: var(--f-mono); font-size: 0.72rem; overflow-wrap: anywhere; }
+.desc { font-size: 0.85rem; color: var(--muted); line-height: 1.35; }
+
+.prompt-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.copy { font: 700 0.92rem var(--f-body); background: var(--magenta); color: var(--on-magenta); border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer; }
+.copy:hover { filter: brightness(1.08); }
+.copy.small { padding: 5px 12px; font-size: 0.82rem; }
+.copy.done { background: var(--ink); color: var(--paper); }
+pre { font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.prompt { background: var(--code-bg); border: 1px solid var(--line); border-left: 4px solid var(--magenta); border-radius: 8px; padding: 16px 18px; max-height: 26rem; overflow: auto; }
+.prompt.long { max-height: 22rem; }
+
+.after { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 680px) { .after { grid-template-columns: 1fr; } }
+.checks ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { accent-color: var(--magenta); width: 18px; height: 18px; margin-top: 3px; flex: none; }
+.checks input:checked + span { color: var(--muted); text-decoration: line-through; }
+.next { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; font-size: 0.95rem; }
+.save { font-weight: 700; }
+
+.fixes { display: grid; gap: 16px; padding-top: 28px; border-top: 2px solid var(--ink); }
+.fixgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.fix { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.fix-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fix-code { font-family: var(--f-mono); font-size: 0.78rem; font-weight: 600; color: var(--magenta); text-transform: uppercase; letter-spacing: 0.06em; }
+.fix h3 { font-size: 1.05rem; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.fixtext { font-size: 0.78rem; color: var(--muted); }
+.tiles.minis { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+
+.tripo { display: grid; gap: 14px; padding-top: 28px; border-top: 2px solid var(--ink); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; min-width: 0; width: 100%; max-width: 640px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-display); width: 6.5rem; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+.tripo ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">The Misanthropic Cow · Tripo multiview · one left glove</p>
+    <h1>Hoof Glove View Kit</h1>
+    <p class="lede">Five steps to four matching views of one glove: back of hand, little-finger side, thumb side and palm. Three come from ChatGPT, edited from your real photos; the palm view is a mirror. Each step: attach the images shown, in order. Paste the prompt. Check the result. Save it.</p>
+    <ul class="howto">
+      <li><b>Where the images are</b>Each step has its own package in the chat. The files are numbered in attach order.</li>
+      <li><b>Which tool</b>ChatGPT image generation. Keep one chat for Steps 1 to 4.</li>
+      <li><b>Pink tiles</b>Images you made and approved in an earlier step. Attach them from your own downloads.</li>
+    </ul>
+    <nav class="steps" aria-label="Steps"><ol><li><a href="#step-1"><span>1</span>Lock in the design</a></li>
+<li><a href="#step-2"><span>2</span>Front view: back of the hand</a></li>
+<li><a href="#step-3"><span>3</span>Side view: little-finger edge</a></li>
+<li><a href="#step-4"><span>4</span>Side view: thumb edge</a></li>
+<li><a href="#step-5"><span>5</span>Palm view (mirror) and Tripo upload</a></li>
+      <li><a href="#fixes"><span>!</span>Fix-ups</a></li>
+      <li><a href="#tripo"><span>↑</span>Tripo upload</a></li></ol></nav>
+  </header>
+
+  <aside class="rules" aria-label="Ground rules">
+    <h3>Ground rules</h3>
+    <ul><li>One view per message. Never ask for a sheet or grid of views.</li>
+<li>In ChatGPT, use the Select tool on the image to brush over only the wrong area before sending a fix. Then only that area is redrawn instead of the whole image.</li>
+<li>If two fixes in a row make things worse, start a new chat: run Step 1 again, then attach your approved images and carry on from where you were.</li>
+<li>Approve a view only after checking it against the design key. One wrong view teaches Tripo the wrong shape.</li></ul>
+  </aside>
+
+  <section class="key" aria-labelledby="h-key">
+    <h3 id="h-key">Design key: check every result against this</h3>
+    <figure><img src="img/design_key_large.jpg" alt="Annotated photos of the glove with 10 numbered parts: cream terry mitten, separate thumb with no hoof, two finger compartments, two black hoof toe caps, toe shape, straight base edge, raised rim, satin black finish, plain cuff, and the closed cleft." width="1600" height="923"></figure>
+    <p class="muted">The four details an image model is most likely to get wrong are bold: no hoof on the thumb, exactly two toe caps, satin (not glossy) paint, and the closed cleft.</p>
+  </section>
+
+  
+<section class="step" id="step-1" aria-labelledby="h-step-1">
+  <header class="step-head">
+    <span class="step-no">Step 1<small> of 5</small></span>
+    <h2 id="h-step-1">Lock in the design</h2>
+    <p class="goal">Get the image model to read the glove correctly before it draws anything. No image is made in this step.</p>
+    <p class="where">Start a brand-new chat. <span class="pkg">Images: <code>STEP_1_Lock_in_the_design.zip</code></span></p>
+  </header>
+  <h3>Attach, in this order</h3>
+  <ol class="tiles"><li class="tile"><span class="ord">1</span><img src="img/REF_A_left_glove_flat_back_of_hand.jpg" alt="Real left glove, empty, laid flat, hoof toes parted" width="520" height="520">
+<p class="fn">1_REF_A_left_glove_flat_back_of_hand.png</p><p class="desc">Real left glove, empty, laid flat, hoof toes parted</p></li>
+<li class="tile"><span class="ord">2</span><img src="img/REF_B_worn_side_hoof_almost_closed.jpg" alt="Real glove worn, toes slightly parted" width="520" height="520">
+<p class="fn">2_REF_B_worn_side_hoof_almost_closed.png</p><p class="desc">Real glove worn, toes slightly parted</p></li>
+<li class="tile"><span class="ord">3</span><img src="img/REF_C_worn_hoof_closed_from_above.jpg" alt="Real glove worn, hoof CLOSED" width="520" height="520">
+<p class="fn">3_REF_C_worn_hoof_closed_from_above.png</p><p class="desc">Real glove worn, hoof CLOSED</p></li>
+<li class="tile"><span class="ord">4</span><img src="img/DETAIL_1_hoof_toes_shape_and_rim.jpg" alt="Toe shape and rim, close-up" width="520" height="520">
+<p class="fn">4_DETAIL_1_hoof_toes_shape_and_rim.jpg</p><p class="desc">Toe shape and rim, close-up</p></li>
+<li class="tile"><span class="ord">5</span><img src="img/DESIGN_KEY.jpg" alt="Annotated design key" width="520" height="520">
+<p class="fn">5_DESIGN_KEY.png</p><p class="desc">Annotated design key</p></li></ol>
+  <div class="prompt-head"><h3>Then paste</h3><button class="copy" type="button" data-target="prompt-1">Copy prompt</button></div>
+  <pre class="prompt long" id="prompt-1" tabindex="0">I&#x27;m making a 3D model of a costume glove belonging to my character, The Misanthropic Cow. Over the next few messages I&#x27;ll ask you for three product-reference views of ONE of these gloves (a left glove): the back of the hand, the little-finger side and the thumb side. They will be fed into an image-to-3D tool, so being accurate to the real glove matters far more than looking nice.
+
+Attached, in order:
+1. REF_A: the real left glove, empty and laid flat, seen from the back of the hand. The hoof toes are parted here; in my views they must be closed.
+2. REF_B: the real glove being worn, hoof toes slightly parted. Ignore the black background.
+3. REF_C: the real glove being worn with the hoof CLOSED, the way I want it.
+4. DETAIL_1: close-up of the two toe caps and their rim. Ignore the white fur sleeve: it belongs to the bodysuit, not the glove.
+5. DESIGN_KEY: my annotated breakdown of the parts. It is for understanding only. Never draw its numbers, circles, lines or text.
+
+DESIGN BRIEF — THE MISANTHROPIC COW HOOF GLOVE
+(Authoritative. Follow it for every image in this chat.)
+
+WHAT IT IS: ONE handmade costume glove for a LEFT hand: a cream terry-cloth mitten with a separate thumb, whose fingers end in a hard black cow&#x27;s CLOVEN HOOF made of exactly two toe caps. Not a pair. Not a five-finger glove. Not a furry paw. Not a cartoon plush hoof.
+
+POSE (every view): as if worn by an invisible hand. Plump and filled out, fingers straight and together, the two hoof toes CLOSED. The glove stands upright: hoof at the TOP of the frame, cuff opening at the BOTTOM. The thumb angles out about 25-30 degrees from the hand, with a clear gap between thumb and hand down to the thumb&#x27;s base. No hand, wrist, arm or skin is visible anywhere.
+
+PROPORTIONS (estimated from my photos): about 30 cm from cuff to hoof tip and about 10 cm wide across the hand, so about 3 times as tall as wide. The hoof is the top ~37% of the length; the terry is the lower ~63%. The thumb is about 6-7 cm long and leaves the hand about halfway up the terry. From the side the glove is slim: about 5 cm thick at the knuckles.
+
+PARTS, TOP TO BOTTOM:
+1. HOOF (top ~37%): two hard, hollow black toe caps side by side, one over the index+middle fingers and one over the ring+little fingers. Seen from the back of the hand, each toe has a straight inner edge along the centre line and a curved outer edge, and its tip leans in toward the centre. CLOSED, the two toes touch along one straight cleft line down the middle of the hoof and their tips meet in a single point, so together they make a rounded, pointed-arch outline like a real cow&#x27;s hoof.
+2. HOOF FROM THE SIDE: from the little-finger or thumb edge, the hoof is a slim, rounded wedge, as thick as the hand at its base, tapering to a blunt point at the tip.
+3. HOOF FINISH: satin black paint with soft grey brush-streak highlights, slightly uneven like painted papier-mache. A thin raised rim runs along the toe edges and catches light-grey highlights. Satin, not glossy; not metallic; no green or rainbow sheen.
+4. HOOF BASE: each toe cap starts at a clean, straight, slightly slanted edge where the terry tucks inside it.
+5. FINGERS: just below the hoof, the fingers sit in two terry compartments, with a soft crease between them that continues the cleft line a short way down the glove.
+6. THUMB: a separate terry thumb with a rounded tip. Terry only: NO hoof, cap, claw or nail.
+7. BODY: cream / off-white looped terry cloth, like a bath towel or a fluffy sock (small dense loops about 2-3 mm). Plain: no pattern, no visible seams. Clean cream: ignore the grey dirt marks and coloured studio light in my photos.
+8. CUFF: a plain, straight, open edge at the wrist, about as wide as the palm. No ribbing, no band, no fur trim.
+
+NEVER ADD: five separate fingers, claws, talons or nails, a hoof or cap on the thumb, a third hoof toe, a horseshoe, cow-print spots, a white fur cuff or sleeve, a knitted rib cuff, contrasting stitching, gloss, chrome or a green sheen on the hoof, a hand, wrist, arm or skin, a second glove, a stand or mannequin, or any text, labels, numbers or arrows.
+
+Don&#x27;t make an image yet. First reply with:
+(a) anything in the photos that contradicts or adds to the brief, and
+(b) one or two sentences each on what the back-of-hand view, the little-finger-side view and the thumb-side view of THIS glove should look like, with the hoof closed.</pre>
+  <div class="after">
+    <div class="checks"><h3>Check before approving</h3><ul><li><label><input type="checkbox" id="c1-0"> <span>It says the hoof is exactly TWO toe caps (a cloven hoof), not five fingers or claws.</span></label></li>
+<li><label><input type="checkbox" id="c1-1"> <span>It says the thumb is plain terry with NO hoof.</span></label></li>
+<li><label><input type="checkbox" id="c1-2"> <span>It describes the hoof as CLOSED, with the toes meeting along a straight cleft and the tips meeting in one point.</span></label></li>
+<li><label><input type="checkbox" id="c1-3"> <span>It calls the hoof satin black with grey brush highlights, not glossy.</span></label></li>
+<li><label><input type="checkbox" id="c1-4"> <span>It does not add a fur cuff or sleeve.</span></label></li></ul></div>
+    <div class="next"><p>If it gets any of these wrong, correct it in one line (for example: &quot;Correction: the thumb has no hoof; it is plain terry.&quot;) and wait for it to confirm before moving on.</p></div>
+  </div>
+</section>
+<section class="step" id="step-2" aria-labelledby="h-step-2">
+  <header class="step-head">
+    <span class="step-no">Step 2<small> of 5</small></span>
+    <h2 id="h-step-2">Front view: back of the hand</h2>
+    <p class="goal">REF_A already shows this view of the real glove, so this is an edit, not an invention. This view sets the scale and look for every other one.</p>
+    <p class="where">Same chat as Step 1. <span class="pkg">Images: <code>STEP_2_Front_back_of_hand.zip</code></span></p>
+  </header>
+  <h3>Attach, in this order</h3>
+  <ol class="tiles"><li class="tile"><span class="ord">1</span><img src="img/REF_A_left_glove_flat_back_of_hand.jpg" alt="This exact view of the real glove (edit from it)" width="520" height="520">
+<p class="fn">1_REF_A_left_glove_flat_back_of_hand.png</p><p class="desc">This exact view of the real glove (edit from it)</p></li>
+<li class="tile"><span class="ord">2</span><img src="img/REF_C_worn_hoof_closed_from_above.jpg" alt="How the CLOSED hoof looks" width="520" height="520">
+<p class="fn">2_REF_C_worn_hoof_closed_from_above.png</p><p class="desc">How the CLOSED hoof looks</p></li>
+<li class="tile"><span class="ord">3</span><img src="img/DETAIL_3_terry_loop_texture.jpg" alt="Terry loop texture" width="520" height="520">
+<p class="fn">3_DETAIL_3_terry_loop_texture.jpg</p><p class="desc">Terry loop texture</p></li>
+<li class="tile"><span class="ord">4</span><img src="img/DETAIL_4_hoof_surface_brush_texture.jpg" alt="Hoof paint, brush streaks and rim" width="520" height="520">
+<p class="fn">4_DETAIL_4_hoof_surface_brush_texture.jpg</p><p class="desc">Hoof paint, brush streaks and rim</p></li></ol>
+  <div class="prompt-head"><h3>Then paste</h3><button class="copy" type="button" data-target="prompt-2">Copy prompt</button></div>
+  <pre class="prompt" id="prompt-2" tabindex="0">IMAGE 1 OF 3: FRONT VIEW (BACK OF THE HAND).
+
+Attached, in order: REF_A (the real glove from exactly this side; use it as the starting point), REF_C (how the CLOSED hoof looks), DETAIL_3 (the terry loops), DETAIL_4 (the hoof&#x27;s paint, brush streaks and rim).
+
+Make a photograph of this exact glove (one LEFT glove) seen straight-on from the back of the hand, starting from REF_A, with these changes only:
+- It is worn by an invisible hand: plump and rounded, not flat and empty.
+- The two hoof toes are CLOSED: they touch along one straight vertical cleft down the centre of the hoof, and their tips meet in a single point at the top. The closed hoof has a rounded, pointed-arch outline.
+- The terry is clean cream (no grey dirt marks).
+- The glove stands perfectly upright, hoof at the top, cuff at the bottom; the hoof is symmetrical about its cleft.
+
+What this view must show, top to bottom:
+- The closed black cloven hoof (top ~37% of the height): two toe caps side by side, straight cleft down the middle, satin black with soft grey brush highlights, thin rim along the edges.
+- The clean straight edge where the terry tucks into the toe caps.
+- The cream terry hand, with a soft crease continuing the cleft a short way down.
+- The THUMB on the RIGHT side of the glove, angled out about 25-30 degrees, with white background visible between thumb and hand. Plain terry, rounded tip, NO hoof.
+- The straight open cuff edge at the bottom of the frame, about as wide as the palm.
+
+CAMERA AND FRAMING: Camera at the glove&#x27;s mid-height, looking straight across (level, not from above). Long-lens, near-orthographic look with very little perspective distortion. Square 1:1 image. Pure white background. The glove is centred, upright, and fills about 85% of the image height. Soft, even, diffuse studio light; no hard shadows and no floor shadow. Photorealistic product photograph of the real handmade object, with its real terry and painted textures. No text, labels, numbers, arrows, borders or watermark.
+
+Follow the design brief exactly.</pre>
+  <div class="after">
+    <div class="checks"><h3>Check before approving</h3><ul><li><label><input type="checkbox" id="c2-0"> <span>Thumb on the RIGHT, plain terry, no hoof; white gap between thumb and hand.</span></label></li>
+<li><label><input type="checkbox" id="c2-1"> <span>Exactly two toe caps, CLOSED: one straight cleft down the middle, tips meeting in one point.</span></label></li>
+<li><label><input type="checkbox" id="c2-2"> <span>Hoof is satin black with grey brush highlights, not glossy, metallic or green.</span></label></li>
+<li><label><input type="checkbox" id="c2-3"> <span>Hoof is roughly the top third of the glove; glove about 3 times as tall as wide.</span></label></li>
+<li><label><input type="checkbox" id="c2-4"> <span>Upright, straight-on, one glove, no arm, no fur cuff, no text, white background.</span></label></li></ul></div>
+    <div class="next"><p class="save">Save as <code>1_FRONT_approved.png</code></p><p>Download it and rename it 1_FRONT_approved.png. You&#x27;ll attach it to every later step and mirror it in Step 5.</p></div>
+  </div>
+</section>
+<section class="step" id="step-3" aria-labelledby="h-step-3">
+  <header class="step-head">
+    <span class="step-no">Step 3<small> of 5</small></span>
+    <h2 id="h-step-3">Side view: little-finger edge</h2>
+    <p class="goal">The simplest side: the thumb is hidden behind the hand, so this is just the glove&#x27;s slim profile and the side of the hoof.</p>
+    <p class="where">Same chat. If the chat has started to drift, open a fresh one and run Step 1 again first. <span class="pkg">Images: <code>STEP_3_Side_little_finger.zip</code></span></p>
+  </header>
+  <h3>Attach, in this order</h3>
+  <ol class="tiles"><li class="tile yours"><span class="ord">1</span><div class="ph"><span>Your image</span></div>
+<p class="fn">1_FRONT_approved.png</p><p class="desc">From an earlier step</p></li>
+<li class="tile"><span class="ord">2</span><img src="img/REF_B_worn_side_hoof_almost_closed.jpg" alt="Real glove worn: thickness of the toes" width="520" height="520">
+<p class="fn">2_REF_B_worn_side_hoof_almost_closed.png</p><p class="desc">Real glove worn: thickness of the toes</p></li>
+<li class="tile"><span class="ord">3</span><img src="img/DETAIL_2_closed_hoof_end_on_cleft.jpg" alt="Closed hoof seen from its tip end" width="520" height="520">
+<p class="fn">3_DETAIL_2_closed_hoof_end_on_cleft.jpg</p><p class="desc">Closed hoof seen from its tip end</p></li></ol>
+  <div class="prompt-head"><h3>Then paste</h3><button class="copy" type="button" data-target="prompt-3">Copy prompt</button></div>
+  <pre class="prompt" id="prompt-3" tabindex="0">IMAGE 2 OF 3: SIDE VIEW (LITTLE-FINGER EDGE).
+
+Attached, in order: 1_FRONT_approved (my approved image 1; match it exactly), REF_B (the real glove worn, showing how thick the toe caps are), DETAIL_2 (the closed hoof seen from its tip end: rounded, with the cleft across it).
+
+Make a photograph of the same single glove, rotated exactly 90 degrees so the camera looks straight at its LITTLE-FINGER EDGE. The glove is still upright: hoof at the top, cuff at the bottom. The back of the hand faces the RIGHT edge of the frame and the palm faces the LEFT edge.
+
+What this view must show:
+- A slim, upright profile: the glove is only about 5 cm thick, about half as wide as in the front view.
+- At the top, the side of the closed hoof: a slim, rounded black wedge, as thick as the hand at its base, tapering to a blunt point at the tip. Only the outer side of ONE toe cap is visible; the cleft is on the far side and hidden. Same satin black, grey brush highlights and thin rim.
+- The clean straight edge where the terry tucks into the hoof.
+- Below it, the cream terry hand and wrist in profile, slightly fuller toward the knuckles.
+- The THUMB is completely hidden behind the hand: no thumb visible.
+- The open cuff edge at the bottom, seen edge-on.
+
+MATCH MY APPROVED VIEW: same glove, same scale, same camera height, same lighting, same white background, same terry colour and hoof finish. The hoof tip and the bottom of the cuff sit at the same heights in the frame as in 1_FRONT_approved.
+
+CAMERA AND FRAMING: Camera at the glove&#x27;s mid-height, looking straight across (level, not from above). Long-lens, near-orthographic look with very little perspective distortion. Square 1:1 image. Pure white background. The glove is centred, upright, and fills about 85% of the image height. Soft, even, diffuse studio light; no hard shadows and no floor shadow. Photorealistic product photograph of the real handmade object, with its real terry and painted textures. No text, labels, numbers, arrows, borders or watermark.
+
+Follow the design brief exactly.</pre>
+  <div class="after">
+    <div class="checks"><h3>Check before approving</h3><ul><li><label><input type="checkbox" id="c3-0"> <span>True edge-on profile: much narrower than the front view.</span></label></li>
+<li><label><input type="checkbox" id="c3-1"> <span>No thumb visible.</span></label></li>
+<li><label><input type="checkbox" id="c3-2"> <span>Hoof side is one slim black wedge (no fingers, no claws), same finish as the front view.</span></label></li>
+<li><label><input type="checkbox" id="c3-3"> <span>Hoof tip and cuff bottom at the same heights as in 1_FRONT_approved.</span></label></li>
+<li><label><input type="checkbox" id="c3-4"> <span>One glove, no arm, no text, white background.</span></label></li></ul></div>
+    <div class="next"><p class="save">Save as <code>2_SIDE_LITTLE_FINGER_approved.png</code></p><p>Save it as 2_SIDE_LITTLE_FINGER_approved.png and move on to Step 4.</p></div>
+  </div>
+</section>
+<section class="step" id="step-4" aria-labelledby="h-step-4">
+  <header class="step-head">
+    <span class="step-no">Step 4<small> of 5</small></span>
+    <h2 id="h-step-4">Side view: thumb edge</h2>
+    <p class="goal">The hardest view: the thumb comes toward the camera. It&#x27;s optional. If it fights you after two fixes, skip it; Tripo works without it.</p>
+    <p class="where">Same chat. <span class="pkg">Images: <code>STEP_4_Side_thumb.zip</code></span></p>
+  </header>
+  <h3>Attach, in this order</h3>
+  <ol class="tiles"><li class="tile yours"><span class="ord">1</span><div class="ph"><span>Your image</span></div>
+<p class="fn">1_FRONT_approved.png</p><p class="desc">From an earlier step</p></li>
+<li class="tile yours"><span class="ord">2</span><div class="ph"><span>Your image</span></div>
+<p class="fn">2_SIDE_LITTLE_FINGER_approved.png</p><p class="desc">From an earlier step</p></li>
+<li class="tile"><span class="ord">3</span><img src="img/REF_A_left_glove_flat_back_of_hand.jpg" alt="Real glove: thumb shape and position" width="520" height="520">
+<p class="fn">3_REF_A_left_glove_flat_back_of_hand.png</p><p class="desc">Real glove: thumb shape and position</p></li></ol>
+  <div class="prompt-head"><h3>Then paste</h3><button class="copy" type="button" data-target="prompt-4">Copy prompt</button></div>
+  <pre class="prompt" id="prompt-4" tabindex="0">IMAGE 3 OF 3: SIDE VIEW (THUMB EDGE).
+
+Attached, in order: 1_FRONT_approved and 2_SIDE_LITTLE_FINGER_approved (my approved images; match them), REF_A (the real glove; it shows the thumb&#x27;s shape and where it joins the hand).
+
+Make a photograph of the same single glove seen from the opposite side to image 2: the camera looks straight at its THUMB EDGE. The glove is upright: hoof at the top, cuff at the bottom. The back of the hand faces the LEFT edge of the frame and the palm faces the RIGHT edge.
+
+What this view must show:
+- The same slim profile as image 2, almost a mirror image of it: same height, same thickness, same hoof wedge at the top (one toe cap&#x27;s outer side; the cleft is hidden).
+- The THUMB is on the near side, pointing up and toward the camera, so it looks short and rounded. It overlaps the lower half of the hand, a little toward the palm side (right). Plain terry with a rounded tip: NO hoof, cap or nail.
+- The cream terry and the open cuff edge at the bottom, as in image 2.
+
+MATCH MY APPROVED VIEW: same glove, same scale, same camera height, same lighting, same white background, same terry colour and hoof finish. The hoof tip and the bottom of the cuff sit at the same heights in the frame as in 1_FRONT_approved.
+
+CAMERA AND FRAMING: Camera at the glove&#x27;s mid-height, looking straight across (level, not from above). Long-lens, near-orthographic look with very little perspective distortion. Square 1:1 image. Pure white background. The glove is centred, upright, and fills about 85% of the image height. Soft, even, diffuse studio light; no hard shadows and no floor shadow. Photorealistic product photograph of the real handmade object, with its real terry and painted textures. No text, labels, numbers, arrows, borders or watermark.
+
+Follow the design brief exactly.</pre>
+  <div class="after">
+    <div class="checks"><h3>Check before approving</h3><ul><li><label><input type="checkbox" id="c4-0"> <span>Same slim profile, height and hoof as image 2 (roughly its mirror).</span></label></li>
+<li><label><input type="checkbox" id="c4-1"> <span>Thumb visible on the near side, plain terry, no hoof.</span></label></li>
+<li><label><input type="checkbox" id="c4-2"> <span>Still exactly one glove, upright, no arm.</span></label></li></ul></div>
+    <div class="next"><p class="save">Save as <code>3_SIDE_THUMB_approved.png</code></p><p>Save it as 3_SIDE_THUMB_approved.png. If you skip it, just leave that Tripo slot empty.</p></div>
+  </div>
+</section>
+<section class="step" id="step-5" aria-labelledby="h-step-5">
+  <header class="step-head">
+    <span class="step-no">Step 5<small> of 5</small></span>
+    <h2 id="h-step-5">Palm view (mirror) and Tripo upload</h2>
+    <p class="goal">No AI needed. The palm side of a mitten is the mirror image of the back of the hand, and a mirrored approved view is better Tripo input than a freshly generated one.</p>
+    <p class="where">Any photo app, then Tripo. <span class="pkg">Images: <code>STEP_5_Palm_view_and_Tripo.zip</code></span></p>
+  </header>
+  
+  <div class="prompt-head"><h3>Do this</h3><button class="copy" type="button" data-target="prompt-5">Copy</button></div>
+  <pre class="prompt" id="prompt-5" tabindex="0">MAKE THE PALM VIEW (no ChatGPT needed):
+1. Open 1_FRONT_approved.png in any photo app.
+2. Flip it horizontally (Mac Preview: Tools &gt; Flip Horizontal; Windows Photos: Edit &gt; Flip; Photoshop: Image &gt; Image Rotation &gt; Flip Canvas Horizontal).
+3. Save the copy as 4_BACK_PALM_mirrored.png. The thumb is now on the LEFT.
+
+THEN SEND ME ALL THE IMAGES FIRST (recommended): attach 1_FRONT_approved, 2_SIDE_LITTLE_FINGER_approved, 3_SIDE_THUMB_approved (if you made it) and 4_BACK_PALM_mirrored here. I&#x27;ll normalise them (same height, same centring, white square) and give you back the exact files for Tripo.
+
+Tripo slots are listed in TRIPO_UPLOAD.txt.</pre>
+  <div class="after">
+    <div class="checks"><h3>Check before approving</h3><ul><li><label><input type="checkbox" id="c5-0"> <span>The mirrored copy has the thumb on the LEFT.</span></label></li>
+<li><label><input type="checkbox" id="c5-1"> <span>All views show the hoof CLOSED and the same glove size.</span></label></li></ul></div>
+    <div class="next"><p class="save">Save as <code>4_BACK_PALM_mirrored.png</code></p><p>Send the views back to me for normalising before you upload to Tripo.</p></div>
+  </div>
+</section>
+
+  <section class="fixes" id="fixes" aria-labelledby="h-fixes">
+    <span class="step-no">When a result is wrong</span>
+    <h2 id="h-fixes">Fix-up prompts</h2>
+    <p class="goal">Paste the one that matches. In ChatGPT, brush over just the wrong area with the Select tool first. Attach a detail image if the model needs reminding. These are all in <code>FIX_UP_PROMPTS.zip</code>.</p>
+    <div class="fixgrid"><article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix A</span><button class="copy small" type="button" data-target="fix-0">Copy</button></div>
+  <h3>Hoof became fingers, claws or more than two toes</h3>
+  <pre class="fixtext" id="fix-0">The hoof is wrong. This glove ends in a cow&#x27;s cloven hoof: exactly TWO hard black toe caps side by side, one over the index+middle fingers and one over the ring+little fingers. No separate fingers, claws or nails (see DESIGN_KEY item 4). Keep everything else in the image exactly the same and fix only the hoof.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix B</span><button class="copy small" type="button" data-target="fix-1">Copy</button></div>
+  <h3>Hoof is open instead of closed</h3>
+  <pre class="fixtext" id="fix-1">Close the hoof: the two toe caps must touch along one straight cleft line down the middle, with their tips meeting in a single point, like REF_C. Keep everything else exactly the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix C</span><button class="copy small" type="button" data-target="fix-2">Copy</button></div>
+  <h3>Thumb got a hoof, or the thumb is missing</h3>
+  <pre class="fixtext" id="fix-2">The thumb is a separate plain cream terry thumb with a rounded tip. It has NO hoof, cap, claw or nail. It angles out about 25-30 degrees from the hand on the [RIGHT / LEFT] side, with white background between thumb and hand. Fix only the thumb.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix D</span><button class="copy small" type="button" data-target="fix-3">Copy</button></div>
+  <h3>Hoof is glossy, metallic or green</h3>
+  <pre class="fixtext" id="fix-3">The hoof finish is satin black paint with soft grey brush-streak highlights and a thin rim catching light-grey highlights, like DETAIL_4. It is not glossy, metallic or iridescent and has no green sheen. Keep the shapes and everything else the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix E</span><button class="copy small" type="button" data-target="fix-4">Copy</button></div>
+  <h3>A fur cuff, sleeve or arm appeared</h3>
+  <pre class="fixtext" id="fix-4">Remove the [fur cuff / sleeve / arm / hand]. The glove ends at a plain, straight, open terry cuff edge at the wrist, with nothing inside or around it. Keep everything else the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix F</span><button class="copy small" type="button" data-target="fix-5">Copy</button></div>
+  <h3>Drew a pair</h3>
+  <pre class="fixtext" id="fix-5">Only one glove, please. Remove the second one and centre the remaining one. Keep everything else the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix G</span><button class="copy small" type="button" data-target="fix-6">Copy</button></div>
+  <h3>Wrong angle (three-quarter, tilted or from above)</h3>
+  <pre class="fixtext" id="fix-6">This is a three-quarter / tilted / high view. I need a true [FRONT / SIDE] view: rotate the glove to exactly 90-degree steps, stand it perfectly upright (hoof at the top, cuff at the bottom) and put the camera level with its middle, looking straight across. Keep the glove itself identical.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix H</span><button class="copy small" type="button" data-target="fix-7">Copy</button></div>
+  <h3>Terry looks like fur, fleece or knit</h3>
+  <pre class="fixtext" id="fix-7">The cream fabric is looped terry cloth, like a bath towel or a fluffy sock: small dense loops about 2-3 mm, like DETAIL_3. It is not long fur, sherpa fleece or a knit. Keep the shapes and everything else the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix I</span><button class="copy small" type="button" data-target="fix-8">Copy</button></div>
+  <h3>Proportions are off</h3>
+  <pre class="fixtext" id="fix-8">The proportions are off. The glove is about 3 times as tall as it is wide. The black hoof is the top ~37% of the height and the cream terry is the lower ~63%. The thumb is about 6-7 cm long on a 30 cm glove. Keep everything else the same.</pre>
+</article>
+<article class="fix">
+  <div class="fix-top"><span class="fix-code">Fix J</span><button class="copy small" type="button" data-target="fix-9">Copy</button></div>
+  <h3>Text, labels or a border appeared</h3>
+  <pre class="fixtext" id="fix-9">Remove all text, labels, numbers, arrows and borders. Pure white background only. Keep the glove exactly the same.</pre>
+</article></div>
+    <h3>Detail images for fixes</h3>
+    <ul class="tiles minis"><li class="tile mini"><img src="img/REF_C_worn_hoof_closed_from_above.jpg" alt="Closed hoof (for Fix A, B)" width="520" height="520"><p class="fn">REF_C_worn_hoof_closed_from_above.png</p><p class="desc">Closed hoof (for Fix A, B)</p></li>
+<li class="tile mini"><img src="img/DETAIL_4_hoof_surface_brush_texture.jpg" alt="Hoof finish and rim (for Fix D)" width="520" height="520"><p class="fn">DETAIL_4_hoof_surface_brush_texture.jpg</p><p class="desc">Hoof finish and rim (for Fix D)</p></li>
+<li class="tile mini"><img src="img/DETAIL_3_terry_loop_texture.jpg" alt="Terry loops (for Fix H)" width="520" height="520"><p class="fn">DETAIL_3_terry_loop_texture.jpg</p><p class="desc">Terry loops (for Fix H)</p></li>
+<li class="tile mini"><img src="img/REF_A_left_glove_flat_back_of_hand.jpg" alt="Thumb shape and position (for Fix C)" width="520" height="520"><p class="fn">REF_A_left_glove_flat_back_of_hand.png</p><p class="desc">Thumb shape and position (for Fix C)</p></li>
+<li class="tile mini"><img src="img/DESIGN_KEY.jpg" alt="Design key (for any fix)" width="520" height="520"><p class="fn">DESIGN_KEY.png</p><p class="desc">Design key (for any fix)</p></li></ul>
+  </section>
+
+  <section class="tripo" id="tripo" aria-labelledby="h-tripo">
+    <span class="step-no">Finally</span>
+    <h2 id="h-tripo">Upload to Tripo multiview</h2>
+    <div class="tablewrap"><table><tbody><tr><th scope='row'>Front</th><td><code>1_FRONT_approved.png</code> <span class="muted">(back of hand, thumb on the right)</span></td></tr>
+<tr><th scope='row'>Back</th><td><code>4_BACK_PALM_mirrored.png</code> <span class="muted">(palm, thumb on the left)</span></td></tr>
+<tr><th scope='row'>Right</th><td><code>3_SIDE_THUMB_approved.png</code> <span class="muted">(thumb edge; leave empty if you skipped Step 4)</span></td></tr>
+<tr><th scope='row'>Left</th><td><code>2_SIDE_LITTLE_FINGER_approved.png</code> <span class="muted">(little-finger edge)</span></td></tr></tbody></table></div>
+    <ul><li>Send me the views first so I can normalise them; upload the normalised files I send back.</li>
+<li>Tripo needs the front view plus at least one other. Leave out any view you don&#x27;t trust.</li>
+<li>If the model comes out twisted, or with a thumb on both sides, swap the Left and Right images and run it again.</li>
+<li>When it&#x27;s done, download the model as a zip (OBJ + PBR textures) and upload it here.</li></ul>
+  </section>
+</div>
+
+<script>
+document.querySelectorAll("button.copy").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var el = document.getElementById(btn.dataset.target);
+    var text = el.textContent;
+    var label = btn.textContent;
+    function flash(msg) { btn.textContent = msg; btn.classList.add("done"); setTimeout(function () { btn.textContent = label; btn.classList.remove("done"); }, 1600); }
+    function selectIt() { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); flash("Selected: press Ctrl/Cmd+C"); }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { flash("Copied"); }, selectIt);
+      } else { selectIt(); }
+    } catch (err) { selectIt(); }
+  });
+});
+</script>
