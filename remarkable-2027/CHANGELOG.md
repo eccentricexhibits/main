@@ -122,4 +122,10 @@ ROUND 9: CLIENT FEEDBACK (October 28, 2026)
 - Closing panel background: the flat Remarkable AI gradient replaces the grainy gradient-flow texture.
 - Venue street address removed from the venue section and FAQ (it goes out with registration
   confirmations); see Source/dist/content/COPY-CHANGES.md.
+
+ROUND 10
+- Hero plus cluster: all magenta (no white where it crosses the photo), moved down and right, clear of
+  the "2027." / date text.
+- "Remarkable 2026 by the numbers" and "Remarkable 2026 in photos" use the same tracking as the 01-04
+  section labels on phones (they already matched on desktop).
 ```

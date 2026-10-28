@@ -54,11 +54,9 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 /* Home: only requested CTA/corner changes. */
 .hero-actions .button-hero {font-size:23px;min-height:66px;padding:17px 30px;gap:46px;}
 .hero-visual {margin-left:0;}
-/* The official plus cluster straddles the photo's top-left corner: magenta over the page, white over the photo. */
-.hero-pluses {--pw:clamp(250px,27vw,400px);--in:.36;--drop:64px;position:absolute;z-index:2;left:calc(var(--pw) * var(--in) * -1);top:calc(var(--drop) * -1);width:var(--pw);height:auto;background:none;-webkit-mask:none;mask:none;pointer-events:none;animation:arrow-in .85s cubic-bezier(.2,.65,.2,1) both;}
-.hero-pluses:before,.hero-pluses:after {content:"";position:absolute;inset:0;-webkit-mask:url('assets/brand-elements/vector-plus-symbol.svg') center/contain no-repeat;mask:url('assets/brand-elements/vector-plus-symbol.svg') center/contain no-repeat;}
-.hero-pluses:before {background:var(--magenta);clip-path:polygon(0 0,100% 0,100% var(--drop),calc(var(--pw) * var(--in)) var(--drop),calc(var(--pw) * var(--in)) 100%,0 100%);}
-.hero-pluses:after {background:#fff;clip-path:inset(var(--drop) 0 0 calc(var(--pw) * var(--in)));}
+/* The official plus cluster sits on the photo's top-left corner, all magenta, set down and right so it
+   stays clear of the "2027." / date text. */
+.hero-pluses {--pw:clamp(250px,27vw,400px);position:absolute;z-index:2;left:calc(var(--pw) * -.24);top:-22px;width:var(--pw);pointer-events:none;animation:arrow-in .85s cubic-bezier(.2,.65,.2,1) both;}
 .mobile-hero-pluses {display:none;}
 
 /* Hero photo identity label (from the earlier mockup): tracked wordmark set straight on the photo. */
@@ -209,3 +207,5 @@ body:not([data-page="index"]) .inner-title-row>.ornament-stack>* {-webkit-mask-p
 /* Closing panel: the flat Remarkable AI gradient (no artwork) in place of the grainy texture. */
 .closing {background:linear-gradient(48deg,#e9078b 6%,#e4088c 11%,#cc128e 20%,#b21b91 30%,#9a2294 40%,#852996 50%,#722e98 60%,#633299 70%,#58359a 80%,#52379b 89%);}
 @media(max-width:360px){.closing .closing-pluses {width:60px;right:10px;top:10px;}}
+/* Phones: the stats and gallery labels use the same tracking as the 01-04 section labels. */
+@media(max-width:600px){.stats-header p,.gallery-heading .eyebrow {letter-spacing:.055em;}}

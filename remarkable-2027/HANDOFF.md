@@ -75,8 +75,8 @@ closed or opened by a 4 px event-gradient rule. On the inner pages the header an
 black block.
 
 **Home.**
-- Hero: oversized "Remarkable", magenta "2027.", date, tagline and Register now; the plus cluster
-  straddles the photo's top-left corner, magenta over the page and white over the photo; tracked
+- Hero: oversized "Remarkable", magenta "2027.", date, tagline and Register now; the magenta plus
+  cluster sits on the photo's top-left corner, set down and right to stay clear of the text; tracked
   "R E M A R K A B L E / THE COMMUNITY · 2026" label on the photo. On phones the cluster sits beside
   "2027.".
 - People section ("Brilliant minds. Big conversations."): the "Remarkable AI" artwork. The gradient is
