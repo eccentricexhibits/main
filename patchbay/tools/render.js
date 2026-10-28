@@ -9,6 +9,7 @@ const [url, out] = process.argv.slice(2);
   p.on('pageerror', e => errs.push(e.message));
   await p.goto(url); await p.waitForFunction(() => S.banks.some(b => b.ready), null, { timeout: 90000 });
   console.log(await p.evaluate(() => S.song.name + ' | ' + $('#songInfo').textContent));
-  const dl = p.waitForEvent('download', { timeout: 500000 }); await p.click('#btnExport');
+  // Big arrangements (the lush version: 52 parts, 20k notes) take over 8 minutes headless.
+  const dl = p.waitForEvent('download', { timeout: 1800000 }); await p.click('#btnExport');
   await (await dl).saveAs(out); console.log('exported', out);
   console.log(errs.join('\n') || 'no errors'); await b.close(); })();

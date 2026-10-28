@@ -10,7 +10,18 @@ Upload this whole folder (or the zip) to a new Claude conversation and paste the
 **The user is happy with Wasting My Time v18.** It's the approved version. Treat
 it as the base for any further song work; don't redo it.
 
-**New (2026-10-28): an electronic arrangement of v18.**
+**Newest (2026-10-28): a lush electronic version.**
+- **Live:** https://claude.ai/artifact/C3DNm9dtLV7iqEBvThHXgZ
+- **Folder:** `songs/wasting-my-time-electronic-lush/`, built by `lush.py` on top of
+  `electronic.py`.
+- **What it is:** the electronic version plus all of v18's lines on a synth orchestra,
+  detuned ensemble twins, halo/choir pads and a shimmer arp. 52 parts, 21k notes.
+- **Checks:**
+  - verse tune over the rest: +2.1 / +2.1 / +1.6 dB
+  - −13.0 LUFS overall
+- **The user asked to keep the electronic version too.** Both are live.
+
+**Also (2026-10-28): an electronic arrangement of v18.**
 - **Live:** https://claude.ai/artifact/PNuxKWNP47NispmTnLW8mt (private to the user)
 - **Folder:** `songs/wasting-my-time-electronic/`. Read its `CHANGES.md`; it's rebuilt from v18
   by `electronic.py`.
@@ -994,6 +1005,7 @@ go to World & FX.
 | `build.py` | Builds both editions plus song builds |
 | `free-instruments.md` | Researched free VST3 instruments and SoundFonts with licenses and links |
 | `electronic-instruments.md` | Free synths, drum synths, effects and CC0 SoundFonts for the electronic arrangement, mapped to its parts |
+| `songs/wasting-my-time-electronic-lush/` | **Lush electronic version**: the electronic arrangement plus v18's full orchestration on synths, ensemble width and air layers. Four MIDI files, `CHANGES.md`, preview, electronic-vs-lush clips, `lush.py` |
 | `songs/wasting-my-time-electronic/` | **Electronic arrangement of v18**: MIDI files, `CHANGES.md`, full preview, three v18-vs-electronic clips, `electronic.py`, and pages that open on it |
 | `tools/` | `render.js`, `verse_balance.js`, `solo_level.js`, `clash.py`, `show.py`, `trim.py`, `stems.js` and `README.md`: the revision recipe and checks |
 | `songs/wasting-my-time-v18/` | **v18 (current, approved)**: v17 with verses 1 and 2 about 0.5 dB louder. MIDI files, `CHANGES.md`, full preview, verses 1 and 2 v17-vs-v18 comparison, a verses 1–3 clip, `revise_v18.py`, and pages that open on v18 |

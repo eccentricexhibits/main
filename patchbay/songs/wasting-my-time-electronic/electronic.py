@@ -451,7 +451,7 @@ def build(file_tag):
         if f != file_tag: continue
         c = ch - 1; ev = []
         drums = c == 9
-        first_drum = drums and role == 'kick'
+        first_drum = drums and role == next(r for r, x in ROLES.items() if x[0] == file_tag and x[1] == 10)   # sets the file's kit
         if not drums or first_drum:
             ev += [(0, 0, mido.Message('control_change', channel=c, control=0, value=bank)),
                    (0, 0, mido.Message('control_change', channel=c, control=32, value=0)),
