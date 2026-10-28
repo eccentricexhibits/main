@@ -12,10 +12,10 @@ WHAT IT IS: ONE handmade costume glove for a LEFT hand: a cream terry-cloth mitt
 
 POSE (every view): as if worn by an invisible hand. Plump and filled out, fingers straight and together, the two hoof toes CLOSED. The glove stands upright: hoof at the TOP of the frame, cuff opening at the BOTTOM. The thumb angles out about 25-30 degrees from the hand, with a clear gap between thumb and hand down to the thumb's base. No hand, wrist, arm or skin is visible anywhere.
 
-PROPORTIONS (estimated from my photos): about 30 cm from cuff to hoof tip and about 10 cm wide across the hand, so about 3 times as tall as wide. The hoof is the top ~37% of the length; the terry is the lower ~63%. The thumb is about 6-7 cm long and leaves the hand about halfway up the terry. From the side the glove is slim: about 5 cm thick at the knuckles.
+PROPORTIONS (measured from my photos against a 3D scan of the mask): about 25 cm from cuff to hoof tip and about 9 cm wide across the hand, so about 2.8 times as tall as wide. Each hoof toe cap is about 9 cm long: the hoof is the top ~36% of the length and the terry the lower ~64% (about 16 cm). The thumb is short, about 4.5-5 cm, and leaves the hand about halfway up the terry. From the side the glove is slim: about 4-5 cm thick at the knuckles.
 
 PARTS, TOP TO BOTTOM:
-1. HOOF (top ~37%): two hard, hollow black toe caps side by side, one over the index+middle fingers and one over the ring+little fingers. Seen from the back of the hand, each toe has a straight inner edge along the centre line and a curved outer edge, and its tip leans in toward the centre. CLOSED, the two toes touch along one straight cleft line down the middle of the hoof and their tips meet in a single point, so together they make a rounded, pointed-arch outline like a real cow's hoof.
+1. HOOF (top ~36%): two hard, hollow black toe caps side by side, one over the index+middle fingers and one over the ring+little fingers. Seen from the back of the hand, each toe has a straight inner edge along the centre line and a curved outer edge, and its tip leans in toward the centre. CLOSED, the two toes touch along one straight cleft line down the middle of the hoof and their tips meet in a single point, so together they make a rounded, pointed-arch outline like a real cow's hoof.
 2. HOOF FROM THE SIDE: from the little-finger or thumb edge, the hoof is a slim, rounded wedge, as thick as the hand at its base, tapering to a blunt point at the tip.
 3. HOOF FINISH: satin black paint with soft grey brush-streak highlights, slightly uneven like painted papier-mache. A thin raised rim runs along the toe edges and catches light-grey highlights. Satin, not glossy; not metallic; no green or rainbow sheen.
 4. HOOF BASE: each toe cap starts at a clean, straight, slightly slanted edge where the terry tucks inside it.
@@ -91,7 +91,7 @@ Make a photograph of this exact glove (one LEFT glove) seen straight-on from the
 - The glove stands perfectly upright, hoof at the top, cuff at the bottom; the hoof is symmetrical about its cleft.
 
 What this view must show, top to bottom:
-- The closed black cloven hoof (top ~37% of the height): two toe caps side by side, straight cleft down the middle, satin black with soft grey brush highlights, thin rim along the edges.
+- The closed black cloven hoof (top ~36% of the height): two toe caps side by side, straight cleft down the middle, satin black with soft grey brush highlights, thin rim along the edges.
 - The clean straight edge where the terry tucks into the toe caps.
 - The cream terry hand, with a soft crease continuing the cleft a short way down.
 - The THUMB on the RIGHT side of the glove, angled out about 25-30 degrees, with white background visible between thumb and hand. Plain terry, rounded tip, NO hoof.
@@ -104,7 +104,7 @@ Follow the design brief exactly.""",
             "Thumb on the RIGHT, plain terry, no hoof; white gap between thumb and hand.",
             "Exactly two toe caps, CLOSED: one straight cleft down the middle, tips meeting in one point.",
             "Hoof is satin black with grey brush highlights, not glossy, metallic or green.",
-            "Hoof is roughly the top third of the glove; glove about 3 times as tall as wide.",
+            "Hoof is roughly the top third of the glove; glove about 2.8 times as tall as wide; short thumb.",
             "Upright, straight-on, one glove, no arm, no fur cuff, no text, white background.",
         ],
         "save": "1_FRONT_approved.png",
@@ -128,7 +128,7 @@ Attached, in order: 1_FRONT_approved (my approved image 1; match it exactly), RE
 Make a photograph of the same single glove, rotated exactly 90 degrees so the camera looks straight at its LITTLE-FINGER EDGE. The glove is still upright: hoof at the top, cuff at the bottom. The back of the hand faces the RIGHT edge of the frame and the palm faces the LEFT edge.
 
 What this view must show:
-- A slim, upright profile: the glove is only about 5 cm thick, about half as wide as in the front view.
+- A slim, upright profile: the glove is only about 4-5 cm thick, about half as wide as in the front view.
 - At the top, the side of the closed hoof: a slim, rounded black wedge, as thick as the hand at its base, tapering to a blunt point at the tip. Only the outer side of ONE toe cap is visible; the cleft is on the far side and hidden. Same satin black, grey brush highlights and thin rim.
 - The clean straight edge where the terry tucks into the hoof.
 - Below it, the cream terry hand and wrist in profile, slightly fuller toward the knuckles.
@@ -227,7 +227,7 @@ FIXES = [
     ("Fix H", "Terry looks like fur, fleece or knit",
      "The cream fabric is looped terry cloth, like a bath towel or a fluffy sock: small dense loops about 2-3 mm, like DETAIL_3. It is not long fur, sherpa fleece or a knit. Keep the shapes and everything else the same."),
     ("Fix I", "Proportions are off",
-     "The proportions are off. The glove is about 3 times as tall as it is wide. The black hoof is the top ~37% of the height and the cream terry is the lower ~63%. The thumb is about 6-7 cm long on a 30 cm glove. Keep everything else the same."),
+     "The proportions are off. The glove is about 2.8 times as tall as it is wide. The black hoof is the top ~36% of the height and the cream terry is the lower ~64%. The thumb is short: about 4.5-5 cm on a 25 cm glove. Keep everything else the same."),
     ("Fix J", "Text, labels or a border appeared",
      "Remove all text, labels, numbers, arrows and borders. Pure white background only. Keep the glove exactly the same."),
 ]
