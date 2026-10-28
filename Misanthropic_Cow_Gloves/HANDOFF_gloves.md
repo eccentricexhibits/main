@@ -16,7 +16,7 @@ Everything except Part 4 is also in the repo folder `Misanthropic_Cow_Gloves/`.
 A clean, animatable 3D model of the character's **costume gloves** (a pair), from the real prop (now gone).
 Tools as for the slippers: ChatGPT for images, Tripo AI multiview for the base mesh, Blender (`bpy`) for the rest.
 
-**Current status: DONE (v2, "slipper look").** Optional polish in section 8.
+**Current status: DONE (v3 = v2 "slipper look" with the terry smoothed).** Optional polish in section 8.
 
 ---
 
@@ -76,17 +76,27 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
     strokes (swatches rotated so strokes run base to tip). Regions from geometry, not colour: paint = finger-pair texels
     above the hoof base plane. Paint darkened (gamma 1.3; it read charcoal). AO normalised (open surfaces = 1) and used at
     50 % (at 60 % un-normalised it greyed the terry by ~20 %). Terry warmed slightly (blue ×0.95).
+12. **v3 terry smoothing** (user: "the glove looks a tad too lumpy"; current final): Tripo's terry surface was bumpy
+    (lumps of a few mm all over the palm, thumb and cuff, deep pits on the finger compartments just above the web).
+    `smooth_terry_unsplit.py` low-passes the whole high-poly glove **before the split** (between steps 6 and 7 of
+    section 6): radius 10 mm, result 2·S(V) − S(S(V)) with S = Laplacian diffusion over ~10 mm, so lumps go but the
+    shape keeps its size; the painted hoof (above the paint edge, 1–4 mm feather) and the closed cuff bottom are pinned.
+    Terry moved 0.45 mm on average, max 2.4 mm; hoof unchanged; the broad fabric folds and the crease between the finger
+    compartments stay. Then everything from the split on was re-run (58 UV islands, 65 % coverage). Lesson: smoothing
+    the already split parts (`scripts/superseded/bl_smooth_terry.py`) has to pin the cut walls at the web, so the
+    pits right above the web survive; smooth before splitting. Before/after: `09_final/renders/before_after_terry_smoothing.jpg`,
+    clay: `05_cleanup_and_split/terry_smoothing_clay_before_after.jpg`.
 
 ---
 
-## 4. The final deliverable (v2)
+## 4. The final deliverable (v3)
 
 | File (`09_final/`) | What it is |
 |---|---|
 | `glb/Glove_pair.glb` (14.5 MB) | Both gloves, baked 4K maps (JPEG): base colour (AO included), roughness, tangent normal (OpenGL/Blender convention), metallic 0. Right glove = the same meshes on mirrored nodes. |
 | `blend_baked/Glove_pair_baked.blend` + `textures/` | The same, in Blender, textures external and relative. |
 | `blend_live/Glove_pair_live.blend` + `textures/` | The **live** material `Glove_Terry_Hoof_live`: tiles at full resolution, mask-driven. Best for renders/edits. Keep `textures/` next to the .blend. |
-| `renders/` | Final pair, close-ups (hoof strokes, terry, spread), live-vs-baked check, region map. |
+| `renders/` | Final pair, close-ups (hoof strokes, terry, spread), live-vs-baked check, region map, before/after the terry smoothing. |
 
 **Specs**
 - Objects per glove: `Glove_L_Palm` (root; palm, thumb, cuff) with children `Glove_L_Toe_IndexMiddle` and
@@ -98,7 +108,7 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
   glove toward +X; left glove's cuff centre at x = −0.12 m, right at +0.12 m. glTF: Y up, back of the hand toward +Z.
 - **Live material:** tiles box-projected from each part's own object coordinates (terry 4 cm, paint 6 cm), so the strokes
   follow a toe when it moves; `mask_paint.png` (UV, lossless) switches terry → paint; tile height bumped on top of the
-  baked detail normal from the full Tripo mesh (it carries the hoof's stroke grooves and the terry lumps); AO multiplied
+  baked detail normal from the full (smoothed) mesh (it carries the hoof's stroke grooves and the broad terry folds); AO multiplied
   at 0.5. Roughness: terry 0.92, paint 0.50 (black) to 0.72 (grey drag streaks).
 
 ---
@@ -131,7 +141,8 @@ then `pip install --no-deps pyrender` (its old networkx pin fails to build). `ap
 4. `render_model.py model.obj dir` · `measure_tripo_glove.py model_dir` · `compare_to_views.py model.obj tripo_inputs out.jpg`
 5. `bl_import_weld.py model.obj glove_high.blend` → `bl_dump_mesh.py glove_high.blend Glove_HIGH high.npz basecolor.jpg`
 6. `flatten_seams.py high.npz flat.npz 2` → `fit_hoof_planes.py high.npz flat.npz planes.json`
-7. `bl_split_fingers.py glove_high.blend flat.npz planes.json split.blend 20 0` (web drop mm, palm stub mm)
+   → `smooth_terry_unsplit.py high.npz flat.npz planes.json smooth.npz 10` (terry smoothing radius, mm)
+7. `bl_split_fingers.py glove_high.blend smooth.npz planes.json split.blend 20 0` (web drop mm, palm stub mm)
 8. `bl_optimize_parts.py split.blend work.blend low.glb 60000 20000 high.glb` · `compare_glove_lods.py`
 9. `bl_unwrap_parts.py work.blend planes.json 66 uv.png` (keep a copy: the pre-bake file names the cap materials)
 10. `bl_bake_parts.py work.blend bake_dir 4096 2` → `bl_fix_cap_texels.py work_uv.blend planes.json maps_dir`
@@ -141,7 +152,8 @@ then `pip install --no-deps pyrender` (its old networkx pin fails to build). `ap
     normalise (÷ 90th percentile), upscale to 4K, gamma 0.8 → `bl_glove_material.py ... out 4096 4 ao_4096.png`
 14. `bl_export_pair.py work.blend maps out 24.7` (real size, mirrored right glove, GLB + baked .blend)
 15. `bl_glove_material.py Glove_pair.blend ... live:ao_4096.png` → `bl_lean_live.py Glove_live.blend out Glove_pair_live.blend`
-16. Checks: `bl_render_pair.py`, `bl_render_live.py`, `bl_preview_baked.py`, `glb_check_hierarchy.py`.
+16. Checks: `bl_render_pair.py`, `bl_render_live.py`, `bl_preview_baked.py`, `glb_check_hierarchy.py`; surface shape
+    without textures: `bl_clay.py work.blend out_prefix` (whole glove) and `bl_clay_web.py work.blend out.png` (web close-ups).
 
 Bake timings (CPU, 4K): selected-to-active colour/normal/roughness ~50–60 s each at 2 samples; final material bakes
 ~85 s each at 4 samples; AO 2K/12 samples ~50 s. 1.86 M-triangle `trimesh.split()` runs out of memory — use the
@@ -158,7 +170,7 @@ scipy connected-components count in `measure_tripo_glove.py`.
   Part 3's `blend_live/textures/` or rebuild with `prep_tiles_glove.py`), `09_final/renders/`, `scripts/`.
 - **Part 2 FINAL_GLB:** `Glove_pair.glb`.
 - **Part 3 BLENDS:** `blend_baked/` and `blend_live/`, each with its `textures/`.
-- **Part 4 SOURCES:** `high_full.glb` — the cleaned (seam beads flattened), split full-detail parts
+- **Part 4 SOURCES:** `high_full.glb` — the cleaned (seam beads flattened, terry smoothed), split full-detail parts
   (`Glove_Palm_HIGH`, `Toe_*_HIGH`, model units: 0.97 tall), for re-baking.
 - Not included (with the user, too large): the Tripo download `furry_glove_3d_model` (OBJ 186 MB + maps).
 
@@ -170,3 +182,5 @@ scipy connected-components count in `measure_tripo_glove.py`.
 - Re-bake AO in a spread pose for spread hero shots (issue 1).
 - Real-time LOD: 2K maps, 50k triangles per glove (re-run step 8 with lower budgets, then 9–14).
 - Hollow the cuff if an arm must go inside.
+- More or less terry smoothing: re-run `smooth_terry_unsplit.py` with another radius (5 mm = subtle, 15 mm = smoother),
+  then steps 7–16.

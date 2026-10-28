@@ -1,6 +1,6 @@
 # The Misanthropic Cow: Hoof Gloves 3D Model, Project Status
 
-**Status: DONE (v2). Full handoff: `HANDOFF_gloves.md`.**
+**Status: DONE (v3: v2 with the terry smoothed). Full handoff: `HANDOFF_gloves.md`.**
 
 Process: `3D_Model_Pipeline_PLAYBOOK` (photos → ChatGPT multiview → Tripo → cleanup in Blender `bpy`).
 Worked example followed: the Misanthropic Cow slippers.
@@ -66,6 +66,7 @@ the mat), and each part is scaled at its own height. Cross-checks: the beads mea
 | v1 delivery | `07_deliverables_v1/`: `Glove_pair.glb` (6.3 MB, both gloves, right = mirrored node sharing the meshes), `Glove_L.glb`, `Glove_pair.blend` + `textures/` (relative paths, moved-copy tested). Real size: 24.7 cm tall, metres, Z-up in Blender; left cuff at x −0.12 m, right at +0.12 m; toe pivots 13.9 cm above the cuff. Surface = Tripo's own texture, cleaned (playbook route 9a). |
 | 9 Surface | done (slipper look, 9c). Tiles `08_fabric_tiles/` (raw + prepared), live material `bl_glove_material.py` (tiles in each part's own coordinates; strokes follow the toes), AO normalised ×0.5, final 4K bakes. Live vs baked match (`09_final/renders/check_live_top_vs_baked_bottom.jpg`). |
 | 10–11 Deliver + handoff | done: `09_final/` (GLB pair 14.5 MB, baked .blend, live .blend, renders) and `HANDOFF_gloves.md`. Handoff parts (each < 29 MB) sent as zips in the chat. `07_deliverables_v1/` is superseded. |
+| v3 terry smoothing | done (user: "a tad too lumpy"). `smooth_terry_unsplit.py` low-passes the whole high-poly glove before the split (10 mm radius; hoof and cuff bottom pinned; terry moved 0.45 mm mean, max 2.4 mm), then split → optimise → UV (58 islands, 65 %) → bakes → export re-run. `09_final/` replaced; before/after in `09_final/renders/before_after_terry_smoothing.jpg`. |
 | 10–11 Deliver pair, package for handoff (<29 MB per file) | – |
 
 ## Plan for the separate hoof toes (stage 6)
