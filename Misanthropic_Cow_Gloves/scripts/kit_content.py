@@ -249,13 +249,13 @@ TIPS = [
 TRIPO = [
     ("Front", "1_FRONT_approved.png (back of hand, thumb on the right)"),
     ("Back", "4_BACK_PALM_mirrored.png (palm, thumb on the left)"),
-    ("Right", "3_SIDE_THUMB_approved.png (thumb edge; leave empty if you skipped Step 4)"),
-    ("Left", "2_SIDE_LITTLE_FINGER_approved.png (little-finger edge)"),
+    ("Left", "3_SIDE_THUMB_approved.png (thumb edge, the glove's own left; leave empty if you skipped Step 4)"),
+    ("Right", "2_SIDE_LITTLE_FINGER_approved.png (little-finger edge, the glove's own right)"),
 ]
 TRIPO_NOTES = [
     "Send me the views first so I can normalise them; upload the normalised files I send back.",
     "Tripo needs the front view plus at least one other. Leave out any view you don't trust.",
-    "If the model comes out twisted, or with a thumb on both sides, swap the Left and Right images and run it again.",
+    "Left/Right follow the slipper project (Left = the object's own left). If the model comes out twisted, or with a thumb on both sides, swap the Left and Right images and run it again.",
     "When it's done, download the model as a zip (OBJ + PBR textures) and upload it here.",
 ]
 

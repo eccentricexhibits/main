@@ -53,8 +53,9 @@ the mat), and each part is scaled at its own height. Cross-checks: the beads mea
 | 0 Intake | done |
 | 1 References, design key, brief | done: `01_references/`, `01_design_brief.md`; real size measured (see above) |
 | 2 ChatGPT multiview kit | done: `02_chatgpt_kit/` (5 step zips + fix-ups). Guide page with copy buttons is published as a private artifact. **User runs Steps 1–5.** |
-| 3 Normalise Tripo inputs | next, after the user sends the approved views |
-| 4 Evaluate Tripo model | – |
+| 2b Approved views | done: `02_approved_views/` (front, little-finger side, thumb side; all round 1, no fixes needed). Hoof 35–36 % of the height in all three; side views mirror each other (silhouette IoU 0.80, the thumb accounts for most of the difference). |
+| 3 Normalise Tripo inputs | done: `03_tripo_inputs/` (palm view = mirrored front). Slots: Left = thumb side (the object's own left, same convention as the slippers), Right = little-finger side. |
+| 4 Evaluate Tripo model | next: the user runs Tripo multiview and uploads the zip |
 | 5 Round 2 if needed | – |
 | 6 Cleanup + split hoof toes into separate objects with knuckle pivots | – |
 | 7–9 Optimise, UVs, bakes, materials (terry + satin black paint) | – |
