@@ -6,7 +6,10 @@ os.environ["PYOPENGL_PLATFORM"] = "egl"
 import numpy as np, trimesh, pyrender
 from PIL import Image, ImageDraw
 d = np.load(sys.argv[1]); OUT = sys.argv[2]; SP = float(sys.argv[3]) if len(sys.argv) > 3 else 18
-parts = {"Glove_Mitten": (0.86, 0.82, 0.70), "Hoof_Toe_IndexMiddle": (0.85, 0.35, 0.30), "Hoof_Toe_RingLittle": (0.30, 0.45, 0.85)}
+_names = sorted(k[:-2] for k in d.files if k.endswith("_V"))
+BODY = next(n for n in _names if "Palm" in n or "Mitten" in n)
+_toes = [n for n in _names if n != BODY]
+parts = {BODY: (0.86, 0.82, 0.70), next(n for n in _toes if "Index" in n): (0.85, 0.35, 0.30), next(n for n in _toes if "Ring" in n): (0.30, 0.45, 0.85)}
 CAP = {"Hoof_InnerWall": (0.25, 0.25, 0.28), "Terry_Inner": (0.95, 0.85, 0.35)}
 def rotY(V, p, deg):
     a = np.radians(deg); R = np.array([[np.cos(a), 0, np.sin(a)], [0, 1, 0], [-np.sin(a), 0, np.cos(a)]])
@@ -15,7 +18,7 @@ def meshes(spread):
     out = []
     for name, col in parts.items():
         V = d[name + "_V"]; Fc = d[name + "_F"]; M = d[name + "_M"]; mats = list(d[name + "_mats"])
-        if name != "Glove_Mitten":
+        if name != BODY:
             sgn = 1 if "Index" in name else -1          # thumb-side toe tips move toward +X
             V = rotY(V, d[name + "_O"], sgn * spread)
         fc = np.tile([*col, 1.0], (len(Fc), 1))
@@ -44,5 +47,5 @@ for name, sp, dv, tgt, mag in shots:
     im = Image.fromarray(r.render(sc)[0][..., :3]).resize((450, 450)); ImageDraw.Draw(im).text((6, 6), name, fill=(0, 0, 0)); tiles.append(im)
 sheet = Image.new("RGB", (1350, 930), "white"); dr = ImageDraw.Draw(sheet)
 for i, t in enumerate(tiles): sheet.paste(t, ((i % 3) * 450, (i // 3) * 450))
-dr.text((8, 908), "cream = mitten · red = index+middle toe · blue = ring+little toe · dark grey = toe inner walls · yellow = mitten finger end (inside the toes)", fill=(0, 0, 0))
+dr.text((8, 908), "cream = palm · red = index+middle toe · blue = ring+little toe · dark grey = hoof inner walls · yellow = terry inner faces (web stub, finger inner walls)", fill=(0, 0, 0))
 sheet.save(OUT, quality=90)
