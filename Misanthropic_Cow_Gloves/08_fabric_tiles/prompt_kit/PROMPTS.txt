@@ -1,0 +1,45 @@
+Paste one prompt per new chat, with that folder's two reference images attached.
+
+------------------------------------------------------------
+TILE 1: CREAM TERRY CLOTH (save as TILE_1_terry.png)
+Attach: 1_Terry/ref_a_terry_loops.jpg and 1_Terry/ref_b_terry_closeup.jpg
+------------------------------------------------------------
+Create a seamless, tileable square texture of the looped terry cloth in the attached photos (a cream terry glove, like a bath towel or a fluffy sock).
+
+Important: the 3D model already has the glove's soft lumps and folds as shapes. This texture is only the close-up fabric surface: small, dense, curly cotton loops.
+- Colour: clean warm cream / off-white (about #EDE6D2), with very subtle natural variation between loops. The photos look greenish only because of the studio light. No dirt marks.
+- View: straight down at a flat piece of terry, filling the entire square edge to edge.
+- Scale: the square shows about 4 cm × 4 cm of fabric. Each loop is about 2-3 mm, densely packed, slightly tangled, like the second photo.
+- Lighting: completely flat and even. No shadows, highlights, vignetting or gradients.
+- Nothing else: no seams, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+
+------------------------------------------------------------
+TILE 2: PAINTED HOOF WITH LONG BRUSH STROKES (save as TILE_2_hoof_paint.png)
+Attach: 2_Hoof_paint/ref_a_brush_strokes.jpg and 2_Hoof_paint/ref_b_satin_sheen.jpg
+------------------------------------------------------------
+Create a seamless, tileable square texture of the painted surface in the attached photos: black acrylic paint brushed by hand over papier-mache / cardboard (it's a costume cow hoof).
+
+The most important feature is the LONG BRUSH STROKES:
+- Long, parallel brush strokes running STRAIGHT UP AND DOWN, from the top edge of the square to the bottom edge, each stroke continuous for most of the height. They are slightly wavy and vary a little in width, like the first photo.
+- Where the brush dragged thin, soft grey streaks show along the strokes (thin paint over grey card). These grey streaks are part of the paint, not reflections.
+- Fine, faint bristle lines inside each stroke, also running up and down.
+- Overall colour: deep satin black (about #1A1A1A) with the grey streaks (about #5A5A5A) covering roughly a quarter of the area. A few tiny pale specks are fine.
+- Finish: satin, not glossy, not metallic, no green or rainbow sheen.
+- View: straight down at a flat painted surface, filling the entire square edge to edge.
+- Scale: the square shows about 6 cm × 6 cm of the hoof.
+- Lighting: completely flat and even. No shadows, shine spots, vignetting or gradients.
+- Nothing else: no edges, rims, seams, cracks, objects or text.
+- It must tile seamlessly when repeated left-right and up-down (the strokes continue across the top and bottom edges).
+- Square image, as large as you can make it.
+
+------------------------------------------------------------
+IF A RESULT IS WRONG (reply in the same chat):
+- Strokes run sideways or diagonally: "Rotate the brush strokes so they run straight up and down, from the top edge to the bottom edge. Keep everything else the same."
+- Strokes too short or blotchy: "Make the brush strokes long and continuous, running the full height of the square, like the first photo."
+- Too glossy or shows reflections: "Make the lighting completely flat and even, like a scanned swatch. Satin finish, no shine. Keep the strokes the same."
+- Zoomed in at the centre or uneven: "Keep the same size of detail across the whole square, like a uniform material swatch."
+- Shows objects, edges, a rim or folds: "Only the flat material, filling the whole square edge to edge."
+- Terry looks like fur or fleece: "These are small curly cotton loops like a bath towel, 2-3 mm each, not long fur or fleece. Keep the colour the same."
+- Terry looks dirty, grey or green: "Clean warm cream colour (#EDE6D2), no dirt marks. Keep the loops the same."
