@@ -128,4 +128,5 @@ ROUND 10
   the "2027." / date text.
 - "Remarkable 2026 by the numbers" and "Remarkable 2026 in photos" use the same tracking as the 01-04
   section labels on phones (they already matched on desktop).
+- Hero plus cluster: its top now lines up with the top of the photo on desktop.
 ```

@@ -56,7 +56,7 @@ body:not([data-page="index"]) .inner-title-row>div:first-child{position:relative
 .hero-visual {margin-left:0;}
 /* The official plus cluster sits on the photo's top-left corner, all magenta, set down and right so it
    stays clear of the "2027." / date text. */
-.hero-pluses {--pw:clamp(250px,27vw,400px);position:absolute;z-index:2;left:calc(var(--pw) * -.24);top:-22px;width:var(--pw);pointer-events:none;animation:arrow-in .85s cubic-bezier(.2,.65,.2,1) both;}
+.hero-pluses {--pw:clamp(250px,27vw,400px);position:absolute;z-index:2;left:calc(var(--pw) * -.24);top:0;width:var(--pw);pointer-events:none;animation:arrow-in .85s cubic-bezier(.2,.65,.2,1) both;}
 .mobile-hero-pluses {display:none;}
 
 /* Hero photo identity label (from the earlier mockup): tracked wordmark set straight on the photo. */

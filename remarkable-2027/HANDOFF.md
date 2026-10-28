@@ -76,7 +76,7 @@ black block.
 
 **Home.**
 - Hero: oversized "Remarkable", magenta "2027.", date, tagline and Register now; the magenta plus
-  cluster sits on the photo's top-left corner, set down and right to stay clear of the text; tracked
+  cluster sits on the photo's top-left corner, its top aligned with the photo's top edge; tracked
   "R E M A R K A B L E / THE COMMUNITY · 2026" label on the photo. On phones the cluster sits beside
   "2027.".
 - People section ("Brilliant minds. Big conversations."): the "Remarkable AI" artwork. The gradient is
