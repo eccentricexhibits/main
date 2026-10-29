@@ -20,7 +20,7 @@ smooth = AN.smooth
 
 def neutral(clip):
     return dict(shift=np.zeros(3), hips=np.zeros(3), spine=np.zeros(3), chest=np.zeros(3), neck=np.zeros(3),
-                head=np.zeros(3), fingers=-.12, thumb=.10, clav={'L': 0., 'R': 0.},    # hooves and thumb relaxed, a little curled
+                head=np.zeros(3), fingers=-.12, thumb=.10, spread=0., clav={'L': 0., 'R': 0.},    # hooves and thumb relaxed, a little curled
                 fk={'L': np.array([0., 0., 0.]), 'R': np.array([0., 0., 0.])},
                 hrot={'L': ('follow', .12), 'R': ('follow', .12)}, feet=None)
 
@@ -123,7 +123,8 @@ class Run(AN.Dance):
         p['head'] = np.array([-.08, -.05 * np.sin(w), 0])
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)
-            p['fk'][side] = np.array([.42, .42 * swing + .05, 1.15 + .15 * swing])
+            # abducted enough that the glove's palm clears the cup at the front of the pump
+            p['fk'][side] = np.array([.47, .42 * swing + .05, 1.15 + .15 * swing])
             p['hrot'][side] = ('follow', .2)
         p['fingers'] = -.6; p['thumb'] = .4
         return p
@@ -425,8 +426,8 @@ class Crying(AN.Dance):
         p['hand'], p['pole'] = {}, {}
         for side, s in [('L', 1), ('R', -1)]:
             eye, Rh = head_point(self, p, [s * .050, 1.522, .135])
-            # the hoof plates reach ~21 cm past the wrist: hold the wrist that far out, below the eye
-            wrist, _ = head_point(self, p, np.array([s * .050, 1.522, .135]) + .213 * np.array([s * .05, -.79, .61]))
+            # the hoof toes reach 19 cm past the wrist: hold the wrist that far out (and 1.5 cm more), below the eye
+            wrist, _ = head_point(self, p, np.array([s * .050, 1.522, .135]) + .206 * np.array([s * .05, -.79, .61]))
             rest = rest_hand(self, side, s)
             tgt = bezier_reach(rest, np.array([s * .44, 1.12, .06]), np.array([s * .34, 1.36, .30]),
                                np.array([s * .20, 1.38, .36]), wrist, face)
@@ -483,6 +484,7 @@ class Exasperated(AN.Dance):
             p['hand'][side], p['pole'][side], p['hrot'][side] = tgt, pole, hr
             p['clav'][side] = .10 * fling - .05 * slump
         p['fingers'] = .15 * fling - .2 * palm
+        p['spread'] = .40 * fling                  # flung out, the hoof toes part in a V
         return p
 
     def sample(self, t):

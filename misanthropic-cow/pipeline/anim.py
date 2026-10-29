@@ -101,12 +101,12 @@ class Dance:
         # slipper contact points relative to the ankle (heel and toe), for keeping soles on the floor
         self.sole = sole_points()
         self._twist = {}
-        # the Tripo gloves' thumb lies along the mitten: it curls toward the palm about its own hinge
+        # the glove's thumb stands out along the mitten: it curls toward the palm about its own hinge
         import gloves as GL
         self.thumb_hinge = {}
-        if GL.tripo_asset() is not None:
+        if GL.asset() is not None:
             for side, s in [('L', 1), ('R', -1)]:
-                root, dr = GL.thumb_hinge([GL.tripo_glove(side)], side)
+                root, dr = GL.thumb_hinge(GL.hoof_glove(side), side)
                 pn = GL.hand_frame(side)[3]
                 ax = np.cross(dr, pn); ax /= np.linalg.norm(ax)
                 sg = 1 if (rot(ax, .3) @ dr) @ pn > 0 else -1
@@ -403,7 +403,12 @@ class Dance:
             fing, thmb = p['fingers'], p['thumb']
             fing += dyn.get('fing', {}).get(side, 0.) + self.drift(t, side, 0)
             thmb += dyn.get('thmb', {}).get(side, 0.) + self.drift(t, side, 1)
-            at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * fing))
+            # both hoof toes curl about the knuckle line; spread parts them like a Vulcan salute, about
+            # the palm normal (the index-middle toe toward the thumb, the ring-little toe away from it)
+            spread = p.get('spread', 0.) + dyn.get('spread', {}).get(side, 0.)
+            pn_b = np.array([-s, 0., 0.]) - fd * -s * fd[0]; pn_b /= np.linalg.norm(pn_b)
+            at(a['fingers'], a['hand'], Rhand @ rot(knuckle, -sign * fing) @ rot(pn_b, s * spread / 2))
+            at(a['fingers_rl'], a['hand'], Rhand @ rot(knuckle, -sign * fing) @ rot(pn_b, -s * spread / 2))
             if side in self.thumb_hinge:
                 ax, sg = self.thumb_hinge[side]
                 at(a['thumb'], a['hand'], Rhand @ rot(ax, sg * thmb))

@@ -83,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (15.9 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (16.7 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -156,8 +156,9 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
-          <li>Last round &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
+          <li><strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
+          <li>Last round &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
+          <li>Earlier &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
           <li>Earlier &middot; <strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
           <li><strong>Gloves rebuilt:</strong> each glove is rebuilt as one smooth solid from your Tripo glove, with the same shape, thumb, hooves and texture but without the spiky edges, and with a clean round cuff that fits inside the sleeve instead of the ragged wrist.</li>
           <li>Earlier &middot; <strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
@@ -186,7 +187,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
             <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Chicken Dance</td><td>0 mm</td><td>2.7 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>3.4 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sit Cross-Legged</td><td>2 mm</td><td>2.1 mm</td><td>2.6 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Sit Cross-Legged</td><td>0 mm</td><td>2.1 mm</td><td>2.6 mm</td><td>3.0 mm</td></tr>
             <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
             <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
@@ -358,7 +359,7 @@ async function start() {
     await MeshoptDecoder.ready;
     gltf = await load('cow-meshopt', true);
   } catch (e) {
-    status.textContent = 'Loading the simplified copy (17.0 MB)...';
+    status.textContent = 'Loading the simplified copy (17.9 MB)...';
     gltf = await load('cow-plain', false);
   }
   const root = gltf.scene;

@@ -1,0 +1,12 @@
+{
+ "frame": "u along the hand (wrist joint at 0), a toward the thumb, w out of the palm; metres; left glove",
+ "source": "Glove_pair.glb",
+ "cuff_u": -0.056,
+ "toe_pivot": [
+  0.08281,
+  0.0016,
+  7e-05
+ ],
+ "hoof_base_u": 0.1028,
+ "baked_ao_removed": true
+}

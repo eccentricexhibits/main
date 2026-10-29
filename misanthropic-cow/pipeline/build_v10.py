@@ -56,7 +56,7 @@ def main():
                                             'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in clip.phases]}})
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
                     'left': '+X (character left)'}
-    clean_parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w')} for p in model.parts]
+    clean_parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
     groups = [p.get('group') for p in model.parts]
     model.parts = clean_parts
     name = 'Misanthropic_Cow_v10' + ('_quick' if quick else '')

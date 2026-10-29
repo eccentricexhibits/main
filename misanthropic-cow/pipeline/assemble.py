@@ -199,16 +199,16 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         q['W'] = W
         model.parts.append(q)
 
-    # --- hoof gloves, rebuilt from the glove close-ups
-    gm = GL.materials(model) if GL.tripo_asset() is None else {}
+    # --- hoof gloves: the owner's glove model (gloves.py)
+    gm = GL.materials(model) if GL.asset() is None else {'asset': GL.hoof_material(model)}
     for side in 'LR':
         for p in GL.build(side, step=.0022 if quick else .0016):
-            mat = GL.tripo_material(model, side) if p['kind'] == 'tripo' else gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side]
+            mat = gm['asset'] if p['kind'] == 'hoof_asset' else gm['terry'] if p['kind'] == 'terry' else gm['hoof_' + side]
             q = {'name': p['name'], 'v': p['v'].astype(np.float32), 'n': p['n'].astype(np.float32),
                  'f': p['f'].astype(np.int32), 'uv': p['uv'].astype(np.float32),
                  'uv1': None if p.get('uv1') is None else p['uv1'].astype(np.float32), 'ao': None,
                  'material': mat, 'group': f'glove_{side}'}
-            for k in ('hoof_w', 'thumb_w'):
+            for k in ('thumb_w', 'toe_w', 'part'):
                 if k in p:
                     q[k] = p[k]
             q['W'] = RG.glove_weights(q, side)

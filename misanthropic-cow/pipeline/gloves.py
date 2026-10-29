@@ -1,13 +1,19 @@
 """Hoof gloves.
 
-Since the hands round, the gloves are the owner's Tripo model of the glove photo, cut out and
-re-baked by tripo_gloves.py, closed by repair_gloves.py and rebuilt as smooth solids with a cuff that
-fits the sleeve by rebuild_gloves.py (assets/gloves_tripo.glb), and placed here on each hand: a long cream
-terry mitten with a thumb, and two glossy black hoof halves chipped to red card (left) and green
-card (right).  Each glove is one seamless mesh; the hoof halves follow the HoofFingers bone and the
-thumb the Thumb bone through smooth per-vertex weights (`hoof_w`, `thumb_w`).
+Since round 17 the gloves are the owner's own finished glove model (made by hoof_gloves.py into
+assets/gloves_hoof.glb), placed here on each hand at its real size: a cream looped-terry mitten with a
+separate thumb, and two black painted-card toe caps over the finger pairs that together make a cloven
+hoof.  Each glove is three meshes: the palm (with the thumb and the closed cuff, which sits inside the
+sleeve) and the two toes, which pivot on the middle/ring finger web.  The toes are rigid, each on its
+own bone (HoofFingers for the index-middle toe, HoofRingLittle for the ring-little toe): they curl
+together and part like a Vulcan salute.  The thumb follows the Thumb bone through smooth weights on
+the palm mesh (`thumb_w`), and the top of the palm follows the toes (`toe_w`), so the knuckle line
+bends with them instead of opening a gap.
 
-The procedural gloves below (used when the asset is missing) were the previous version, rebuilt from
+Before that (rounds 11-16) the gloves were the owner's Tripo model of the glove photo, rebuilt by
+tripo_gloves.py, repair_gloves.py and rebuild_gloves.py.
+
+The procedural gloves below (used when the asset is missing) came before those, rebuilt from
 the close-up glove photos (For_Next_Step: glove images 1-5) and shaped
 after the Tripo "Shy Cow" model the owner liked.
 
@@ -33,8 +39,8 @@ import garments as Gm
 import textures as T
 
 CHIP = {'L': (.78, .27, .10), 'R': (.13, .55, .18)}       # card showing through the chipped paint
-ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'gloves_tripo.glb'
-_TRIPO = []
+ASSET = Path(__file__).resolve().parent.parent / 'assets' / 'gloves_hoof.glb'
+_ASSET = []
 
 
 def hand_frame(side):
@@ -148,56 +154,58 @@ def _ss(a, b, x):
     return w * w * (3 - 2 * w)
 
 
-def tripo_asset():
-    if not _TRIPO and ASSET.exists():
+def asset():
+    """The owner's glove model and its metadata (None if the asset is missing)."""
+    if not _ASSET and ASSET.exists():
         import glb as G
-        _TRIPO.append((G.read(str(ASSET)), json.loads(ASSET.with_suffix('.json').read_text())))
-    return _TRIPO[0] if _TRIPO else None
+        _ASSET.append((G.read(str(ASSET)), json.loads(ASSET.with_suffix('.json').read_text())))
+    return _ASSET[0] if _ASSET else None
 
 
-# The thumb lies along the thumb-side edge of each Tripo mitten as its own lobe, rooted at about
-# u = 0 and reaching its tip at u = .08-.09.  It is the part beyond this line in (u, a) (from the
-# owner's glove model, both gloves alike); the mitten body stays below it.
-THUMB_LINE = ((-.040, .036), (.000, .044), (.030, .047), (.115, .041))
-THUMB_U = (-.035, -.010, .100, .115)        # the lobe starts and ends along the hand
-
-
-def _thumb_line(u):
-    pu, pa = np.array(THUMB_LINE).T
-    return np.interp(u, pu, pa)
-
+# the thumb stands out from the thumb-side edge of the mitten (a > ~.041 m) from just past the wrist
+# to its tip at u = .09; the toes' compartments are separate meshes from the web (u = .083) up
+THUMB_A, THUMB_U = (.041, .052), (.0, .02)
 
 _GLOVE = {}
 
 
-def tripo_glove(side):
-    """The Tripo glove for one hand, moved from its own frame onto the hand at the bind pose."""
+def hoof_glove(side):
+    """The three glove meshes for one hand, moved from the hand frame onto the hand at the bind pose."""
     if side not in _GLOVE:
-        _GLOVE[side] = _tripo_glove(side)
-    return dict(_GLOVE[side])
+        _GLOVE[side] = _hoof_glove(side)
+    return [dict(p) for p in _GLOVE[side]]
 
 
-def _tripo_glove(side):
-    m, meta = tripo_asset()
-    p = [q for q in m.parts if q['name'] == f'Glove_{side}_tripo'][0]
-    u, a, w = p['v'].astype(float).T
-    hoof_u = meta['gloves'][side]['hoof_u']
+def _hoof_glove(side):
+    m, meta = asset()
     o, d, aa, pn = hand_frame(side)
-    v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
-    f = p['f'].astype(np.int64)
-    # the asset already fits the sleeve: rebuild_gloves.py eased its wrist into the sleeve opening and
-    # gave it a round cuff that fills the sleeve to 8 mm inside its surface, so it is placed rigidly
-    hoof_w = _ss(hoof_u - .022, hoof_u + .004, u)
-    line = _thumb_line(u)
-    thumb_w = _ss(line - .002, line + .008, a) * _ss(THUMB_U[0], THUMB_U[1], u) * _ss(THUMB_U[3], THUMB_U[2], u)
-    return {'name': f'Glove_{side}_terry_mitten_thumb_and_black_hooves', 'v': v, 'f': f,
-            'n': S.vertex_normals(v, f), 'uv': p['uv'], 'uv1': None, 'kind': 'tripo',
-            'hoof_w': hoof_w, 'thumb_w': thumb_w, 'src_material': p['material']}
+    piv_u, piv_a, _ = meta['toe_pivot']
+    out = []
+    for p in m.parts:
+        u, a, w = p['v'].astype(float).T
+        v = o + u[:, None] * d + a[:, None] * aa + w[:, None] * pn
+        nu, na, nw = p['n'].astype(float).T
+        n = nu[:, None] * d + na[:, None] * aa + nw[:, None] * pn
+        f = p['f'].astype(np.int64)
+        if side == 'R':
+            f = f[:, ::-1]                 # the right hand's frame is the mirror image of the left's
+        kind = p['name'][len('Glove_hoof_'):]
+        q = {'name': f'Glove_{side}_{kind}', 'v': v, 'f': f, 'n': n / np.linalg.norm(n, axis=1, keepdims=True),
+             'uv': p['uv'], 'uv1': None, 'kind': 'hoof_asset', 'part': kind}
+        if kind == 'palm':
+            q['thumb_w'] = _ss(*THUMB_A, a) * _ss(*THUMB_U, u)
+            # the top of the palm bends with the toe above it (split across the cleft), so the cut
+            # where palm and toes meet stays closed as the toes curl and spread
+            k = _ss(piv_u - .025, piv_u - .002, u) * (1 - q['thumb_w'])
+            im = _ss(-.006, .009, a - piv_a)
+            q['toe_w'] = {'index_middle': k * im, 'ring_little': k * (1 - im)}
+        out.append(q)
+    return out
 
 
 def thumb_hinge(parts, side):
-    """Root and pointing direction of the Tripo glove's thumb at the bind pose (None for the
-    procedural gloves), so the Thumb bone can curl it toward the palm about its own hinge."""
+    """Root and pointing direction of the glove's thumb at the bind pose (None for the procedural
+    gloves), so the Thumb bone can curl it toward the palm about its own hinge."""
     for p in parts:
         if 'thumb_w' in p:
             v, tw = p['v'], p['thumb_w']
@@ -209,26 +217,29 @@ def thumb_hinge(parts, side):
     return None
 
 
-def tripo_material(model, side):
-    """Copy the asset's baked material for one glove (and its images) into the model."""
-    m, _ = tripo_asset()
-    p = [q for q in m.parts if q['name'] == f'Glove_{side}_tripo'][0]
-    mat = json.loads(json.dumps(m.materials[p['material']]))
-    pb = mat['pbrMetallicRoughness']
-    for k in ('baseColorTexture', 'metallicRoughnessTexture'):
-        if k in pb:
-            pb[k]['image'] = model.add_image(*m.images[pb[k]['image']])
+def toe_pivot(side):
+    """Bind position of the toes' pivot (the middle/ring finger web, mid-thickness)."""
+    o, d, aa, pn = hand_frame(side)
+    u, a, w = asset()[1]['toe_pivot']
+    return o + u * d + a * aa + w * pn
+
+
+def hoof_material(model):
+    """Copy the asset's baked material (colour, roughness and normal maps) into the model."""
+    m, _ = asset()
+    mat = json.loads(json.dumps(m.materials[0]))
+    for holder in (mat.get('pbrMetallicRoughness', {}), mat):
+        for k in list(holder):
+            if k.endswith('Texture') and isinstance(holder[k], dict) and 'image' in holder[k]:
+                holder[k]['image'] = model.add_image(*m.images[holder[k]['image']])
     return model.add_material(mat)
 
 
 def joint_points(parts, side):
     """Bind positions of the HoofFingers and Thumb bones from a glove's parts."""
     o, d, aa, pn = hand_frame(side)
-    for p in parts:
-        if 'hoof_w' in p:
-            v = p['v']; t = (v - o) @ d
-            base = (p['hoof_w'] > .5) & (t < np.percentile(t[p['hoof_w'] > .5], 15))
-            return v[base].mean(0), thumb_hinge(parts, side)[0]
+    if any('thumb_w' in p for p in parts):
+        return toe_pivot(side), thumb_hinge(parts, side)[0]
     caps = np.vstack([p['v'] for p in parts if 'hoof_cap' in p['name']])
     top = caps[:, 1] > np.percentile(caps[:, 1], 88)
     th = np.vstack([p['v'] for p in parts if p['name'].endswith('cloth_thumb')])
@@ -237,10 +248,10 @@ def joint_points(parts, side):
 
 
 def build(side, step=.0016):
-    """Return the glove parts for one side: the Tripo glove if its asset is present, otherwise the
-    procedural mitten, thumb and two hoof plates."""
-    if tripo_asset() is not None:
-        return [tripo_glove(side)]
+    """Return the glove parts for one side: the owner's glove model if its asset is present, otherwise
+    the procedural mitten, thumb and two hoof plates."""
+    if asset() is not None:
+        return hoof_glove(side)
     o, d, a, pn = hand_frame(side)
     lo = np.minimum(o - .08 * d, o + .25 * d) - .08
     hi = np.maximum(o - .08 * d, o + .25 * d) + .08

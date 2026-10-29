@@ -62,6 +62,9 @@ TAIL.append(_j('Tail_plug', 'Tail_cord_12'))
 # corrective helpers on the front hem: driven by each thigh's forward lift (anim.py), so the hem rides
 # up over a raised leg (crouching, sitting) instead of the leggings passing through it
 HEM = {side: _j(f'Hem_{side}', 'Hips') for side in 'LR'}
+# the glove's ring-little toe (HoofFingers carries the index-middle toe): both pivot on the finger web
+for _s in 'LR':
+    ARM[_s]['fingers_rl'] = _j(f'HoofRingLittle_{_s}', f'Hand_{_s}')
 NB = len(NAMES)
 BELLY_C = np.array([0, .925, .085])
 
@@ -77,6 +80,7 @@ def bind_positions(glove_parts):
             B[ARM[side][key]] = D.J[f'{jn}_{side}']
         import gloves as GL
         B[ARM[side]['fingers']], B[ARM[side]['thumb']] = GL.joint_points(glove_parts[side], side)
+        B[ARM[side]['fingers_rl']] = B[ARM[side]['fingers']]
         for key, jn in [('thigh', 'Thigh'), ('shin', 'Shin'), ('foot', 'Foot')]:
             B[LEG[side][key]] = D.J[f'{jn}_{side}']
         sh, el, wr = D.arm_points(s)
@@ -241,14 +245,21 @@ def glove_weights(p, side):
     W = np.zeros((len(v), NB))
     name = p['name']
     up, fo, ha = arm_chain(v, side)
-    if 'hoof_w' in p:
-        # one seamless glove: the mitten as below, the hoof halves on HoofFingers, the thumb on Thumb
+    toe_bone = {'index_middle': a['fingers'], 'ring_little': a['fingers_rl']}
+    if p.get('part', '').startswith('toe_'):
+        # the owner's glove: each toe (finger compartment + hoof cap) is rigid on its own bone
+        W[:, toe_bone[p['part'][4:]]] = 1
+        return W
+    if 'thumb_w' in p:
+        # the owner's glove palm: the cuff inside the sleeve follows the arm like the sleeve end, the
+        # thumb its Thumb bone, and the top of the palm the toe above it
         d = D.J[f'Hand_{side}'] - D.J[f'Forearm_{side}']; d /= np.linalg.norm(d)
         t = (v - D.J[f'Hand_{side}']) @ d
         above = 1 - ss(-.03, .005, t)
         W[:, a['upper']] = above * up; W[:, a['fore']] = above * fo
         W[:, a['hand']] = above * ha + (1 - above)
-        for k, j in ((p['hoof_w'], a['fingers']), (p['thumb_w'] * ss(-.03, .0, t), a['thumb'])):
+        ks = [(p['thumb_w'] * ss(-.03, .0, t), a['thumb'])] + [(k, toe_bone[n]) for n, k in p.get('toe_w', {}).items()]
+        for k, j in ks:
             W *= (1 - k)[:, None]; W[:, j] += k
         return W
     if 'hoof_cap' in name:

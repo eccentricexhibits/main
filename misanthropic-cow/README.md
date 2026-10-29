@@ -16,12 +16,12 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 1.28M triangles (310k of them the shag strands, 300k the slippers, 120k the briefs), real-world scale in metres, all textures embedded. |
-| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 56-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
+| `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 1.40M triangles (310k of them the shag strands, 300k the slippers, 200k the gloves, 120k the briefs), real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 58-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
-| `assets/` | `slippers_cow_mule.glb`: the owner's own model of the costume slippers, open-back cow mules (made by `pipeline/cow_mule_slippers.py`). `gloves_tripo.glb` and `gloves_tripo.json`: the hoof gloves cut from the owner's Tripo model of the glove photo (made by `pipeline/tripo_gloves.py`, closed by `pipeline/repair_gloves.py` into `gloves_tripo_closed.glb`, then rebuilt as smooth solids by `pipeline/rebuild_gloves.py`). |
+| `assets/` | `slippers_cow_mule.glb`: the owner's own model of the costume slippers, open-back cow mules (made by `pipeline/cow_mule_slippers.py`). `gloves_hoof.glb` and `gloves_hoof.json`: the owner's own model of the costume gloves, a terry mitten with a thumb and two painted hoof toes (made by `pipeline/hoof_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
 
 Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
@@ -83,14 +83,13 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 
   The costume is tights with black socks over the feet. Below the calf the leggings are plain black knit, with no painted spots, and a ribbed cuff that stands slightly proud. Because the slippers are open at the back, the leggings now end in a socked foot (`design.legging_parts`): the heel stands on the footbed, 1 mm into it, and the front of the foot runs into the slipper's head, where it ends hidden. Foot placement in every animation uses the slipper's real sole, so the slippers sit 2–3 mm above the floor. Until round 15 the slippers were the knitted cow heads cut from the Tripo Shy Cow model, and the leggings ended at the ankle inside them.
   - The slipper project baked ambient occlusion into the colour texture (at 0.6). That goes against the no-baked-lighting rule; it stays until the AO map from that project (its Part 3, `ao_4096`) is available to take it back out.
-- **Gloves.** The gloves are the owner's Tripo model of the glove photo: the mask and both gloves lying on a mat (`pipeline/tripo_gloves.py`, `assets/gloves_tripo.glb`). Each glove was cut out and given its own frame from its shape: along the hand, across toward the thumb, and out of the palm. The red-chipped glove is the left and the green-chipped one the right. Each was then scaled so the model's horn span matches the v10 mask (×0.653), placed on the hand with the hoof tips 20 cm past the wrist, re-unwrapped, and its colour and roughness baked from the Tripo maps.
-  - **Closed surface (round 13):** the conversion reduced the Tripo gloves before welding the mesh's split seams, so each glove had about 300 hairline cracks (over 6,000 open edges). They opened as the hand moved and showed as dark lines on the mitten. `pipeline/repair_gloves.py` rebuilt each glove as one closed surface: every gap narrower than about 2 mm closed on a 0.5 mm grid, the surface moved back to its original size, and colour and roughness re-baked from the old textures. Each glove has no open edges and the same bounds to the millimetre. The closed gloves are kept as `assets/gloves_tripo_closed.glb`.
-  - **Rebuilt as smooth solids (round 14):** the closed gloves still had saw-tooth spikes along their edges. Worse, gloves.py bent their cuffs vertex by vertex to fit the sleeves (pulling the cuff in, flaring the wrist), which folded the surface into ragged frills at the wrist. `pipeline/rebuild_gloves.py` rebuilds each glove from `gloves_tripo_closed.glb` in the hand's own frame. The glove becomes a signed distance field on a 0.6 mm grid, smoothed by 1.2 mm to take off the spikes while keeping its shape, thumb and hoof halves. At the wrist it eases in to 4.0 cm, 4 mm inside the sleeve's rim. Inside the sleeve it ends in a clean round cuff that fills the sleeve to 8–13 mm inside its surface, flattened on the palm side so the claps still meet. The result is meshed evenly (40k triangles per glove) and its colour and roughness re-baked from the Tripo textures. gloves.py now only places the glove on the hand (`reviews/v10_gloves_before_after.jpg`).
-  - **What they are:** a long cream terry mitten with a thumb, and two glossy black hoof halves over the fingertips, chipped to show red card on the left glove and green on the right, as in the photos.
-  - **Touch-ups:** the photo's lighting had left the terry grey-green, so it is white-balanced back to cream. The model's metallic map is ignored, so nothing on the glove reads as metal.
-  - **Rigging:** each glove is one seamless mesh, so nothing can crack where the mitten meets the hooves. The hoof halves follow the HoofFingers bone through smooth per-vertex weights. The thumb is its own lobe along the thumb-side edge of the mitten, rooted at the wrist (`gloves.THUMB_LINE`). Only that lobe follows the Thumb bone, which sits at the thumb's root and curls it toward the palm about its own hinge. Earlier the whole thumb-side edge of the mitten was weighted to the thumb and bent outward.
-  - **Wrist and cuff:** the Tripo mitten's wrist was slimmer than the sleeve end, so the hand looked as if it floated in the opening. The back and sides of the wrist now flare out to fill the sleeve: up to 1.1 cm inside the sleeve's surface where hidden, fading out over the first 6 cm past its end. The palm side stays as it is, so the claps still meet palm to palm. The cuff was also wider than the sleeve on the little-finger side and poked out through the back of the sleeve; where it is hidden it is now pulled inside the sleeve's surface.
-  - The procedural gloves from earlier rounds remain in `gloves.py` as a fallback for builds without the asset.
+- **Gloves.** Since round 17 the gloves are the owner's own finished glove model (the glove project's v4, `Glove_pair.glb`), converted by `pipeline/hoof_gloves.py` into `assets/gloves_hoof.glb` and placed on the hands by `gloves.py`.
+  - **What they are:** a cream looped-terry mitten with a separate terry thumb, and the four fingers in two compartments, each capped by a black painted-card toe: satin black with grey drag strokes running base to tip and a thin beaded rim. Together the toes make a cloven hoof, closed along a straight cleft. One baked 4K atlas (colour, roughness, tangent normal) covers both gloves.
+  - **Parts:** each glove is three meshes, 100k triangles in all: the palm (with the thumb and the closed cuff, 60k) and two toes (20k each), each a finger compartment plus its toe cap. The right glove is the left one mirrored, as in the glove project.
+  - **Size and placement:** real size, 24.7 cm from cuff to hoof tip. The hoof base (the paint edge) sits where the previous gloves' did, 10.3 cm past the wrist, and the hoof tip lands 19.1 cm past it (19.8 cm before). The closed cuff sits 5.6 cm inside the sleeve, 8–18 mm clear of the sleeve opening all round, so nothing pokes through and no gap shows.
+  - **Rigging:** each toe is rigid on its own bone, pivoting on the middle/ring finger web at mid-thickness, as the glove project set them up: HoofFingers carries the index-middle toe and the new HoofRingLittle the ring-little toe. They curl together (the existing hoof motion and its spring), and a new `spread` setting parts them like a Vulcan salute; Exasperated's arm fling uses it. The top 2.5 cm of the palm follows the toe above it, split across the cleft, so the knuckle line bends with the toes instead of opening a gap. The thumb is part of the palm mesh; its lobe (beyond the mitten's thumb-side edge, `gloves.THUMB_A`) follows the Thumb bone through smooth weights and curls toward the palm about its own hinge. The cuff follows the arm like the sleeve end, so the glove stays tucked in.
+  - **No baked lighting:** the glove project multiplied its ambient occlusion into the colour map at 50 %. `hoof_gloves.py` divides it back out using that project's AO map (`ao_2048.jpg`, from the live-material textures), so the grey shading on the inner walls and in the creases is gone and all shading comes from the renderer.
+  - **Earlier gloves:** rounds 11–16 used the owner's Tripo model of the glove photo, cut out, closed and rebuilt as smooth solids by `tripo_gloves.py`, `repair_gloves.py` and `rebuild_gloves.py` (their assets are in the git history). The procedural gloves from before that remain in `gloves.py` as a fallback for builds without the asset.
 
 **Wings under the armpits (fixed).** v09 split the arm from the torso with x-coordinate thresholds. Raising the elbows dragged a strip of torso flank along with the upper arm. v10 builds the sleeves as separate tubes set into the shoulder, the way the costume is sewn. The torso keeps its own complete surface, and a clavicle bone carries the top of the shoulder.
 
@@ -128,7 +127,7 @@ Peak hand acceleration fell from 82 to 23 m/s² in Look Around, from 53 to 12 in
 **Light physics (baked).** glTF has no live physics, so damped springs are simulated over three loops of each animation and the last loop is baked into the bones. It plays in any glTF viewer and every animation loops seamlessly.
 - **Teats:** each teat swings on its own bone and collides with the belly. In the dance it peaks at about 20° and averages about 5°.
 - **Shag patches:** six spring bones drag the strand tips, with up to about 4 cm of lag at the elbows. A strand's root follows the suit face it grows from, and its weight shifts to its patch's spring bone toward the tip.
-- **Hooves and thumbs:** each hand's HoofFingers and Thumb bones carry a damped spring driven by the hand's swing: its angular acceleration about the hinge and its acceleration toward the palm. The hooves and thumb lag a swing and settle after it, with a soft limit of about 13°. The Chicken Dance damps this where the hooves are posed on purpose (the beak snaps and the claps), so the claps still meet cleanly. On top of that, resting hands keep the hooves and thumb slightly curled. A slow, small curl-and-release, out of step between the hands, keeps them from looking frozen; it is a whole number of cycles per clip, so it loops.
+- **Hooves and thumbs:** each hand's hoof toes (HoofFingers and HoofRingLittle, which share one spring) and its Thumb bone carry a damped spring driven by the hand's swing: its angular acceleration about the hinge and its acceleration toward the palm. The hooves and thumb lag a swing and settle after it, with a soft limit of about 13°. The Chicken Dance damps this where the hooves are posed on purpose (the beak snaps and the claps), so the claps still meet cleanly. On top of that, resting hands keep the hooves and thumb slightly curled. A slow, small curl-and-release, out of step between the hands, keeps them from looking frozen; it is a whole number of cycles per clip, so it loops.
 - **Tail cord:** a 12-segment rope pinned to the bowtie, plus a 13th segment for the plug. It has gravity, damping and a little stiffness, so a lamp cord never folds sharply. It collides with the seat, thighs, shins, slippers and the floor, with friction, so it swings behind the walk and drapes over her seat and the floor when she sits. Every segment keeps its exact length: the plug tips over and lies down rather than poking through the floor. The rope is simulated over three loops, and the last loop is cross-faded into the one before it, so its end state meets its start and the animation loops seamlessly.
 - **Belly and cups:** they jiggle; the cups are kept from sinking into the belly.
 
@@ -196,7 +195,7 @@ All depths are the 99.5th percentile over every frame.
 | Look Around | 0 mm | 0 mm | 0 mm | 0 mm | 1.27× | 3.0 mm above floor | 431 mm above floor |
 | Chicken Dance | 0 mm | 2.7 mm | 0 mm | 0 mm | 2.08× | 3.0 mm above floor | 345 mm above floor |
 | Depressed Walk | 0 mm | 0 mm | 0 mm | 3.4 mm | 2.25× | 3.0 mm above floor | 390 mm above floor |
-| Sit Cross-Legged | 2 mm | 2.1 mm | 0 mm | 2.6 mm | 4.61× | 3.0 mm above floor | on the floor (0.4 mm into it) |
+| Sit Cross-Legged | 0 mm | 2.1 mm | 0 mm | 2.6 mm | 4.61× | 3.0 mm above floor | on the floor (0.4 mm into it) |
 | Crying | 0 mm | 0 mm | 0 mm | 0 mm | 1.65× | 3.0 mm above floor | 406 mm above floor |
 | Exasperated | 0 mm | 0 mm | 0 mm | 0 mm | 1.31× | 3.0 mm above floor | 430 mm above floor |
 | Idle (alt) | 0 mm | 0 mm | 0 mm | 0 mm | 1.47× | 3.0 mm above floor | 420 mm above floor |
@@ -205,9 +204,9 @@ All depths are the 99.5th percentile over every frame.
 | Sneak (alt) | 0 mm | 2 mm | 0 mm | 28.3 mm | 3.16× | 3.0 mm above floor | 399 mm above floor |
 | Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 0.7 mm | 2.02× | 3.0 mm above floor | 368 mm above floor |
 | Look Around (alt) | 0 mm | 0 mm | 0 mm | 0 mm | 1.48× | 3.0 mm above floor | 420 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.7 mm | 0 mm | 0 mm | 2.06× | 3.0 mm above floor | 350 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.7 mm | 1.4 mm | 0 mm | 2.06× | 3.0 mm above floor | 350 mm above floor |
 
-The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.7 mm in the slumped alt Chicken Dance. With the Tripo gloves the hooves no longer press into the mask in Crying (7 mm before); they stay clear in Exasperated too. The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the cord and plug lie on the floor.
+The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.7 mm in the slumped alt Chicken Dance. The hooves stay clear of the mask in Crying and in Exasperated's face-palm. With the round-17 gloves, which are about 6 mm fuller on the palm side than the Tripo ones, the left glove brushed the left cup at the front of Run's arm pump (up to 4.3 mm in the alt version); Run now holds the arms 3° further out (0 mm). In the alt Chicken Dance's claps the palm of each glove brushes the other hand's sleeve end by 1.4 mm (0 before). The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the cord and plug lie on the floor.
 
 **Sitting (round 16).** Crouch and Sit clipped badly: the belly hangs to the crotch, so in the crouch the thighs passed 5–6 cm up through the belly and the suit's hem (60 mm in the belly-into-legs column), the seat sank 3.3–3.8 cm through the floor, and the upper arms pressed 19 mm into the cups. Sit Cross-Legged replaces it:
 - She leans back 26° as she lands, which takes most of the bend out of the hips, and the belly settles onto her crossed legs.
@@ -218,7 +217,7 @@ The relaxed arms no longer press into the sides of the body in Look Around, Cryi
 
 In Run and Sneak the belly still meets the tops of the thighs at the highest knee lift (20 and 33 mm). The same hem helpers could take that up; they are left off there for now, so those animations are exactly as they were. The leggings' stretch is highest at the seat (4.6×, 5.0× before), from the deep seated hip bend, which linear skinning handles poorly. `validate.py` also measures how far the leggings and briefs pass into the suit (`legs_into_body_p995_max_m`). That reading is high in every walking animation too (45 mm in Walk, 73 mm in Run) because it counts the tops of the briefs and leggings tucked up under the hem, which are never seen; for the sit it fell from 75 to 46 mm.
 
-In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 20 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
+In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 19 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
 ## Measured over the dance
 
@@ -228,9 +227,9 @@ In every animation the gloves stay tucked into the sleeves: within a clip the sl
 | Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
 | Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
 | Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.56× |
-| Sleeve end to glove distance, at rest and at the worst frame | not measured | 31.8 mm at both (the real mitten is slimmer than the sleeve end, which sits loosely round its wrist) |
+| Sleeve end to glove distance, at rest and at the worst frame | not measured | 17.3 mm at rest, 17.6 mm at the worst frame (the mitten is slimmer than the sleeve end, which sits loosely round its wrist; 25.8 mm with the previous gloves) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |
-| Clap contact gap | not measured | 0.3 mm |
+| Clap contact gap | not measured | 2.1 mm (0.2–0.4 mm with the previous gloves: the claps are placed from the glove's palm thickness, and this smoother glove's fullest point stands 0.8 mm proud of the 99.5th percentile used; moving the hands closer pushes each glove into the other sleeve) |
 | Loop seam error | 0 | 0 |
 | Planted-foot drift | ~0 | 0.05 mm |
 
@@ -238,16 +237,16 @@ Most of the remaining sleeve stretch is on the outside of the elbow at the top o
 
 ## The rig
 
-There are 56 joints:
+There are 58 joints:
 - **Spine and head:** Hips, Spine, Belly, Chest, Neck, Head.
-- **Each side:** Shoulder (clavicle), UpperArm, Forearm, Hand, HoofFingers, Thumb, Thigh, Shin and Foot.
+- **Each side:** Shoulder (clavicle), UpperArm, Forearm, Hand, HoofFingers (the glove's index-middle toe), HoofRingLittle (its ring-little toe), Thumb, Thigh, Shin and Foot.
 - **Udder:** one Udder bone per cup.
 - **Helpers:** UpperArmRoot and Elbow on each side. Each takes half its joint's rotation. Hem_L and Hem_R (children of Hips, at the hip joints) lift the front of the hem over a raised thigh when sitting.
 - **Teats:** four bones (Teat_L/R_bottom, Teat_L/R_outer).
 - **Shag:** six patch bones (Shag_chest_R, Shag_belly, Shag_back_upper_R, Shag_back_lower_L, Shag_elbow_L, Shag_elbow_R).
 - **Tail:** Tail_bow (the bowtie, rigid on the Hips), a chain of 12 cord bones (Tail_cord_1 to Tail_cord_12) and Tail_plug.
 
-The teat, shag, belly and udder bones carry the baked physics. If you use the rig in a game engine, those 12 bones, the 13 cord and plug bones, and the HoofFingers and Thumb bones are the ones to put live spring or "jiggle" components on; the dance clip then only needs the body bones. Bind rotations are identity, and all inverse bind matrices are translations.
+The teat, shag, belly and udder bones carry the baked physics. If you use the rig in a game engine, those 12 bones, the 13 cord and plug bones, and the HoofFingers, HoofRingLittle and Thumb bones are the ones to put live spring or "jiggle" components on; the dance clip then only needs the body bones. Bind rotations are identity, and all inverse bind matrices are translations.
 
 The solver is shared by all the animations:
 - **Arms:** IK or FK, with the elbow swivel for collision avoidance. The IK is soft for the last 2 cm of reach, so an arm straightens gradually instead of the elbow popping when a target moves in from just out of reach. The wrist twist is kept continuous from frame to frame, and half of it goes to the forearm, so a hoof rolled far over never flips the forearm half a turn. Hand reaches that travel round the cups (shading the eyes, the face-palms) follow B-spline paths with no corners.
@@ -272,7 +271,7 @@ Each animation is a small class in `clips.py`. The Chicken Dance is in `anim.py`
 The model carries no lighting: no ambient occlusion or contact shadows in its vertex colours or textures. Shading is left to whatever renders it, so it follows the pose. Until round 12 the suit, leggings, briefs, udder, gloves and the v09 mask and horns had ambient occlusion baked into their vertex colours in the rest pose (the suit averaged 68% brightness, the briefs 50%). When the arms rose, the dark band where the arm had hung stayed on the side of the body.
 
 What remains is colour only:
-- the photographed textures (the mask scan, the Tripo gloves, the fabric swatches) keep whatever light was in their photos, and the slippers' colour map still has its project's ambient occlusion baked in (see Slippers and socks);
+- the photographed textures (the mask scan, the fabric swatches) keep whatever light was in their photos, and the slippers' colour map still has its project's ambient occlusion baked in (see Slippers and socks);
 - the black patch under the shag is painted darker than the swatch;
 - each shag strand has its own shade of black (the strands' only vertex colour).
 
@@ -287,7 +286,7 @@ The viewer has four lighting rigs:
 ## Rebuilding
 
 You need Python 3.12 or later with `numpy scipy pillow scikit-image vtk xatlas` (xatlas unwraps the briefs), plus `g++` and `ffmpeg`. The pipeline reuses two things from the v09 handoff:
-- the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_tripo.glb` and the slippers from `assets/slippers_cow_mule.glb`);
+- the review GLB, which supplies the mask scan and horns (the gloves come from `assets/gloves_hoof.glb` and the slippers from `assets/slippers_cow_mule.glb`);
 - the `textures-v09` folder, which supplies the fur, shag and cotton swatches.
 
 ```bash
@@ -311,10 +310,9 @@ Where things live:
 - `textures.py`: shag patch and spot placement;
 - `groom.py`: grows the shag strands on the patches;
 - `render_shag.py`: before/after close-ups of the shag (`reviews/shag/`);
-- `gloves.py`: places the Tripo gloves on the hands (and keeps the earlier procedural gloves as a fallback);
-- `tripo_gloves.py`: the one-off conversion of the gloves from the owner's Tripo model into `assets/gloves_tripo.glb`. It needs that OBJ and its texture folder, plus `pip install xatlas`;
-- `repair_gloves.py`: the one-off repair that closed the cracks in the converted gloves (`assets/gloves_tripo_closed.glb`);
-- `rebuild_gloves.py`: the one-off rebuild of the closed gloves as smooth solids with a cuff that fits the sleeve (`assets/gloves_tripo.glb`). If the gloves are ever converted again, run `tripo_gloves.py`, then `repair_gloves.py`, then `rebuild_gloves.py`; rerun the rebuild if the sleeves change;
+- `gloves.py`: places the owner's gloves on the hands, with the thumb and knuckle weights (and keeps the earlier procedural gloves as a fallback);
+- `hoof_gloves.py`: the one-off conversion of the owner's glove model (`Glove_pair.glb`) into `assets/gloves_hoof.glb`, with the baked AO divided out when the project's `ao_2048.jpg` is given;
+- `tripo_gloves.py`, `repair_gloves.py`, `rebuild_gloves.py`: the earlier one-off conversion of the gloves from the owner's Tripo model (rounds 11–16; no longer used, and their outputs are only in the git history);
 - `cow_mule_slippers.py`: the one-off conversion of the owner's slipper model (`Cow_Slippers_pair.glb`) into `assets/slippers_cow_mule.glb`: scaled to metres, ankle axis at the origin, right slipper mirrored;
 - `tripo_slippers.py`: the earlier conversion of the Shy Cow slippers (no longer used; `tripo_gloves.py` still borrows its OBJ reader);
 - `tail.py`: the bowtie, the cord and plug meshes, and the cord's rope simulation;
