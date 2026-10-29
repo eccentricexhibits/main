@@ -3,33 +3,44 @@ REMARKABLE 2027: CLICKABLE FIGMA PROTOTYPE
 
 This folder is a small Figma plugin. Running it once builds the whole clickable prototype in a Figma file:
 desktop and mobile versions of Home, Agenda (Day 1 and Day 2), Speakers and FAQ, with the registration
-pop-ups, speaker profiles and phone menu, all linked together. It takes about 10 minutes the first time.
+pop-ups, speaker profiles and phone menu, all linked together. All of the text is editable. It takes about
+10 minutes the first time.
 
 You only need to do this once. Your client does NOT need the plugin; you share the finished Figma file.
 
 
-1. GET FIGMA (free)
+1. INSTALL THE KARBON FONTS ON YOUR COMPUTER FIRST
+   - Open each of the four files Karbon-Regular.otf, Karbon-Medium.otf, Karbon-Semibold.otf and
+     Karbon-Bold.otf (from your Karbon font folder) and click "Install" (Windows) or "Install Font" (Mac).
+   - If Figma is already open, quit and reopen it afterwards so it sees the fonts.
+   - If you skip this, the plugin still works but sets the text in Inter instead of Karbon.
+
+2. GET FIGMA (free)
    - Create a free account at figma.com.
    - Download and install the Figma DESKTOP APP (figma.com/downloads). The plugin step below only works in the
      desktop app, not in the browser.
 
-2. KEEP THIS FOLDER SOMEWHERE SAFE
+3. KEEP THIS FOLDER SOMEWHERE SAFE
    - Unzip it to a permanent place (for example Documents). Figma reads the plugin from this folder.
 
-3. ADD THE PLUGIN TO FIGMA
+4. ADD THE PLUGIN TO FIGMA
    - Open the Figma desktop app and click "+ Design" (or New design file) to create a blank file.
    - Open the main menu (the Figma logo / menu icon at the top left).
    - Go to Plugins > Development > Import plugin from manifest...
    - Choose the file "manifest.json" in this folder.
+   - Can't see "Development"? You're probably in Figma in a web browser; use the desktop app. You can also
+     press Ctrl+K (Windows) or Cmd+K (Mac), type "manifest" and choose "Import plugin from manifest...".
 
-4. RUN IT
-   - Main menu > Plugins > Development > Remarkable 2027 Prototype Builder.
-   - Wait about a minute. When it finishes, a message says the prototype is ready.
+5. RUN IT
+   - Main menu > Plugins > Development > Remarkable 2027 Prototype Builder
+     (or Ctrl/Cmd+K, type "Remarkable" and choose it).
+   - Wait a minute or two. When it finishes, a message says the prototype is ready and which font it used
+     ("text in Karbon" is what you want).
    - Two pages appear in the left sidebar: "Desktop prototype" and "Mobile prototype".
      You can delete the empty "Page 1" (right-click > Delete page).
    - Rename the file at the top centre, for example "Remarkable 2027 Prototype".
 
-5. TRY IT
+6. TRY IT
    - Select the "Desktop prototype" page and press the Present button (the play icon, top right).
    - Click the menu links, the Register buttons, the speaker cards, the agenda day tabs and the FAQ topics.
      Pop-ups close with the x or by clicking outside them. Clicking an empty area briefly highlights what's
@@ -37,16 +48,20 @@ You only need to do this once. Your client does NOT need the plugin; you share t
    - Optional, for the mobile page: with nothing selected, open the "Prototype" tab in the right sidebar and
      set Device to an iPhone with a 390 x 844 screen (for example iPhone 13/14) so it shows in a phone frame.
 
-6. SHARE IT WITH THE CLIENT
+7. SHARE IT WITH THE CLIENT
    - Click "Share" (top right) and invite the client by email, or copy the link. They can view, click
      through and leave comments with a free Figma account.
    - To send a link straight to the clickable version, open Present and use "Share prototype" there.
 
 
 GOOD TO KNOW
-- The screens are full-page images of the approved design (the same as the PNG mockups), with clickable
-  hotspots on top. They look exactly like the design but the text isn't editable in Figma. If the client
-  needs editable layers, the vector PDFs in the "figma" folder import as editable frames.
+- Each screen has three layers stacked: a background image of the design (photos, colours, plus symbols,
+  buttons, lines), every piece of text as a separate editable Karbon text layer on top, and invisible
+  clickable hotspots above that. Double-click any text to edit it.
+- Text is editable, but shapes, photos and button backgrounds are part of the background image. If you
+  change the wording a lot, a longer line may run past its button or box.
+- People viewing or clicking through the shared file see the text in Karbon. Anyone who wants to EDIT the
+  text on their own computer needs Karbon installed there too.
 - Not interactive in the prototype: opening and closing individual FAQ answers and agenda sessions, and the
   photo gallery arrows. The interactive HTML mockup still has those.
 - Email links (events@vectorinstitute.ai) open the viewer's email app.

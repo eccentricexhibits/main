@@ -1,6 +1,7 @@
 // Remarkable 2027 prototype builder (Figma plugin).
 // Creates two pages, "Desktop prototype" and "Mobile prototype", with one frame per screen, one frame per pop-up,
-// and clickable hotspots wired as prototype interactions. Screens are full-page images captured from the HTML mockup.
+// and clickable hotspots wired as prototype interactions. Each screen is a text-free image of the HTML mockup with
+// every piece of copy placed on top as an editable text layer (Karbon if installed, otherwise Inter).
 const DATA = __DATA__;
 const IMAGES = __IMAGES__;
 
@@ -25,6 +26,39 @@ function hotspotRect(parent, name, x, y, w, h) {
   r.fills = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}, opacity: 0}];
   parent.appendChild(r);
   return r;
+}
+
+const KARBON = {400: 'Regular', 500: 'Medium', 600: 'Semibold', 700: 'Bold'};
+const INTER = {400: 'Regular', 500: 'Medium', 600: 'Semi Bold', 700: 'Bold'};
+let family = 'Karbon';
+async function loadFonts() {
+  try { for (const style of Object.values(KARBON)) await figma.loadFontAsync({family: 'Karbon', style}); }
+  catch (e) { family = 'Inter'; for (const style of Object.values(INTER)) await figma.loadFontAsync({family: 'Inter', style}); }
+}
+function fontFor(weight) {
+  const w = [400, 500, 600, 700].reduce((a, b) => Math.abs(b - weight) < Math.abs(a - weight) ? b : a);
+  return {family, style: (family === 'Karbon' ? KARBON : INTER)[w]};
+}
+
+function addText(parent, t, ox, oy) {
+  const n = figma.createText();
+  const r0 = t.runs[0];
+  n.fontName = fontFor(r0.weight);
+  n.characters = t.text;
+  n.textAlignHorizontal = t.align;
+  for (const r of t.runs) {
+    n.setRangeFontName(r.start, r.end, fontFor(r.weight));
+    n.setRangeFontSize(r.start, r.end, r.size);
+    n.setRangeLetterSpacing(r.start, r.end, {value: r.ls, unit: 'PIXELS'});
+    n.setRangeLineHeight(r.start, r.end, r.lh ? {value: r.lh, unit: 'PIXELS'} : {unit: 'AUTO'});
+    n.setRangeTextCase(r.start, r.end, r.upper ? 'UPPER' : 'ORIGINAL');
+    n.setRangeFills(r.start, r.end, [{type: 'SOLID', color: {r: r.color[0], g: r.color[1], b: r.color[2]}, opacity: r.color[3]}]);
+  }
+  if (t.lines > 1) { n.resize(Math.max(1, t.w), n.height); n.textAutoResize = 'HEIGHT'; }
+  else n.textAutoResize = 'WIDTH_AND_HEIGHT';
+  n.x = t.x + ox; n.y = t.y + oy;
+  n.name = t.text.replace(/\s+/g, ' ').slice(0, 40);
+  parent.appendChild(n);
 }
 
 async function setClick(node, action) {
@@ -66,6 +100,7 @@ async function buildDevice(d) {
     f.fills = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}}];
     page.appendChild(f);
     for (const t of s.tiles) imageRect(f, t.file, 0, t.y, d.w, t.h);
+    for (const t of s.texts || []) addText(f, t, 0, 0);
     for (const h of s.hotspots) pending.push([hotspotRect(f, `Hotspot: ${h.label || h.action.to || h.action.type}`, h.x, h.y, h.w, h.h), h.action, f]);
     frames[s.id] = f;
     x += d.w + GAP; tallest = Math.max(tallest, s.h);
@@ -87,6 +122,7 @@ async function buildDevice(d) {
       f.fills = [{type: 'SOLID', color: {r: 0.035, g: 0.024, b: 0.055}, opacity: 0.6}];
       ox = Math.round((d.w - o.w) / 2); oy = Math.max(0, Math.round((d.h - o.h) / 2));
       imageRect(f, o.file, ox, oy, o.w, o.h);
+      for (const t of o.texts || []) if (t.y + 4 < o.h) addText(f, t, ox, oy);
       const close = {type: 'CLOSE'};
       for (const [bx, by, bw, bh] of [[0, 0, d.w, oy], [0, oy + o.h, d.w, d.h - oy - o.h], [0, oy, ox, o.h], [ox + o.w, oy, d.w - ox - o.w, o.h]])
         if (bw > 0 && bh > 0) pending.push([hotspotRect(f, 'Hotspot: close (backdrop)', bx, by, bw, bh), {type: 'close'}, f]);
@@ -94,6 +130,7 @@ async function buildDevice(d) {
       // Phone menu: pinned to the top; tapping below it closes the menu.
       f.fills = [];
       imageRect(f, o.file, 0, 0, o.w, o.h);
+      for (const t of o.texts || []) addText(f, t, 0, 0);
       pending.push([hotspotRect(f, 'Hotspot: close (backdrop)', 0, o.h, d.w, d.h - o.h), {type: 'close'}, f]);
     }
     for (const h of o.hotspots) {
@@ -126,11 +163,13 @@ async function buildDevice(d) {
 
 (async () => {
   try {
+    await loadFonts();
+    if (family !== 'Karbon') figma.notify('Karbon is not installed on this computer, so the text uses Inter. Install Karbon and run the plugin again to match the design.', {timeout: 8000});
     const built = [];
     for (const d of DATA.devices) built.push(await buildDevice(d));
     await figma.setCurrentPageAsync(built[0].page);
     figma.viewport.scrollAndZoomIntoView([built[0].home]);
-    figma.closePlugin('Remarkable 2027 prototype ready: open a prototype page and press Present (▶).');
+    figma.closePlugin(`Remarkable 2027 prototype ready (text in ${family}): open a prototype page and press Present (▶).`);
   } catch (e) {
     figma.closePlugin('The prototype could not be built: ' + (e && e.message ? e.message : e));
   }

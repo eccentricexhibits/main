@@ -9,12 +9,14 @@ function node(type) {
     async setReactionsAsync(r) { n.reactions = r; }};
   all[n.id] = n; return n;
 }
-const images = {};
+const images = {}; const texts = []; const fontsLoaded = new Set();
 global.figma = {
   createPage() { const p = node('PAGE'); p.flowStartingPoints = []; pages.push(p); return p; },
   async setCurrentPageAsync(p) { figma.currentPage = p; },
-  createFrame() { return node('FRAME'); }, createRectangle() { return node('RECTANGLE'); }, createText() { const t = node('TEXT'); return t; },
-  async loadFontAsync() {},
+  createFrame() { return node('FRAME'); }, createRectangle() { return node('RECTANGLE'); }, createText() { const t = node('TEXT'); t.characters = ''; const chk = (a, b) => { if (!(a >= 0 && b <= t.characters.length && a < b)) errors.push(`bad text range ${a}-${b} of ${t.characters.length}: ${t.characters.slice(0, 30)}`); if (!fontsLoaded.has(JSON.stringify(t.fontName))) errors.push('font not loaded'); };
+    for (const k of ['setRangeFontName', 'setRangeFontSize', 'setRangeLetterSpacing', 'setRangeLineHeight', 'setRangeTextCase', 'setRangeFills']) t[k] = (a, b, v) => { chk(a, b); if (k === 'setRangeFontName' && !fontsLoaded.has(JSON.stringify(v))) errors.push('range font not loaded ' + JSON.stringify(v)); };
+    texts.push(t); return t; },
+  async loadFontAsync(f) { if (process.env.NO_KARBON && f.family === 'Karbon') throw new Error('missing'); fontsLoaded.add(JSON.stringify(f)); },
   base64Decode(s) { return Buffer.from(s, 'base64'); },
   createImage(bytes) {
     // JPEG dimensions from SOF marker; Figma downscales images over 4096 px.
@@ -42,6 +44,7 @@ setTimeout(() => {
   for (const p of pages) { for (const s of p.flowStartingPoints) if (!all[s.nodeId]) errors.push('bad flow start');
     console.log(p.name, '| frames:', p.children.filter(c => c.type === 'FRAME').map(c => c.name.split(' / ')[1]).join(', ')); }
   console.log('interactions', hot, byNav, '| images', Object.keys(images).length);
+  console.log('text layers', texts.length, '| fonts', [...new Set(texts.map(x => x.fontName.family))].join(','));
   console.log('closePlugin:', closedMsg);
   console.log(errors.length ? 'ERRORS:\n' + [...new Set(errors)].join('\n') : 'no errors');
 }, 500);
