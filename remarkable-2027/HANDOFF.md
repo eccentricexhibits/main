@@ -6,7 +6,7 @@ direction the client approved, revised to their October 28 feedback (see section
 
 These are working HTML/CSS mockups for review and for the Swoogo build team. They are not production code.
 
-Last updated: October 29, 2026.
+Last updated: October 29, 2026 (package refreshed).
 
 ---
 
@@ -14,7 +14,7 @@ Last updated: October 29, 2026.
 
 | To… | Open |
 |---|---|
-| Click through every page and view | `OPEN_INTERACTIVE_PREVIEW.html` (keep it next to the `Source` folder so it finds the fonts) |
+| Click through every page and view | `OPEN_INTERACTIVE_PREVIEW.html`: double-click to open in any browser; it works offline with the fonts built in |
 | See static images | `Mockups/PNG/` (8 full-page PNGs) or `Mockups/Remarkable_2027_Mockups.pdf` |
 | Read what changed and why | `CHANGELOG.md` |
 | Edit the design | `Source/dist/editorial-event-identity.css` (all visual refinements) and `Source/dist/app.js` (page markup) |
@@ -29,7 +29,7 @@ jumps to each part of the current page.
 ```
 HANDOFF.md                      this file
 CHANGELOG.md                    every revision round, in order
-OPEN_INTERACTIVE_PREVIEW.html   self-contained desktop/mobile viewer (fonts load from Source/dist/fonts)
+OPEN_INTERACTIVE_PREVIEW.html   self-contained desktop/mobile viewer: every page, image and font embedded in one file
 Mockups/
   PNG/                          remarkable-2027-<page>-<view>.png, desktop 1440 px wide, mobile 390 px wide
   Remarkable_2027_Mockups.pdf   the same 8 frames with a cover page
@@ -48,6 +48,8 @@ Source/
   tools/
     export-mockup.py            rebuilds OPEN_INTERACTIVE_PREVIEW.html from dist
     mockup/                     the preview's shell (viewer.html / .css / .js)
+    figma-prototype/            optional: builds the Figma prototype plugin from the live pages
+                                (capture.js → build.py; see the comments at the top of each file)
 Source Artwork/                 the supplied "Remarkable AI" gradient PDFs the people section is built from
 ```
 
@@ -135,6 +137,8 @@ content edge.
   cd Source
   python3 tools/export-mockup.py --output ../OPEN_INTERACTIVE_PREVIEW.html
   ```
+  That build loads the fonts from `Source/dist/fonts`, so keep it next to the `Source` folder. The copy in
+  this package was built with the fonts embedded so it opens on its own.
 - **PNG mockups:** captured with Playwright (Chromium) at device scale 1 with reduced motion. Each page is
   scrolled once so every lazy image loads, then captured full-page.
 
