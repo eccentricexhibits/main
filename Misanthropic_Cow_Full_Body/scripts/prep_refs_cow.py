@@ -78,9 +78,12 @@ if os.path.exists(_l):
     save(crop(wb(Image.open(_l).convert("RGB"), (0.45, 0.72, 0.55, 0.78), target=None), (0.33, 0.62, 0.72, 0.87)), "DETAIL_11b_bow_on_lower_back.png", 1024)
 # side references flipped to face the other way. They're for shape (how far the snout, udder
 # and belly stick out), not for side details: the patches differ on the two sides.
-for name in ("REF_G_side_view_belly.png", "REF_H_head_side_profile.png"):
+for name in ("REF_G_side_view_belly.png",):
     ImageOps.mirror(Image.open(os.path.join(OUT, name))).save(os.path.join(OUT, name.replace(".png", "_MIRRORED.png")), optimize=True)
     print(name.replace(".png", "_MIRRORED.png"))
+# the head from its own RIGHT side (snout pointing right, wire horn nearest), original 25-photo shoot
+ref(OTHER + "Cow - Original Photo Shoot (9 of 25).jpg", (0.10, 0.0, 0.46, 0.45), (0.118, 0.09, 0.172, 0.135), "DETAIL_15_head_right_side.png", 1024, target=None)
+ref(OTHER + "Cow - Original Photo Shoot (8 of 25).jpg", (0.16, 0.0, 0.50, 0.48), (0.20, 0.10, 0.26, 0.16), "DETAIL_15b_head_right_side_closer.png", 1024, target=None)
 # slipper (the real object, from the slipper project)
 sl = Image.open(os.path.join(PB, "worked_example/references/REF_A_three-quarter_front.jpg")).convert("RGB")
 save(sl, "DETAIL_13_slipper_real_object.png", 1024)

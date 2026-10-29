@@ -262,16 +262,22 @@ Follow the design brief exactly.""",
             ("2_BACK_approved.png", "YOUR approved back view"),
             ("3_SIDE_facing_left_approved.png", "YOUR approved left-facing side view"),
             ("REF_G_side_view_belly.png", "Real costume from this side"),
-            ("REF_H_head_side_profile_MIRRORED.png", "Real head in profile, FLIPPED: shape only"),
+            ("DETAIL_15_head_right_side.png", "Real head from this side"),
+            ("DETAIL_15b_head_right_side_closer.png", "Real head from this side, closer"),
             ("DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", "The wire-tipped horn, original shoot"),
         ],
         "prompt": """IMAGE 4 OF 4: SIDE VIEW, FACING RIGHT.
 
-Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_G (the real costume from this side: see how far the udder and belly stick out; ignore the green screen), REF_H (the real head in profile from its other side, flipped to face the same way: use it ONLY for the shape of the snout and hood, not for the paint), DETAIL_3b (the wire-tipped horn).
+Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_G (the real costume from this side: see how far the udder and belly stick out; ignore the green screen and the bare arm), DETAIL_15 and DETAIL_15b (the real head from this same side: the paint, the snout and the wire horn; ignore the hair, the hands and the person), DETAIL_3b (the wire-tipped horn).
 
 Make a photograph of the same costume from its other side: a true side profile, turned exactly 90 degrees, facing the RIGHT edge of the frame, so we see its own RIGHT side.
 
-It should look almost like a mirror image of 3_SIDE_facing_left_approved: same height, scale, camera height, lighting, snout, udder, belly depth and pose. Only the details on this side differ: here the eye sits in mostly white mask with the smaller painted patch above the brow, the black shag neck tuft shows under the snout, the big black patch on the upper back is on the far side and hidden, and the near horn is the SHORT one ending in its tuft of twisted bare wire (DETAIL_3b), with the long pointed horn behind it.
+It should look almost like a mirror image of 3_SIDE_facing_left_approved: same height, scale, camera height, lighting, snout, udder, belly depth and pose. Only the details on this side differ, and DETAIL_15 and DETAIL_15b show them: the black paint over the brow and around the eye, the large black patch on the cheek beside the snout, the clump of black shaggy fur under the snout, the big black patch on the upper back is on the far side and hidden, and the near horn is the SHORT one ending in its tuft of twisted bare wire (DETAIL_3b), with the long pointed horn behind it.
+
+Also:
+- The hand is the same size as in 1_FRONT_approved: white knit glove with two black hoof halves over the fingers.
+- Both slippers stand on the same floor line, toes pointing right; the far slipper is almost completely hidden behind the near one. Plain black socks at the heels, no bare skin.
+- The gold bow sits at the back edge of the lower back (on the left of this image), with nothing hanging from it.
 
 {SAME_SCALE}
 
