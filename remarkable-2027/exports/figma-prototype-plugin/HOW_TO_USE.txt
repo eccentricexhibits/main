@@ -3,8 +3,9 @@ REMARKABLE 2027: CLICKABLE FIGMA PROTOTYPE
 
 This folder is a small Figma plugin. Running it once builds the whole clickable prototype in a Figma file:
 desktop and mobile versions of Home, Agenda (Day 1 and Day 2), Speakers and FAQ, with the registration
-pop-ups, speaker profiles and phone menu, all linked together. All of the text is editable. It takes about
-10 minutes the first time.
+pop-ups, speaker profiles and phone menu, all linked together. Everything is editable: text, shapes,
+colours, gradients, photos and the plus symbols are all real Figma layers. It takes about 10 minutes the
+first time.
 
 You only need to do this once. Your client does NOT need the plugin; you share the finished Figma file.
 
@@ -55,13 +56,18 @@ You only need to do this once. Your client does NOT need the plugin; you share t
 
 
 GOOD TO KNOW
-- Each screen has three layers stacked: a background image of the design (photos, colours, plus symbols,
-  buttons, lines), every piece of text as a separate editable Karbon text layer on top, and invisible
-  clickable hotspots above that. Double-click any text to edit it.
-- Text is editable, but shapes, photos and button backgrounds are part of the background image. If you
-  change the wording a lot, a longer line may run past its button or box.
-- People viewing or clicking through the shared file see the text in Karbon. Anyone who wants to EDIT the
-  text on their own computer needs Karbon installed there too.
+- Every screen is built from editable Figma layers, grouped by page section in the Layers panel (Header,
+  "Brilliant minds. Big conversations.", Footer and so on):
+    * Text: Karbon text layers. Double-click to edit.
+    * Shapes: rectangles with the design's colours, gradients, rounded corners, borders and shadows.
+    * Photos and portraits: image fills you can swap (select the layer > Fill > click the image).
+    * Plus symbols: vector shapes from the official Vector plus symbol.
+- The invisible clickable areas for the prototype sit in a group called "Hotspots (prototype links)" at
+  the top of each screen. Leave them in place, or lock/hide that group while editing.
+- Layers are positioned exactly but don't use auto layout or components: if you make a line of text much
+  longer, move or resize the shapes around it yourself.
 - Not interactive in the prototype: opening and closing individual FAQ answers and agenda sessions, and the
   photo gallery arrows. The interactive HTML mockup still has those.
+- People viewing or clicking through the shared file see the text in Karbon. Anyone who wants to EDIT the
+  text on their own computer needs Karbon installed there too.
 - Email links (events@vectorinstitute.ai) open the viewer's email app.
