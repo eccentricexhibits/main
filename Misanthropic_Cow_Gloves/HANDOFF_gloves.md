@@ -9,6 +9,8 @@ references, prompt kits, tiles, scripts) · **Part 2 FINAL_GLB** (`Glove_pair.gl
 .blend + `textures/`) · **Part 4 BLENDS_LIVE** (live-material .blend and its displacement variant + `textures/`) ·
 **Part 5 SOURCES** (the cleaned, split full-detail mesh). Start with Part 1.
 Everything except Part 5 is also in the repo folder `Misanthropic_Cow_Gloves/`.
+**Putting the gloves on the character (Blender render)?** Read `INTEGRATION_blender_render.md` (in Part 1): which file,
+how to append, place, parent and animate them, and what not to do.
 
 ---
 
@@ -191,7 +193,7 @@ scipy connected-components count in `measure_tripo_glove.py`.
 
 ## 7. Package contents
 
-- **Part 1 CONTEXT:** this file, `PROJECT_STATUS.md`, `01_references/` (design key, cut-outs, details, scale image and
+- **Part 1 CONTEXT:** this file, `INTEGRATION_blender_render.md`, `PROJECT_STATUS.md`, `01_references/` (design key, cut-outs, details, scale image and
   `scale_sources/` incl. the mask scan `cowMask1.stl`, mm), `02_chatgpt_kit/` (guide page; the step zips are left out —
   rebuild them with `build_kit.py`), `02_approved_views/`, `03_tripo_inputs/`, `04_tripo_v1_evaluation/`,
   `05_cleanup_and_split/`, `06_optimise_uv_bake/`, `08_fabric_tiles/` (raw ChatGPT tiles; the prepared ones are in
