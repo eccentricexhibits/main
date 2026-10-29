@@ -61,6 +61,7 @@ ref(o(3), (0.36, 0.10, 0.67, 0.22), (0.48, 0.125, 0.54, 0.145), "DETAIL_3_horns_
 ref(o(1), (0.47, 0.02, 0.73, 0.17), None, "DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", 1024)
 ref(o(4), (0.14, 0.0, 0.56, 0.17), (0.19, 0.27, 0.24, 0.33), "DETAIL_4_pink_udder.png", 1024)
 ref(o(1), (0.10, 0.46, 0.34, 0.68), None, "DETAIL_5_glove_with_black_hoof.png", 1024)
+ref(o(2), (0.26, 0.17, 0.68, 0.33), (0.40, 0.28, 0.46, 0.32), "DETAIL_5b_gloves_front_two_hoof_halves.png", 1024, target=None)
 ref(o(8), (0.74, 0.03, 0.99, 0.40), (0.36, 0.56, 0.46, 0.62), "DETAIL_6_arm_tuft_and_hoof.png", 1024)
 ref(o(4), (0.12, 0.14, 0.58, 0.38), (0.19, 0.27, 0.24, 0.33), "DETAIL_7_belly_and_black_shag_patch.png", 1024)
 ref(o(4), (0.13, 0.33, 0.53, 0.48), (0.19, 0.27, 0.24, 0.33), "DETAIL_8_beige_bloomers_lace_sides.png", 1024)

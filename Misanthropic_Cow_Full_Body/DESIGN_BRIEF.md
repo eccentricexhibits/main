@@ -30,7 +30,7 @@ PARTS, TOP TO BOTTOM:
 7. UDDER: a big pink smooth-fabric (fleece) cow udder sewn high on the front of the costume, just under the snout: two large, rounded, stuffed lobes side by side. It has four short, stubby pink fabric nubs: on each lobe, one sticks out sideways and one points down.
 8. BODY: long-pile white faux-fur costume top with long sleeves and the hood. Below the udder, a huge, very round, stuffed BELLY: the widest part of the costume. The fur is slightly matted and lumpy.
 9. BLACK PATCHES: sewn-on patches of long black shaggy fur (not printed): a big one low on the belly, just off-centre; small tufts on both sides under the arms; a tuft on the outside of each elbow.
-10. GLOVES: the sleeves end in white fuzzy knit gloves with glossy black split (cloven) HOOVES over the fingers.
+10. GLOVES: the sleeves end in white fuzzy knit gloves with a separate thumb. Over the fingers are two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons). The thumb is plain white knit with no black on it.
 11. BLOOMERS: short, high-waisted beige satin bloomers with beige lace side panels, worn OVER the leggings, showing between the fur hem and the tops of the legs.
 12. LEGGINGS: opaque black leggings with irregular, slightly rough WHITE painted cow spots of different sizes.
 13. SLIPPERS: handmade cow-head slippers (DETAIL_13): a big white plush muzzle with a thin black stitched smile and two magenta nostrils, black bead eyes, cream "mop" chenille with black patches, small tan horns, floppy black-and-magenta ears with pearl beads, and a shaggy black chenille fringe around the sole.

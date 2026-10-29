@@ -36,7 +36,7 @@ PARTS, TOP TO BOTTOM:
 7. UDDER: a big pink smooth-fabric (fleece) cow udder sewn high on the front of the costume, just under the snout: two large, rounded, stuffed lobes side by side. It has four short, stubby pink fabric nubs: on each lobe, one sticks out sideways and one points down.
 8. BODY: long-pile white faux-fur costume top with long sleeves and the hood. Below the udder, a huge, very round, stuffed BELLY: the widest part of the costume. The fur is slightly matted and lumpy.
 9. BLACK PATCHES: sewn-on patches of long black shaggy fur (not printed): a big one low on the belly, just off-centre; small tufts on both sides under the arms; a tuft on the outside of each elbow.
-10. GLOVES: the sleeves end in white fuzzy knit gloves with glossy black split (cloven) HOOVES over the fingers.
+10. GLOVES: the sleeves end in white fuzzy knit gloves with a separate thumb. Over the fingers are two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons). The thumb is plain white knit with no black on it.
 11. BLOOMERS: short, high-waisted beige satin bloomers with beige lace side panels, worn OVER the leggings, showing between the fur hem and the tops of the legs.
 12. LEGGINGS: opaque black leggings with irregular, slightly rough WHITE painted cow spots of different sizes.
 13. SLIPPERS: handmade cow-head slippers (DETAIL_13): a big white plush muzzle with a thin black stitched smile and two magenta nostrils, black bead eyes, cream "mop" chenille with black patches, small tan horns, floppy black-and-magenta ears with pearl beads, and a shaggy black chenille fringe around the sole.
@@ -68,7 +68,7 @@ STEPS = [
 There's no single photo of the whole costume on its own: it was photographed at different events, often with other clothes on top, and the belly and udder were re-stuffed each time. You'll be combining several photos into one clean costume.
 
 Attached, in order:
-1. PROPORTION_BASE: a rough cut-out collage from my first photo shoot. Its proportions are the correct ones. The arms are missing because they were raised in that photo; ignore the cut edges and dark scraps at the neck.
+1. PROPORTION_BASE: a rough cut-out collage from my first photo shoot. Its proportions are the correct ones. The arms are missing because they were raised in that photo; ignore the cut edges and the wearer's hair at the sides of the mask (but the black shaggy tuft under the snout is part of the costume).
 2. REF_A: the whole costume from the front (lying on a backdrop, wide-angle lens; ignore the backdrop and the distortion).
 3. REF_E: the back: hood, black patches and the gold bow.
 4. DETAIL_1: the mask close up.
@@ -102,16 +102,17 @@ Don't make an image yet. First reply with:
             ("DETAIL_1_mask_face.png", "Mask close up"),
             ("DETAIL_3_horns_ORIGINAL_SHOOT_front.png", "Horns, original shoot"),
             ("DETAIL_5_glove_with_black_hoof.png", "Glove and black hoof"),
+            ("DETAIL_5b_gloves_front_two_hoof_halves.png", "Both gloves from the front"),
             ("DETAIL_13_slipper_real_object.png", "The real slipper"),
         ],
         "prompt": """IMAGE 1 OF 4: FRONT VIEW. This is the master: every later view must match it.
 
-Attached, in order: PROPORTION_BASE (edit this image: keep its proportions), REF_A (the whole costume, front), DETAIL_1 (the mask; ignore its horns), DETAIL_3 (the horns as they should be), DETAIL_5 (a glove with its black hoof), DETAIL_13 (one of the real slippers).
+Attached, in order: PROPORTION_BASE (edit this image: keep its proportions), REF_A (the whole costume, front), DETAIL_1 (the mask; ignore its horns), DETAIL_3 (the horns as they should be), DETAIL_5 and DETAIL_5b (the real gloves and hooves), DETAIL_13 (one of the real slippers).
 
 Turn PROPORTION_BASE into a clean, complete product photograph of the costume, seen straight from the front:
 - KEEP from PROPORTION_BASE: the size of the head, the size and position of the udder, the size and roundness of the belly, where the fur hem and the bloomers end, the leg length and thickness, and the slippers. Don't make the costume taller or slimmer.
-- COMPLETE the hood around the mask, the shoulders, and both sleeves in an A-pose: straight arms held down and away from the sides at about 45 degrees, clear of the belly, ending in the white knit gloves with black cloven hooves (DETAIL_5), with a black shag tuft on the outside of each elbow.
-- CLEAN UP the cut-out edges and the dark scraps at the neck. Nothing of the performer shows.
+- COMPLETE the hood around the mask, the shoulders, and both sleeves in an A-pose: straight arms held down and away from the sides at about 45 degrees, clear of the belly, ending in the white knit gloves (DETAIL_5, DETAIL_5b): two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons). The thumb is plain white knit with no black on it. A black shag tuft on the outside of each elbow.
+- CLEAN UP the cut-out edges and any hair at the sides of the mask. Nothing of the performer shows. KEEP the clump of black shaggy fur just under the snout on the LEFT of the image (it's part of the costume).
 - The mask faces the camera straight on: scowling brow, yellow eyes, painted black patches as in DETAIL_1, and the red flocked snout with two vertical black slit nostrils.
 - The horns exactly as in DETAIL_3: on the LEFT of the image, the short horn ending in a tuft of twisted bare wire; on the RIGHT of the image, the long crescent horn with an intact pointed tip.
 - The pose is centred and symmetrical, but the black patches stay where they are (they're not symmetrical).
@@ -122,7 +123,9 @@ Follow the design brief exactly.""",
         "check": [
             "The whole costume in frame, horn tips to slipper soles, on white.",
             "Proportions still match PROPORTION_BASE: big round belly wider than the hips, udder right under the snout, legs not lengthened.",
-            "A-pose: both arms straight, ~45 degrees out, clear of the body; white knit gloves with black hooves.",
+            "A-pose: both arms straight, ~45 degrees out, clear of the body.",
+            "Gloves: white knit with a plain white thumb; two broad, blunt black hoof halves over the fingers. No claws or talons.",
+            "Black shaggy tuft under the snout on the image's LEFT.",
             "Mask: red snout with two vertical slit nostrils, yellow eyes, big black patch on the image's right. No mouth.",
             "Horns: short wire-tipped horn on the image's LEFT, long intact pointed horn on the image's RIGHT.",
             "Pink udder: two lobes, four stubby nubs (one sideways and one down on each lobe).",
@@ -154,7 +157,7 @@ IMAGE 1 OF 4: FRONT VIEW. This is the master: every later view must match it.
 
 Attached, in order: PROPORTION_SKETCH (a flat-colour layout drawing of the costume at the correct proportions and in the correct A-pose: edit this one), REF_I (the real costume at an event; ignore the background and the bag strap), REF_C (the head and upper costume from my original shoot; ignore the plaid robe), DETAIL_1 (the mask; ignore its horns), DETAIL_3 (the horns as they should be), DETAIL_13 (one of the real slippers).
 
-Turn PROPORTION_SKETCH into a photorealistic product photograph of the real handmade costume, seen straight from the front. Keep the sketch's layout exactly: its proportions, the A-pose, the size and position of every part, and the horn arrangement (short wire-tipped horn on the LEFT of the image, long pointed crescent horn on the RIGHT). Replace the flat colours with the real materials from the photos: long-pile white faux fur, sewn-on black shaggy fur patches, the cracked painted mask with yellow eyes and the red flocked snout with two vertical black slit nostrils, the smooth pink fleece udder, white knit gloves with glossy black hooves, beige satin bloomers with lace sides, black leggings with rough white painted spots, and the cow slippers. The costume should look homemade and slightly lumpy, not like a cartoon or a theme-park suit.
+Turn PROPORTION_SKETCH into a photorealistic product photograph of the real handmade costume, seen straight from the front. Keep the sketch's layout exactly: its proportions, the A-pose, the size and position of every part, and the horn arrangement (short wire-tipped horn on the LEFT of the image, long pointed crescent horn on the RIGHT). Replace the flat colours with the real materials from the photos: long-pile white faux fur, sewn-on black shaggy fur patches, the cracked painted mask with yellow eyes and the red flocked snout with two vertical black slit nostrils, the smooth pink fleece udder, white knit gloves (plain white thumb, two broad blunt black hoof halves over the fingers, no claws), beige satin bloomers with lace sides, black leggings with rough white painted spots, and the cow slippers. The costume should look homemade and slightly lumpy, not like a cartoon or a theme-park suit.
 
 {CAMERA}
 
@@ -190,7 +193,7 @@ What this view must show:
 - The back of the huge round belly: it bulges out past the sides, so its edges and the edges of the udder may just show at the sides.
 - A small gold satin bow at the centre of the lower back, just above the fur hem, with a thin white cord tail hanging from it to about knee height.
 - The beige bloomers from behind, the black leggings with white spots, and the back (open heel) of each cow slipper.
-- The backs of the sleeves and the gloves, with the black hooves.
+- The backs of the sleeves and the gloves: white knit, with the two broad black hoof halves over the fingers.
 
 {SAME_SCALE}
 
@@ -297,7 +300,7 @@ FIXES = [
     ("Fix E", "Udder wrong",
      "The udder is a big, smooth pink fleece cow udder sewn high on the front, just under the snout: two large rounded lobes side by side, with four short stubby pink nubs (on each lobe, one sticks out sideways and one points down). Fix only the udder."),
     ("Fix F", "Arms not in A-pose / touching the belly",
-     "Put the arms in an A-pose: both arms straight, held down and away from the sides at about 45 degrees, with a clear gap between the sleeves and the belly. Gloves are white fuzzy knit with glossy black cloven hooves over the fingers (DETAIL_5). Keep everything else the same."),
+     "Put the arms in an A-pose: both arms straight, held down and away from the sides at about 45 degrees, with a clear gap between the sleeves and the belly. Gloves are white fuzzy knit with a plain white thumb, and two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons) (DETAIL_5, DETAIL_5b). Keep everything else the same."),
     ("Fix G", "Wrong angle (three-quarter, from above or below)",
      "This is a three-quarter / angled view. I need a true [FRONT / BACK / SIDE] view: turn the camera to exactly 90-degree steps around the costume and put it level with the belly, looking straight across. Keep the costume itself identical."),
     ("Fix H", "Slippers wrong",
@@ -306,7 +309,9 @@ FIXES = [
      "The horns are wrong. They don't match, on purpose (see DETAIL_3 and DETAIL_3b): the costume's own RIGHT horn (on the LEFT of the front view) is short with two black rings and ends in a tuft of twisted bare dark-silver wire about as long as the horn. Its own LEFT horn (on the RIGHT of the front view) is a long, smooth crescent with three black rings and an intact pointed tip. Fix only the horns."),
     ("Fix J", "Text, labels, a border or a background appeared",
      "Remove all text, labels, numbers, arrows, borders and background. Pure white background, only a faint shadow under the slippers. Keep the costume exactly the same."),
-    ("Fix K", "Guardrail message (\"may violate our guardrails...\")",
+    ("Fix K", "Hooves look like claws or talons, or the thumb has a claw",
+     "The hands are wrong. Each glove is white fuzzy knit with a separate thumb that is plain white knit, with no claw and no black. Over the four fingers are two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons), like DETAIL_5 and DETAIL_5b. Fix only the hands and keep everything else exactly the same."),
+    ("Fix L", "Guardrail message (\"may violate our guardrails...\")",
      "Don't argue or rephrase in the same chat: start a new chat. Run Step 1 again, then try Step 2 once more; if it's blocked again, use STEP_2B. If a later step is blocked, start a new chat, paste the Step 1 prompt with your approved front view as the first image, then repeat the blocked step."),
 ]
 FIX_ATTACH = [
@@ -316,7 +321,8 @@ FIX_ATTACH = [
     ("DETAIL_2_mask_face_alt_light.png", "Mask, softer light (Fix B, C)"),
     ("DETAIL_3_horns_ORIGINAL_SHOOT_front.png", "Horns, original shoot, front (Fix I)"),
     ("DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", "The wire-tipped horn, original shoot (Fix I)"),
-    ("DETAIL_5_glove_with_black_hoof.png", "Glove and hoof (Fix F)"),
+    ("DETAIL_5_glove_with_black_hoof.png", "Glove and hoof (Fix F, K)"),
+    ("DETAIL_5b_gloves_front_two_hoof_halves.png", "Both gloves from the front (Fix F, K)"),
     ("DETAIL_6_arm_tuft_and_hoof.png", "Arm, elbow tuft and hoof (Fix F)"),
     ("DETAIL_7_belly_and_black_shag_patch.png", "Belly and its black shag patch (Fix B, D)"),
     ("DETAIL_9_spotted_leggings.png", "Black leggings with white spots"),
@@ -331,7 +337,7 @@ TIPS = [
     "In ChatGPT, use the Select tool on the image to brush over only the wrong area before sending a fix. Then just that area is redrawn instead of the whole image.",
     "If two fixes in a row make things worse, start a new chat: run Step 1 again, then attach your approved images and carry on from where you were.",
     "Approve a view only after checking it against the design key. One wrong view teaches Tripo the wrong shape.",
-    "Guardrail message? Start a new chat (see Fix K). If Step 2 is blocked twice, use STEP_2B: it edits a flat-colour drawing instead of the photo collage.",
+    "Guardrail message? Start a new chat (see Fix L). If Step 2 is blocked twice, use STEP_2B: it edits a flat-colour drawing instead of the photo collage.",
     "The close-ups of the udder and the bloomers are left out of the kit on purpose, because close-ups like those are the most likely to trip the filter. Both show clearly enough in the whole-costume photos.",
 ]
 

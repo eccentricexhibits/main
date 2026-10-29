@@ -32,7 +32,7 @@ legend = [
  (8, "Big PINK fabric UDDER sewn high on the front, just under the snout: two large round lobes side by side, four stubby pink nubs (one sideways, one down per lobe).", True),
  (9, "White long-pile fur TOP: very round, stuffed BELLY, wider than the hips. Hem ends at the hips.", True),
  (10, "Black long-shag cow patches sewn on: big one on the lower belly, small tufts on both flanks, the outer elbows and the back.", False),
- (11, "Fur sleeves end in white fuzzy knit GLOVES with glossy black split HOOVES over the fingers.", False),
+ (11, "White knit GLOVES: plain white thumb; two broad, blunt black HOOF halves over the fingers (no claws).", False),
  (12, "Short BEIGE satin BLOOMERS with beige lace side panels, worn over the leggings, showing below the fur hem.", True),
  (13, "BLACK LEGGINGS with irregular WHITE painted cow spots.", False),
  (14, "Small GOLD satin BOW at the centre of the lower back, with a thin white cord TAIL hanging from it.", True),

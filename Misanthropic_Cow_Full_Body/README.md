@@ -48,6 +48,10 @@ The horns deliberately don't match:
 
 Later photos show the long horn's tip broken off. That's damage, so the horns are drawn from the original shoot (`DETAIL_3`, `DETAIL_3b`).
 
+## Gloves (confirmed by the user)
+
+Each glove is white knit with a plain white thumb. Two broad, blunt black hoof halves cover the fingers. There are no claws (`DETAIL_5`, `DETAIL_5b`).
+
 ## Assumptions to confirm
 
 - The thin white cord hanging from the gold bow is the **tail**.
