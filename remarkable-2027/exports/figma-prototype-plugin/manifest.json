@@ -1,0 +1,15 @@
+{
+  "name": "Remarkable 2027 Prototype Builder",
+  "id": "remarkable-2027-prototype-builder",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}
