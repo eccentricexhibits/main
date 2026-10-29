@@ -16,7 +16,7 @@ Everything except Part 4 is also in the repo folder `Misanthropic_Cow_Gloves/`.
 A clean, animatable 3D model of the character's **costume gloves** (a pair), from the real prop (now gone).
 Tools as for the slippers: ChatGPT for images, Tripo AI multiview for the base mesh, Blender (`bpy`) for the rest.
 
-**Current status: DONE (v3 = v2 "slipper look" with the terry smoothed).** Optional polish in section 8.
+**Current status: DONE (v4 = v2 "slipper look" with the terry smoothed at 20 mm).** Optional polish in section 8.
 
 ---
 
@@ -76,24 +76,35 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
     strokes (swatches rotated so strokes run base to tip). Regions from geometry, not colour: paint = finger-pair texels
     above the hoof base plane. Paint darkened (gamma 1.3; it read charcoal). AO normalised (open surfaces = 1) and used at
     50 % (at 60 % un-normalised it greyed the terry by ~20 %). Terry warmed slightly (blue ×0.95).
-12. **v3 terry smoothing** (user: "the glove looks a tad too lumpy"; current final): Tripo's terry surface was bumpy
+12. **Terry smoothing, v3 → v4** (user: "the glove looks a tad too lumpy"): Tripo's terry surface was bumpy
     (lumps of a few mm all over the palm, thumb and cuff, deep pits on the finger compartments just above the web).
     `smooth_terry_unsplit.py` low-passes the whole high-poly glove **before the split** (between steps 6 and 7 of
-    section 6): radius 10 mm, result 2·S(V) − S(S(V)) with S = Laplacian diffusion over ~10 mm, so lumps go but the
-    shape keeps its size; the painted hoof (above the paint edge, 1–4 mm feather) and the closed cuff bottom are pinned.
-    Terry moved 0.45 mm on average, max 2.4 mm; hoof unchanged; the broad fabric folds and the crease between the finger
-    compartments stay. Then everything from the split on was re-run (58 UV islands, 65 % coverage). Lesson: smoothing
+    section 6): result 2·S(V) − S(S(V)) with S = Laplacian diffusion over the radius, so lumps go but the shape keeps
+    its size; the painted hoof (above the paint edge, 1–4 mm feather) and the closed cuff bottom are pinned.
+    v3 used 10 mm (terry moved 0.45 mm mean, max 2.4 mm; broad folds kept). The user pointed out that the folds are
+    Tripo's guesses too; 10/20/30 mm were compared in clay (`05_cleanup_and_split/terry_smoothing_10_20_30mm_clay.jpg`)
+    and **20 mm was chosen (v4, current final)**: terry moved 0.9 mm mean, max 5.7 mm; most folds gone, proportions
+    kept (width incl. thumb 11.8 cm vs 12.0). 30 mm (1.6 / 9.7 mm) slimmed the thumb and made the cuff edge wobble
+    (pinned bottom vs sides moving in). The crease between the finger compartments and the hoof are unchanged. Then
+    everything from the split on was re-run (v4: 76 UV islands, 64 % coverage). Lesson: smoothing
     the already split parts (`scripts/superseded/bl_smooth_terry.py`) has to pin the cut walls at the web, so the
     pits right above the web survive; smooth before splitting. Before/after: `09_final/renders/before_after_terry_smoothing.jpg`,
     clay: `05_cleanup_and_split/terry_smoothing_clay_before_after.jpg`.
+13. **White specks on the hoof (fixed in v4):** two causes. (a) Bake margins: the parts were baked one after another
+    into ONE image, so a later part's 16 px margin overwrote an earlier part's texels wherever islands sit close (v4's
+    layout put a ring-little terry island ~20 px from the index-middle hoof island → cream patches on the hoof). Now
+    every bake (`bl_bake_parts.py`, `bl_bake_geom_parts.py`, `bl_glove_material.py`) bakes each part into a cleared
+    image, keeps only the texels that part's own UV faces cover, and adds the margin once at the end
+    (`scripts/bake_atlas.py`). (b) The ChatGPT paint tile had ~290 small cream lint flecks; `prep_tiles_glove.py` now
+    inpaints isolated bright dots (> 100 above a 7 px median), keeping the grey drag streaks; seam unchanged.
 
 ---
 
-## 4. The final deliverable (v3)
+## 4. The final deliverable (v4)
 
 | File (`09_final/`) | What it is |
 |---|---|
-| `glb/Glove_pair.glb` (14.5 MB) | Both gloves, baked 4K maps (JPEG): base colour (AO included), roughness, tangent normal (OpenGL/Blender convention), metallic 0. Right glove = the same meshes on mirrored nodes. |
+| `glb/Glove_pair.glb` (15.0 MB) | Both gloves, baked 4K maps (JPEG): base colour (AO included), roughness, tangent normal (OpenGL/Blender convention), metallic 0. Right glove = the same meshes on mirrored nodes. |
 | `blend_baked/Glove_pair_baked.blend` + `textures/` | The same, in Blender, textures external and relative. |
 | `blend_live/Glove_pair_live.blend` + `textures/` | The **live** material `Glove_Terry_Hoof_live`: tiles at full resolution, mask-driven. Best for renders/edits. Keep `textures/` next to the .blend. |
 | `renders/` | Final pair, close-ups (hoof strokes, terry, spread), live-vs-baked check, region map, before/after the terry smoothing. |
@@ -141,7 +152,7 @@ then `pip install --no-deps pyrender` (its old networkx pin fails to build). `ap
 4. `render_model.py model.obj dir` · `measure_tripo_glove.py model_dir` · `compare_to_views.py model.obj tripo_inputs out.jpg`
 5. `bl_import_weld.py model.obj glove_high.blend` → `bl_dump_mesh.py glove_high.blend Glove_HIGH high.npz basecolor.jpg`
 6. `flatten_seams.py high.npz flat.npz 2` → `fit_hoof_planes.py high.npz flat.npz planes.json`
-   → `smooth_terry_unsplit.py high.npz flat.npz planes.json smooth.npz 10` (terry smoothing radius, mm)
+   → `smooth_terry_unsplit.py high.npz flat.npz planes.json smooth.npz 20` (terry smoothing radius, mm; v4 = 20)
 7. `bl_split_fingers.py glove_high.blend smooth.npz planes.json split.blend 20 0` (web drop mm, palm stub mm)
 8. `bl_optimize_parts.py split.blend work.blend low.glb 60000 20000 high.glb` · `compare_glove_lods.py`
 9. `bl_unwrap_parts.py work.blend planes.json 66 uv.png` (keep a copy: the pre-bake file names the cap materials)
@@ -182,5 +193,6 @@ scipy connected-components count in `measure_tripo_glove.py`.
 - Re-bake AO in a spread pose for spread hero shots (issue 1).
 - Real-time LOD: 2K maps, 50k triangles per glove (re-run step 8 with lower budgets, then 9–14).
 - Hollow the cuff if an arm must go inside.
-- More or less terry smoothing: re-run `smooth_terry_unsplit.py` with another radius (5 mm = subtle, 15 mm = smoother),
+- More or less terry smoothing: re-run `smooth_terry_unsplit.py` with another radius (10 mm keeps Tripo's folds, 30 mm
+  removes them but slims the thumb; protect the thumb and let the cuff bottom move in if you go that far),
   then steps 7–16.

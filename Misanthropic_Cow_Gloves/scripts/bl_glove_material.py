@@ -17,6 +17,8 @@ Units: the model's units per metre are derived from its height (height_cm), so t
 (0.97 units tall) and on the real-size export alike.
 """
 import sys, os, time, bpy
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from bake_atlas import uv_ownership, Atlas
 BL, TILES, MASK, NRM, OUT, SIZE, SAMP, MODE = sys.argv[1:9]
 SIZE, SAMP = int(SIZE), int(SAMP); H_CM = float(sys.argv[9]) if len(sys.argv) > 9 else 24.7
 PASSES = sys.argv[10].split(",") if len(sys.argv) > 10 else ["basecolor", "roughness", "normal"]
@@ -94,15 +96,18 @@ for o in parts:
     me = o.data; me.materials.clear(); me.materials.append(mat)
     me.polygons.foreach_set("material_index", [0] * len(me.polygons)); me.update()
 print(f"material built; {U:.3f} units per metre", round(time.time() - t0, 1), "s", flush=True)
+owners = uv_ownership(parts, SIZE) if MODE == "ao_only" or (ao_file and not MODE.startswith("live")) else None
 
 def bake_all(kind, image, **kw):
-    tgt.image = image; N.active = tgt
-    bk = sc.render.bake; bk.use_selected_to_active = False; bk.margin = 16 if SIZE >= 4096 else 8; bk.margin_type = "EXTEND"
-    t = time.time()
+    """Each part baked into a cleared image, only its own texels kept, margin added once (bake_atlas.py)."""
+    tgt.image = image; N.active = tgt; margin = 16 if SIZE >= 4096 else 8
+    bk = sc.render.bake; bk.use_selected_to_active = False; bk.margin = margin; bk.margin_type = "EXTEND"
+    t = time.time(); acc = Atlas(SIZE, owners)
     for i, o in enumerate(parts):
         for x in sc.objects: x.select_set(False)
         o.select_set(True); bpy.context.view_layer.objects.active = o
-        bpy.ops.object.bake(type=kind, use_clear=(i == 0), **kw)
+        bpy.ops.object.bake(type=kind, use_clear=True, **kw); acc.add(i, image)
+    acc.finish(margin); acc.write(image)
     print(kind, "baked", round(time.time() - t, 1), "s", flush=True)
 
 if MODE == "ao_only":

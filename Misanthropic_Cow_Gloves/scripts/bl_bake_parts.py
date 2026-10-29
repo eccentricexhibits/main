@@ -2,10 +2,14 @@
 
 usage: python3 bl_bake_parts.py <work.blend> <out_dir> <size> <samples> [passes=color,normal,roughness]
 Each LOW part keeps its material slots (so face material indices survive) but every slot gets the same
-bake material whose active image node is the shared atlas. Parts are baked one after another into the same
-image (cleared only before the first), selected-to-active from their own HIGH mesh.
+bake material whose active image node is the shared atlas. Each part is baked (selected-to-active from its own
+HIGH mesh) into a cleared image and only the texels its own UV faces cover are kept; the margin is added once at
+the end (bake_atlas.py). Baking all parts into one image let a later part's margin overwrite an earlier part's
+texels where islands sit close together.
 """
 import sys, os, time, bpy
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from bake_atlas import uv_ownership, Atlas
 
 BL, OUT, SIZE, SAMPLES = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
 PASSES = sys.argv[5].split(",") if len(sys.argv) > 5 else ["color", "normal", "roughness"]
@@ -47,24 +51,28 @@ for n in names:
 
 bk = sc.render.bake
 bk.use_selected_to_active = True; bk.cage_extrusion = 0.012; bk.max_ray_distance = 0.03
-bk.margin = 16 if SIZE >= 4096 else 8; bk.margin_type = "EXTEND"
+MARGIN = 16 if SIZE >= 4096 else 8
+bk.margin = MARGIN; bk.margin_type = "EXTEND"
+owners = uv_ownership([bpy.data.objects[n] for n in names], SIZE)
 
 for kind in PASSES:
     t = time.time(); noncolor = kind != "color"
     img = bpy.data.images.new(f"glove_{kind}", SIZE, SIZE, alpha=False, float_buffer=False, is_data=noncolor)
     if noncolor: img.colorspace_settings.name = "Non-Color"
-    img_node.image = img
+    img_node.image = img; acc = Atlas(SIZE, owners)
     for i, n in enumerate(names):
         lo, hi = bpy.data.objects[n], bpy.data.objects[n + "_HIGH"]
         for o in bpy.data.objects: o.select_set(False)
         hi.select_set(True); lo.select_set(True); bpy.context.view_layer.objects.active = lo
-        clear = i == 0
+        clear = True
         if kind == "color":
             bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, use_clear=clear)
         elif kind == "normal":
             bk.normal_space = "TANGENT"; bpy.ops.object.bake(type="NORMAL", use_clear=clear)
         elif kind == "roughness":
             bpy.ops.object.bake(type="ROUGHNESS", use_clear=clear)
+        acc.add(i, img)
+    acc.finish(MARGIN); acc.write(img)
     path = os.path.join(OUT, f"glove_{kind}_{SIZE}.png")
     img.filepath_raw = path; img.file_format = "PNG"; img.save()
     print(kind, "baked", round(time.time() - t, 1), "s ->", path, flush=True)

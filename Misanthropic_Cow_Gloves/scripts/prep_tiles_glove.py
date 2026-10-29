@@ -6,6 +6,7 @@ usage: python3 -I prep_tiles_glove.py <raw_dir: TILE_1_terry.*, TILE_2_hoof_pain
   the vertical direction gets a half-offset crossfade with contrast compensation (prep_tiles.py method).
 - height maps: high-pass of luminance. For the paint, DARK = thick paint = raised, so the paint height is inverted;
   two scales (bristle lines + stroke ridges).
+- paint flecks: isolated cream dots in the delivered tile (white specks on the model) are inpainted.
 - paint colour: darks deepened with gamma 1.3 (the raw tile read charcoal on the model).
 - paint roughness: thin grey drag streaks are drier/rougher (0.72) than the satin black (0.50).
 """
@@ -42,6 +43,18 @@ def highpass(g, sigma):
 
 terry = load("TILE_1_terry") * np.array([1.0, 0.99, 0.95], np.float32)   # slightly warmer cream: the neutral tile read grey on the model
 paint = seamless_axis(load("TILE_2_hoof_paint"), axis=0)
+# the delivered tile has small cream flecks (lint-like); on the model they read as white specks on the hoof.
+# Remove only isolated bright dots (> 100 above a 7 px median), not the grey drag streaks, by inpainting
+# (wrap-padded so the tile still repeats seamlessly)
+def remove_flecks(img, thresh=100, pad=32):
+    g = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_RGB2GRAY).astype(np.float32)
+    fl = ((g - cv2.medianBlur(g.astype(np.uint8), 7).astype(np.float32)) > thresh).astype(np.uint8)
+    fl = cv2.dilate(fl, np.ones((3, 3), np.uint8))
+    P = np.pad(img.astype(np.uint8), ((pad, pad), (pad, pad), (0, 0)), mode="wrap"); M = np.pad(fl, pad, mode="wrap")
+    out = cv2.inpaint(P, M, 3, cv2.INPAINT_TELEA)[pad:-pad, pad:-pad].astype(np.float32)
+    print(f"paint flecks removed: {cv2.connectedComponents(fl)[0] - 1}")
+    return out
+paint = remove_flecks(paint)
 # the delivered tile reads charcoal on the model; deepen the darks toward the real satin black (grey drag streaks
 # stay visible because a gamma > 1 compresses dark values more than the light streaks)
 paint = 255 * (paint / 255) ** 1.3
