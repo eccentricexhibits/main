@@ -85,5 +85,5 @@ Wc, Hc = 1024, 1536
 sc = Hc*0.86/im2.height
 fig = im2.resize((round(im2.width*sc), round(im2.height*sc)), Image.LANCZOS)
 can = Image.new("RGB",(Wc,Hc),(255,255,255)); can.paste(fig, ((Wc-fig.width)//2, int(Hc*0.95)-fig.height))
-can.save(os.path.join(OUT,"PROPORTION_BASE_original_wearer.png"))
+can.save(os.path.join(OUT,"PROPORTION_BASE_original_shoot.png"))
 print("fig", fig.size)

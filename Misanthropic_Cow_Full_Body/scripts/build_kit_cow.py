@@ -23,7 +23,7 @@ zips = []
 for n, st in enumerate(K.STEPS, 1):
     folder = os.path.join(KIT, st["zip"])
     os.makedirs(folder)
-    lines = [f"STEP {n} OF {len(K.STEPS)} — {st['title'].upper()}", "=" * 60, "", st["goal"], "", "WHERE: " + st["where"], "",
+    lines = [f"STEP {st['label']} OF 5 — {st['title'].upper()}", "=" * 60, "", st["goal"], "", "WHERE: " + st["where"], "",
              "ATTACH THESE, IN THIS ORDER:"]
     for i, (fn, desc) in enumerate(st["attach"], 1):
         if is_users(fn):
@@ -43,13 +43,13 @@ for n, st in enumerate(K.STEPS, 1):
     if n == 1:
         readme = [K.TITLE, "=" * 60, "",
                   K.GOAL,
-                  "Work through STEP_1 to STEP_5 in order. Each package has a PROMPT.txt and the images to attach, numbered in attach order.",
+                  "Work through STEP_1 to STEP_5 in order (STEP_2B only if Step 2 is blocked). Each package has a PROMPT.txt and the images to attach, numbered in attach order.",
                   "Works in ChatGPT image generation. Use the same chat throughout unless told otherwise.", "",
                   "GROUND RULES:", wrap_list(K.TIPS, "  - "), "",
                   "DESIGN_KEY_check_every_view_against_this.png is your checklist for every result."]
         with open(os.path.join(folder, "README_START_HERE.txt"), "w") as f:
             f.write("\n".join(readme) + "\n")
-    if n == len(K.STEPS):
+    if st.get("tripo"):
         t = ["UPLOADING TO TRIPO (multiview)", "=" * 60, ""]
         t += [f"  {slot:<6} <- {fn}" for slot, fn in K.TRIPO]
         t += ["", wrap_list(K.TRIPO_NOTES, "  - ")]

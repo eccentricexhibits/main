@@ -14,29 +14,29 @@ def fit(name, box=None):
     if box: im = im.crop(box)
     s = H / im.height
     return im.resize((int(im.width*s), H), Image.LANCZOS)
-front = fit("REF_A_whole_costume_front_no_overlays.png", (60, 0, 1500, 1536))
+front = fit("REF_A_whole_costume_front_no_overlays.png", (241, 0, 1458, 1536))
 head = fit("DETAIL_1_mask_face.png", (100, 0, 960, 1024))
 back = fit("REF_E_back_upper_hood_patches_bow.png", (250, 0, 1290, 1536))
 pad = 40
-panels = [(front, "FRONT (original shoot; ignore the knife, backdrop and wide-angle lens)"), (head, "HEAD / MASK close-up"), (back, "BACK")]
+panels = [(front, "FRONT (original shoot; ignore the backdrop and wide-angle lens)"), (head, "HEAD / MASK close-up"), (back, "BACK")]
 W = sum(p.width for p, _ in panels) + pad*(len(panels)+1)
 legend = [
  (1, "Rigid sculpted MASK, white with a cracked plaster texture, set into the fur hood. Heavy, scowling brow ridge.", True),
- (2, "Black cow patches PAINTED on the mask: big one over the wearer's LEFT eye (viewer's right) running to the top; smaller one over the other brow; one beside each side of the muzzle.", False),
+ (2, "Black cow patches PAINTED on the mask: big one over the mask's own LEFT eye (viewer's right) running to the top; smaller one over the other brow; one beside each side of the muzzle.", False),
  (3, "Glossy YELLOW bead eyes with round black pupils, close together under the brow.", False),
  (4, "Protruding snout ending in a flat oval of RED shaggy/flocked fabric with TWO VERTICAL black slit NOSTRILS. No mouth, teeth or tongue.", True),
- (5, "Two YELLOW horns on a white fur BOLSTER, NOT a matching pair (draw them from DETAIL_3, the original shoot): the wearer's RIGHT horn is short", True),
- (None, "     and ends in a deliberate tuft of twisted bare WIRE; the wearer's LEFT horn is a long crescent with an intact POINTED tip (broken in this close-up: don't copy that).", True),
+ (5, "Two YELLOW horns on a white fur BOLSTER, NOT a matching pair (draw them from DETAIL_3, the original shoot): the costume's own RIGHT horn is short", True),
+ (None, "     and ends in a deliberate tuft of twisted bare WIRE; its LEFT horn is a long crescent with an intact POINTED tip (broken in this close-up: don't copy that).", True),
  (6, "White shaggy-fur HOOD, one piece with the top; frames the mask.", False),
- (7, "Black long-shag tuft under the muzzle at the wearer's right collarbone.", False),
- (8, "Two big PINK fabric UDDER CUPS across the whole chest, touching in the middle. Each has TWO pink finger-sized TEATS: one points sideways/out, one points down.", True),
- (9, "White long-pile fur TOP: very round, stuffed BELLY wider than the hips. Hem ends at the hips.", True),
+ (7, "Black long-shag tuft just under the snout, on the costume's own right (viewer's left).", False),
+ (8, "Big PINK fabric UDDER sewn high on the front, just under the snout: two large round lobes side by side, four stubby pink nubs (one sideways, one down per lobe).", True),
+ (9, "White long-pile fur TOP: very round, stuffed BELLY, wider than the hips. Hem ends at the hips.", True),
  (10, "Black long-shag cow patches sewn on: big one on the lower belly, small tufts on both flanks, the outer elbows and the back.", False),
  (11, "Fur sleeves end in white fuzzy knit GLOVES with glossy black split HOOVES over the fingers.", False),
- (12, "BEIGE satin high-waisted BRIEFS with lace side panels, worn over the leggings, showing below the fur hem.", True),
+ (12, "Short BEIGE satin BLOOMERS with beige lace side panels, worn over the leggings, showing below the fur hem.", True),
  (13, "BLACK LEGGINGS with irregular WHITE painted cow spots.", False),
  (14, "Small GOLD satin BOW at the centre of the lower back, with a thin white cord TAIL hanging from it.", True),
- (15, "Big black shag patch across the upper back / left shoulder blade; smaller patches lower down.", False),
+ (15, "Big black shag patch across the upper back on the costume's own left; smaller patches lower down.", False),
  (16, "Cow SLIPPERS (see DETAIL_13): white plush muzzle with a black smile, cream mop chenille, black fringe.", False),
 ]
 lh = 48
