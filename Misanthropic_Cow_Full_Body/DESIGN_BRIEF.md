@@ -19,7 +19,9 @@ BODY PROPORTIONS (taken from my original photo shoot; image PROPORTION_BASE show
 The figure is short, round and bottom-heavy in the torso: a pear / egg-shaped stuffed body on ordinary legs.
 
 PARTS, TOP TO BOTTOM:
-1. HORNS: two yellow horns, each with two thin black rings, curving up and outward. Both tips are smooth and rounded (no wire). They're mounted at each end of a short, sausage-shaped white fur BOLSTER lying across the top of the hood.
+1. HORNS (take them from DETAIL_3 / DETAIL_3b, my original shoot): two yellow horns with thin black rings, mounted at each end of a short, sausage-shaped white fur BOLSTER lying across the top of the hood. They are deliberately NOT a matching pair:
+   - The wearer's LEFT horn (the viewer's RIGHT in a front view) is the long one: a smooth crescent curving out and up, with three black rings and an intact, smooth, pointed tip. (Some later photos show this tip broken off; that's damage, don't copy it.)
+   - The wearer's RIGHT horn (the viewer's LEFT in a front view) is short and stubby, with two black rings, and its end is a deliberate tuft of bare, twisted, dark-silver WIRE strands sticking up and curling slightly outward, about as long as the horn itself, like an exposed wire armature.
 2. HOOD: white shaggy fur, one piece with the top, closing around the mask on the sides and top. Rounded at the back.
 3. MASK: a rigid, sculpted mask filling the hood opening: matte white with a rough, cracked, painted-plaster texture. It has a heavy, angry, scowling brow ridge. Black cow patches are painted on it: a big one over the wearer's LEFT eye (the viewer's RIGHT) that runs up to the top of the mask; a smaller one over the other brow; and one beside each side of the snout.
 4. EYES: two glossy round YELLOW eyes with round black pupils, fairly close together under the brow.

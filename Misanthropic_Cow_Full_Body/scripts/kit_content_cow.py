@@ -20,7 +20,9 @@ BODY PROPORTIONS (taken from my original photo shoot; image PROPORTION_BASE show
 The figure is short, round and bottom-heavy in the torso: a pear / egg-shaped stuffed body on ordinary legs.
 
 PARTS, TOP TO BOTTOM:
-1. HORNS: two yellow horns, each with two thin black rings, curving up and outward. Both tips are smooth and rounded (no wire). They're mounted at each end of a short, sausage-shaped white fur BOLSTER lying across the top of the hood.
+1. HORNS (take them from DETAIL_3 / DETAIL_3b, my original shoot): two yellow horns with thin black rings, mounted at each end of a short, sausage-shaped white fur BOLSTER lying across the top of the hood. They are deliberately NOT a matching pair:
+   - The wearer's LEFT horn (the viewer's RIGHT in a front view) is the long one: a smooth crescent curving out and up, with three black rings and an intact, smooth, pointed tip. (Some later photos show this tip broken off; that's damage, don't copy it.)
+   - The wearer's RIGHT horn (the viewer's LEFT in a front view) is short and stubby, with two black rings, and its end is a deliberate tuft of bare, twisted, dark-silver WIRE strands sticking up and curling slightly outward, about as long as the horn itself, like an exposed wire armature.
 2. HOOD: white shaggy fur, one piece with the top, closing around the mask on the sides and top. Rounded at the back.
 3. MASK: a rigid, sculpted mask filling the hood opening: matte white with a rough, cracked, painted-plaster texture. It has a heavy, angry, scowling brow ridge. Black cow patches are painted on it: a big one over the wearer's LEFT eye (the viewer's RIGHT) that runs up to the top of the mask; a smaller one over the other brow; and one beside each side of the snout.
 4. EYES: two glossy round YELLOW eyes with round black pupils, fairly close together under the brow.
@@ -64,20 +66,21 @@ Attached, in order:
 2. REF_A: the whole costume from the front, nothing over it (lying on a backdrop, wide-angle lens; ignore the knife, the backdrop and the distortion).
 3. REF_C: head and torso of the original wearer. Ignore the plaid robe.
 4. REF_E: the back of the costume: hood, black patches and the gold bow.
-5. DETAIL_1: the mask close up.
+5. DETAIL_1: the mask close up (from a later photo: the long horn's tip is broken there; take the horns from the brief instead).
 6. DESIGN_KEY: my annotated breakdown of the parts. It's for understanding only. Never draw its numbers, circles, lines or text.
 
 {BRIEF}
 
 Don't make an image yet. First reply with:
 (a) anything in the photos that contradicts or adds to the brief, and
-(b) one or two sentences each on what the front, back and side views of THIS costume should look like.""",
+(b) one or two sentences each on what the front, back and side views of THIS costume should look like, including which side the wire horn is on in each view.""",
         "check": [
             "It describes the face as a rigid sculpted mask with a red snout and two vertical slit nostrils (not a cartoon cow face or a pink nose).",
             "It describes two pink udder cups on the chest, each with two teats (one sideways, one down), not one udder at the belly.",
             "It puts the beige briefs OVER the black spotted leggings.",
             "Its back-view description includes the gold bow with the thin white cord tail, and no face.",
             "It lists nothing worn over the costume (no robe, jacket or hat).",
+            "It puts the short WIRE-tipped horn on the wearer's right (viewer's left in the front view) and the long, intact, pointed horn on the other side.",
         ],
         "save": None,
         "after": "If it gets any of these wrong, correct it in one line (for example: \"Correction: the nostrils are two vertical black slits in the red snout.\") and wait for it to confirm before moving on.",
@@ -91,19 +94,21 @@ Don't make an image yet. First reply with:
             ("PROPORTION_BASE_original_wearer.png", "EDIT THIS ONE: proportions and layout"),
             ("REF_A_whole_costume_front_no_overlays.png", "Whole costume, front"),
             ("DETAIL_1_mask_face.png", "Mask close up"),
+            ("DETAIL_3_horns_ORIGINAL_SHOOT_front.png", "Horns, original shoot"),
             ("DETAIL_4_udder_cups_and_teats.png", "Udder cups and teats"),
             ("DETAIL_5_glove_with_black_hoof.png", "Glove and black hoof"),
             ("DETAIL_13_slipper_real_object.png", "The real slipper"),
         ],
         "prompt": """IMAGE 1 OF 4: FRONT VIEW. This one is the master: every later view must match it.
 
-Attached, in order: PROPORTION_BASE (edit this image: keep its proportions), REF_A (the whole costume, front), DETAIL_1 (the mask), DETAIL_4 (the udder cups and teats), DETAIL_5 (a glove with its black hoof), DETAIL_13 (one of the real slippers).
+Attached, in order: PROPORTION_BASE (edit this image: keep its proportions), REF_A (the whole costume, front), DETAIL_1 (the mask; ignore its horns), DETAIL_3 (the horns as they should be), DETAIL_4 (the udder cups and teats), DETAIL_5 (a glove with its black hoof), DETAIL_13 (one of the real slippers).
 
 Turn PROPORTION_BASE into a clean, complete photograph of the full costume, seen straight from the front:
 - KEEP from PROPORTION_BASE: the height of the head, the size and position of the udder cups, the size and roundness of the belly, where the fur hem and the briefs end, the leg length and thickness, and the slippers. Don't make the figure taller, slimmer or more athletic.
 - COMPLETE the hood around the mask, the shoulders, and both arms in an A-pose: straight arms held down and away from the body at about 45 degrees, clear of the belly, ending in the white knit gloves with black cloven hooves (DETAIL_5), with a black shag tuft on the outside of each elbow.
 - REMOVE everything that isn't the costume: the wearer's hair, the dark scraps at the neck and the cut-out edges. The wearer's face and skin are hidden.
 - The mask faces the camera straight on: scowling brow, yellow eyes, painted black patches as in DETAIL_1, and the red flocked snout with two vertical black slit nostrils.
+- The horns exactly as in DETAIL_3: on the LEFT of the image, the short horn ending in a tuft of twisted bare wire; on the RIGHT of the image, the long crescent horn with an intact pointed tip.
 - The figure is centred and symmetrical in pose, though the black patches stay where they are (they're not symmetrical).
 
 {CAMERA}
@@ -114,6 +119,7 @@ Follow the design brief exactly.""",
             "Proportions still match PROPORTION_BASE: big round belly wider than the hips, udder cups right under the snout, legs not lengthened.",
             "A-pose: both arms straight, ~45 degrees out, clear of the body; white knit gloves with black hooves.",
             "Mask: red snout with two vertical slit nostrils, yellow eyes, big black patch on the viewer's right. No mouth.",
+            "Horns: short wire-tipped horn on the image's LEFT, long intact pointed horn on the image's RIGHT.",
             "Two pink udder cups, two teats each (one sideways, one down). Nothing else pink except the slipper details.",
             "Beige briefs over black leggings with white spots. Cow slippers on both feet.",
             "No hair, skin, robe, jacket, text or props.",
@@ -139,7 +145,7 @@ Attached, in order: 1_FRONT_approved (my approved front view; match it), REF_F (
 Make a photograph of the same figure turned 180 degrees: the camera is directly behind it, looking straight at its back. Same A-pose, arms ~45 degrees out, mirrored correctly for a view from behind.
 
 What this view must show:
-- The back of the rounded white fur hood, with the fur bolster across its top and the two yellow horns sticking out left and right. The mask and face are on the far side and hidden: no eyes, no snout.
+- The back of the rounded white fur hood, with the fur bolster across its top and the two yellow horns sticking out left and right. Seen from behind the sides swap: the long pointed horn is on the LEFT of this image and the short wire-tipped horn is on the RIGHT. The mask and face are on the far side and hidden: no eyes, no snout.
 - A big black shag patch across the upper back over the wearer's LEFT shoulder blade (that's the LEFT side of this image, since we're behind the figure), and two smaller black shag patches lower down, one on each side.
 - The back of the huge round belly: it bulges out past the sides of the body, so the edges of the belly and the udder cups may just show at the sides.
 - A small gold satin bow at the centre of the lower back, just above the fur hem, with a thin white cord tail hanging from it to about knee height.
@@ -154,6 +160,7 @@ Follow the design brief exactly.""",
         "check": [
             "No face, eyes or snout visible.",
             "Big black patch on the upper back on the image's LEFT side.",
+            "Long pointed horn on the image's LEFT, wire-tipped horn on the RIGHT.",
             "Gold bow at the lower back with a thin white cord tail (not a cow tail with a tassel).",
             "Same height, pose and belly size as the front view.",
         ],
@@ -180,7 +187,7 @@ Make a photograph of the same figure in a true side profile, turned exactly 90 d
 What this view must show, left to right:
 - The snout sticking well out in front of the hood, its red flocked front facing left, with the profile of the scowling brow and one yellow eye inside the big black painted patch (the patch over the wearer's left eye). The chest tuft is on the far side and hidden.
 - The big black shag patch from the upper back just showing behind the near shoulder.
-- One horn on the bolster on top of the hood; the other is behind it.
+- The long crescent horn with its pointed tip on the near side of the bolster; the wire tuft of the short horn may just poke up behind it.
 - The two pink udder cups sticking far out in front of the chest, with the teats pointing forward-down.
 - The huge belly bulging forward below the cups, much deeper than the hips. The front of the belly sticks out about as far as the front of the cups.
 - The rounded back of the hood and a fairly flat back, with the gold bow and the thin white cord tail at the lower back on the right.
@@ -210,14 +217,15 @@ Follow the design brief exactly.""",
             ("2_BACK_approved.png", "YOUR approved back view"),
             ("3_SIDE_facing_left_approved.png", "YOUR approved left-facing side view"),
             ("REF_H_head_side_profile.png", "Real head in profile"),
+            ("DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", "The wire-tipped horn, original shoot"),
         ],
         "prompt": """IMAGE 4 OF 4: SIDE VIEW, FACING RIGHT.
 
-Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_H (the real head in profile).
+Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_H (the real head in profile), DETAIL_3b (the wire-tipped horn).
 
 Make a photograph of the same figure from its other side: a true side profile, turned exactly 90 degrees, facing the RIGHT edge of the frame, so we see the figure's RIGHT side.
 
-It should look almost like a mirror image of 3_SIDE_facing_left_approved: same height, scale, camera height, lighting, snout, udder cups, belly depth and pose. Only the details on this side differ: here the eye is in mostly white mask with the smaller painted patch above the brow, the black shag chest tuft shows under the snout, and the big black patch on the upper back is on the far side and hidden.
+It should look almost like a mirror image of 3_SIDE_facing_left_approved: same height, scale, camera height, lighting, snout, udder cups, belly depth and pose. Only the details on this side differ: here the eye is in mostly white mask with the smaller painted patch above the brow, the black shag chest tuft shows under the snout, the big black patch on the upper back is on the far side and hidden, and the near horn is the SHORT one ending in its tuft of twisted bare wire (DETAIL_3b), with the long pointed horn behind it.
 
 {SAME_SCALE}
 
@@ -228,9 +236,10 @@ Follow the design brief exactly.""",
             "Faces the RIGHT edge, true profile.",
             "Same height and depth as the left-facing side view.",
             "Slipper toe points right.",
+            "Near horn is the short wire-tipped one.",
         ],
         "save": "4_SIDE_facing_right_approved.png",
-        "after": "Shortcut: if this one fights you, flip 3_SIDE_facing_left_approved horizontally (Preview: Tools > Flip Horizontal; Windows Photos: Edit > Flip). The shape is close to symmetrical, and the patches get fixed later when we texture the model.",
+        "after": "Shortcut: if this one fights you, flip 3_SIDE_facing_left_approved horizontally (Preview: Tools > Flip Horizontal; Windows Photos: Edit > Flip). The body shape is close to symmetrical; the patches get fixed later when we texture the model. The horns won't swap in a mirror, so tell me if you use this shortcut and I'll correct the horns on the model.",
     },
 ]
 
@@ -251,14 +260,17 @@ FIXES = [
      "This is a three-quarter / angled view. I need a true [FRONT / BACK / SIDE] view: turn the camera to exactly 90-degree steps around the figure and put it level with the belly, looking straight across. Keep the figure itself identical."),
     ("Fix H", "Slippers wrong",
      "The slippers are handmade cow-head slippers like DETAIL_13: a big white plush muzzle with a thin black stitched smile and two magenta nostrils, cream mop chenille with black patches, small tan horns, black-and-magenta ears with pearl beads, and a shaggy black chenille fringe round the sole. Fix only the slippers."),
-    ("Fix I", "Text, labels, a border or a background appeared",
+    ("Fix I", "Horns wrong (matching pair, no wire, broken tip, wrong side)",
+     "The horns are wrong. They don't match, on purpose (see DETAIL_3 and DETAIL_3b): the wearer's RIGHT horn (the image's LEFT in the front view) is short with two black rings and ends in a tuft of twisted bare dark-silver wire about as long as the horn. The wearer's LEFT horn (the image's RIGHT in the front view) is a long, smooth crescent with three black rings and an intact pointed tip. Fix only the horns."),
+    ("Fix J", "Text, labels, a border or a background appeared",
      "Remove all text, labels, numbers, arrows, borders and background. Pure white background, only a faint shadow under the slippers. Keep the figure exactly the same."),
 ]
 FIX_ATTACH = [
     ("PROPORTION_BASE_original_wearer.png", "Body proportions (Fix D)"),
     ("DETAIL_1_mask_face.png", "Mask (Fix B, C)"),
     ("DETAIL_2_mask_face_alt_light.png", "Mask, softer light (Fix B, C)"),
-    ("DETAIL_3_horns_on_fur_bolster.png", "Horns on the fur bolster"),
+    ("DETAIL_3_horns_ORIGINAL_SHOOT_front.png", "Horns, original shoot, front (Fix I)"),
+    ("DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", "The wire-tipped horn, original shoot (Fix I)"),
     ("DETAIL_4_udder_cups_and_teats.png", "Udder cups and teats (Fix E)"),
     ("DETAIL_5_glove_with_black_hoof.png", "Glove and hoof (Fix F)"),
     ("DETAIL_6_arm_tuft_and_hoof.png", "Arm, elbow tuft and hoof (Fix F)"),

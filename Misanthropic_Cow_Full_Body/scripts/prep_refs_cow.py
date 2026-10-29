@@ -55,7 +55,9 @@ ref(OTHER + "misCowRyerson.jpg", (0.25, 0.12, 0.82, 0.95), (0.62, 0.42, 0.70, 0.
 # --- detail crops ---
 ref(OTHER + "IMG_6681.JPG", (0.13, 0.05, 0.82, 0.52), (0.36, 0.22, 0.46, 0.26), "DETAIL_1_mask_face.png", 1024, target=None)
 ref(OTHER + "misanthropicCow_bigBatchOfStuff_ (386 of 724).tif.jpg", (0.15, 0.12, 0.85, 0.52), (0.40, 0.17, 0.50, 0.22), "DETAIL_2_mask_face_alt_light.png", 1024, target=None)
-ref(OTHER + "IMG_6681.JPG", (0.26, 0.05, 0.84, 0.25), (0.36, 0.22, 0.46, 0.26), "DETAIL_3_horns_on_fur_bolster.png", 1024, target=None)
+# horns from the original shoot: later photos show the long horn's tip broken off (not part of the design)
+ref(o(3), (0.36, 0.10, 0.67, 0.22), (0.48, 0.125, 0.54, 0.145), "DETAIL_3_horns_ORIGINAL_SHOOT_front.png", 1024, target=None)
+ref(o(1), (0.47, 0.02, 0.73, 0.17), None, "DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", 1024)
 ref(o(4), (0.14, 0.0, 0.56, 0.17), (0.19, 0.27, 0.24, 0.33), "DETAIL_4_udder_cups_and_teats.png", 1024)
 ref(o(1), (0.10, 0.46, 0.34, 0.68), None, "DETAIL_5_glove_with_black_hoof.png", 1024)
 ref(o(8), (0.74, 0.03, 0.99, 0.40), (0.36, 0.56, 0.46, 0.62), "DETAIL_6_arm_tuft_and_hoof.png", 1024)

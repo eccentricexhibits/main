@@ -25,7 +25,8 @@ legend = [
  (2, "Black cow patches PAINTED on the mask: big one over the wearer's LEFT eye (viewer's right) running to the top; smaller one over the other brow; one beside each side of the muzzle.", False),
  (3, "Glossy YELLOW bead eyes with round black pupils, close together under the brow.", False),
  (4, "Protruding snout ending in a flat oval of RED shaggy/flocked fabric with TWO VERTICAL black slit NOSTRILS. No mouth, teeth or tongue.", True),
- (5, "Two YELLOW horns with two black rings each, curving up and out, on a sausage-shaped white fur BOLSTER across the top of the hood. Tips smooth (the bent wire in photos is damage).", False),
+ (5, "Two YELLOW horns on a white fur BOLSTER, NOT a matching pair (draw them from DETAIL_3, the original shoot): the wearer's RIGHT horn is short", True),
+ (None, "     and ends in a deliberate tuft of twisted bare WIRE; the wearer's LEFT horn is a long crescent with an intact POINTED tip (broken in this close-up: don't copy that).", True),
  (6, "White shaggy-fur HOOD, one piece with the top; frames the mask.", False),
  (7, "Black long-shag tuft under the muzzle at the wearer's right collarbone.", False),
  (8, "Two big PINK fabric UDDER CUPS across the whole chest, touching in the middle. Each has TWO pink finger-sized TEATS: one points sideways/out, one points down.", True),
@@ -76,6 +77,6 @@ for n, pts in MARKS.items():
 ly = oy + H + 60
 for i, (n, txt, bold) in enumerate(legend):
     y = ly + i*lh
-    badge(pad + 24, y + 18, n, r=20)
+    if n is not None: badge(pad + 24, y + 18, n, r=20)
     d.text((pad + 62, y + 4), txt, font=(fB(25) if bold else fR(25)), fill=(20, 20, 20))
 canvas.save(OUT, optimize=True); print(canvas.size, {i: org[i] for i in org})

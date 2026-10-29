@@ -32,10 +32,17 @@ Measured on that composite, as fractions of floor-to-horn-tip height (all estima
 | Crotch (bottom of the briefs) | ~46 % | hips ~22 % |
 | Legs | | ~9 % each at the thigh |
 
+## Horns (confirmed by the user)
+
+The horns deliberately don't match:
+- **Wearer's right horn:** short, ending in a tuft of twisted bare wire. The wire is intentional.
+- **Wearer's left horn:** a long crescent with a pointed tip.
+
+Later photos show the long horn's tip broken off. That's damage, so the horns are drawn from the original shoot (`DETAIL_3`, `DETAIL_3b`).
+
 ## Assumptions to confirm
 
 - The thin white cord hanging from the gold bow is the **tail**.
-- The bent wire on one horn tip is damage. It's left out, and both tips are drawn rounded.
 - The black patches follow the original shoot. They shifted between wearers.
 
 ## Contents
