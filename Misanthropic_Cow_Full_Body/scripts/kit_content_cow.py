@@ -219,12 +219,12 @@ Follow the design brief exactly.""",
         "attach": [
             ("1_FRONT_approved.png", "YOUR approved front view"),
             ("2_BACK_approved.png", "YOUR approved back view"),
-            ("REF_H_head_side_profile.png", "Real head in profile"),
-            ("REF_G_side_view_belly.png", "Real costume from the side"),
+            ("REF_H_head_side_profile.png", "Real head in profile, this side"),
+            ("REF_G_side_view_belly_MIRRORED.png", "Real costume from the side, FLIPPED: shape only"),
         ],
         "prompt": """IMAGE 3 OF 4: SIDE VIEW, FACING LEFT.
 
-Attached, in order: 1_FRONT_approved and 2_BACK_approved (my approved views; match them), REF_H (the real head in profile: see how far the snout sticks out of the hood), REF_G (the real costume from the side: see how far the udder and belly stick out; ignore the green screen).
+Attached, in order: 1_FRONT_approved and 2_BACK_approved (my approved views; match them), REF_H (the real head in profile: see how far the snout sticks out of the hood), REF_G (the real costume from its other side, flipped to face the same way: use it ONLY for how far the udder and belly stick out, not for which patches show; ignore the green screen).
 
 Make a photograph of the same costume in a true side profile, turned exactly 90 degrees: it faces the LEFT edge of the frame, so we see its own LEFT side. Same A-pose; from this side the near arm hangs down beside the body and the far arm is mostly hidden.
 
@@ -261,12 +261,13 @@ Follow the design brief exactly.""",
             ("1_FRONT_approved.png", "YOUR approved front view"),
             ("2_BACK_approved.png", "YOUR approved back view"),
             ("3_SIDE_facing_left_approved.png", "YOUR approved left-facing side view"),
-            ("REF_H_head_side_profile.png", "Real head in profile"),
+            ("REF_G_side_view_belly.png", "Real costume from this side"),
+            ("REF_H_head_side_profile_MIRRORED.png", "Real head in profile, FLIPPED: shape only"),
             ("DETAIL_3b_horns_ORIGINAL_SHOOT_wire_horn.png", "The wire-tipped horn, original shoot"),
         ],
         "prompt": """IMAGE 4 OF 4: SIDE VIEW, FACING RIGHT.
 
-Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_H (the real head in profile), DETAIL_3b (the wire-tipped horn).
+Attached, in order: 1_FRONT_approved, 2_BACK_approved and 3_SIDE_facing_left_approved (my approved views; match them), REF_G (the real costume from this side: see how far the udder and belly stick out; ignore the green screen), REF_H (the real head in profile from its other side, flipped to face the same way: use it ONLY for the shape of the snout and hood, not for the paint), DETAIL_3b (the wire-tipped horn).
 
 Make a photograph of the same costume from its other side: a true side profile, turned exactly 90 degrees, facing the RIGHT edge of the frame, so we see its own RIGHT side.
 

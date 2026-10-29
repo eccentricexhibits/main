@@ -76,6 +76,11 @@ ref(OTHER + "Sequence 01.00_00_49_17.Still008.png", (0.05, 0.50, 0.80, 1.0), (0.
 _l = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "reference", "REF_L_back_bow_new_photo.jpg")
 if os.path.exists(_l):
     save(crop(wb(Image.open(_l).convert("RGB"), (0.45, 0.72, 0.55, 0.78), target=None), (0.33, 0.62, 0.72, 0.87)), "DETAIL_11b_bow_on_lower_back.png", 1024)
+# side references flipped to face the other way. They're for shape (how far the snout, udder
+# and belly stick out), not for side details: the patches differ on the two sides.
+for name in ("REF_G_side_view_belly.png", "REF_H_head_side_profile.png"):
+    ImageOps.mirror(Image.open(os.path.join(OUT, name))).save(os.path.join(OUT, name.replace(".png", "_MIRRORED.png")), optimize=True)
+    print(name.replace(".png", "_MIRRORED.png"))
 # slipper (the real object, from the slipper project)
 sl = Image.open(os.path.join(PB, "worked_example/references/REF_A_three-quarter_front.jpg")).convert("RGB")
 save(sl, "DETAIL_13_slipper_real_object.png", 1024)
