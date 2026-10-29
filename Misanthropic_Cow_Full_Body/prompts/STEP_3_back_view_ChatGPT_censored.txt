@@ -21,7 +21,7 @@ Match the real back exactly:
 - BLACK SHAGGY FUR PATCHES, placed as in images 2 and 3, and no others: one big ragged patch high on the back, over the LEFT shoulder blade and reaching toward the middle of the back, just below the hood (it does not cover the right shoulder blade); one small round patch low on the LEFT side of the back; one wider, flatter patch low on the RIGHT side of the back, a little higher than the left one; and a small black tuft on the outside of each elbow.
 - BOW: a gold satin bow at the centre of the lower back, just above the fur hem, about a third as wide as the back, like images 3 and 4.
 - TAIL: one thin, smooth, plain white cord, about as thick as a shoelace (not a braided or twisted rope), hanging loosely from the middle of the bow down to about knee height.
-- Below the fur: plain beige satin shorts, black leggings with irregular white painted spots on the backs of the legs, and the backs of the cow slippers: open heels with a shaggy black fringe, the heels inside black like the leggings.
+- Below the fur: plain beige satin shorts, black leggings with irregular white painted spots on the backs of the legs, and the backs of the cow slippers: open heels with a shaggy black fringe. The feet inside the slippers wear plain black socks, so the heels are black like the leggings; no bare skin shows anywhere.
 - The backs of the white fur sleeves, and the white knit gloves with two black hoof halves over the fingers.
 
 Photorealistic photograph of the real handmade costume. No text, labels or borders.
@@ -29,6 +29,6 @@ Photorealistic photograph of the real handmade costume. No text, labels or borde
 
 CHECK: big patch on the image's LEFT shoulder blade only; a small patch low left and a
 wider patch low right; long horn LEFT, wire horn RIGHT; bow about a third of the back's
-width; tail a thin smooth cord, not a rope; no face; same size and A-pose as the front.
+width; tail a thin smooth cord, not a rope; black socks at the heels, no bare skin; no face; same size and A-pose as the front.
 If it's refused: don't argue in that chat. Try once more in a new chat, then use Gemini
 with the same prompt and attachments.

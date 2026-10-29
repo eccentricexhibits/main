@@ -39,7 +39,7 @@ PARTS, TOP TO BOTTOM:
 10. GLOVES: the sleeves end in white fuzzy knit gloves with a separate thumb. Over the fingers are two broad, flat, slightly glossy black HOOF halves covering the fingers (a cow's cloven hoof, each half as wide as two fingers, with blunt rounded points; not claws or talons). The thumb is plain white knit with no black on it.
 11. BLOOMERS: short, high-waisted beige satin bloomers with beige lace side panels, worn OVER the leggings, showing between the fur hem and the tops of the legs.
 12. LEGGINGS: opaque black leggings with irregular, slightly rough WHITE painted cow spots of different sizes.
-13. SLIPPERS: handmade cow-head slippers (DETAIL_13): a big white plush muzzle with a thin black stitched smile and two magenta nostrils, black bead eyes, cream "mop" chenille with black patches, small tan horns, floppy black-and-magenta ears with pearl beads, and a shaggy black chenille fringe around the sole.
+13. SLIPPERS: handmade cow-head slippers (DETAIL_13): a big white plush muzzle with a thin black stitched smile and two magenta nostrils, black bead eyes, cream "mop" chenille with black patches, small tan horns, floppy black-and-magenta ears with pearl beads, and a shaggy black chenille fringe around the sole. The feet inside wear plain black socks, so no bare skin shows at the open heels.
 14. BACK (only visible from behind): a big black shag patch across the upper back on the costume's own LEFT side, two smaller black shag patches lower down, and a small GOLD satin BOW at the centre of the lower back just above the hem, with a thin white cord TAIL hanging from it to about knee height.
 
 NEVER ADD: any visible part of the performer (face, hair, hands); anything worn over the costume (robe, jacket, hat, bag); printed cow-print fabric; spots on the udder; a cartoon or cute face; a mouth, teeth, tongue or nose ring; a bell or collar; a long cow tail with a tassel; extra nubs on the udder; a second figure; props; a background or floor pattern; any text, labels, numbers or arrows."""
@@ -192,7 +192,7 @@ What this view must show:
 - A big black shag patch across the upper back on the costume's own LEFT (the LEFT of this image, since we're behind it), and two smaller black shag patches lower down, one on each side.
 - The back of the huge round belly: it bulges out past the sides, so its edges and the edges of the udder may just show at the sides.
 - A small gold satin bow at the centre of the lower back, just above the fur hem, with a thin white cord tail hanging from it to about knee height.
-- The beige bloomers from behind, the black leggings with white spots, and the back (open heel) of each cow slipper.
+- The beige bloomers from behind, the black leggings with white spots, and the back (open heel) of each cow slipper, with plain black socks on the heels inside (no bare skin).
 - The backs of the sleeves and the gloves: white knit, with the two broad black hoof halves over the fingers.
 
 {SAME_SCALE}
