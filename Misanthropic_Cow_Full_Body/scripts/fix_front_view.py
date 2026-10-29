@@ -2,7 +2,8 @@
 
 python3 -I fix_front_view.py <in.png> <out.png>
 - long horn (image right) scaled about its base on the bolster
-- legs stretched below the hoof tips so floor-to-crotch matches the original shoot
+- legs (leggings only, between the hoof tips and the slipper tops) stretched so floor-to-crotch
+  matches the original shoot; the slippers are moved down unchanged
 Coordinates are for Gemini's 848x1264 front view (round 2) and are rescaled for other sizes.
 """
 import sys
@@ -37,12 +38,13 @@ sh = cv2.warpAffine(a, M, (W, H), flags=cv2.INTER_AREA)
 sm = cv2.warpAffine(full_m, M, (W, H), flags=cv2.INTER_LINEAR)[..., None]
 out = sh * sm + out * (1 - sm)
 
-# ---- 2. legs: stretch rows below the hoof tips ----
-LEG_SCALE = 1.06
-y0, floor = int(772 * ky), int(1205 * ky)
-top, bot = out[:y0], out[y0:floor]
-bot = cv2.resize(bot, (W, int(round((floor - y0) * LEG_SCALE))), interpolation=cv2.INTER_CUBIC)
-canvas = np.empty((y0 + bot.shape[0] + (H - floor), W, 3), np.float32)
-canvas[:y0] = top; canvas[y0:y0 + bot.shape[0]] = bot; canvas[y0 + bot.shape[0]:] = out[floor:]
+# ---- 2. legs: stretch only the leggings between the hoof tips and the slipper tops ----
+# Floor-to-crotch was ~6% short of the original shoot. The slippers keep their shape:
+# the rows from the slipper tops to the bottom of the image are moved down, not scaled.
+LEG_GAIN = 0.06
+crotch, y0, y1, floor = int(742 * ky), int(772 * ky), int(1068 * ky), int(1205 * ky)
+add = int(round(LEG_GAIN * (floor - crotch)))
+legs = cv2.resize(out[y0:y1], (W, (y1 - y0) + add), interpolation=cv2.INTER_CUBIC)
+canvas = np.concatenate([out[:y0], legs, out[y1:]], axis=0)
 Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8)).save(dst)
 print("in", (W, H), "out", canvas.shape[1::-1])
