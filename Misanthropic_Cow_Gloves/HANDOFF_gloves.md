@@ -5,9 +5,10 @@
 Process: `3D_Model_Pipeline_PLAYBOOK` (the slipper project's playbook). This project is a second worked example.
 
 **Handoff parts** (each under 29 MB so it can be attached to a chat): **Part 1 CONTEXT** (this file, status, renders,
-references, prompt kits, tiles, scripts) · **Part 2 FINAL_GLB** (`Glove_pair.glb`) · **Part 3 BLENDS** (baked and live
-.blend files with their `textures/` folders) · **Part 4 SOURCES** (the cleaned, split full-detail mesh). Start with Part 1.
-Everything except Part 4 is also in the repo folder `Misanthropic_Cow_Gloves/`.
+references, prompt kits, tiles, scripts) · **Part 2 FINAL_GLB** (`Glove_pair.glb`) · **Part 3 BLEND_BAKED** (baked
+.blend + `textures/`) · **Part 4 BLENDS_LIVE** (live-material .blend and its displacement variant + `textures/`) ·
+**Part 5 SOURCES** (the cleaned, split full-detail mesh). Start with Part 1.
+Everything except Part 5 is also in the repo folder `Misanthropic_Cow_Gloves/`.
 
 ---
 
@@ -97,6 +98,15 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
     image, keeps only the texels that part's own UV faces cover, and adds the margin once at the end
     (`scripts/bake_atlas.py`). (b) The ChatGPT paint tile had ~290 small cream lint flecks; `prep_tiles_glove.py` now
     inpaints isolated bright dots (> 100 above a 7 px median), keeping the grey drag streaks; seam unchanged.
+14. **Terry displacement (optional, Cycles renders):** `Glove_pair_live_displace.blend` turns the terry loops into
+    real geometry so the outline is fuzzy and loops cast tiny shadows (bump alone keeps the outline smooth). Simple-type
+    adaptive subdivision (shape not rounded), micro-polygons 0.3 mm on the object, terry height map displaced 1.2 mm
+    (full range), softened by 0.12 mm first. Tried and rejected: 1 px screen-space dicing (a 3 cm close-up ran out of
+    16 GB); the raw height at 1.5 mm (detail finer than the micro-polygons became spikes: burr-like outline, dark
+    slivers); softening 0.3 mm (about the loop size: patchy nubs). Mask (`bl_make_displace_mask.py`): terry only, 0 on
+    the hoof and the cut walls, fading in over 3 mm (3D distance) from the wall edges so the palm and toes, which project
+    the tile from different origins, still meet exactly; islands padded so UV seams don't dip. Comparison:
+    `09_final/renders/terry_bump_vs_displacement.jpg` (A bump, B raw 1.5 mm, C softened 0.3 mm, D = delivered).
 
 ---
 
@@ -107,7 +117,8 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
 | `glb/Glove_pair.glb` (15.0 MB) | Both gloves, baked 4K maps (JPEG): base colour (AO included), roughness, tangent normal (OpenGL/Blender convention), metallic 0. Right glove = the same meshes on mirrored nodes. |
 | `blend_baked/Glove_pair_baked.blend` + `textures/` | The same, in Blender, textures external and relative. |
 | `blend_live/Glove_pair_live.blend` + `textures/` | The **live** material `Glove_Terry_Hoof_live`: tiles at full resolution, mask-driven. Best for renders/edits. Keep `textures/` next to the .blend. |
-| `renders/` | Final pair, close-ups (hoof strokes, terry, spread), live-vs-baked check, region map, before/after the terry smoothing. |
+| `blend_live/Glove_pair_live_displace.blend` | Same, plus **true displacement** of the terry loops (Cycles only; fuzzy outline, real loop shadows). ~1.6 M micro-triangles per glove at render time, ~6 GB peak memory and slower to render than the bump version (four 800 px close-ups at 32 samples: ~2.3 min on CPU). Viewport and EEVEE show the plain mesh. Uses `textures/displace_mask.png` and `height_terry_displace.png`. |
+| `renders/` | Final pair (also with displacement), close-ups (hoof strokes, terry, spread), live-vs-baked check, region map, before/after the terry smoothing, bump vs displacement. |
 
 **Specs**
 - Objects per glove: `Glove_L_Palm` (root; palm, thumb, cuff) with children `Glove_L_Toe_IndexMiddle` and
@@ -135,7 +146,10 @@ the mat comes out 598 mm (a 24 in cutting mat). ±5 %.
 5. The terry tile has a faint mirrored repeat (ChatGPT made it seamless that way); not visible at normal distance.
 6. Where the palm meets the toes the meshes are separate; with flat clay shading a hairline can show. Hidden in the
    textured renders.
-7. `Glove_pair.glb` uses 4K JPEG maps (14.5 MB). For real-time use, drop to 2K.
+7. `Glove_pair.glb` uses 4K JPEG maps (15 MB). For real-time use, drop to 2K.
+8. Displacement version: the terry fades to flat over 3 mm each side of where the toes meet the palm (so they don't
+   crack apart), which reads as a faint smoother band across the knuckle line on a closed glove. A shorter fade
+   (`bl_make_displace_mask.py ... 1.5`) narrows it. Displacement is not in the GLB (glTF has no displacement).
 
 ---
 
@@ -163,7 +177,10 @@ then `pip install --no-deps pyrender` (its old networkx pin fails to build). `ap
     normalise (÷ 90th percentile), upscale to 4K, gamma 0.8 → `bl_glove_material.py ... out 4096 4 ao_4096.png`
 14. `bl_export_pair.py work.blend maps out 24.7` (real size, mirrored right glove, GLB + baked .blend)
 15. `bl_glove_material.py Glove_pair.blend ... live:ao_4096.png` → `bl_lean_live.py Glove_live.blend out Glove_pair_live.blend`
-16. Checks: `bl_render_pair.py`, `bl_render_live.py`, `bl_preview_baked.py`, `glb_check_hierarchy.py`; surface shape
+16. Displacement variant: `bl_make_displace_mask.py work_uv.blend geom mask_paint.png displace_mask.png 3` →
+    `bl_terry_displace.py Glove_pair_live.blend displace_mask.png Glove_pair_live_displace.blend 1.2 mm:0.3 0.12`
+    (height mm, dicing, softening mm); check with `bl_render_displace_check.py`.
+17. Checks: `bl_render_pair.py`, `bl_render_live.py`, `bl_preview_baked.py`, `glb_check_hierarchy.py`; surface shape
     without textures: `bl_clay.py work.blend out_prefix` (whole glove) and `bl_clay_web.py work.blend out.png` (web close-ups).
 
 Bake timings (CPU, 4K): selected-to-active colour/normal/roughness ~50–60 s each at 2 samples; final material bakes
@@ -178,10 +195,11 @@ scipy connected-components count in `measure_tripo_glove.py`.
   `scale_sources/` incl. the mask scan `cowMask1.stl`, mm), `02_chatgpt_kit/` (guide page; the step zips are left out —
   rebuild them with `build_kit.py`), `02_approved_views/`, `03_tripo_inputs/`, `04_tripo_v1_evaluation/`,
   `05_cleanup_and_split/`, `06_optimise_uv_bake/`, `08_fabric_tiles/` (raw ChatGPT tiles; the prepared ones are in
-  Part 3's `blend_live/textures/` or rebuild with `prep_tiles_glove.py`), `09_final/renders/`, `scripts/`.
+  Part 4's `blend_live/textures/` or rebuild with `prep_tiles_glove.py`), `09_final/renders/`, `scripts/`.
 - **Part 2 FINAL_GLB:** `Glove_pair.glb`.
-- **Part 3 BLENDS:** `blend_baked/` and `blend_live/`, each with its `textures/`.
-- **Part 4 SOURCES:** `high_full.glb` — the cleaned (seam beads flattened, terry smoothed), split full-detail parts
+- **Part 3 BLEND_BAKED:** `blend_baked/` with its `textures/`.
+- **Part 4 BLENDS_LIVE:** `blend_live/` (live and displacement .blend files) with its `textures/`.
+- **Part 5 SOURCES:** `high_full.glb` — the cleaned (seam beads flattened, terry smoothed), split full-detail parts
   (`Glove_Palm_HIGH`, `Toe_*_HIGH`, model units: 0.97 tall), for re-baking.
 - Not included (with the user, too large): the Tripo download `furry_glove_3d_model` (OBJ 186 MB + maps).
 
@@ -195,4 +213,4 @@ scipy connected-components count in `measure_tripo_glove.py`.
 - Hollow the cuff if an arm must go inside.
 - More or less terry smoothing: re-run `smooth_terry_unsplit.py` with another radius (10 mm keeps Tripo's folds, 30 mm
   removes them but slims the thumb; protect the thumb and let the cuff bottom move in if you go that far),
-  then steps 7–16.
+  then steps 7–17.
