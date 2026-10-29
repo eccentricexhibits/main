@@ -1,0 +1,21 @@
+TILE_09_cracked_white_plaster
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_9_cracked_white_plaster_mask.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the painted white plaster / papier-mache surface in the attached photo. Make it in clean warm white.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 8 cm x 8 cm. Matte white paint over a slightly lumpy surface, with fine hairline cracks and a few tiny chips, like an old hand-made mask. Clean white, not dirty or grey.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_09_cracked_white_plaster.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

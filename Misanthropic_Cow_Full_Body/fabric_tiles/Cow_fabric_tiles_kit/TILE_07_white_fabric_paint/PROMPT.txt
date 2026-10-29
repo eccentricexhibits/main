@@ -1,0 +1,21 @@
+TILE_07_white_fabric_paint
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_7_white_fabric_paint_spot.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the thick white fabric paint brushed onto black fabric in the attached photo. Make it in off-white.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 6 cm x 6 cm. The paint only (filling the whole square): slightly uneven, rough and dry-brushed, with fine cracks and creases and a few thin spots where the black fabric shows through faintly. No edge of the spot, no black background.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_07_white_fabric_paint.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

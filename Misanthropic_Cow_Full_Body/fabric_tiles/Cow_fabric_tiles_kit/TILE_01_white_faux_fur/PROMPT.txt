@@ -1,0 +1,21 @@
+TILE_01_white_faux_fur
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_1_white_faux_fur.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the long-pile white faux fur (a slightly matted, lumpy costume fur) in the attached photo. Make it in warm white.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 10 cm x 10 cm. Pile about 2-3 cm long, lying mostly in one direction with soft clumps and gentle shading between them. Slightly matted in places, like a well-used costume.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_01_white_faux_fur.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

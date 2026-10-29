@@ -1,0 +1,21 @@
+TILE_05_beige_lace
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_5_beige_lace.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the beige floral lace in the attached photo. Make it in pale beige / nude, the same colour as the satin.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 8 cm x 8 cm. A fine net background with a dense floral pattern of leaves and petals outlined in thicker threads, like the photo.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_05_beige_lace.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 
