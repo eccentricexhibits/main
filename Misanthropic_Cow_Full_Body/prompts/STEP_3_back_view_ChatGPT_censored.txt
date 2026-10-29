@@ -1,0 +1,34 @@
+STEP 3 (ChatGPT variant): BACK VIEW from the censored front
+============================================================
+For ChatGPT, which kept refusing the full kit prompts. The front reference is the
+user's censored front (views/FRONT_censored_user_edit.webp: the udder painted out),
+and the text names nothing that only shows from the front. A back view shows none of it.
+
+New chat. ATTACH, IN THIS ORDER:
+  1. FRONT_censored_user_edit (the front view)
+  2. REF_F_back_full_body.png            (STEP_3 zip, image 2)
+  3. REF_E_back_upper_hood_patches_bow.png (STEP_3 zip, image 3)
+  4. DETAIL_11_gold_bow_and_cord_tail.png  (STEP_3 zip, image 4)
+
+PASTE:
+------------------------------------------------------------
+I'm making reference images of my handmade cow mascot costume for a 3D model. Image 1 is my approved front view. Images 2, 3 and 4 are real photos of the same costume from behind (ignore the green screen, the room and the bare hands).
+
+Make a photograph of the same costume seen from directly behind: the camera is behind it at belly height, looking straight at its back. Same A-pose, same size and position in the frame, same lighting and pure white background as image 1. Portrait 2:3.
+
+Match the real back exactly:
+- HOOD: the rounded back of the white fur hood, with the white fur bolster across the top. Seen from behind, the long yellow horn that hooks upward at the end is on the LEFT of the image, and the short yellow horn ending in a tuft of twisted wire is on the RIGHT. The face is on the far side and hidden.
+- BLACK SHAGGY FUR PATCHES, placed as in images 2 and 3, and no others: one big ragged patch high on the back, over the LEFT shoulder blade and reaching toward the middle of the back, just below the hood (it does not cover the right shoulder blade); one small round patch low on the LEFT side of the back; one wider, flatter patch low on the RIGHT side of the back, a little higher than the left one; and a small black tuft on the outside of each elbow.
+- BOW: a gold satin bow at the centre of the lower back, just above the fur hem, about a third as wide as the back, like images 3 and 4.
+- TAIL: one thin, smooth, plain white cord, about as thick as a shoelace (not a braided or twisted rope), hanging loosely from the middle of the bow down to about knee height.
+- Below the fur: plain beige satin shorts, black leggings with irregular white painted spots on the backs of the legs, and the backs of the cow slippers: open heels with a shaggy black fringe, the heels inside black like the leggings.
+- The backs of the white fur sleeves, and the white knit gloves with two black hoof halves over the fingers.
+
+Photorealistic photograph of the real handmade costume. No text, labels or borders.
+------------------------------------------------------------
+
+CHECK: big patch on the image's LEFT shoulder blade only; a small patch low left and a
+wider patch low right; long horn LEFT, wire horn RIGHT; bow about a third of the back's
+width; tail a thin smooth cord, not a rope; no face; same size and A-pose as the front.
+If it's refused: don't argue in that chat. Try once more in a new chat, then use Gemini
+with the same prompt and attachments.
