@@ -69,6 +69,13 @@ ref(o(4), (0.12, 0.40, 0.53, 0.83), (0.19, 0.27, 0.24, 0.33), "DETAIL_9_spotted_
 ref(o(4), (0.12, 0.78, 0.53, 0.93), (0.19, 0.27, 0.24, 0.33), "DETAIL_10_slippers_worn.png", 1024)
 ref(OTHER + "misanthropicCow_bigBatchOfStuff_ (388 of 724).tif (2).jpg", (0.30, 0.80, 0.85, 1.0), (0.45, 0.62, 0.55, 0.72), "DETAIL_11_gold_bow_and_cord_tail.png", 1024)
 ref(o(8), (0.28, 0.20, 0.64, 0.44), (0.36, 0.56, 0.46, 0.62), "DETAIL_12_black_tuft_under_snout.png", 1024)
+# back of the legs (white spots), straight from behind
+ref(OTHER + "Sequence 01.00_00_49_17.Still008.png", (0.05, 0.50, 0.80, 1.0), (0.35, 0.55, 0.50, 0.62), "DETAIL_14_back_of_legs_spots.png", 1024, strength=0.8)
+# bow in context on the lower back, from the user's extra photo (reference/REF_L_back_bow_new_photo.jpg);
+# cropped below the harness strap and above the leggings
+_l = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "reference", "REF_L_back_bow_new_photo.jpg")
+if os.path.exists(_l):
+    save(crop(wb(Image.open(_l).convert("RGB"), (0.45, 0.72, 0.55, 0.78), target=None), (0.33, 0.62, 0.72, 0.87)), "DETAIL_11b_bow_on_lower_back.png", 1024)
 # slipper (the real object, from the slipper project)
 sl = Image.open(os.path.join(PB, "worked_example/references/REF_A_three-quarter_front.jpg")).convert("RGB")
 save(sl, "DETAIL_13_slipper_real_object.png", 1024)
