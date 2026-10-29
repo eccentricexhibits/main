@@ -10,19 +10,22 @@ Upload this whole folder (or the zip) to a new Claude conversation and paste the
 **The user is happy with Wasting My Time v18.** It's the approved version. Treat
 it as the base for any further song work; don't redo it.
 
-**Newest (2026-10-29): lush + variations.** The main melody develops through the song.
+**Newest (2026-10-29): lush + variations, revision 2.**
 - **Live:** https://claude.ai/artifact/X9bybUGwR1YfhSM7r9RLMj
-- **Folder:** `songs/wasting-my-time-electronic-lush-variations/`, built by `variations.py` on top
-  of `mozart.py`.
-- **The request:** the user's real aim was a less repetitive lead melody, not more background.
-- **Verses:** verse 1 is the song's own tune. Verses 2–4 are successive variations from Bach's
-  Chaconne (BWV 1004, bars 1–8, 9–16 and 17–24). Its ground, D–C♯–G/B♭–A, is the verse's own
-  bass. One Chaconne bar fills each song chord, so it runs as quarter-note triplets, and Bach's
-  C♯ is played as C over the song's C chord.
-- **Choruses 2 and 3:** the hook, then a different Mozart K. 191 answer on the lead (bar 29,
-  bar 39). Choruses 1 and final are unchanged.
-- **The old melody's doublings are removed** where it changed.
-- **Verse balance:** +2.1 / +2.1 / +1.6 dB.
+- **Folder:** `songs/wasting-my-time-electronic-lush-variations/`
+- **Revision 1 was rejected** ("awful, incoherent, an absurd amount of notes"). It had put
+  Chaconne variations in verses 2–4 at about 3× Bach's speed, in triplets, 12–14 notes a bar,
+  using the top note of his violin chords as the melody.
+- **Revision 2** keeps new material to the original tune's pace and rhythm:
+  - verse 2: the Chaconne's opening theme, reduced by hand to straight quarters and eighths,
+    about 5 notes a bar
+  - choruses 2 and 3: two short Mozart K. 191 answers after the hook
+  - verses 1, 3 and 4, chorus 1 and the final chorus: unchanged
+- **Verse 2 balance:** +2.3 dB.
+- **Waiting on:** the user's verdict.
+- **Lesson for further melodic work:** the user is sensitive to busy or incoherent lines. Stay
+  at or below the original tune's note density, in straight rhythm, and never speed source
+  material up to fit the harmony.
 
 **Before that (2026-10-29): lush + Mozart.**
 - **Live:** https://claude.ai/artifact/2D458a9rDDDmeqAZ9HVE6j
@@ -1034,7 +1037,7 @@ go to World & FX.
 | `build.py` | Builds both editions plus song builds |
 | `free-instruments.md` | Researched free VST3 instruments and SoundFonts with licenses and links |
 | `electronic-instruments.md` | Free synths, drum synths, effects and CC0 SoundFonts for the electronic arrangement, mapped to its parts |
-| `songs/wasting-my-time-electronic-lush-variations/` | **Lush + variations**: Bach Chaconne verses 2–4, Mozart answers in choruses 2–3. MIDI, `CHANGES.md`, preview, before/after clips, Chaconne reference, `variations.py`, `chaconne-top-voice.json` |
+| `songs/wasting-my-time-electronic-lush-variations/` | **Lush + variations (revision 2)**: the Chaconne theme in verse 2, Mozart answers in choruses 2–3. MIDI, `CHANGES.md`, preview, before/after clips, Chaconne reference, `variations.py` |
 | `songs/wasting-my-time-electronic-lush-mozart/` | **Lush + Mozart**: the lush version with a K. 191 counter-melody in the choruses. MIDI, `CHANGES.md` (search method, runners-up), preview, Mozart reference clip, before/after clips, `mozart.py` |
 | `tools/quote-search/` | Scripts that search a MIDI corpus for passages fitting the song's chords |
 | `songs/wasting-my-time-electronic-lush/` | **Lush electronic version**: the electronic arrangement plus v18's full orchestration on synths, ensemble width and air layers. Four MIDI files, `CHANGES.md`, preview, electronic-vs-lush clips, `lush.py` |

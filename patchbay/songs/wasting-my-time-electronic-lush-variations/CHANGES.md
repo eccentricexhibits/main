@@ -1,108 +1,89 @@
-# Wasting My Time (electronic, lush + variations)
+# Wasting My Time (electronic, lush + variations), revision 2
 
-**Listen:** https://claude.ai/artifact/X9bybUGwR1YfhSM7r9RLMj (Patchbay opens on it; private to you), or open `Patchbay.html` in this
-folder offline.
+**Listen:** https://claude.ai/artifact/X9bybUGwR1YfhSM7r9RLMj (Patchbay opens on it; private to
+you), or open `Patchbay.html` in this folder offline.
 
-You liked the background, but the reason for the classical search was the **lead melody**: the
-same verse and chorus tune all the way through. This version makes the main melody develop as
-the song goes on. Everything else (arrangement, drums, pads, the Mozart counter-melody
-elsewhere) is the lush + Mozart version, which stays as it was.
+The aim is a main melody that isn't the same verse and chorus tune all the way through, using
+passages from the classical search that fit the song's chords. Everything else is the
+lush + Mozart version, which stays as it was.
 
-## Verses: Bach's Chaconne, one variation per verse
+## What went wrong in revision 1
 
-**Why it fits.** Bach's Chaconne in D minor (from the Partita No. 2 for solo violin, BWV 1004)
-is a set of variations over a four-bar bass that repeats throughout: D – C♯ – G/B♭ – A. That's
-the verse's own bass, D – C – B♭ – A, in the same key. Bach writes a new melody over it each
-time, which is exactly what the verses needed.
+You found revision 1 incoherent, with far too many notes. Both were real, and both came from how
+the material was fitted:
 
-| Verse | Melody | What it's like |
-|---|---|---|
-| 1 (0:09) | the song's own tune, unchanged | establishes the song |
-| 2 (0:31) | **the Chaconne's opening theme** (bars 1–8), led in by the run that closes its first half (bar 4) | the slow sarabande: "A · A E \| E · E F \| D · C B♭ \| A G F E…" |
-| 3 (1:00) | **Bach's next variation** (bars 9–16) | the same harmony with more motion: dotted rhythms and quick turns |
-| 4 (1:56) | **the variation after that** (bars 17–24) | higher and more intense, for the louder verse 4 |
+- **Too fast.** The Chaconne changes chord about every 2.5 s; the verse changes every 0.77 s. To
+  fit, each Chaconne bar was squeezed into one of the song's chords: about **three times Bach's
+  speed**. The search had flagged this mismatch for the Chaconne.
+- **Too busy.** Verses 3 and 4 used Bach's busier variations, so the melody ran 12–14 notes a
+  bar, with his quick turns shrunk to 40-millisecond blips.
+- **Wrong rhythm.** Squeezing 3/4 into the song's 4/4 put the melody in triplets against the
+  straight beat.
+- **Not one line.** The "melody" was the top note of Bach's violin chords at each moment, which
+  hops between his voices instead of following one line.
 
-**How it's fitted:**
-- **Rhythm.** Each Chaconne bar fills one of the song's chords (half a bar). Its 3/4 therefore
-  sits as **quarter-note triplets** over the song's 4/4: a floating rhythm, unlike the
-  original tune. At the theme's density (3–4 notes a chord) it moves at about the original
-  tune's pace.
-- **Opening bar.** The verse's A7 bar carries Bach's A-bar run as a lead-in.
-- **Last bar.** Bach's next bar is compressed into beats 1–3, so **the pickup into the
-  pre-chorus is kept**.
-- **One adjustment to Bach's notes:** his C♯ (D minor's leading tone) is played as C wherever
-  it would rub against the song's C chord. That's the only change.
-- **Same parts as before.** Verses 2 and 3 are on the verse lead, with its echo and vocal
-  double. Each has a string-machine doubling an octave below: violas in verse 2, cellos in
-  verse 3, as the old tune had. Verse 4 is on the hook lead with its detuned twins.
+Revision 1 is in the git history.
 
-## Choruses: the hook, then a different Mozart answer each time
+## Revision 2: less material, at the song's pace
 
-The hook ("Wasting all my time on you") opens every chorus. Its second phrase used to repeat it
-exactly; now each chorus answers it differently, all from the same Mozart slow movement (K. 191)
-as the counter-melody, at the same ii–V–I:
+The rules this time:
+- no more notes than about the original tune's (≈ 5 a bar)
+- straight quarters and eighths
+- one singable line, written out note by note
 
-| Chorus | Second phrase (lead) | Counter-melody |
-|---|---|---|
-| 1 (0:25) | the hook again, unchanged | Mozart's theme, as before |
-| 2 (0:46) | **Mozart's bassoon answer from bar 29**: G F E F \| D D C B♭, leading into the tag | Mozart's own violin line from the same bars |
-| 3 (1:15) | **his florid violin passage from bar 39**: B♭ C B♭ A G… | the bassoon line beneath it |
-| Final (2:11) | the variation you liked, unchanged | Mozart's theme, as before |
+| Section | Main melody |
+|---|---|
+| Verse 1 (0:09) | your tune |
+| **Verse 2 (0:31)** | **the Chaconne's opening theme**: A A E \| E E F \| D C B♭ \| A G F E, then again climbing to B♭, resolving E→F→D before the pre-chorus |
+| Verse 3 (1:00) | your tune (as before) |
+| Verse 4 (1:56) | your tune with v18's "C B♭ A" variation (as before) |
+| Chorus 1 (0:25) | the hook twice (as before) |
+| **Chorus 2 (0:46)** | the hook, then **Mozart's bassoon answer** (K. 191, bar 29): G F E F \| D D C B♭, leading into the tag. The counter-melody takes Mozart's violin line from the same bars. |
+| **Chorus 3 (1:15)** | the hook, then **Mozart's sighing cadence** A–G–F–E–F, the end of the counter-melody's theme. The lead sings it an octave above the counter-melody. |
+| Final chorus (2:11) | the variation you liked (as before) |
 
-## Clearing the way
+**How the Chaconne theme is fitted.** Each Bach bar fills one of the song's chords as quarter,
+eighth, eighth: his long first note, the re-struck note, then beat 3. That keeps his notes in
+order at the original tune's pace. His 16th-note cadence runs (bars 4 and 8) become four
+eighths. Its bass (D–C♯–G/B♭–A) is the verse's own (D–C–B♭–A). The theme starts on the verse's
+second bar, after a calm lead-in over the A7 (E · · D C♯).
 
-Where the melody changes, every part that doubled the old melody there is taken out, so the old
-tune doesn't play against the new one:
-- **Cleared outright:** the lead's echoes, detuned twins and vocal double, and the hook's
-  harmony and octave stack in those chorus phrases.
-- **Only the doubling notes, from the synth orchestra:**
-  - the violas' and horns' copy of the verse 2 tune
-  - the cellos' and bassoons' copy in verse 3
-  - the violins, flutes and oboes in verse 4
-  - the hook's parallel thirds and sixths in those chorus phrases
-
-  The rest of each part, its accompaniment, stays.
-- **Background notes trimmed:** 13. Each rubbed against the new melody, wasn't a tone of the
-  chord there, and was a leftover of the old melody's harmony.
+**Kept from revision 1:**
+- **Doublings cleared:** where the melody changes, the background parts that doubled the old
+  melody (echoes, detuned twins, vocal double, and the synth-orchestra notes moving with it) are
+  taken out.
+- **Background notes trimmed:** a few non-chord background notes that rubbed against the new
+  line.
 
 ## Checks
 
-- **Clashes:** in the changed passages, no new melody note rubs a semitone against anything,
-  except:
-  - the melody's B♭ against the A in B♭maj7 (the chord's own 7th)
-  - Mozart's F suspended over the C7 before it falls to E
-- **Verse melody over everything else:** V1 +2.1, V2 **+2.1**, V3 **+1.6 dB**, your settled
-  balance. The Chaconne verses' accompaniment sits 0.9 / 1.6 dB further back to get there.
+- **Density:** verse 2 has 5.2 notes a bar (verse 1's tune has 4.2); the chorus answers 4–6.
+  The shortest notes are eighths. Revision 1 had 12–14 a bar, with notes as short as 1/32.
+- **Clashes:** none in the changed passages, except Mozart's own F suspended over the C7 before
+  it falls to E.
+- **Verse 2 melody over everything else:** **+2.3 dB**, your verse balance. The lighter line
+  needed no extra room, so revision 1's accompaniment trim is gone.
 - **Unchanged elsewhere:** the render differs from lush + Mozart only at 0:30–0:41 (verse 2),
-  0:49–0:53 (chorus 2), 1:00–1:10 (verse 3), 1:18–1:23 (chorus 3) and 1:56–2:06 (verse 4).
-- **Loudness:** verses 2 and 3 are about 1 LU quieter than before, so the choruses land a
-  little harder. The whole song is −12.9 LUFS.
+  0:49–0:53 (chorus 2) and 1:18–1:23 (chorus 3).
+- **Whole song:** −12.9 LUFS.
 
 ## Files
 
 - `Wasting My Time (electronic, lush + variations) (Patchbay preview).mp3`: the full song
-- `Wasting My Time - verses 2-4, before and after.mp3`: verse 2, then verse 3, then verse 4.
-  Each plays without the change, then 2 s of silence, then with it.
-- `Wasting My Time - choruses 2-3, before and after.mp3`: the second phrase of choruses 2 and 3,
-  the same way
+- `Wasting My Time - verse 2, before and after (0m31-0m40).mp3`: verse 2 with your tune, then 2 s
+  of silence, then with the Chaconne theme
+- `Wasting My Time - choruses 2 and 3, before and after.mp3`: chorus 2, then chorus 3, each
+  before and after
 - `Bach - Chaconne BWV 1004, opening (reference).mp3`: the Chaconne's opening as Bach wrote it,
   rendered through Patchbay
 - The four MIDI files. Load them together.
 - `variations.py`: builds this version on top of `../wasting-my-time-electronic-lush-mozart/mozart.py`.
-  - The Mozart passages are written in as data.
-  - `verse_spec()` and `bach()` place the Chaconne bars.
-  - `DOUBLED_BY` lists what was cleared.
-  - `EXTRA_REST` holds the verse balance.
-- `chaconne-top-voice.json`: the Chaconne's top voice, bars 1–25. It's written by
-  `extract_chaconne.py` from the Mutopia edition (typeset by Hajo Dezelski, CC BY-SA 3.0; Bach's
-  music is public domain).
+  - `THEME` is the verse-2 melody, note by note.
+  - The Mozart passages are written in as data, from the Mutopia editions: Chaconne typeset by
+    Hajo Dezelski (CC BY-SA 3.0), K. 191 by Liang Seng (public domain).
 
-## Easy next tweaks
+## If you'd like to go further
 
-- **Chaconne in verse 1 too:** add a `melody('lead_v', bach(verse_spec(…, 7, …)), …)` line.
-  That would make all four verses variations.
-- **Other variations:** change the first-bar numbers in `verse_spec()`. Bars 25–36 (variations 7–9)
-  are also in D minor. They're busier, and would need extending `chaconne-top-voice.json` past
-  bar 25.
-- **The pre-choruses still repeat the same melody.** Their chromatic harmony (G | B/F♯ | E♭m7 |
-  D7) found no good classical match, but they could be varied by hand next.
+These are only worth trying if verse 2 and choruses 2 and 3 work for you:
+- **Verse 3:** a second Chaconne passage there, kept to the same pace.
+- **Pre-choruses:** varied by hand; they still repeat.
