@@ -10,7 +10,22 @@ Upload this whole folder (or the zip) to a new Claude conversation and paste the
 **The user is happy with Wasting My Time v18.** It's the approved version. Treat
 it as the base for any further song work; don't redo it.
 
-**Newest (2026-10-28): a lush electronic version.**
+**Newest (2026-10-29): lush + Mozart.**
+- **Live:** https://claude.ai/artifact/2D458a9rDDDmeqAZ9HVE6j
+- **Folder:** `songs/wasting-my-time-electronic-lush-mozart/`, built by `mozart.py` on top of
+  `lush.py`.
+- **The request:** the user felt the melody was too simple and asked for a Bach, Mozart or
+  Beethoven piece that fits the song's chords and key.
+- **The search:** 1,592 MIDI files (`tools/quote-search/`).
+  - It picked the opening theme of Mozart's Bassoon Concerto K. 191, 2nd mvt: F major,
+    ii–V–I, at its written tempo.
+  - It's now a counter-melody in every chorus: under the hook an octave down in choruses 1–3,
+    at written pitch in the final chorus.
+- **Runners-up** are in that folder's `CHANGES.md`. The Bach Chaconne (BWV 1004) fits the
+  verse but is far slower.
+- **The source MIDI collections are not in the repo.** The phrase is embedded in `mozart.py`.
+
+**Also (2026-10-28): a lush electronic version.**
 - **Live:** https://claude.ai/artifact/C3DNm9dtLV7iqEBvThHXgZ
 - **Folder:** `songs/wasting-my-time-electronic-lush/`, built by `lush.py` on top of
   `electronic.py`.
@@ -1005,6 +1020,8 @@ go to World & FX.
 | `build.py` | Builds both editions plus song builds |
 | `free-instruments.md` | Researched free VST3 instruments and SoundFonts with licenses and links |
 | `electronic-instruments.md` | Free synths, drum synths, effects and CC0 SoundFonts for the electronic arrangement, mapped to its parts |
+| `songs/wasting-my-time-electronic-lush-mozart/` | **Lush + Mozart**: the lush version with a K. 191 counter-melody in the choruses. MIDI, `CHANGES.md` (search method, runners-up), preview, Mozart reference clip, before/after clips, `mozart.py` |
+| `tools/quote-search/` | Scripts that search a MIDI corpus for passages fitting the song's chords |
 | `songs/wasting-my-time-electronic-lush/` | **Lush electronic version**: the electronic arrangement plus v18's full orchestration on synths, ensemble width and air layers. Four MIDI files, `CHANGES.md`, preview, electronic-vs-lush clips, `lush.py` |
 | `songs/wasting-my-time-electronic/` | **Electronic arrangement of v18**: MIDI files, `CHANGES.md`, full preview, three v18-vs-electronic clips, `electronic.py`, and pages that open on it |
 | `tools/` | `render.js`, `verse_balance.js`, `solo_level.js`, `clash.py`, `show.py`, `trim.py`, `stems.js` and `README.md`: the revision recipe and checks |
