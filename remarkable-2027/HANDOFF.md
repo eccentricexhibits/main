@@ -6,7 +6,7 @@ direction the client approved, revised to their October 28 feedback (see section
 
 These are working HTML/CSS mockups for review and for the Swoogo build team. They are not production code.
 
-Last updated: October 28, 2026.
+Last updated: October 29, 2026.
 
 ---
 
