@@ -273,6 +273,7 @@ Where things live:
 - `tripo_slippers.py`: the one-off conversion of the Shy Cow slippers into `assets/slippers_shy_cow.glb`. It needs the Shy Cow OBJ and texture, plus `pip install xatlas`;
 - `tail.py`: the bowtie, the cord and plug meshes, and the cord's rope simulation;
 - `web_textures.py`: downscales textures inside a GLB for the web copies;
+- `export_mask.py`: exports the mask on its own (face, jaw sides, horns, wire and tube) as a GLB and as an OBJ with its textures, standing on the origin;
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
