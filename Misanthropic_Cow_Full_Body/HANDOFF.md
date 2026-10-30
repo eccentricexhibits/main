@@ -1,155 +1,132 @@
 # HANDOFF: The Misanthropic Cow, full-body 3D model
 
-**For:** a new Claude session continuing this project. Read `3D_Model_Pipeline_PLAYBOOK/PLAYBOOK.md` first; this project follows it. Then read this file. The repository branch is `claude/gallant-feynman-4ikhs2` in `eccentricexhibits/main`, folder `Misanthropic_Cow_Full_Body/`.
+**For:** a new Claude session continuing this project. The repository branch is `claude/sleepy-keller-33h8gn` in `eccentricexhibits/main`, folder `Misanthropic_Cow_Full_Body/` (the earlier stages are also on `claude/gallant-feynman-4ikhs2`). The project was planned around the user's `3D_Model_Pipeline_PLAYBOOK`; it was not available in the last session, so that session followed this file and the slipper project's pipeline (same stages). Read the playbook first if the user supplies it.
 
 ## 1. Goal and where we are
 
-Goal: a clean, textured, rig-ready 3D model of the user's character, The Misanthropic Cow, a handmade full-body cow costume. The costume no longer exists to re-shoot, so the model is built from about 100 old photos and the AI route in the playbook.
+Goal: a clean, textured, rig-ready 3D model of the user's character, The Misanthropic Cow, a handmade full-body cow costume. The costume no longer exists to re-shoot, so the model is built from about 100 old photos, the AI route (ChatGPT/Gemini views -> Tripo), and three real objects: the 2014 scan of the real mask, the finished slipper model and the user's fabric tiles.
 
-| Stage (playbook) | Status |
+| Stage | Status |
 |---|---|
-| 0 Intake | done (decisions in §3) |
-| 1 References, design key, brief | done |
-| 2 Multiview images (ChatGPT/Gemini) | done: `views/1_FRONT…`, `2_BACK…`, `3_SIDE_facing_left…`, `4_SIDE_facing_right…` `_approved.png` |
-| 3 Tripo inputs | done: `tripo_inputs/` (1536², same height and ground line) |
-| 4 Tripo model, evaluated | done: `tripo_eval/REPORT.md`. Accepted with no second round. |
-| 6 Cleanup | done in a working .blend (Z up, metallic 0). Rebuild it with `scripts/bl_stage6_cow.py` (see §6). |
-| 9c step 1, fabric tiles | **the user is generating 10 tiles in ChatGPT** with `fabric_tiles/Cow_fabric_tiles_kit.zip` |
-| Next | geometry swaps, then decimate, UV, bake, region masks, tiles, final bake, deliverables (§5) |
-
-**Waiting on the user:**
-1. The 10 fabric tiles (`TILE_01…TILE_10.png`).
-2. A 3D scan of the real mask. Ask which app made it; phone scanners usually save in metres.
-3. The finished slipper model from the earlier slipper project (GLB).
-4. Re-uploading the Tripo model `cow_costume_3d_model.part1–3.rar`: it's 194 MB and isn't in the repo.
+| 0-4 Intake, references, views, Tripo inputs, Tripo model | done (`views/`, `tripo_inputs/`, `tripo_eval/REPORT.md`) |
+| 6 Cleanup | done: `scripts/bl_stage6_cow.py` |
+| 6b Real scale + geometry swaps | done: 1.64 m; scanned mask, scan-guided horns, slippers on black-sock feet, cord tail (`checkpoints/CHECKPOINT_1`, `_2`) |
+| 7 Decimation | done: body 1.49M -> 200k, mask 249k -> 60k; silhouette IoU 0.9996+ in 8 views |
+| 8 UVs and bakes | done: body 4K atlas (texel-weighted), mask 2K atlas; colour, normal, per-texel geometry |
+| 9c Region map, tiles, live material, AO, final bakes | done; region map **approved by the user** (`checkpoints/CHECKPOINT_3_region_map.jpg`); live vs baked `checkpoints/CHECKPOINT_4_live_vs_baked.jpg` |
+| 10-11 Deliverables | done: `deliver/Misanthropic_Cow.glb` (28.1 MB) and `deliver/live/Cow_fabric_live.blend` + `textures/` |
+| Next | rigging (Rigify or AccuRig); optional polish (§5) |
 
 ## 2. The user
 
-- Character creator. Comfortable with Blender, but wants Claude to do the technical work and to end every reply with a concrete, numbered next step.
+- Character creator. Comfortable with Blender, but wants Claude to do the technical work and to end every reply with a concrete, numbered next step. Wants pictures at every checkpoint.
 - Runs ChatGPT, Gemini and Tripo themselves. Likes complete, copy-pasteable prompts with numbered attachments. Gives sharp visual feedback: trust it, then measure.
 - Every file moved to a new window must be **under 29 MB**.
 
 ## 3. Decisions (all confirmed by the user)
 
-- **No re-shoot** (the costume is gone). Proportions come from the **original photo shoot wearer** (8 photos). Other wearers stuffed the belly and udder differently.
+- **No re-shoot** (the costume is gone). Proportions come from the **original photo shoot wearer** (8 photos).
 - **A-pose**, rigged and animated eventually.
-- **Beige satin "bloomers" with lace side panels**, worn over the black spotted leggings. The original pair was lost after that shoot; the back design is unknown. Plan: paint the back as a continuation of the front at the texturing stage.
-- **Slippers:** drawn into the views, but **to be replaced by the finished slipper model** in Blender.
-- **Horns are deliberately mismatched.** The costume's own RIGHT horn is short and ends in a tuft of twisted bare wire (deliberate). Its own LEFT horn is a long horn with 3 black rings and an intact pointed tip; later photos show this tip broken, which is damage, not design. Seen straight on, the long horn goes **out sideways, then hooks up near the tip** (REF_J, REF_K). Plan: **model both horns cleanly in Blender**.
-- **The hood is a separate piece** whose fur edge overlaps the suit's collar. Keep that construction, but no neck or skin should ever show.
-- **Black socks** inside the slippers; no bare skin anywhere.
-- **Tail:** a thin white cord hanging from the gold bow. **It's left out of the images and modelled in Blender.**
-- **Bow:** small gold satin, centred on the lower back, about a quarter of the back's width.
-- **Gloves:** white fuzzy knit with a plain white thumb, and two broad, blunt black hoof halves over the fingers. No claws.
-- **Surface route:** 9c (material regions plus ChatGPT fabric tiles), the same "product" look as the slippers.
-- **No real measurements exist.** Scale will come from the mask scan. Today the model is 0.978 units tall, in arbitrary units.
+- **Real size: 1.64 m to the horn tips** (1.676 m per Tripo unit), set from the real mask's width at eye level (176 mm). Cross-checks: Tripo's feet come out 28.5 cm against the real 27 cm slippers; matching the eye spacing instead would give 1.54 m; a 1.6 m wearer would suggest about 1.72 m. Tripo's head is a little large for its body, so the user chose to keep the mask at its real size.
+- **Mask: the 2014 scan** (`cowMask.obj`, millimetres, 836k triangles, no texture) replaces Tripo's face. It is a better scan than the mask project's `cowMask1.stl` and also captured the horn tube, both real horns and the wire tuft.
+- **Horns follow the scan** (user's choice over the REF_J ratios): clean swept tubes along the scan's horn centrelines. Long horn 18.5 cm along its curve on the costume's own left (3 black rings, pointed tip); short horn 4.9 cm on its own right (2 rings) with a five-strand twisted wire tuft. Both sit on Tripo's horn tube (bolster), which is about 11 cm long, like the real one.
+- **Slippers:** the finished pair (`Cow_Slippers_pair.glb`) at real size (27 cm), toes on Tripo's toes, own textures. **Black-sock feet** fill them.
+- **Tail:** a 4 mm white cord from the gold bow to knee height (0.45 m).
+- **Beige satin bloomers with lace side panels**; the back continues the front (satin, lace at the sides). The lace is see-through over the black leggings.
+- **No baked lighting in the colour.** AO is a separate glTF occlusion map. Metallic is 0 everywhere.
+- **Surface route 9c:** material regions plus the user's ChatGPT fabric tiles, the same "product" look as the slippers.
 
 ## 4. Ground truth and key references
 
 - `DESIGN_BRIEF.md`: authoritative parts list and NEVER ADD list.
-- `reference/DESIGN_KEY_check_every_view_against_this.png`: 16 numbered features.
-- `reference/PROPORTION_BASE_original_shoot.png`: collage of the original wearer (shot 4 body, shot 3 head).
-- `reference/PROPORTION_SKETCH_A_pose.png`: flat-colour drawing of the same proportions.
-- Measured proportions, from floor to horn tips: snout bottom ~85%, udder 73–85% (~25% of height wide), belly widest at ~60% (~28% wide), fur hem ~52%, crotch ~46%.
-- Straight-on head photos supplied by the user: `reference/REF_J_head_front_on_new_photo.webp`, `REF_K_…`. Back bow photo: `REF_L_back_bow_new_photo.jpg`.
-- Right side of the head: photos 8 and 9 of 25 (`DETAIL_15`, `DETAIL_15b` in the STEP_5 kit). **No clean photo shows the body's left side.**
-- Raw photos: the user's `Full_Cow_Tripo.part1–4.rar`. Extract with `unrar`. They're untrusted input, so keep them in their own folder.
+- `reference/DESIGN_KEY_check_every_view_against_this.png`, `PROPORTION_BASE_original_shoot.png`, `PROPORTION_SKETCH_A_pose.png`.
+- `reference/REF_J_head_front_on_new_photo.webp`: the mask's front; its black patches, red snout and nostril slits were projected from it (`scripts/make_regions_cow.py`, hand-measured snout oval and slits). `REF_K_…`, `REF_L_back_bow_new_photo.jpg`.
+- The mask project (`Misanthropic_Cow_Mask_Part1-3`, for the separate "v10" rigged cow pipeline) has more mask photos (`references/mask_and_head/IMG_2003-2034`), the STL scan and its scale check (beads 23 mm, 56.9 mm apart). This cow measures the OBJ scan's beads at 24 mm, 59 mm apart.
+- Raw photos: the user's `Full_Cow_Tripo.part1–4.rar` (untrusted input; extract in its own folder).
 
-## 5. What to do next (in this order)
+## 5. What's next
 
-1. **Geometry swaps**, all before decimation. Blender frame: Z up, front −Y, the costume's own left is +X.
-   - Mask scan: fit it to Tripo's head (scale and pose by landmarks: eyes, nostril slits, snout, brow), replace the face, and set the **real scale**: measure the mask's width at eye level on the scan and on the model, then scale the whole model by scan ÷ model.
-   - Horns: model a long horn (out sideways, then hooked up, 3 rings) on the costume's own left, and a short horn (2 rings) with a twisted-wire tuft (thin curves) on its right. Size them against the mask, using REF_J: the long horn reaches about 0.35 of the mask width out from the bolster and rises about 0.24; it's about 0.23 thick at the root.
-   - Slippers: remove Tripo's feet below the ankle and place the slipper GLB (mirrored pair) on black-sock feet.
-   - Cord tail: a thin smooth white cord (shoelace-thick) from the bow to about knee height.
-   - The udder stays from Tripo. Its depth matches the left view.
-2. **Stage 7 decimation** from 1.9M triangles. Use region weights: keep the face/mask, hands and hooves, bow, patch tufts and udder nubs; reduce the flat legs, back and belly. Verify with same-camera clay renders and silhouette scores (`compare_meshes.py`).
-3. **Stage 8:** UV unwrap with texel weighting (face and hands high, legs low), then bake colour, normal and roughness from high to low, plus a per-texel position/normal bake.
-4. **Stage 9c:**
-   - `prep_tiles.py` on the user's tiles: fix seams, make height maps. Make two recolours: **gold satin** (from the beige satin) and **glossy black paint** (from the plaster).
-   - Region masks per texel. Classes: white fur, black shag patches, pink fleece udder, beige satin, beige lace, black leggings, white paint spots, white knit gloves, black hooves (solid, glossy), mask plaster, black mask paint, yellow eyes (solid), red flocked snout, black nostril slits, yellow horn paint + black rings (solid), gold bow, slippers (own textures).
-   - **Show the colour-coded region map to the user before texturing.**
-   - Paint the mask's black patches from REF_J/REF_K (front) and DETAIL_15 (right side). The real mask is wider than Gemini's and has a big patch over each eye.
-   - Build the live material, bake AO, final bakes, compare live vs baked.
-5. **Deliver (stages 10–11):** GLB with JPEG maps and a lean .blend with relative textures, every file under 29 MB, plus an updated HANDOFF. Rigging is next after that; suggest Rigify or AccuRig to the user.
+1. **Rigging.** Suggest Rigify (in Blender, from `deliver/live/Cow_fabric_live.blend` or the GLB) or AccuRig. The mask, horns, wire and tube should be weighted 100 % to the head bone; the slippers to the feet; the cord tail can get a short bone chain.
+2. Optional polish the user may ask for:
+   - The fill cap under the chin and the bolster-end caps are flat fans (hidden or fur-coloured, but visible up close).
+   - The mask's sides take the nearest front-facing class from REF_J; `DETAIL_15` (STEP_5 kit) could paint the costume's own right side properly.
+   - The body's black patches and white leg spots follow Tripo's texture, not the photos.
+   - The horns follow the 2014 scan, which hooks more than REF_J.
+   - A lighter LOD (body 100k, slippers 2K) for real-time use.
 
 ## 6. Environment setup (fresh container)
 
 ```bash
-apt-get install -y unrar libegl1 libegl-mesa0 libgl1-mesa-dri libgles2 libosmesa6 libglu1-mesa libxi6 libxxf86vm1 libxfixes3 libxrender1 libsm6 libxkbcommon0
+apt-get install -y unrar libegl1 libegl-mesa0 libgl1-mesa-dri libgles2 libosmesa6 libglu1-mesa libxi6 libxxf86vm1 libxfixes3 libxrender1 libsm6 libxkbcommon0 libopengl0
 ```
 ```bash
-pip install opencv-python-headless pillow numpy scipy "networkx>=3" trimesh rtree "PyOpenGL>=3.1.9" freetype-py imageio pyglet==1.5.29 bpy==5.2.3
+pip install opencv-python-headless pillow numpy scipy "networkx>=3" trimesh rtree "PyOpenGL>=3.1.9" freetype-py imageio pyglet==1.5.29 pymeshlab matplotlib embreex bpy==5.2.3
 ```
 ```bash
 pip install --no-deps pyrender
 ```
-- `bpy==5.2.3` has a cp313 wheel (about 400 MB).
-- pyrender needs `PYOPENGL_PLATFORM=egl`. `r.render(..., flags=DEPTH_ONLY)` returns only the depth array. Use `RenderFlags.RGBA` and composite onto white, or the background renders black.
-- Blender OBJ import puts the Y-up to Z-up conversion in the object rotation. Apply the transform.
+- `bpy==5.2.3` has a cp313 wheel (about 400 MB). pyrender needs `PYOPENGL_PLATFORM=egl`; render with `RenderFlags.RGBA` and composite the alpha onto white. `embreex` makes trimesh's ray casting fast.
+- Run scripts with `python3 -I` (they add their own folder to `sys.path` for the shared helpers).
+- Blender's bake alpha is 1 everywhere: compute texel coverage from the UV triangles instead (`make_regions_cow.py`).
+- `pkill -f <script>` from the same shell kills that shell too (its command line contains the pattern); use `pgrep` + `kill`.
 
-## 7. Scripts (`scripts/`)
+## 7. Scripts (`scripts/`) and the order they run in
 
-| Script | Purpose |
-|---|---|
-| `prep_refs_cow.py` | All REF_/DETAIL_ crops, white-balanced, square (needs the extracted photos and the playbook folder) |
-| `proportion_base_composite.py` | Proportion collage (shots 4 + 3) |
-| `proportion_guide_sketch.py` | Flat-colour A-pose proportion drawing |
-| `design_key_cow.py` + `design_key_marks.py` | Design key |
-| `kit_content_cow.py` + `build_kit_cow.py` | Step-kit prompts and zips (`kit/`) |
-| `fix_front_view.py` | Front view: real long horn from REF_J, legs stretched 6% with the slippers unscaled |
-| `fix_back_view.py` | Back view: mirrored front horn (3 rings), neck gap covered, bow centred, ankle skin blacked |
-| `fix_side_udder.py` | Right side view: udder ×1.25 about its top attachment |
-| `normalize_views_cow.py` | Tripo inputs: cleans off-white backgrounds without eating white fur, same height and ground line |
-| `render_model_cow.py` | Textured and clay turnarounds of an OBJ |
-| `compare_silhouettes_cow.py` | Model vs input-view silhouette IoU and width profiles |
-| `bl_stage6_cow.py` | Import OBJ, apply axis conversion, zero metallic, save the high-poly .blend |
-| `prep_fabric_crops_cow.py` + `build_tile_kit_cow.py` | Fabric crops and the ChatGPT tile kit |
+Inputs: `<x>` = extracted uploads (Tripo OBJ, `cowMask.obj`, slipper `Cow_Slippers_pair.glb`, the 10 `TILE_*.png`), `<w>` = a work folder.
 
-Example (from the repo folder): `python3 scripts/bl_stage6_cow.py "<extracted>/cow costume 3d model/cow_costume_3d_model.obj" work/cow_high.blend`
+| # | Script | What it does |
+|---|---|---|
+| 1 | `bl_stage6_cow.py <tripo.obj> <w>/cow_high.blend` | Import, Z up, metallic 0 |
+| 2 | `fit_mask_scan_cow.py <cowMask.obj> <tripo npz> <w>/maskfit` | Scan units (eye beads), scale from the mask width, pose fit onto Tripo's face -> `fit.json` |
+| 3 | `prep_tiles_cow.py <tiles> fabric_tiles/real_fabric_crops <w>/tiles_ready` | Seam/light/brightness checks, seamless tiles, heights, colour fixes, gold satin, glossy black paint, lace opacity |
+| 4 | `horns_from_scan_cow.py <cowMask.obj> <w>/horns` | Scan-guided horns and wire tuft |
+| 5 | `build_swaps_cow.py … <w>/swaps` | Mask on, Tripo face/horns/feet off (capped), socks, slipper placement, cord tail |
+| 6 | `bl_assemble_cow.py <w>/swaps <tripo basecolor> <slippers.glb> <w>/cow_swapped.blend` | All parts in one .blend, metres |
+| 7 | `bl_decimate_cow.py <w>/cow_swapped.blend <w>/cow_low.blend <w>/ply` | Region-weighted decimation; `compare_lod_cow.py` checks it |
+| 8 | `bl_uv_cow.py <w>/cow_low.blend <w>/cow_uv.blend` | Joins the LOW parts (face attribute `part`), texel-weighted atlases |
+| 9 | `bl_bake_cow.py <w>/cow_uv.blend <w>/bake` | Colour, normal, per-texel position/normal/part; UV'd OBJs |
+| 10 | `make_regions_cow.py <w>/bake … REF_J <w>/regions` | Region classes (approved); `render_regions_cow.py` draws the map |
+| 11 | `make_mix_masks_cow.py <w>/regions <w>/mix` | Soft sequential mix factors |
+| 12 | `bl_fabric_cow.py <w>/bake/cow_baked_work.blend <w>/tiles_ready <w>/mix <w>/bake <w>/fabric` | Live materials, AO, final bakes (about 12 min on CPU) |
+| 13 | `render_compare_cow.py`, `bl_export_cow.py <w>/fabric/Cow_fabric_live.blend <w>/fabric deliver` | Live vs baked; GLB + lean live .blend |
 
-## 8. Lessons from this project (worth adding to the playbook)
+Helpers: `geom_cow.py` (tube sweep), `bl_cow_common.py` (baked material with glTF occlusion), `render_clay_views.py`, `fit_scan_to_scan.py` (OBJ vs STL check; free-scale ICP collapses, see §8). Earlier stages: `prep_refs_cow.py`, `proportion_*`, `design_key_*`, `kit_*`, `fix_*_view.py`, `normalize_views_cow.py`, `render_model_cow.py`, `compare_silhouettes_cow.py`, `prep_fabric_crops_cow.py`, `build_tile_kit_cow.py`.
 
-1. **Image-model guardrails.** ChatGPT blocked the costume ("nudity/sexuality") because of underwear and breast-like words and photos, even though the costume covers everything. What worked:
-   - neutral costume wording ("udder" with "nubs", "bloomers", "the costume's own left");
-   - dropping close-ups of the udder and underwear;
-   - cropping out props (a knife and fake blood);
-   - the user's **censored front** (udder painted out) as the reference for the back view;
-   - a new chat after any refusal.
+Numbers worth keeping are in `checkpoints/`: `mask_scan_fit.json`, `swaps.json` (scale, slipper placement, horn shifts, bolster ends, tail), `horns.json`, `tile_report.json`, `regions.json`.
 
-   Gemini allowed what ChatGPT refused.
-2. **Gemini re-renders the whole image on every edit**, which softens detail and changes size. ChatGPT's Select tool also re-renders globally but stays close (silhouette IoU 0.96–0.99). Each round can drift, so do **AI fixes first and deterministic fixes last**.
-3. **Deterministic edits beat AI edits** for size, position and colour fixes:
-   - shrinking or replacing a horn;
-   - moving the bow;
-   - stretching the legs while keeping the slippers unscaled;
-   - enlarging the udder;
-   - filling the neck gap;
-   - colouring in the ankle strips.
+## 8. Lessons (worth adding to the playbook)
 
-   AI models kept making the horn 2–3× too big. Pasting the **real horn cut from a straight-on photo** fixed it.
-4. **Measure with a rigid ruler:** the mask width (or the floor-to-snout height) gave consistent numbers across photos and generated views.
-5. **Reference photos must match the side they're used for.** A flipped head photo puts asymmetric paint on the wrong side. Search the archive for a real photo of that side first.
-6. The extra "correction" turn in Gemini made it drift toward a generic cartoon. Paste the next step's prompt directly; the step prompts carry the side-specific details.
-7. Side views: one slipper floats higher (perspective) and the hands came out ~11% smaller. Tolerable when those parts get replaced in 3D.
+1. **Image-model guardrails.** ChatGPT blocked the costume ("nudity/sexuality") because of underwear and breast-like words and photos. Neutral wording ("udder" with "nubs", "bloomers", "the costume's own left"), no close-ups of the udder and underwear, cropped props, the user's censored front, and a new chat after any refusal fixed it. Gemini allowed what ChatGPT refused.
+2. **Gemini re-renders the whole image on every edit**; ChatGPT's Select tool stays closer. Do AI fixes first and deterministic fixes last. Deterministic edits beat AI edits for size, position and colour.
+3. **Measure with a rigid ruler** (the mask width, eye beads). Reference photos must match the side they're used for.
+4. **Free-scale ICP shrinks** onto a patch of the target (scan vs scan, and scan vs an AI face). Hold the scale from a measured landmark and let ICP set only the pose; test scales on a grid when needed.
+5. **A real scan beats AI geometry for a rigid part.** Deleting the AI face inside the scan's outline and capping the hole worked; pushing the AI surface behind the scan left spikes and an AI snout under the real chin.
+6. **AI meshes are split at UV seams**: weld by position before finding boundary loops (sock rings, caps).
+7. **Black paint scans noisily** (the mask's black patches are rough in the scan); the geometry still fits.
+8. **Photo projection needs hand-checked landmarks** where shadows merge shapes (the nostril slits merge into the snout's shadow).
 
 ## 9. Package map
-
-The handoff zip holds the repo folder without the regenerable or superseded bulk:
 
 | Folder or file | Contents |
 |---|---|
 | `HANDOFF.md`, `README.md`, `DESIGN_BRIEF.md` | Docs |
 | `scripts/` | Every script above |
-| `views/` | Approved views, raw AI outputs, the user's censored front (`FRONT_censored_user_edit.webp`) |
-| `reference/` | Design key, proportion base and sketch, REF_J/K/L |
-| `tripo_inputs/` | The four normalised Tripo inputs, line-up, upload notes |
-| `tripo_eval/` | Round-1 renders and report |
-| `prompts/` | ChatGPT back-view prompt and images |
-| `fabric_tiles/` | Real-fabric crops and the tile kit |
+| `checkpoints/` | Checkpoint pictures 1-4 and the measured numbers |
+| `deliver/Misanthropic_Cow.glb` | The finished figure (§10) |
+| `deliver/live/` | `Cow_fabric_live.blend` + `textures/` (keep them together) |
+| `views/`, `reference/`, `tripo_inputs/`, `tripo_eval/`, `prompts/`, `fabric_tiles/`, `kit/` | Earlier stages |
 
-Not included:
-- `kit/`: the ChatGPT/Gemini step kit, 40 MB. Done, and on the branch.
-- The Tripo OBJ (the user's RAR, 194 MB).
-- The raw photos (the user's RAR).
-- The working .blend (rebuild with `bl_stage6_cow.py`).
+Not in the repo: the Tripo OBJ (the user's RAR, 194 MB), the mask scan (`cowMask.rar`), the raw photos, and the work .blends (rebuild with §7).
+
+## 10. The deliverable
+
+`deliver/Misanthropic_Cow.glb` (28.1 MB): glTF, +Y up, metres, the face toward +Z, the costume's own left at +X; 1.648 m tall.
+
+| Object | Triangles | Maps |
+|---|---|---|
+| `Cow_body` (body, socks, cord tail, horns, wire tuft) | 212k | 4K base colour, roughness, normal; 2K occlusion |
+| `Cow_mask` (the real mask scan) | 60k | 2K base colour, roughness, normal; 1K occlusion |
+| `Slipper_L`, `Slipper_R` (one mesh, mirrored) | 150k each | the slippers' own maps at 2K |
+
+Metallic 0 everywhere; JPEG maps; the occlusion maps are separate (no lighting in the colour).
+`deliver/live/Cow_fabric_live.blend`: the live fabric materials (`Cow_Fabric`, `Mask_Fabric`): tiles box-projected at real size (fur and shag 10 cm, fleece, satin, lace, plaster 8 cm, leggings, paint, knit 6 cm, snout 5 cm), mix masks (PNG, keep lossless), detail normals, see-through lace. Textures are relative (`//textures/...`).

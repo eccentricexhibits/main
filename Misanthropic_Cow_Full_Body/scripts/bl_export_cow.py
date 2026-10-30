@@ -22,6 +22,7 @@ MB = lambda p: os.path.getsize(p) / 1e6
 
 # ---------- 2. lean live .blend (first, from the untouched live file) ----------
 bpy.ops.wm.open_mainfile(filepath=SRC)
+bpy.data.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)   # e.g. the Tripo colour material
 for im in list(bpy.data.images):
     if im.users == 0 or im.type != "IMAGE": continue           # (the bake targets are unused after the bakes)
     base = os.path.splitext(bpy.path.basename(im.filepath or im.name))[0] or im.name
@@ -35,16 +36,23 @@ for im in list(bpy.data.images):
     elif base.startswith("TILE_"):
         dst, fmt, size = f"{base}.jpg", "JPEG", 2048
     else:                                                     # slipper maps packed in the file
-        dst, fmt, size = f"slipper_{base}.jpg", "JPEG", SLIP
+        dst, fmt, size = f"slipper_{base.replace('_4096', '')}.jpg", "JPEG", SLIP
     if size and max(im.size) > size: im.scale(size, size)
     sc = bpy.context.scene; sc.render.image_settings.file_format = fmt
     if fmt == "JPEG": sc.render.image_settings.quality = 90
     im.save_render(f"{OUT}/live/textures/{dst}", scene=sc)
     if im.packed_file: im.unpack(method="REMOVE")
-    im.filepath = f"//textures/{dst}"; im.source = "FILE"
+    im.filepath = os.path.abspath(f"{OUT}/live/textures/{dst}"); im.source = "FILE"   # made //textures/... on save
     if data: im.colorspace_settings.name = "Non-Color"
     im.reload()
-bpy.ops.wm.save_as_mainfile(filepath=f"{OUT}/live/Cow_fabric_live.blend", compress=True, relative_remap=True)
+bpy.ops.wm.save_as_mainfile(filepath=f"{OUT}/live/Cow_fabric_live.blend", compress=True)
+bpy.ops.file.make_paths_relative()                           # now that the file has its final location
+bpy.ops.wm.save_mainfile(compress=True)
+bpy.ops.wm.open_mainfile(filepath=f"{OUT}/live/Cow_fabric_live.blend")
+imgs = [im for im in bpy.data.images if im.type == "IMAGE" and im.source == "FILE"]
+missing = [im.filepath for im in imgs if not os.path.exists(bpy.path.abspath(im.filepath))]
+absolute = [im.filepath for im in imgs if not im.filepath.startswith("//")]
+print(f"live .blend reopened: {len(imgs)} images, missing files {missing or 'none'}, non-relative paths {absolute or 'none'}", flush=True)
 tex_mb = sum(MB(f"{OUT}/live/textures/{f}") for f in os.listdir(f"{OUT}/live/textures"))
 print(f"live .blend {MB(f'{OUT}/live/Cow_fabric_live.blend'):.1f} MB + textures {tex_mb:.1f} MB ({len(os.listdir(f'{OUT}/live/textures'))} files)", flush=True)
 
