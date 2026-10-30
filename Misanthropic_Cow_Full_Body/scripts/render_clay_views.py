@@ -11,7 +11,7 @@ os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
 import numpy as np, trimesh, pyrender
 from PIL import Image, ImageDraw
 
-COLS = [(0.78, 0.78, 0.76), (0.95, 0.55, 0.2), (0.3, 0.55, 0.95), (0.35, 0.8, 0.4)]
+COLS = [(0.78, 0.78, 0.76), (0.95, 0.55, 0.2), (0.3, 0.55, 0.95), (0.35, 0.8, 0.4), (0.25, 0.25, 0.28), (0.7, 0.45, 0.85), (0.9, 0.2, 0.2)]
 
 
 def look_at(eye, target, up):
