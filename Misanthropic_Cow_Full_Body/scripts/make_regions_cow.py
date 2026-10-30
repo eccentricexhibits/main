@@ -5,15 +5,17 @@ python3 -I make_regions_cow.py <bake_dir> <fit.json> <swaps.json> <horns.json> <
 Body atlas (Cow_LOW, 4K): from the baked Tripo colour, the per-texel position/normal and the part id.
   - parts: socks, tail cord, wire tuft are their own classes; the horns are yellow with black rings placed by
     arc length along each horn's centreline (long horn 3 rings, short horn 2);
-  - body: hands -> white knit / black hooves (dark); below the bloomers -> black leggings / white paint spots (light);
-    the bloomers band (beige) -> satin at front and back, lace on the side panels; gold on the lower back -> bow;
+  - body: hands (20 cm from the fingertip along the arm) -> white knit / black hooves (dark); the bloomers band is
+    found per azimuth around the hips (the height range where Tripo's colour is mostly beige) -> satin at front and
+    back, lace on the side panels; below it -> black leggings / white paint spots (light, not beige); gold on the lower back -> bow;
     pink above the belly -> udder; dark above the bloomers -> black shag; everything else -> white fur.
   - clean-up: specks smaller than ~1 cm^2 are absorbed into their surroundings.
 Mask atlas (Mask_LOW, 2K):
   - eyes and pupils from the scan's bead spheres (yellow bead, black pupil on its front);
   - black paint, red flocked snout and the two nostril slits from REF_J (front-on photo), projected orthographically
-    with an affine fit on three landmarks (both eyes, snout centre); texels that face sideways take the class of
-    the nearest front-facing texel; everything else is the white plaster.
+    with an affine fit on three landmarks (both eyes, snout centre); the snout oval and the slits are measured on
+    the photo (SNOUT_C, SNOUT_AX, SLITS); below the snout's lower edge the photo shows the costume, so those texels, and texels that face
+    sideways, take the class of the nearest front-facing texel that has a photo class.
 Writes regions_cow.png / regions_mask.png (class ids), colour-coded previews, and regions.json (classes, counts).
 """
 import sys, os, json
@@ -37,16 +39,27 @@ S = sw["metres_per_tripo_unit"]; F = fit["scan_mm_to_tripo_units"]
 to_cow = lambda X: S * (F["s"] * np.asarray(X, float) @ np.array(F["R"]).T + np.array(F["t"]))
 
 
+def uv_coverage(obj, size, grow=8):
+    """Texels covered by the mesh's UV triangles (+ the bake margin). Bake alpha is 1 everywhere, so it can't say this."""
+    import trimesh
+    m = trimesh.load(obj, process=False, force="mesh")
+    t = m.visual.uv[m.faces]
+    pts = np.stack([t[..., 0] * size, (1 - t[..., 1]) * size], -1)
+    img = np.zeros((size, size), np.uint8)
+    cv2.fillPoly(img, [np.round(q * 4).astype(np.int32) for q in pts], 1, lineType=cv2.LINE_8, shift=2)
+    return cv2.dilate(img, np.ones((2 * grow + 1, 2 * grow + 1), np.uint8)).astype(bool)
+
+
 def clean(cls, valid, min_px):
-    """Absorb connected specks smaller than min_px into the most common neighbouring class."""
-    out = cls.copy()
+    """Absorb connected specks smaller than min_px: drop them, then fill each dropped texel from the nearest kept one."""
+    from scipy.ndimage import distance_transform_edt
+    keep = valid.copy()
     for c in np.unique(cls[valid]):
         n, lab, st, _ = cv2.connectedComponentsWithStats((cls == c).astype(np.uint8), connectivity=8)
-        for i in np.nonzero(st[1:, cv2.CC_STAT_AREA] < min_px)[0] + 1:
-            m = lab == i
-            ring = cv2.dilate(m.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool) & ~m & valid
-            if ring.any():
-                v, k = np.unique(out[ring], return_counts=True); out[m] = v[np.argmax(k)]
+        small = np.r_[False, st[1:, cv2.CC_STAT_AREA] < min_px]
+        keep &= ~small[lab]
+    _, (iy, ix) = distance_transform_edt(~keep, return_indices=True)
+    out = cls[iy, ix]; out[~valid] = 0
     return out
 
 
@@ -59,7 +72,8 @@ def preview(cls, path):
 # ---------------- body atlas ----------------
 col = np.asarray(Image.open(f"{BK}/cow_color_4096.png").convert("RGB")).astype(np.float32) / 255
 P = np.load(f"{BK}/geom_cow_position.npy"); N = np.load(f"{BK}/geom_cow_normal.npy"); part = np.load(f"{BK}/geom_cow_part.npy")
-valid = part >= 0
+valid = uv_coverage(f"{BK}/Cow_LOW.obj", part.shape[0])
+part = np.where(valid, part, -1)
 x, y, z = P[..., 0], P[..., 1], P[..., 2]
 r, g, b = col[..., 0], col[..., 1], col[..., 2]; L = col.mean(-1)
 dark = L < 0.27
@@ -69,19 +83,58 @@ beige = (r > 0.55) & (g > 0.45) & (b > 0.32) & (r - b > 0.06) & (r - b < 0.35) &
 cls = np.zeros(part.shape, np.uint8)
 body = valid & (part == 0)
 cls[body] = 1
-hands = body & (np.abs(x) > 0.36) & (z < 1.05)
-legs = body & (z < 0.745) & ~hands
-band = body & (z >= 0.70) & (z < 0.90) & ~hands
-cls[body & dark & (z >= 0.76)] = 2
+# gloves: within 20 cm of the fingertip along the arm (A-pose: the arm points out and down at about 45 degrees)
+hands = np.zeros_like(body)
+for sg in (1, -1):
+    arm = body & (sg * x > 0.30) & (z < 1.2)
+    d = np.array([sg, 0, -1.0]) / np.sqrt(2); proj = P @ d
+    hands |= arm & (proj > proj[arm].max() - 0.20)
+# bloomers: per azimuth around the hips, the contiguous height range where the Tripo colour is mostly beige
+yc = float(np.median(y[body & (z > 0.72) & (z < 0.88)]))
+az = np.arctan2(x, -(y - yc)); NA = 36
+ai = ((az + np.pi) / (2 * np.pi) * NA).astype(int) % NA
+zi = np.floor((z - 0.60) / 0.01).astype(int); NZ = 36
+cand = body & ~hands & (zi >= 0) & (zi < NZ)
+tot = np.zeros((NA, NZ)); bei = np.zeros((NA, NZ))
+np.add.at(tot, (ai[cand], zi[cand]), 1); np.add.at(bei, (ai[cand], zi[cand]), beige[cand])
+frac = bei / np.maximum(tot, 1)
+zlo, zhi = np.full(NA, np.nan), np.full(NA, np.nan)
+for a in range(NA):
+    on = frac[a] > 0.35
+    for k in range(1, NZ - 2):                                   # bridge 1-2 bin gaps
+        if not on[k] and on[k - 1] and (on[k + 1] or on[min(k + 2, NZ - 1)]): on[k] = True
+    best, run = (0, 0, 0), None
+    for k in range(NZ + 1):
+        if k < NZ and on[k]: run = k if run is None else run
+        elif run is not None:
+            if k - run > best[0]: best = (k - run, run, k)
+            run = None
+    if best[0] >= 3: zlo[a], zhi[a] = 0.60 + best[1] * 0.01, 0.60 + best[2] * 0.01
+ok_ = ~np.isnan(zlo)
+idx = np.arange(NA)
+zlo = np.interp(idx, idx[ok_], zlo[ok_], period=NA); zhi = np.interp(idx, idx[ok_], zhi[ok_], period=NA)
+med = lambda a: np.array([np.median(np.take(a, range(i - 2, i + 3), mode="wrap")) for i in range(NA)])
+zlo, zhi = med(zlo), med(zhi)
+print("bloomers band (m): bottom", zlo.min().round(3), "-", zlo.max().round(3), " top", zhi.min().round(3), "-", zhi.max().round(3))
+# continuous in azimuth (bin centres, wrapped) so the edges don't stair-step
+ctr = (np.arange(NA) + 0.5) / NA * 2 * np.pi - np.pi
+zl = np.interp(az, ctr, zlo, period=2 * np.pi); zh = np.interp(az, ctr, zhi, period=2 * np.pi)
+torso = np.abs(x) < 0.27                                       # the hanging arms are not bloomers
+band = body & ~hands & torso & (z >= zl) & (z < zh)
+legs = body & ~hands & (z < zl) & (z < 0.80)
+cls[body & dark & (z >= 0.76) & ~hands] = 2
 cls[body & pink & (z > 1.0)] = 3
-bl = band & beige & ~(gold & (y > 0.05))
+bl = band & ~(gold & (y > 0.05))
 cls[bl] = 4
-cls[bl & (np.abs(N[..., 0]) > 0.55)] = 5
+cls[bl & (np.abs(np.sin(az)) > 0.8)] = 5                      # the side panels are lace
 cls[legs] = 6
-cls[legs & (L > 0.55)] = 7
+cls[legs & (L > 0.55) & (np.abs(r - b) < 0.1)] = 7            # white paint (not the beige of the bloomers)
 cls[hands] = 8
 cls[hands & dark] = 9
 cls[body & gold & (y > 0.05) & (z > 0.78) & (z < 0.95)] = 10
+# the fill cap behind the mask (under the chin, facing forward) is hood fur, not the striped Tripo texels it got
+cap = body & (N[..., 1] < -0.5) & (z > 1.29) & (z < 1.42) & (np.abs(x) < 0.09) & (y > -0.07) & (y < 0.0)
+cls[cap] = 1
 cls[valid & (part == 1)] = 11
 cls[valid & (part == 2)] = 12
 cls[valid & (part == 5)] = 15
@@ -100,22 +153,27 @@ cls[~valid] = 0
 Image.fromarray(cls).save(f"{OUT}/regions_cow.png"); preview(cls, f"{OUT}/regions_cow_preview.png")
 
 # ---------------- mask atlas ----------------
-MP = np.load(f"{BK}/geom_mask_position.npy"); MN = np.load(f"{BK}/geom_mask_normal.npy"); mval = np.load(f"{BK}/geom_mask_coverage.npy")
+MP = np.load(f"{BK}/geom_mask_position.npy"); MN = np.load(f"{BK}/geom_mask_normal.npy"); mval = uv_coverage(f"{BK}/Mask_LOW.obj", MP.shape[0])
 mcls = np.zeros(mval.shape, np.uint8); mcls[mval] = 20
 eyes = [to_cow(np.array(e["centre"])[None])[0] for e in fit["scan_eye_beads_mm"]]
-eye_r = 0.0118
 # photo landmarks: eye centres = yellow blobs, snout centre = red blob
 ph = np.asarray(Image.open(PHOTO).convert("RGB")).astype(np.float32) / 255
 pr, pg, pb = ph[..., 0], ph[..., 1], ph[..., 2]; pL = ph.mean(-1)
 yel = (pr > 0.45) & (pg > 0.4) & (pb < 0.5 * pg)
 red = (pr > 0.28) & (pr > 1.6 * pg) & (pr > 1.3 * pb)
-n, lab, st, cen = cv2.connectedComponentsWithStats(yel.astype(np.uint8))
+# eyes: yellow rings around dark pupils -> close the rings, search only the face band (the horns are yellow too)
+band_ = np.zeros_like(yel); band_[int(ph.shape[0] * 0.28):int(ph.shape[0] * 0.55)] = True
+ye = cv2.morphologyEx((yel & band_).astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21)))
+n, lab, st, cen = cv2.connectedComponentsWithStats(ye)
 big = np.argsort(-st[1:, cv2.CC_STAT_AREA])[:2] + 1
-eye_px = sorted([cen[i] for i in big if st[i, cv2.CC_STAT_AREA] > 200], key=lambda c: c[0])
-eye_px = [e for e in eye_px if e[1] > ph.shape[0] * 0.25][:2]   # skip the yellow horns at the top
-n, lab, st, cen = cv2.connectedComponentsWithStats(red.astype(np.uint8))
-ri = np.argmax(st[1:, cv2.CC_STAT_AREA]) + 1; snout_px = cen[ri]
-snout_mask = lab == ri
+eye_px = sorted([cen[i] for i in big], key=lambda c: c[0])
+# the red snout and its two slits, measured on REF_J (px): the slits merge into the shadow under the snout, so
+# they can't be found by thresholds; the slipper project also fixed landmarks by hand on the original photos
+SNOUT_C, SNOUT_AX = (435, 570), (98, 67)
+SLITS = [(377, 543, 397, 627), (449, 543, 474, 627)]
+yy_, xx_ = np.mgrid[:ph.shape[0], :ph.shape[1]]
+snout_mask = ((xx_ - SNOUT_C[0]) / SNOUT_AX[0]) ** 2 + ((yy_ - SNOUT_C[1]) / SNOUT_AX[1]) ** 2 <= 1
+snout_px = np.array(SNOUT_C, float)
 # cow-frame landmarks (x, z): eye centres (image left = the costume's own right = -X), snout front centre
 mv = MP[mval]; front = mv[mv[:, 1] < mv[:, 1].min() + 0.015]
 snout_c = front.mean(0)
@@ -127,19 +185,21 @@ pcls = np.full(pL.shape, 20, np.uint8)
 blue_bg = (pb > pr + 0.05) & (pg > pr)
 pcls[(pL < 0.2) & ~blue_bg] = 21
 pcls[red] = 24
-hull = cv2.morphologyEx(snout_mask.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))).astype(bool)
-pcls[hull & (pL < 0.2)] = 25
-pcls[hull & ~(pL < 0.2)] = 24
+hull = snout_mask
 pcls = cv2.medianBlur(pcls, 5)
+pcls[hull] = 24
+for x0, y0, x1, y1 in SLITS: pcls[y0:y1, x0:x1] = 25
+# below the snout's lower edge the photo shows the costume, not the mask: leave it unknown (0)
+pcls[SNOUT_C[1] + SNOUT_AX[1] + 4:, :] = 0
 uv = np.c_[mv[:, 0], mv[:, 2]] @ A[:, :2].T + A[:, 2]
 ui = np.clip(uv[:, 0].round().astype(int), 0, pL.shape[1] - 1); vi = np.clip(uv[:, 1].round().astype(int), 0, pL.shape[0] - 1)
 pc = pcls[vi, ui]
-facing = MN[mval][:, 1] < -0.3
+facing = (MN[mval][:, 1] < -0.3) & (pc > 0)
 lab_m = np.full(len(mv), 20, np.uint8)
 lab_m[facing] = pc[facing]
 _, nn = cKDTree(mv[facing]).query(mv[~facing]); lab_m[~facing] = pc[facing][nn]
-for c in eyes:
-    d = np.linalg.norm(mv - c, axis=1); on = d < eye_r + 0.0015
+for c, er in zip(eyes, [e["diameter"] / 2000 for e in fit["scan_eye_beads_mm"]]):
+    d = np.linalg.norm(mv - c, axis=1); on = d < er + 0.0015
     lab_m[on] = 22
     fwd = (mv - c) @ np.array([0, -1.0, 0]) / np.maximum(d, 1e-6)
     lab_m[on & (fwd > 0.93)] = 23

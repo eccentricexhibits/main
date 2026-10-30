@@ -21,7 +21,7 @@ def textured(obj, png):
     return pyrender.Mesh.from_trimesh(m, smooth=True)
 
 
-scene = pyrender.Scene(bg_color=[1, 1, 1, 0], ambient_light=[0.55] * 3)
+scene = pyrender.Scene(bg_color=[1, 1, 1, 0], ambient_light=[0.85] * 3)
 scene.add(textured(f"{BK}/Cow_LOW.obj", f"{RG}/regions_cow_preview.png"))
 scene.add(textured(f"{BK}/Mask_LOW.obj", f"{RG}/regions_mask_preview.png"))
 gl = trimesh.load(GLB)
@@ -42,7 +42,7 @@ def look_at(eye, t, up):
 def shot(c, d, half, size=700, title=""):
     c = np.asarray(c, float); d = np.asarray(d, float); d /= np.linalg.norm(d); up = np.array([0, 0, 1.0])
     cn = scene.add(pyrender.OrthographicCamera(xmag=half, ymag=half, znear=0.05, zfar=10), pose=look_at(c + d * 4, c, up))
-    ln = scene.add(pyrender.DirectionalLight(intensity=1.8), pose=look_at(c + (d + up * 0.7 + np.cross(d, up) * 0.4) * 4, c, up))
+    ln = scene.add(pyrender.DirectionalLight(intensity=1.2), pose=look_at(c + (d + up * 0.7 + np.cross(d, up) * 0.4) * 4, c, up))
     r = pyrender.OffscreenRenderer(size, size); img, _ = r.render(scene, flags=pyrender.RenderFlags.RGBA); r.delete()
     scene.remove_node(cn); scene.remove_node(ln)
     a = img[..., 3:4] / 255; im = Image.fromarray((img[..., :3] * a + 255 * (1 - a)).astype(np.uint8))

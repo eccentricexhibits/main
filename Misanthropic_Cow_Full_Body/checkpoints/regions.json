@@ -1,0 +1,171 @@
+{
+ "classes": {
+  "1": "white faux fur",
+  "2": "black shag fur",
+  "3": "pink fleece udder",
+  "4": "beige satin bloomers",
+  "5": "beige lace side panels",
+  "6": "black leggings",
+  "7": "white paint spots",
+  "8": "white knit gloves",
+  "9": "black glossy hooves",
+  "10": "gold satin bow",
+  "11": "black socks",
+  "12": "white cord tail",
+  "13": "yellow horn paint",
+  "14": "black horn rings",
+  "15": "bare wire",
+  "20": "mask white plaster",
+  "21": "mask black paint",
+  "22": "yellow eye bead",
+  "23": "black pupil",
+  "24": "red flocked snout",
+  "25": "black nostril slits"
+ },
+ "colours": {
+  "1": [
+   225,
+   225,
+   220
+  ],
+  "2": [
+   20,
+   20,
+   20
+  ],
+  "3": [
+   245,
+   150,
+   180
+  ],
+  "4": [
+   205,
+   175,
+   130
+  ],
+  "5": [
+   150,
+   95,
+   50
+  ],
+  "6": [
+   55,
+   65,
+   95
+  ],
+  "7": [
+   90,
+   220,
+   230
+  ],
+  "8": [
+   150,
+   225,
+   140
+  ],
+  "9": [
+   110,
+   40,
+   140
+  ],
+  "10": [
+   240,
+   190,
+   20
+  ],
+  "11": [
+   10,
+   30,
+   160
+  ],
+  "12": [
+   255,
+   60,
+   60
+  ],
+  "13": [
+   255,
+   240,
+   60
+  ],
+  "14": [
+   120,
+   70,
+   20
+  ],
+  "15": [
+   160,
+   160,
+   175
+  ],
+  "20": [
+   240,
+   240,
+   235
+  ],
+  "21": [
+   25,
+   25,
+   25
+  ],
+  "22": [
+   255,
+   215,
+   0
+  ],
+  "23": [
+   200,
+   0,
+   120
+  ],
+  "24": [
+   210,
+   20,
+   30
+  ],
+  "25": [
+   0,
+   200,
+   120
+  ]
+ },
+ "texel_counts": {
+  "white faux fur": 5334012,
+  "black shag fur": 1642574,
+  "pink fleece udder": 692564,
+  "beige satin bloomers": 288230,
+  "beige lace side panels": 237157,
+  "black leggings": 2056284,
+  "white paint spots": 127743,
+  "white knit gloves": 753865,
+  "black glossy hooves": 632750,
+  "gold satin bow": 49721,
+  "black socks": 180362,
+  "white cord tail": 69516,
+  "yellow horn paint": 134568,
+  "black horn rings": 10485,
+  "bare wire": 53115,
+  "mask white plaster": 1578676,
+  "mask black paint": 1508502,
+  "yellow eye bead": 123251,
+  "black pupil": 6512,
+  "red flocked snout": 347394,
+  "black nostril slits": 66689
+ },
+ "photo_landmarks_px": {
+  "eyes": [
+   [
+    377.8988391376451,
+    402.18739635157544
+   ],
+   [
+    491.8142493638677,
+    398.50508905852416
+   ]
+  ],
+  "snout": [
+   435.0,
+   570.0
+  ]
+ }
+}
