@@ -1,0 +1,263 @@
+<title>The Misanthropic Cow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a studio stage — the model fills the frame, a slim header names it, controls sit along the bottom edge
+   like a photographer's backdrop clips; on phones the controls stack under the stage. */
+:root {
+  --bg: #dbe5e4;        /* pale teal studio paper */
+  --panel: #edf3f2;
+  --fg: #142629;
+  --muted: #4d6366;
+  --line: #b5c7c6;
+  --accent: #b3202b;    /* the snout's red flock */
+  --accent-fg: #ffffff;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e2125; --panel: #153036; --fg: #e6eeed; --muted: #9bb2b4; --line: #2a4950;
+    --accent: #e0545e; --accent-fg: #170708; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e2125; --panel: #153036; --fg: #e6eeed; --muted: #9bb2b4; --line: #2a4950;
+  --accent: #e0545e; --accent-fg: #170708; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px;
+  display: flex; flex-direction: column;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 14px; box-sizing: border-box; gap: 10px;
+}
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3.4vw, 32px); letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 13px; }
+.facts b { font-family: var(--mono); font-weight: 500; color: var(--fg); font-variant-numeric: tabular-nums; }
+.stage { position: relative; flex: 1 1 auto; min-height: 320px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+canvas#view { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+canvas#view:active { cursor: grabbing; }
+.hint { position: absolute; left: 12px; top: 10px; font-size: 12px; color: var(--muted); pointer-events: none; }
+.status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; }
+.status[hidden] { display: none !important; }
+.status p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.bar { width: min(260px, 70vw); height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 10px auto 0; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.group > span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+button, .toggle {
+  font: 500 13px var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 6px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+button:hover, .toggle:hover { border-color: var(--muted); }
+button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button:focus-visible, .toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toggle input { accent-color: var(--accent); margin: 0; }
+@media (max-width: 560px) { .controls { gap: 8px 14px; } .hint { display: none; } }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<header>
+  <h1>The Misanthropic Cow</h1>
+  <ul class="facts" aria-label="Model facts">
+    <li>Height <b>1.64 m</b></li>
+    <li>Mask <b>2014 scan</b></li>
+    <li>Triangles <b>572k</b></li>
+    <li>Fabrics <b>10 tiles</b></li>
+  </ul>
+</header>
+
+<div class="stage" id="stage">
+  <canvas id="view" aria-label="3D view of the Misanthropic Cow costume. Drag to turn, scroll or pinch to zoom."></canvas>
+  <div class="hint">Drag to turn · scroll or pinch to zoom · right-drag to move</div>
+  <div class="status" id="status" role="status">
+    <div>
+      <strong id="statusText">Loading the model…</strong>
+      <div class="bar"><i id="barFill"></i></div>
+      <p id="statusSub">Body, mask and slippers: about 19 MB</p>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="group" role="group" aria-label="Camera views">
+    <span>View</span>
+    <button id="v-front" data-view="front" aria-pressed="true">Front</button>
+    <button id="v-back" data-view="back" aria-pressed="false">Back</button>
+    <button id="v-left" data-view="left" aria-pressed="false">Own left</button>
+    <button id="v-right" data-view="right" aria-pressed="false">Own right</button>
+    <button id="v-head" data-view="head" aria-pressed="false">Head</button>
+    <button id="v-feet" data-view="feet" aria-pressed="false">Feet</button>
+  </div>
+  <div class="group" role="group" aria-label="Display">
+    <span>Show</span>
+    <button id="turntable" aria-pressed="false">Turntable</button>
+    <button id="clay" aria-pressed="false">Clay</button>
+    <label class="toggle"><input type="checkbox" id="p-mask" checked> Mask</label>
+    <label class="toggle"><input type="checkbox" id="p-slippers" checked> Slippers</label>
+    <label class="toggle"><input type="checkbox" id="p-ruler" checked> Ruler</label>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const canvas = document.getElementById("view");
+const stage = document.getElementById("stage");
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NoToneMapping;   // keep the baked colours true (ACES turned the yellow horns olive)
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(30, 1, 0.02, 50);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.minDistance = 0.25; controls.maxDistance = 8;
+controls.autoRotateSpeed = 1.6;
+
+const key = new THREE.DirectionalLight(0xffffff, 1.25);
+key.position.set(1.6, 3.2, 2.4); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -1, right: 1, top: 2, bottom: -0.2, near: 0.5, far: 8 });
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.01;
+scene.add(key);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8aa0a0, 0.45));
+const ground = new THREE.Mesh(new THREE.CircleGeometry(1.4, 64), new THREE.ShadowMaterial({ opacity: 0.22 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+// a height ruler in metres beside the figure (the model is real size)
+const ruler = new THREE.Group(); scene.add(ruler);
+function buildRuler() {
+  ruler.clear();
+  const col = new THREE.Color(css("--fg") || "#142629");
+  const mat = new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: 0.55 });
+  const pts = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1.64, 0)];
+  for (let i = 0; i <= 16; i++) {
+    const y = i / 10, w = i % 5 === 0 ? 0.05 : 0.025;
+    pts.push(new THREE.Vector3(0, y, 0), new THREE.Vector3(w, y, 0));
+  }
+  pts.push(new THREE.Vector3(-0.03, 1.64, 0), new THREE.Vector3(0.07, 1.64, 0));
+  ruler.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
+  for (const [y, t] of [[0, "0"], [0.5, "0.5 m"], [1.0, "1.0 m"], [1.5, "1.5 m"], [1.64, "1.64 m"]]) {
+    const c = document.createElement("canvas"); c.width = 256; c.height = 64;
+    const g = c.getContext("2d"); g.font = "500 30px 'IBM Plex Mono', monospace"; g.fillStyle = "#" + col.getHexString();
+    g.textBaseline = "middle"; g.fillText(t, 6, 32);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+    s.scale.set(0.32, 0.08, 1); s.position.set(0.21, y + (t === "1.64 m" ? 0.04 : 0), 0); ruler.add(s);
+  }
+  ruler.position.set(-0.78, 0, 0);
+}
+buildRuler();
+new MutationObserver(buildRuler).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", buildRuler);
+
+// views: glTF frame, +Y up, the face toward +Z, the costume's own left toward +X
+const VIEWS = {
+  front: { t: [0, 0.86, 0], p: [0, 0.95, 3.7] },  back: { t: [0, 0.86, 0], p: [0, 0.95, -3.7] },
+  left: { t: [0, 0.86, 0], p: [3.7, 0.95, 0] },   right: { t: [0, 0.86, 0], p: [-3.7, 0.95, 0] },
+  head: { t: [0, 1.45, 0.06], p: [0.32, 1.52, 0.78] }, feet: { t: [0, 0.1, 0.03], p: [0.55, 0.38, 0.95] },
+};
+let tween = null;
+function goTo(name, instant) {
+  const v = VIEWS[name];
+  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === name)));
+  const to = { t: new THREE.Vector3(...v.t), p: new THREE.Vector3(...v.p) };
+  if (instant || reduceMotion) { controls.target.copy(to.t); camera.position.copy(to.p); tween = null; return; }
+  tween = { from: { t: controls.target.clone(), p: camera.position.clone() }, to, start: performance.now(), dur: 700 };
+}
+document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => goTo(b.dataset.view)));
+goTo("front", true);
+
+const turnBtn = document.getElementById("turntable");
+turnBtn.addEventListener("click", () => {
+  controls.autoRotate = !controls.autoRotate; turnBtn.setAttribute("aria-pressed", String(controls.autoRotate));
+});
+
+// load the three parts (each GLB is published as base64 text, the file types this host serves)
+const FILES = [["cow_body.glb.b64.txt", "body"], ["cow_mask.glb.b64.txt", "mask"], ["cow_slippers.glb.b64.txt", "slippers"]];
+const parts = {}; const loaded = {}; const totals = {};
+const barFill = document.getElementById("barFill"), statusEl = document.getElementById("status");
+const statusText = document.getElementById("statusText"), statusSub = document.getElementById("statusSub");
+const loader = new GLTFLoader();
+function progress() {
+  const l = Object.values(loaded).reduce((a, b) => a + b, 0);
+  const t = Math.max(Object.values(totals).reduce((a, b) => a + b, 0), 19.3e6);
+  barFill.style.width = Math.min(100, (100 * l) / t).toFixed(0) + "%";
+  statusSub.textContent = `${(l / 1e6).toFixed(1)} of about ${(t / 1e6).toFixed(0)} MB`;
+}
+const clayMat = new THREE.MeshStandardMaterial({ color: 0xc9cbc6, roughness: 0.85, metalness: 0 });
+async function fetchGlb(file, name) {
+  const res = await fetch(file);
+  if (!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
+  const total = Number(res.headers.get("content-length")) || 0;
+  if (total) totals[name] = total * 0.75;                     // base64 is 4/3 of the binary size
+  const reader = res.body.getReader(); const chunks = []; let got = 0;
+  for (;;) {
+    const { done, value } = await reader.read(); if (done) break;
+    chunks.push(value); got += value.length; loaded[name] = got * 0.75; progress();
+  }
+  const text = new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
+  const bin = Uint8Array.from(atob(text.trim()), (ch) => ch.charCodeAt(0));
+  return loader.parseAsync(bin.buffer, "");
+}
+try {
+  await Promise.all(FILES.map(([file, name]) => fetchGlb(file, name).then((gltf) => {
+    gltf.scene.traverse((o) => {
+      if (!o.isMesh) return;
+      o.castShadow = true; o.receiveShadow = true; o.userData.mat = o.material;
+      if (o.material.aoMap) o.material.aoMapIntensity = 0.8;
+    });
+    parts[name] = gltf.scene; scene.add(gltf.scene);
+  })));
+  statusEl.hidden = true;
+} catch (err) {
+  statusText.textContent = "The model didn't load.";
+  statusSub.textContent = `${err && err.message ? err.message : err}. Reload the page to try again.`;
+}
+
+const clayBtn = document.getElementById("clay");
+clayBtn.addEventListener("click", () => {
+  const on = clayBtn.getAttribute("aria-pressed") !== "true";
+  clayBtn.setAttribute("aria-pressed", String(on));
+  Object.values(parts).forEach(g => g.traverse(o => { if (o.isMesh) o.material = on ? clayMat : o.userData.mat; }));
+});
+const bindPart = (id, fn) => document.getElementById(id).addEventListener("change", (e) => fn(e.target.checked));
+bindPart("p-mask", (v) => parts.mask && (parts.mask.visible = v));
+bindPart("p-slippers", (v) => parts.slippers && (parts.slippers.visible = v));
+bindPart("p-ruler", (v) => (ruler.visible = v));
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+const ease = (x) => 1 - Math.pow(1 - x, 3);
+renderer.setAnimationLoop((now) => {
+  if (tween) {
+    const k = Math.min(1, (now - tween.start) / tween.dur), e = ease(k);
+    controls.target.lerpVectors(tween.from.t, tween.to.t, e); camera.position.lerpVectors(tween.from.p, tween.to.p, e);
+    if (k >= 1) tween = null;
+  }
+  controls.update(); renderer.render(scene, camera);
+});
+</script>
