@@ -70,6 +70,7 @@ the current one:
 
 | File | Version |
 | --- | --- |
+| `dist/handoff.html` | The handoff — the player plus the written document |
 | `dist/preview.html` | Current — violet → turquoise, dark state, Arrival piece |
 | `dist/preview-v3.html` | v3 — magenta → cobalt palette, pre-feedback |
 | `dist/preview-v2.html` | v2 — everything on the 67.93° axis, no funnel |
@@ -424,6 +425,8 @@ src/scene.js          Convergence — one deterministic function of loop time
 src/logo-moment.js    Arrival — the arrows-into-logo piece
 src/preview.html      browser preview shell
 src/preview-main.js   preview controls
+src/handoff.html      browser handoff shell — the player plus the document
+src/handoff-main.js   handoff player
 tools/build-preview.js  bundles the preview into one self-contained file
 tools/build-archive.sh  rebuilds an earlier version from git into dist/
 tools/render.js       parallel full-resolution render and encode
@@ -431,6 +434,8 @@ tools/still.js        single-frame renders for quick checks
 tools/moment-still.js frames from Arrival
 tools/badges.py       layered name badge PDFs
 tools/verify-badges.py  badge contrast and layer checks
+tools/build-handoff.py  bundles HANDOFF.md + the live player into one HTML file
+tools/handoff-pdf.py    renders HANDOFF.md to a print-ready PDF
 ```
 
 `src/scene.js` drives both the preview and the final render, so what is approved

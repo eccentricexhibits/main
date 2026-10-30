@@ -19,7 +19,7 @@ depth and from the code's side. This file is the operational one.
 | **Arrival** | 6878 × 1080, 0:12, one shot | source complete, **not rendered** |
 | **Name badges** | 4 categories, layered PDF, 5.8125 × 7.5 in artboard | delivered |
 | **Browser preview** | `dist/preview.html`, self-contained | delivered |
-| **This document** | `HANDOFF.md`, and `dist/AI-Summit-2026-handoff.pdf` | — |
+| **This document** | `dist/handoff.html` (live), `dist/AI-Summit-2026-handoff.pdf`, `HANDOFF.md` | — |
 
 **Read this before anything else.** No video master has been rendered from the
 current cut. The only master ever delivered — 475 MB, H.264 4:4:4, split into 17
@@ -177,7 +177,8 @@ node tools/render.js --speaker "Glenda Crisp|President & CEO,|Vector Institute"
 
 python3 tools/badges.py                # the four badge PDFs plus a combined one
 python3 tools/verify-badges.py         # contrast + layer checks, must pass
-python3 tools/handoff-pdf.py           # re-render this document to dist/
+python3 tools/handoff-pdf.py           # this document as a PDF
+python3 tools/build-handoff.py         # this document as a live web page
 ```
 
 Output names itself from the mode, so the three masters do not overwrite each
@@ -190,6 +191,7 @@ other:
 | `node tools/render.js --moment` | `out/vector-arrival-6878x1080.mp4` |
 | `python3 tools/badges.py` | `out/badges/vector-badge-*.pdf` + `-all.pdf` |
 | `python3 tools/handoff-pdf.py` | `dist/AI-Summit-2026-handoff.pdf` |
+| `python3 tools/build-handoff.py` | `dist/handoff.html` |
 
 Full option list: `--fps --crf --gop --duration --workers --out --walls
 --pix-fmt --dark --moment --speaker`.
@@ -205,10 +207,16 @@ encoders, and are concatenated with a stream copy so nothing is re-encoded.
 
 ### Previewing
 
-`dist/preview.html` is fully self-contained — it opens straight off disk with no
-server. It carries both pieces, a scrub track, the venue overlay, the room-state
-slider, speaker-name fields and a loop-seam test. **The preview is exactly what
-gets encoded**: the same scene functions drive both.
+Two self-contained pages, both of which open straight off disk with no server:
+
+- **`dist/handoff.html`** — this document with the room running live at the top
+  of it and the badge set below. The one to send to someone who needs to *see*
+  the design rather than read about it.
+- **`dist/preview.html`** — the working review tool. Same player, no prose.
+
+Both carry each piece, a scrub track, the venue overlay, the room-state slider,
+speaker-name fields and a loop-seam test. **The preview is exactly what gets
+encoded**: the same scene functions drive the page and the renderer.
 
 Earlier cuts stay viewable rather than merely recoverable:
 
@@ -339,6 +347,8 @@ src/scene.js           Convergence — one deterministic function of loop time
 src/logo-moment.js     Arrival — the arrows-into-logo piece
 src/preview.html       browser preview shell
 src/preview-main.js    preview controls
+src/handoff.html       browser handoff shell
+src/handoff-main.js    handoff player
 
 tools/render.js        parallel full-resolution render and encode
 tools/build-preview.js bundles the preview into one self-contained file
@@ -348,9 +358,11 @@ tools/moment-still.js  frames from Arrival
 tools/badges.py        layered name badge PDFs
 tools/verify-badges.py badge contrast and layer checks
 tools/handoff-pdf.py   renders HANDOFF.md to a print-ready PDF
+tools/build-handoff.py bundles HANDOFF.md + the live player into one HTML file
 tools/rejoin-windows.bat  reassembles a split master on Windows
 
-HANDOFF.md             this document — the operational one
+HANDOFF.md             this document — the operational one, and the source
+                       for both the PDF and the web version
 README.md              the same ground from the code's side
 
 Official Vector Logo.svg, Vector Official - Arrow {Regular,Long}.svg,

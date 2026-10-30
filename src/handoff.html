@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Institute — AI Summit 2026 · Immersive room handoff</title>
+<style>
+  /* Dark ground throughout, on purpose: this is a projection piece for a
+     darkened room and it cannot be judged honestly on a light page. */
+  :root {
+    --ground: #0a0910;
+    --panel: #15131d;
+    --panel-2: #100e18;
+    --hairline: #272332;
+    --text: #ece9f1;
+    --dim: #8e8a9c;
+    --dimmer: #615d70;
+    --violet: #8a25c9;
+    --turquoise: #48c0d9;
+    --magenta: #eb088a;
+    --warn: #ffb020;
+
+    --body: clamp(13px, .95vw, 14.5px);
+    --step: clamp(11px, .78vw, 12px);
+    --measure: 74ch;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 18px; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font: var(--body)/1.62 "Karbon", "Open Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1680px; margin: 0 auto; padding: 0 clamp(16px, 2.4vw, 34px); }
+
+  .lbl {
+    font-size: var(--step); text-transform: uppercase; letter-spacing: .1em;
+    color: var(--dimmer); font-weight: 600;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- masthead ---------- */
+  header { padding: 26px 0 18px; border-bottom: 1px solid var(--hairline); }
+  header h1 {
+    margin: 0 0 4px; font-size: clamp(20px, 2vw, 29px); font-weight: 600;
+    letter-spacing: -.015em;
+  }
+  header h1 em {
+    font-style: normal;
+    background: linear-gradient(95deg, var(--violet), #6f6ae0 52%, var(--turquoise));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  header p { margin: 0; color: var(--dim); max-width: var(--measure); }
+
+  /* ---------- stage ---------- */
+  #stage { padding: 20px 0 0; }
+  #frame { position: relative; width: 100%; }
+  canvas {
+    display: block; width: 100%; height: auto;
+    background: #000; border: 1px solid var(--hairline); border-radius: 3px;
+  }
+  #walls { position: absolute; inset: 0; pointer-events: none; }
+  #walls div {
+    position: absolute; top: 0; bottom: 0;
+    border-left: 1px solid rgba(255,255,255,.3);
+    border-right: 1px solid rgba(255,255,255,.3);
+    padding: 5px 7px;
+    font-size: var(--step); letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(255,255,255,.72); font-weight: 600;
+  }
+  #walls[hidden] { display: none; }
+
+  /* ---------- transport ---------- */
+  .transport {
+    display: flex; align-items: center; gap: 14px 18px; flex-wrap: wrap;
+    padding: 14px 0 0;
+  }
+  button, select, input[type=text] {
+    font: inherit; font-size: 13px; color: var(--text);
+    background: var(--panel); border: 1px solid var(--hairline);
+    padding: 7px 12px; border-radius: 3px;
+  }
+  button { cursor: pointer; transition: border-color .12s, background .12s; }
+  button:hover { border-color: #40394f; background: #1b1826; }
+  :focus-visible { outline: 2px solid var(--turquoise); outline-offset: 2px; }
+  #play {
+    background: var(--violet); border-color: var(--violet); color: #fff;
+    font-weight: 600; min-width: 94px;
+  }
+  #play:hover { background: #a233ea; border-color: #a233ea; }
+  .clock { font-size: 15px; font-weight: 600; }
+  .clock span { color: var(--dimmer); font-weight: 400; }
+  .transport .right { margin-left: auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); cursor: pointer; }
+  label:hover { color: var(--text); }
+  input[type=checkbox] { accent-color: var(--violet); width: 14px; height: 14px; }
+  input[type=range] { accent-color: var(--violet); }
+
+  .track {
+    margin: 12px 0 0; position: relative; height: 38px;
+    background: var(--panel-2); border: 1px solid var(--hairline);
+    border-radius: 3px; cursor: pointer; user-select: none; overflow: hidden;
+  }
+  .track .fill {
+    position: absolute; inset: 0 auto 0 0;
+    background: linear-gradient(90deg, rgba(138,37,201,.34), rgba(105,114,209,.34) 52%, rgba(72,192,217,.34));
+    pointer-events: none;
+  }
+  .track .tick { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--hairline); pointer-events: none; }
+  .track .tick.major { background: #38334a; }
+  .track .tick b {
+    position: absolute; top: 5px; left: 6px; font-weight: 600;
+    font-size: var(--step); color: var(--dimmer); font-variant-numeric: tabular-nums;
+  }
+  #head { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff;
+          box-shadow: 0 0 10px rgba(255,255,255,.55); pointer-events: none; }
+
+  /* ---------- control groups under the stage ---------- */
+  .controls {
+    display: grid; gap: 20px 34px; align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    padding: 20px 0 28px; margin-top: 16px; border-top: 1px solid var(--hairline);
+  }
+  .controls section { display: grid; gap: 9px; align-content: start; }
+  .hint { font-size: 12.5px; color: var(--dimmer); margin: 0; }
+
+  /* ---------- callout ---------- */
+  .callout {
+    border: 1px solid #5a3a12; background: #1d1407; border-left: 3px solid var(--warn);
+    border-radius: 3px; padding: 14px 18px; margin: 0 0 26px;
+  }
+  .callout h2 { margin: 0 0 6px; font-size: 14px; color: var(--warn); border: 0; padding: 0; }
+  .callout p { margin: 0 0 6px; max-width: var(--measure); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ---------- badges ---------- */
+  .badges {
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    margin: 0 0 10px;
+  }
+  .badges figure { margin: 0; display: grid; gap: 8px; }
+  .badges img { width: 100%; height: auto; display: block; border-radius: 4px; }
+  .badges figcaption { font-size: 12.5px; color: var(--dim); }
+  .badges b { color: var(--text); font-weight: 600; }
+
+  /* ---------- document ---------- */
+  .doc { padding: 10px 0 70px; }
+  .doc h1 { display: none; }
+  .doc h1 + p { font-size: 15px; color: var(--dim); max-width: var(--measure); }
+  .doc h2 {
+    font-size: clamp(16px, 1.5vw, 19px); font-weight: 600; letter-spacing: -.01em;
+    margin: 42px 0 12px; padding-top: 14px; border-top: 1px solid var(--hairline);
+  }
+  .doc h3 { font-size: 14.5px; margin: 24px 0 8px; color: var(--turquoise); font-weight: 600; }
+  .doc p, .doc li { max-width: var(--measure); }
+  .doc p { margin: 0 0 11px; }
+  .doc ul, .doc ol { margin: 0 0 14px; padding-left: 20px; }
+  .doc li { margin-bottom: 6px; }
+  .doc strong { font-weight: 600; color: #fff; }
+  .doc em { color: var(--dim); font-style: italic; }
+  .doc hr { border: 0; border-top: 1px solid var(--hairline); margin: 0; }
+  .doc a { color: var(--turquoise); }
+  .doc code {
+    font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: #1c1927; border: 1px solid var(--hairline);
+    padding: 1px 5px; border-radius: 3px; color: #d8d2e6;
+  }
+  .doc pre {
+    background: #100e18; border: 1px solid var(--hairline); border-radius: 4px;
+    padding: 14px 16px; overflow-x: auto; margin: 0 0 16px; max-width: 100ch;
+  }
+  .doc pre code { background: none; border: 0; padding: 0; font-size: 12.5px; line-height: 1.6; }
+  .doc table {
+    border-collapse: collapse; margin: 0 0 18px; font-size: 13px;
+    max-width: 100%; display: block; overflow-x: auto;
+  }
+  .doc th {
+    text-align: left; font-weight: 600; font-size: var(--step);
+    text-transform: uppercase; letter-spacing: .08em; color: var(--dimmer);
+    border-bottom: 1px solid #4a4459; padding: 0 16px 5px 0; white-space: nowrap;
+  }
+  .doc td { padding: 7px 16px 7px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; color: var(--dim); }
+  .doc td:first-child { color: var(--text); }
+  .doc blockquote {
+    margin: 0 0 14px; padding: 10px 16px; background: var(--panel-2);
+    border-left: 2px solid var(--turquoise); color: var(--dim); max-width: var(--measure);
+  }
+  .doc blockquote p:last-child { margin-bottom: 0; }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <h1>Vector Institute — <em>AI Summit 2026</em> · immersive room handoff</h1>
+  <p>The room content running live, the badge set, and everything needed to
+     render, play back or take this over. Nothing here needs a server — the
+     animation below is the same code that renders the final file.</p>
+</header>
+
+<div id="stage">
+  <div id="frame">
+    <canvas id="c"></canvas>
+    <div id="walls" hidden></div>
+  </div>
+
+  <div class="transport">
+    <button id="play">Pause</button>
+    <span class="clock num" id="time">0:00.0 <span>/ 3:00.0</span></span>
+    <label>Piece
+      <select id="piece">
+        <option value="loop" selected>Convergence — 3:00 loop</option>
+        <option value="moment">Arrival — arrows into logo, 0:12</option>
+      </select>
+    </label>
+    <div class="right">
+      <span class="lbl num" id="fps"></span>
+      <label>Resolution
+        <select id="quality">
+          <option value="0.25" selected>1719 × 270</option>
+          <option value="0.5">3439 × 540</option>
+          <option value="0.75">5159 × 810</option>
+          <option value="1">6878 × 1080 (full)</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="track" id="timeline" role="slider" tabindex="0"
+       aria-label="Playback position" aria-valuemin="0" aria-valuemax="180" aria-valuenow="0">
+    <div class="fill" id="fill"></div>
+    <div id="head"></div>
+  </div>
+
+  <div class="controls">
+    <section>
+      <span class="lbl">Room state</span>
+      <label style="display:grid;gap:6px;align-items:start;cursor:default">
+        <span>Show → dark · <span id="darkval" class="num">0%</span></span>
+        <input type="range" id="dark" min="0" max="100" value="0" style="width:100%">
+      </label>
+      <p class="hint">Dark is the state used under a presentation — the walls
+        recede rather than compete with the screen behind the stage. Geometry is
+        identical between the two, so a dissolve reads as a lighting change.</p>
+    </section>
+
+    <section>
+      <span class="lbl">Speaker names</span>
+      <label><input type="checkbox" id="speaker"> Show on the side walls</label>
+      <input type="text" id="speakername" value="Glenda Crisp" aria-label="Speaker name">
+      <input type="text" id="speakerrole" value="President &amp; CEO, Vector Institute" aria-label="Speaker role">
+      <p class="hint">Baked into the render, not live text — each name is its own
+        file.</p>
+    </section>
+
+    <section>
+      <span class="lbl">Review tools</span>
+      <label><input type="checkbox" id="overlay"> Venue overlay</label>
+      <label><input type="checkbox" id="labels"> Wall labels</label>
+      <label><input type="checkbox" id="bloom" checked> Bloom</label>
+      <label><input type="checkbox" id="loopmark"> Loop seam test</label>
+      <p class="hint"><b>Space</b> play/pause · <b>← →</b> step 1 s ·
+        <b>⇧← ⇧→</b> step 10 s</p>
+    </section>
+
+    <section>
+      <span class="lbl">Overlay key</span>
+      <div style="display:grid;gap:6px;font-size:12.5px;color:var(--dim)">
+        <div>⬜ Projector wall · ▨ corner return</div>
+        <div style="color:#ff8484">▭ Speaker grill — no hero content</div>
+        <div style="color:#ffd25a">▭ Draped fabric</div>
+        <div style="color:#50dcff">▭ Cube line (y 674)</div>
+        <div style="color:#8cffb4">▭ Domino screen — the Arrival lockup</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!--CALLOUT-->
+
+<h2 class="lbl" style="margin:0 0 14px">The badge set</h2>
+<div class="badges"><!--BADGES--></div>
+<p class="hint" style="margin:0 0 40px">Shown with the die-line layer hidden.
+  The PDFs carry eight optional-content layers, vector artwork throughout and
+  live Karbon text.</p>
+
+<article class="doc"><!--DOC--></article>
+
+</div>
+
+<script type="module" src="./handoff-main.js"></script>
+</body>
+</html>
