@@ -80,8 +80,9 @@ print(f"after the flat pass: {tris(lo):,} tris ({time.time() - t0:.0f}s)", flush
 decimate(lo, BODY_T)
 print(f"body LOW: {tris(lo):,} tris ({time.time() - t0:.0f}s)", flush=True)
 
-mask = bpy.data.objects["Mask_scan_HIGH"]; ml = copy_low(mask); decimate(ml, MASK_T)
-print(f"mask LOW: {tris(ml):,} tris", flush=True)
+mask = bpy.data.objects.get("Mask_scan_HIGH")
+if mask:
+    ml = copy_low(mask); decimate(ml, MASK_T); print(f"mask LOW: {tris(ml):,} tris", flush=True)
 for n in ("Horn_long_L", "Horn_short_R", "Horn_wires_R", "Socks", "Tail_cord"):
     hi = bpy.data.objects[f"{n}_HIGH"]; l = copy_low(hi)
     if tris(l) > 3000: decimate(l, max(3000, tris(l) // 2))

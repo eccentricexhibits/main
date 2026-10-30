@@ -5,7 +5,7 @@ python3 -I bl_uv_cow.py <cow_low.blend> <out.blend> [angle=66]
 - Cow_LOW: the LOW body, socks, tail, horns and wire tuft joined into one object (one 4K atlas). Each face keeps
   its source in the FACE attribute "part" (0 body, 1 socks, 2 tail, 3 long horn, 4 short horn, 5 wires).
 - Mask_LOW: the scanned mask on its own atlas (2K), so the face gets far more texels.
-Texel weights (island scale before packing): hands and hooves 1.6, udder 1.3, head and hood 1.2, plain back 0.85,
+Texel weights (island scale before packing): the mask (Tripo's face) 2.0, hands and hooves 1.6, udder 1.3, head and hood 1.2, plain back 0.85,
 legs 0.7, socks 0.5, tail 0.8, everything else 1.0. The Tripo UVs are removed from the LOW (the colour bake reads
 the HIGH's own UVs).
 """
@@ -31,8 +31,9 @@ for o in objs: o.select_set(True)
 bpy.context.view_layer.objects.active = objs[0]
 bpy.ops.object.join()
 cow = bpy.context.view_layer.objects.active; cow.name = "Cow_LOW"; cow.data.name = "Cow_LOW"
-mask = bpy.data.objects["Mask_scan_LOW"]; mask.name = "Mask_LOW"; mask.data.name = "Mask_LOW"
-print(f"joined Cow_LOW: {len(cow.data.polygons):,} faces; Mask_LOW {len(mask.data.polygons):,}", flush=True)
+mask = bpy.data.objects.get("Mask_scan_LOW")
+if mask: mask.name = "Mask_LOW"; mask.data.name = "Mask_LOW"
+print(f"joined Cow_LOW: {len(cow.data.polygons):,} faces; Mask_LOW {len(mask.data.polygons) if mask else 'none (Tripo face)'}", flush=True)
 
 
 def weight(c, n, part):
@@ -40,6 +41,7 @@ def weight(c, n, part):
     if part == 2: return 0.8
     if part >= 3: return 1.0
     if abs(c.x) > 0.36 and c.z < 1.05: return 1.6
+    if c.y < -0.06 and 1.30 < c.z < 1.56 and abs(c.x) < 0.11: return 2.0      # the mask (Tripo's face)
     if c.y < -0.08 and 1.18 < c.z < 1.38 and abs(c.x) < 0.2: return 1.3
     if c.z > 1.30: return 1.2
     if c.z < 0.74: return 0.7
@@ -84,6 +86,6 @@ def unwrap(ob, weighted):
 
 
 unwrap(cow, True)
-unwrap(mask, False)
+if mask: unwrap(mask, False)
 bpy.ops.wm.save_as_mainfile(filepath=OUT)
 print("saved", OUT, f"{time.time() - t0:.0f}s")

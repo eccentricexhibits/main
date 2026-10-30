@@ -84,13 +84,13 @@ def geom_bakes(lo, tag, size, part=False):
 
 
 O = bpy.data.objects
-cow, mask = O["Cow_LOW"], O["Mask_LOW"]
+cow, mask = O["Cow_LOW"], O.get("Mask_LOW")
 his = [O[n] for n in ("Cow_body_HIGH", "Socks_HIGH", "Tail_cord_HIGH", "Horn_long_L_HIGH", "Horn_short_R_HIGH", "Horn_wires_R_HIGH")]
 surface_bakes(cow, his, "cow", BS, ("color", "normal"))
-surface_bakes(mask, [O["Mask_scan_HIGH"]], "mask", MS, ("normal",))
+if mask: surface_bakes(mask, [O["Mask_scan_HIGH"]], "mask", MS, ("normal",))
 geom_bakes(cow, "cow", BS, part=True)
-geom_bakes(mask, "mask", MS)
-for ob, fn in ((cow, "Cow_LOW"), (mask, "Mask_LOW")):            # UV'd meshes for the region previews (Z up, as in Blender)
+if mask: geom_bakes(mask, "mask", MS)
+for ob, fn in [(cow, "Cow_LOW")] + ([(mask, "Mask_LOW")] if mask else []):            # UV'd meshes for the region previews (Z up, as in Blender)
     select(ob, [])
     bpy.ops.wm.obj_export(filepath=f"{OUT}/{fn}.obj", export_selected_objects=True, export_materials=False, export_uv=True,
                           export_normals=True, forward_axis="Y", up_axis="Z")

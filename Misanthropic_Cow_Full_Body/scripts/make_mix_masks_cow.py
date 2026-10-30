@@ -9,6 +9,7 @@ carry the right fabric. Three factors per PNG (R, G, B); PNG keeps them lossless
   body (regions_cow.png):  1 fur (base), 2 shag, 3 fleece, 4 satin, 5 lace, 6 leggings, 7 paint, 8 knit, 9 hooves,
                            10 bow, 11 socks, 12 cord, 13 horn paint, 14 horn rings, 15 wire   -> mix_cow_a..e.png
   mask (regions_mask.png): 20 plaster (base), 21 black paint, 22 eye, 23 pupil, 24 snout, 25 slits -> mix_mask_a..b.png
+  With face=tripo there is no regions_mask.png: classes 20-25 follow 1-15 on the body atlas -> mix_cow_a..g.png
 """
 import sys, os, json
 import numpy as np, cv2
@@ -18,6 +19,8 @@ from scipy.ndimage import distance_transform_edt
 RG, OUT = sys.argv[1:3]
 os.makedirs(OUT, exist_ok=True)
 ORDER = {"cow": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "mask": [20, 21, 22, 23, 24, 25]}
+if not os.path.exists(f"{RG}/regions_mask.png"):            # face=tripo: the mask classes are on the body atlas
+    ORDER = {"cow": ORDER["cow"] + ORDER["mask"]}
 info = {}
 for tag, order in ORDER.items():
     cls = np.asarray(Image.open(f"{RG}/regions_{tag}.png"))
@@ -31,7 +34,7 @@ for tag, order in ORDER.items():
     f = np.concatenate([f, np.zeros(f.shape[:2] + (pad,), np.float32)], -1)
     names = []
     for i in range(f.shape[-1] // 3):
-        n = f"mix_{tag}_{'abcde'[i]}.png"; names.append(n)
+        n = f"mix_{tag}_{'abcdefgh'[i]}.png"; names.append(n)
         Image.fromarray(np.round(f[..., 3 * i:3 * i + 3] * 255).astype(np.uint8)).save(f"{OUT}/{n}")
     info[tag] = {"order": order, "files": names}
     print(tag, "->", names)

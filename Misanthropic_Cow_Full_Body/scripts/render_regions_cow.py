@@ -23,7 +23,7 @@ def textured(obj, png):
 
 scene = pyrender.Scene(bg_color=[1, 1, 1, 0], ambient_light=[0.85] * 3)
 scene.add(textured(f"{BK}/Cow_LOW.obj", f"{RG}/regions_cow_preview.png"))
-scene.add(textured(f"{BK}/Mask_LOW.obj", f"{RG}/regions_mask_preview.png"))
+if os.path.exists(f"{BK}/Mask_LOW.obj"): scene.add(textured(f"{BK}/Mask_LOW.obj", f"{RG}/regions_mask_preview.png"))
 gl = trimesh.load(GLB)
 g = list(gl.geometry.values())[0]
 for side, sg in (("L", 1), ("R", -1)):

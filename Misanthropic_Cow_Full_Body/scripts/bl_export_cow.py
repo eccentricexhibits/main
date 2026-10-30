@@ -3,7 +3,8 @@
 python3 -I bl_export_cow.py <Cow_fabric_live.blend> <fabric_dir> <out_dir> [slipper_tex=2048]
 
 1. <out>/Misanthropic_Cow.glb: the whole figure with the baked maps (JPEG), metallic 0, AO as glTF occlusion.
-   Objects: Cow_body (body, socks, cord tail, horns, wire tuft), Cow_mask (the scanned mask), Slipper_L, Slipper_R
+   Objects: Cow_body (body with the mask, socks, cord tail, horns, wire tuft), Slipper_L, Slipper_R (and Cow_mask
+   with face=scan)
    (the finished slipper pair; their maps reduced to slipper_tex to keep the file under 29 MB). glTF axes (+Y up).
 2. <out>/live/Cow_fabric_live.blend + live/textures/: the live fabric materials with every texture external and
    relative (//textures/...): tiles 2K JPG, heights 1K JPG, mix masks PNG (must stay lossless), detail normals JPG,
@@ -58,10 +59,11 @@ print(f"live .blend {MB(f'{OUT}/live/Cow_fabric_live.blend'):.1f} MB + textures 
 
 # ---------- 1. baked GLB ----------
 bpy.ops.wm.open_mainfile(filepath=SRC)
-for ob, tag, size, ao in ((bpy.data.objects["Cow_LOW"], "Cow", 4096, 2048), (bpy.data.objects["Mask_LOW"], "Mask", 2048, 1024)):
+for ob, tag, size, ao in [(bpy.data.objects["Cow_LOW"], "Cow", 4096, 2048)] + ([(bpy.data.objects["Mask_LOW"], "Mask", 2048, 1024)] if "Mask_LOW" in bpy.data.objects else []):
     maps = {k: bpy.data.images.load(f"{FAB}/{tag}_{k}_{n}.png") for k, n in (("basecolor", size), ("roughness", size), ("normal", size), ("ao", ao))}
     ob.data.materials.clear(); ob.data.materials.append(baked_material(f"{tag}_baked", maps))
-bpy.data.objects["Cow_LOW"].name = "Cow_body"; bpy.data.objects["Mask_LOW"].name = "Cow_mask"
+bpy.data.objects["Cow_LOW"].name = "Cow_body"
+if "Mask_LOW" in bpy.data.objects: bpy.data.objects["Mask_LOW"].name = "Cow_mask"
 for ob in bpy.data.objects:
     if ob.name.startswith("Slipper"):
         for m in ob.data.materials:

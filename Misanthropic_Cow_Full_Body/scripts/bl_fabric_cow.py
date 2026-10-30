@@ -125,9 +125,14 @@ def build(ob, tag, classes, mixfiles, normal_png, ao_size):
     return mat, tgt
 
 
-cow, mask = bpy.data.objects["Cow_LOW"], bpy.data.objects["Mask_LOW"]
-jobs = [(cow, "Cow", BODY, ["mix_cow_a.png", "mix_cow_b.png", "mix_cow_c.png", "mix_cow_d.png", "mix_cow_e.png"], f"{BK}/cow_normal_4096.png", 2048, BS),
-        (mask, "Mask", MASK, ["mix_mask_a.png", "mix_mask_b.png"], f"{BK}/mask_normal_2048.png", 1024, MS)]
+import json  # noqa: E402
+mm = json.load(open(f"{MIX}/mix_masks.json"))
+cow, mask = bpy.data.objects["Cow_LOW"], bpy.data.objects.get("Mask_LOW")
+if mask:
+    jobs = [(cow, "Cow", BODY, mm["cow"]["files"], f"{BK}/cow_normal_4096.png", 2048, BS),
+            (mask, "Mask", MASK, mm["mask"]["files"], f"{BK}/mask_normal_2048.png", 1024, MS)]
+else:                                                         # face=tripo: the mask's fabrics follow the body's
+    jobs = [(cow, "Cow", BODY + MASK, mm["cow"]["files"], f"{BK}/cow_normal_4096.png", 2048, BS)]
 built = [(ob, tag, *build(ob, tag, cl, mf, nrm, ao), ao, size) for ob, tag, cl, mf, nrm, ao, size in jobs]
 print(f"materials built {time.time() - t0:.0f}s", flush=True)
 

@@ -4,7 +4,7 @@ python3 -I bl_assemble_cow.py <swaps_dir> <tripo_basecolor.jpg> <slippers.glb> <
 
 Objects (all *_HIGH: full detail, before stage 7):
   Cow_body_HIGH      Tripo body after the swaps (welded; Tripo UVs and colour texture kept for region masks)
-  Mask_scan_HIGH     the real mask scan's relief + rim skirt
+  Mask_scan_HIGH     the real mask scan's relief + rim skirt (only with face=scan; with face=tripo the face is Tripo's)
   Horn_long_L_HIGH, Horn_short_R_HIGH, Horn_wires_R_HIGH   scan-guided horns and wire tuft
   Socks_HIGH         black-sock feet
   Tail_cord_HIGH     the white cord from the bow
@@ -56,7 +56,9 @@ import trimesh  # noqa: E402  (ply loading)
 parts = [("Mask_scan_HIGH", "mask_shell", (0.92, 0.91, 0.88), 0.6), ("Horn_long_L_HIGH", "horn_long", (0.93, 0.78, 0.25), 0.45),
          ("Horn_short_R_HIGH", "horn_short", (0.93, 0.78, 0.25), 0.45), ("Horn_wires_R_HIGH", "horn_wires", (0.35, 0.35, 0.37), 0.35),
          ("Socks_HIGH", "socks", (0.03, 0.03, 0.035), 0.8), ("Tail_cord_HIGH", "tail", (0.9, 0.9, 0.88), 0.7)]
+import os  # noqa: E402
 for name, fn, rgb, rough in parts:
+    if not os.path.exists(f"{SW}/{fn}.ply"): print(f"{name}: none (face=tripo)"); continue
     m = trimesh.load(f"{SW}/{fn}.ply", process=False)
     mesh_obj(name, np.asarray(m.vertices), np.asarray(m.faces), simple_mat(name.replace("_HIGH", ""), rgb, rough))
     print(f"{name}: {len(m.faces):,} faces")

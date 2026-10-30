@@ -36,7 +36,7 @@ def shoot(tag):
 
 
 live = shoot("live")
-for ob, tag, size, ao in ((bpy.data.objects["Cow_LOW"], "Cow", 4096, 2048), (bpy.data.objects["Mask_LOW"], "Mask", 2048, 1024)):
+for ob, tag, size, ao in [(bpy.data.objects["Cow_LOW"], "Cow", 4096, 2048)] + ([(bpy.data.objects["Mask_LOW"], "Mask", 2048, 1024)] if "Mask_LOW" in bpy.data.objects else []):
     maps = {k: bpy.data.images.load(f"{FAB}/{tag}_{k}_{n}.png") for k, n in (("basecolor", size), ("roughness", size), ("normal", size), ("ao", ao))}
     ob.data.materials.clear(); ob.data.materials.append(baked_material(f"{tag}_baked", maps))
 baked = shoot("baked")

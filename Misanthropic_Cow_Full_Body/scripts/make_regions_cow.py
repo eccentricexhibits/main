@@ -10,13 +10,16 @@ Body atlas (Cow_LOW, 4K): from the baked Tripo colour, the per-texel position/no
     back, lace on the side panels; below it -> black leggings / white paint spots (light, not beige); gold on the lower back -> bow;
     pink above the belly -> udder; dark above the bloomers -> black shag; everything else -> white fur.
   - clean-up: specks smaller than ~1 cm^2 are absorbed into their surroundings.
-Mask atlas (Mask_LOW, 2K):
+Mask with face=tripo (the user's choice): Tripo's face, inside the real mask's outline (mask_footprint.npz from
+  build_swaps_cow.py), on the body atlas; classes from Tripo's painted colours: black paint, red snout (with its dark
+  slits), yellow eyes (with dark pupils), white plaster.
+Mask atlas with face=scan (Mask_LOW, 2K; the first version):
   - eyes and pupils from the scan's bead spheres (yellow bead, black pupil on its front);
   - black paint, red flocked snout and the two nostril slits from REF_J (front-on photo), projected orthographically
     with an affine fit on three landmarks (both eyes, snout centre); the snout oval and the slits are measured on
     the photo (SNOUT_C, SNOUT_AX, SLITS); below the snout's lower edge the photo shows the costume, so those texels, and texels that face
     sideways, take the class of the nearest front-facing texel that has a photo class.
-Writes regions_cow.png / regions_mask.png (class ids), colour-coded previews, and regions.json (classes, counts).
+Writes regions_cow.png (/ regions_mask.png with face=scan) (class ids), colour-coded previews, and regions.json (classes, counts).
 """
 import sys, os, json
 import numpy as np, cv2
@@ -148,77 +151,105 @@ for pid, key, side in ((3, "long_horn", "L"), (4, "short_horn", "R")):
     for fr in hj[key]["rings_at_fraction"]:
         ring |= np.abs(s - fr * Lh) < hj[key]["ring_width_mm"] / 2000
     cls[m] = np.where(ring, 14, 13)
+TRIPO_FACE = not os.path.exists(f"{BK}/Mask_LOW.obj")
+if TRIPO_FACE:
+    # face=tripo: the mask is Tripo's own face, inside the real mask's outline (the scan moved onto the head) and in
+    # front of its back plane; its classes come from Tripo's painted colours
+    fz = np.load(f"{os.path.dirname(SWAPS)}/mask_footprint.npz")
+    gi = ((z - fz["z0"]) / fz["grid"]).astype(int); gj = ((x - fz["x0"]) / fz["grid"]).astype(int)
+    ok = (gi >= 0) & (gi < fz["fp"].shape[0]) & (gj >= 0) & (gj < fz["fp"].shape[1])
+    infp = np.zeros_like(ok); infp[ok] = fz["fp"][gi[ok], gj[ok]]
+    mk = body & infp & (y < fz["y_back"] + 0.02) & (z > fz["zmin"] - 0.03) & (z < fz["zmax"])
+    redm = mk & (r > 0.40) & (r > 1.6 * g) & (r > 1.3 * b)
+    yel = mk & (r > 0.5) & (g > 0.38) & (b < 0.6 * g)
+    blk = mk & (L < 0.22)
+    cls[mk] = 20
+    cls[blk] = 21
+    cr = P[redm].mean(0); rr_ = np.percentile(np.linalg.norm(P[redm] - cr, axis=1), 92)
+    snout = mk & (np.linalg.norm(P - cr, axis=-1) < rr_)
+    cls[snout] = 24
+    cls[snout & blk] = 25                                     # the dark slits in the red flock
+    for sg in (-1, 1):                                        # each eye: Tripo's yellow, with its dark centre as the pupil
+        ys = yel & (sg * x > 0)
+        if ys.sum() < 50: continue
+        ce = P[ys].mean(0); er = np.percentile(np.linalg.norm(P[ys] - ce, axis=1), 95)
+        eye = mk & (np.linalg.norm(P - ce, axis=-1) < er)
+        cls[eye] = 22; cls[eye & blk] = 23
+        print(f"eye {'own left' if sg > 0 else 'own right'}: radius {er * 1000:.0f} mm")
+    print(f"mask on Tripo's face: {mk.sum():,} texels; snout radius {rr_ * 1000:.0f} mm")
 cls = clean(cls, valid, 60)                                    # ~1 cm^2 at this texel density
 cls[~valid] = 0
 Image.fromarray(cls).save(f"{OUT}/regions_cow.png"); preview(cls, f"{OUT}/regions_cow_preview.png")
 
-# ---------------- mask atlas ----------------
-MP = np.load(f"{BK}/geom_mask_position.npy"); MN = np.load(f"{BK}/geom_mask_normal.npy"); mval = uv_coverage(f"{BK}/Mask_LOW.obj", MP.shape[0])
-mcls = np.zeros(mval.shape, np.uint8); mcls[mval] = 20
-eyes = [to_cow(np.array(e["centre"])[None])[0] for e in fit["scan_eye_beads_mm"]]
-# photo landmarks: eye centres = yellow blobs, snout centre = red blob
-ph = np.asarray(Image.open(PHOTO).convert("RGB")).astype(np.float32) / 255
-pr, pg, pb = ph[..., 0], ph[..., 1], ph[..., 2]; pL = ph.mean(-1)
-yel = (pr > 0.45) & (pg > 0.4) & (pb < 0.5 * pg)
-red = (pr > 0.28) & (pr > 1.6 * pg) & (pr > 1.3 * pb)
-# eyes: yellow rings around dark pupils -> close the rings, search only the face band (the horns are yellow too)
-band_ = np.zeros_like(yel); band_[int(ph.shape[0] * 0.28):int(ph.shape[0] * 0.55)] = True
-ye = cv2.morphologyEx((yel & band_).astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21)))
-n, lab, st, cen = cv2.connectedComponentsWithStats(ye)
-big = np.argsort(-st[1:, cv2.CC_STAT_AREA])[:2] + 1
-eye_px = sorted([cen[i] for i in big], key=lambda c: c[0])
-# the red snout and its two slits, measured on REF_J (px): the slits merge into the shadow under the snout, so
-# they can't be found by thresholds; the slipper project also fixed landmarks by hand on the original photos
-SNOUT_C, SNOUT_AX = (435, 570), (98, 67)
-SLITS = [(377, 543, 397, 627), (449, 543, 474, 627)]
-yy_, xx_ = np.mgrid[:ph.shape[0], :ph.shape[1]]
-snout_mask = ((xx_ - SNOUT_C[0]) / SNOUT_AX[0]) ** 2 + ((yy_ - SNOUT_C[1]) / SNOUT_AX[1]) ** 2 <= 1
-snout_px = np.array(SNOUT_C, float)
-# cow-frame landmarks (x, z): eye centres (image left = the costume's own right = -X), snout front centre
-mv = MP[mval]; front = mv[mv[:, 1] < mv[:, 1].min() + 0.015]
-snout_c = front.mean(0)
-src = np.array([[eyes[0][0], eyes[0][2]], [eyes[1][0], eyes[1][2]], [snout_c[0], snout_c[2]]], np.float32)
-dst = np.array([eye_px[0], eye_px[1], snout_px], np.float32)
-A = cv2.getAffineTransform(src, dst)
-# photo classes: 21 black paint, 24 red snout, 25 nostril slits (dark inside the snout's filled outline), else plaster
-pcls = np.full(pL.shape, 20, np.uint8)
-blue_bg = (pb > pr + 0.05) & (pg > pr)
-pcls[(pL < 0.2) & ~blue_bg] = 21
-pcls[red] = 24
-hull = snout_mask
-pcls = cv2.medianBlur(pcls, 5)
-pcls[hull] = 24
-for x0, y0, x1, y1 in SLITS: pcls[y0:y1, x0:x1] = 25
-# below the snout's lower edge the photo shows the costume, not the mask: leave it unknown (0)
-pcls[SNOUT_C[1] + SNOUT_AX[1] + 4:, :] = 0
-uv = np.c_[mv[:, 0], mv[:, 2]] @ A[:, :2].T + A[:, 2]
-ui = np.clip(uv[:, 0].round().astype(int), 0, pL.shape[1] - 1); vi = np.clip(uv[:, 1].round().astype(int), 0, pL.shape[0] - 1)
-pc = pcls[vi, ui]
-facing = (MN[mval][:, 1] < -0.3) & (pc > 0)
-lab_m = np.full(len(mv), 20, np.uint8)
-lab_m[facing] = pc[facing]
-_, nn = cKDTree(mv[facing]).query(mv[~facing]); lab_m[~facing] = pc[facing][nn]
-for c, er in zip(eyes, [e["diameter"] / 2000 for e in fit["scan_eye_beads_mm"]]):
-    d = np.linalg.norm(mv - c, axis=1); on = d < er + 0.0015
-    lab_m[on] = 22
-    fwd = (mv - c) @ np.array([0, -1.0, 0]) / np.maximum(d, 1e-6)
-    lab_m[on & (fwd > 0.93)] = 23
-mcls[mval] = lab_m
-mcls = clean(mcls, mval, 25)
-mcls[~mval] = 0
-Image.fromarray(mcls).save(f"{OUT}/regions_mask.png"); preview(mcls, f"{OUT}/regions_mask_preview.png")
-# check image: the photo's classes with the projected mask outline
-chk = np.full(pcls.shape + (3,), 255, np.uint8)
-for k, (_, rgb) in CLASSES.items(): chk[pcls == k] = rgb
-chk = (0.5 * chk + 0.5 * (ph * 255)).astype(np.uint8)
-for u_, v_ in zip(ui[::25], vi[::25]): chk[v_, u_] = (0, 120, 255)
-for e in eye_px + [snout_px]: cv2.circle(chk, (int(e[0]), int(e[1])), 6, (255, 0, 255), 2)
-Image.fromarray(chk).save(f"{OUT}/mask_photo_projection_check.png")
+# ---------------- mask atlas (face=scan only) ----------------
+mcls = None
+if not TRIPO_FACE:
+    MP = np.load(f"{BK}/geom_mask_position.npy"); MN = np.load(f"{BK}/geom_mask_normal.npy"); mval = uv_coverage(f"{BK}/Mask_LOW.obj", MP.shape[0])
+    mcls = np.zeros(mval.shape, np.uint8); mcls[mval] = 20
+    eyes = [to_cow(np.array(e["centre"])[None])[0] for e in fit["scan_eye_beads_mm"]]
+    # photo landmarks: eye centres = yellow blobs, snout centre = red blob
+    ph = np.asarray(Image.open(PHOTO).convert("RGB")).astype(np.float32) / 255
+    pr, pg, pb = ph[..., 0], ph[..., 1], ph[..., 2]; pL = ph.mean(-1)
+    yel = (pr > 0.45) & (pg > 0.4) & (pb < 0.5 * pg)
+    red = (pr > 0.28) & (pr > 1.6 * pg) & (pr > 1.3 * pb)
+    # eyes: yellow rings around dark pupils -> close the rings, search only the face band (the horns are yellow too)
+    band_ = np.zeros_like(yel); band_[int(ph.shape[0] * 0.28):int(ph.shape[0] * 0.55)] = True
+    ye = cv2.morphologyEx((yel & band_).astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21)))
+    n, lab, st, cen = cv2.connectedComponentsWithStats(ye)
+    big = np.argsort(-st[1:, cv2.CC_STAT_AREA])[:2] + 1
+    eye_px = sorted([cen[i] for i in big], key=lambda c: c[0])
+    # the red snout and its two slits, measured on REF_J (px): the slits merge into the shadow under the snout, so
+    # they can't be found by thresholds; the slipper project also fixed landmarks by hand on the original photos
+    SNOUT_C, SNOUT_AX = (435, 570), (98, 67)
+    SLITS = [(377, 543, 397, 627), (449, 543, 474, 627)]
+    yy_, xx_ = np.mgrid[:ph.shape[0], :ph.shape[1]]
+    snout_mask = ((xx_ - SNOUT_C[0]) / SNOUT_AX[0]) ** 2 + ((yy_ - SNOUT_C[1]) / SNOUT_AX[1]) ** 2 <= 1
+    snout_px = np.array(SNOUT_C, float)
+    # cow-frame landmarks (x, z): eye centres (image left = the costume's own right = -X), snout front centre
+    mv = MP[mval]; front = mv[mv[:, 1] < mv[:, 1].min() + 0.015]
+    snout_c = front.mean(0)
+    src = np.array([[eyes[0][0], eyes[0][2]], [eyes[1][0], eyes[1][2]], [snout_c[0], snout_c[2]]], np.float32)
+    dst = np.array([eye_px[0], eye_px[1], snout_px], np.float32)
+    A = cv2.getAffineTransform(src, dst)
+    # photo classes: 21 black paint, 24 red snout, 25 nostril slits (dark inside the snout's filled outline), else plaster
+    pcls = np.full(pL.shape, 20, np.uint8)
+    blue_bg = (pb > pr + 0.05) & (pg > pr)
+    pcls[(pL < 0.2) & ~blue_bg] = 21
+    pcls[red] = 24
+    hull = snout_mask
+    pcls = cv2.medianBlur(pcls, 5)
+    pcls[hull] = 24
+    for x0, y0, x1, y1 in SLITS: pcls[y0:y1, x0:x1] = 25
+    # below the snout's lower edge the photo shows the costume, not the mask: leave it unknown (0)
+    pcls[SNOUT_C[1] + SNOUT_AX[1] + 4:, :] = 0
+    uv = np.c_[mv[:, 0], mv[:, 2]] @ A[:, :2].T + A[:, 2]
+    ui = np.clip(uv[:, 0].round().astype(int), 0, pL.shape[1] - 1); vi = np.clip(uv[:, 1].round().astype(int), 0, pL.shape[0] - 1)
+    pc = pcls[vi, ui]
+    facing = (MN[mval][:, 1] < -0.3) & (pc > 0)
+    lab_m = np.full(len(mv), 20, np.uint8)
+    lab_m[facing] = pc[facing]
+    _, nn = cKDTree(mv[facing]).query(mv[~facing]); lab_m[~facing] = pc[facing][nn]
+    for c, er in zip(eyes, [e["diameter"] / 2000 for e in fit["scan_eye_beads_mm"]]):
+        d = np.linalg.norm(mv - c, axis=1); on = d < er + 0.0015
+        lab_m[on] = 22
+        fwd = (mv - c) @ np.array([0, -1.0, 0]) / np.maximum(d, 1e-6)
+        lab_m[on & (fwd > 0.93)] = 23
+    mcls[mval] = lab_m
+    mcls = clean(mcls, mval, 25)
+    mcls[~mval] = 0
+    Image.fromarray(mcls).save(f"{OUT}/regions_mask.png"); preview(mcls, f"{OUT}/regions_mask_preview.png")
+    # check image: the photo's classes with the projected mask outline
+    chk = np.full(pcls.shape + (3,), 255, np.uint8)
+    for k, (_, rgb) in CLASSES.items(): chk[pcls == k] = rgb
+    chk = (0.5 * chk + 0.5 * (ph * 255)).astype(np.uint8)
+    for u_, v_ in zip(ui[::25], vi[::25]): chk[v_, u_] = (0, 120, 255)
+    for e in eye_px + [snout_px]: cv2.circle(chk, (int(e[0]), int(e[1])), 6, (255, 0, 255), 2)
+    Image.fromarray(chk).save(f"{OUT}/mask_photo_projection_check.png")
 
 counts = {CLASSES[k][0]: int((cls == k).sum()) for k in CLASSES if k < 20}
-counts.update({CLASSES[k][0]: int((mcls == k).sum()) for k in CLASSES if k >= 20})
+counts.update({CLASSES[k][0]: int(((mcls if mcls is not None else cls) == k).sum()) for k in CLASSES if k >= 20})
 json.dump({"classes": {k: v[0] for k, v in CLASSES.items()}, "colours": {k: v[1] for k, v in CLASSES.items()},
-           "texel_counts": counts, "photo_landmarks_px": {"eyes": [list(map(float, e)) for e in eye_px], "snout": list(map(float, snout_px))}},
+           "texel_counts": counts, "face": "tripo" if TRIPO_FACE else "scan"},
           open(f"{OUT}/regions.json", "w"), indent=1)
 for k, v in counts.items(): print(f"{k:24s} {v:10,d}")
 print("wrote", OUT)

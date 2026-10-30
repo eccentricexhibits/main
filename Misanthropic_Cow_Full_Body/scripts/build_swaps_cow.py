@@ -1,18 +1,19 @@
 """Stage 6b geometry swaps on the Tripo cow, at real size (metres).
 
-python3 -I build_swaps_cow.py <cowMask.obj> <tripo_blender_frame.npz> <tripo_vcol.npy> <fit.json> <horns_dir> <slippers.glb> <out_dir>
+python3 -I build_swaps_cow.py <cowMask.obj> <tripo_blender_frame.npz> <tripo_vcol.npy> <fit.json> <horns_dir> <slippers.glb> <out_dir> [face=tripo|scan]
 
 Blender frame throughout: Z up, front -Y, the costume's own left +X. Tripo units x S = metres.
-1. Mask: the scan's relief (in front of the scanner block, below its top) is moved onto the head with the
-   fit from fit_mask_scan_cow.py. Its outer rim gets a 25 mm skirt running backward so it tucks into the hood.
-   Tripo's own face (in front of the mask's back plane,
-   inside its outline, and a little below the chin) is deleted and the hole capped behind the mask.
+1. Mask. face=tripo (the user's choice after seeing both): Tripo's own face stays; the scan, moved onto the head
+   with the fit from fit_mask_scan_cow.py, only gives the mask's outline (mask_footprint.npz) for the region map.
+   face=scan (the first version): the scan's relief replaces the face; its rim gets a skirt running backward into
+   the hood, and Tripo's face (in front of the mask's back plane, inside its outline, a little below the chin) is
+   deleted and the hole capped behind the mask.
 2. Horns: Tripo's horns and wire (yellow/dark texels beyond the bolster ends) are deleted. The scan-guided
    horns (horns_from_scan_cow.py) are moved with the same fit and then shifted so each root sits on its
    bolster end; their 12 mm root extension plugs into the bolster.
 3. Feet: everything below the ankle cut is deleted; a black-sock foot (loft from the leg's cut ring down to
    a foot outline on the slipper's footbed) is added per leg; the slipper pair is placed at real size (27 cm),
-   toes on Tripo's toes.
+   each centred under its leg, toes on Tripo's toes.
 4. Tail: a 4 mm white cord from the bottom of the gold bow, draped down over the seat to knee height.
 Writes body.npz (v in metres, f, uv, deleted-hole info), mask_shell.ply, horn_*.ply, socks.ply, tail.ply,
 swaps.json (scale, slipper placement, horn shifts, all landmarks).
@@ -24,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geom_cow import sweep  # noqa: E402
 
 SCAN, NPZ, VCOL, FIT, HORNS, SLIPPERS, OUT = sys.argv[1:8]
+FACE = sys.argv[8] if len(sys.argv) > 8 else "tripo"
 os.makedirs(OUT, exist_ok=True)
 fit = json.load(open(FIT))
 S = fit["mm_per_tripo_unit_used"] / 1000.0          # metres per Tripo unit
@@ -70,7 +72,8 @@ shell = trimesh.Trimesh(np.r_[rv, ring2], np.r_[rf, np.array(sk)], process=False
 trimesh.repair.fix_normals(shell, multibody=False)
 if shell.face_normals[:len(rf)][:, 1].mean() > 0: shell.invert()        # face the front (-Y)
 shell.vertices = to_cow(shell.vertices)
-shell.export(f"{OUT}/mask_shell.ply")
+if FACE == "scan": shell.export(f"{OUT}/mask_shell.ply")
+elif os.path.exists(f"{OUT}/mask_shell.ply"): os.remove(f"{OUT}/mask_shell.ply")
 info["mask"] = {"faces": int(len(shell.faces)), "bounds_m": shell.bounds.round(4).tolist(), "relief_faces": int(len(rf))}
 print("mask shell bounds (m)", shell.bounds.round(3).tolist())
 
@@ -93,8 +96,14 @@ def in_fp(p):
     i = ((p[:, 2] - z0_) / GR).astype(int); j = ((p[:, 0] - x0_) / GR).astype(int)
     ok = (i >= 0) & (i < nz_) & (j >= 0) & (j < nx_)
     out = np.zeros(len(p), bool); out[ok] = fp[i[ok], j[ok]]; return out
-facev = (v[:, 2] > relv[:, 2].min() - 0.04) & (v[:, 2] < relv[:, 2].max() - 0.004) & (v[:, 1] < Y_BACK) & in_fp(v)
-print(f"Tripo face: {facev.sum():,} verts in front of the mask's back plane (y < {Y_BACK:.3f} m) inside its outline -> deleted")
+np.savez(f"{OUT}/mask_footprint.npz", fp=fp, x0=x0_, z0=z0_, grid=GR, y_back=Y_BACK, zmin=relv[:, 2].min(), zmax=relv[:, 2].max())
+if FACE == "scan":
+    facev = (v[:, 2] > relv[:, 2].min() - 0.04) & (v[:, 2] < relv[:, 2].max() - 0.004) & (v[:, 1] < Y_BACK) & in_fp(v)
+    print(f"Tripo face: {facev.sum():,} verts in front of the mask's back plane (y < {Y_BACK:.3f} m) inside its outline -> deleted")
+else:
+    facev = np.zeros(len(v), bool)
+    print("Tripo face kept; the scan's outline is saved for the region map")
+info["face"] = FACE
 info["mask"]["back_plane_y_m"] = Y_BACK
 
 # ---------------- 2. horns ----------------
@@ -143,18 +152,22 @@ used = np.unique(f2); remap = -np.ones(len(v), int); remap[used] = np.arange(len
 v2, uv2, f2 = v[used], uv[used], remap[f2]
 print(f"deleted {(~fk).sum():,} faces {info['faces_deleted']} -> {len(f2):,} faces")
 
+# ankle centres (just above the cut): each slipper is centred under its leg. Tripo's legs come down about 2.7 cm
+# closer to the middle than Tripo's own slippers, so centring on those let the ankle overhang the slipper's inner edge
+ank = {sd: v[(np.abs(v[:, 2] - Z_CUT - 0.012) < 0.008) & (sg_ * v[:, 0] > 0.03)][:, :2].mean(0) for sd, sg_ in (("L", 1), ("R", -1))}
+info["ankle_centres_xy_m"] = {k: a.tolist() for k, a in ank.items()}
 # slippers: real size (1 GLB unit = 27.5 cm), toes on Tripo's toes, A on the costume's own left (+X)
 sl = list(trimesh.load(SLIPPERS).geometry.values())[0]
 sv0 = np.asarray(sl.vertices); sv0 = np.c_[sv0[:, 0], -sv0[:, 2], sv0[:, 1]] * 0.275
 slip = {}
 for side, sg in (("L", 1), ("R", -1)):
     p = sv0.copy(); p[:, 0] *= sg
-    off = np.array([sg * U(0.0855) - (p[:, 0].max() + p[:, 0].min()) / 2, U(-0.074) - p[:, 1].min(), -p[:, 2].min()])
+    off = np.array([ank[side][0] - (p[:, 0].max() + p[:, 0].min()) / 2, U(-0.074) - p[:, 1].min(), -p[:, 2].min()])
     slip[side] = {"mirror_x": sg < 0, "scale": 0.275, "offset_m": off.tolist(),
                   "length_m": float(np.ptp(p[:, 1])), "toe_y": float(U(-0.074)), "heel_y": float(U(-0.074) + np.ptp(p[:, 1]))}
     pm = trimesh.Trimesh(p + off, sl.faces if sg > 0 else sl.faces[:, ::-1], process=False)
     hy = U(-0.074) + np.ptp(p[:, 1]) * 0.80              # footbed probe: 80 % back along the slipper
-    loc, _, _ = pm.ray.intersects_location([[sg * U(0.0855), hy, 0.5]], [[0, 0, -1.0]], multiple_hits=False)
+    loc, _, _ = pm.ray.intersects_location([[ank[side][0], hy, 0.5]], [[0, 0, -1.0]], multiple_hits=False)
     slip[side]["footbed_z"] = float(loc[0, 2]) if len(loc) else 0.02
 info["slippers"] = slip
 print("slipper footbed z (m):", {k: round(s_["footbed_z"], 4) for k, s_ in slip.items()})
@@ -174,9 +187,10 @@ for side, sg in (("L", 1), ("R", -1)):
     th = np.linspace(-np.pi, np.pi, 48, endpoint=False)
     rr = np.interp(th, ang[o_], np.linalg.norm(ring[o_, :2] - c0[:2], axis=1), period=2 * np.pi) * 1.04
     top_z = Z_CUT + 0.015
-    # foot outline: 23.5 x 9 cm, heel 2 cm in front of the slipper's heel end
-    fb = slip[side]["footbed_z"] + 0.004; heel = slip[side]["heel_y"] - 0.02; flen, fw = 0.235, 0.09
-    fc = np.array([c0[0], heel - flen / 2])
+    # foot outline: 15 x 7 cm, centred on the slipper (and so under the leg), heel 2 cm in front of its heel end; the toes reach only
+    # about 4 cm under the slipper's head (its foot opening is shallow), so nothing breaks through its sides
+    fb = slip[side]["footbed_z"] + 0.004; heel = slip[side]["heel_y"] - 0.02; flen, fw = 0.15, 0.07
+    fc = np.array([ank[side][0], heel - flen / 2])
     a, b = fw / 2, flen / 2
     rf_ = (np.abs(np.cos(th)) ** 2.5 / a ** 2.5 + np.abs(np.sin(th)) ** 2.5 / b ** 2.5) ** (-1 / 2.5)
     K = 14; V, Fc = [], []
