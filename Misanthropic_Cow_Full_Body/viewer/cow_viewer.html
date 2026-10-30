@@ -66,8 +66,7 @@ button:focus-visible, .toggle:focus-within { outline: 2px solid var(--accent); o
   <h1>The Misanthropic Cow</h1>
   <ul class="facts" aria-label="Model facts">
     <li>Height <b>1.64 m</b></li>
-    <li>Mask <b>2014 scan</b></li>
-    <li>Triangles <b>572k</b></li>
+    <li>Triangles <b>542k</b></li>
     <li>Fabrics <b>10 tiles</b></li>
   </ul>
 </header>
@@ -79,7 +78,7 @@ button:focus-visible, .toggle:focus-within { outline: 2px solid var(--accent); o
     <div>
       <strong id="statusText">Loading the model…</strong>
       <div class="bar"><i id="barFill"></i></div>
-      <p id="statusSub">Body, mask and slippers: about 19 MB</p>
+      <p id="statusSub">Body and slippers: about 17 MB</p>
     </div>
   </div>
 </div>
@@ -98,7 +97,6 @@ button:focus-visible, .toggle:focus-within { outline: 2px solid var(--accent); o
     <span>Show</span>
     <button id="turntable" aria-pressed="false">Turntable</button>
     <button id="clay" aria-pressed="false">Clay</button>
-    <label class="toggle"><input type="checkbox" id="p-mask" checked> Mask</label>
     <label class="toggle"><input type="checkbox" id="p-slippers" checked> Slippers</label>
     <label class="toggle"><input type="checkbox" id="p-ruler" checked> Ruler</label>
   </div>
@@ -193,15 +191,15 @@ turnBtn.addEventListener("click", () => {
   controls.autoRotate = !controls.autoRotate; turnBtn.setAttribute("aria-pressed", String(controls.autoRotate));
 });
 
-// load the three parts (each GLB is published as base64 text, the file types this host serves)
-const FILES = [["cow_body.glb.b64.txt", "body"], ["cow_mask.glb.b64.txt", "mask"], ["cow_slippers.glb.b64.txt", "slippers"]];
+// load the parts (each GLB is published as base64 text, the file types this host serves)
+const FILES = [["cow_body.glb.b64.txt", "body"], ["cow_slippers.glb.b64.txt", "slippers"]];
 const parts = {}; const loaded = {}; const totals = {};
 const barFill = document.getElementById("barFill"), statusEl = document.getElementById("status");
 const statusText = document.getElementById("statusText"), statusSub = document.getElementById("statusSub");
 const loader = new GLTFLoader();
 function progress() {
   const l = Object.values(loaded).reduce((a, b) => a + b, 0);
-  const t = Math.max(Object.values(totals).reduce((a, b) => a + b, 0), 19.3e6);
+  const t = Math.max(Object.values(totals).reduce((a, b) => a + b, 0), 16.5e6);
   barFill.style.width = Math.min(100, (100 * l) / t).toFixed(0) + "%";
   statusSub.textContent = `${(l / 1e6).toFixed(1)} of about ${(t / 1e6).toFixed(0)} MB`;
 }
@@ -242,7 +240,6 @@ clayBtn.addEventListener("click", () => {
   Object.values(parts).forEach(g => g.traverse(o => { if (o.isMesh) o.material = on ? clayMat : o.userData.mat; }));
 });
 const bindPart = (id, fn) => document.getElementById(id).addEventListener("change", (e) => fn(e.target.checked));
-bindPart("p-mask", (v) => parts.mask && (parts.mask.visible = v));
 bindPart("p-slippers", (v) => parts.slippers && (parts.slippers.visible = v));
 bindPart("p-ruler", (v) => (ruler.visible = v));
 

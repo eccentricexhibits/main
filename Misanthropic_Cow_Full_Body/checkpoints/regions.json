@@ -130,42 +130,27 @@
   ]
  },
  "texel_counts": {
-  "white faux fur": 5334012,
-  "black shag fur": 1642574,
-  "pink fleece udder": 692564,
-  "beige satin bloomers": 288230,
-  "beige lace side panels": 237157,
-  "black leggings": 2056284,
-  "white paint spots": 127743,
-  "white knit gloves": 753865,
-  "black glossy hooves": 632750,
-  "gold satin bow": 49721,
-  "black socks": 180362,
-  "white cord tail": 69516,
-  "yellow horn paint": 134568,
-  "black horn rings": 10485,
-  "bare wire": 53115,
-  "mask white plaster": 1578676,
-  "mask black paint": 1508502,
-  "yellow eye bead": 123251,
-  "black pupil": 6512,
-  "red flocked snout": 347394,
-  "black nostril slits": 66689
+  "white faux fur": 4952736,
+  "black shag fur": 1438269,
+  "pink fleece udder": 652007,
+  "beige satin bloomers": 299179,
+  "beige lace side panels": 265079,
+  "black leggings": 2104937,
+  "white paint spots": 113597,
+  "white knit gloves": 695757,
+  "black glossy hooves": 628460,
+  "gold satin bow": 45424,
+  "black socks": 138395,
+  "white cord tail": 73846,
+  "yellow horn paint": 135990,
+  "black horn rings": 11115,
+  "bare wire": 57338,
+  "mask white plaster": 466003,
+  "mask black paint": 442930,
+  "yellow eye bead": 66264,
+  "black pupil": 13415,
+  "red flocked snout": 183490,
+  "black nostril slits": 32506
  },
- "photo_landmarks_px": {
-  "eyes": [
-   [
-    377.8988391376451,
-    402.18739635157544
-   ],
-   [
-    491.8142493638677,
-    398.50508905852416
-   ]
-  ],
-  "snout": [
-   435.0,
-   570.0
-  ]
- }
+ "face": "tripo"
 }
