@@ -174,7 +174,9 @@ if TRIPO_FACE:
         if ys.sum() < 50: continue
         ce = P[ys].mean(0); er = np.percentile(np.linalg.norm(P[ys] - ce, axis=1), 95)
         eye = mk & (np.linalg.norm(P - ce, axis=-1) < er)
-        cls[eye] = 22; cls[eye & blk] = 23
+        cls[eye] = 22
+        # pupil: a round disc on the front of the eye (Tripo painted a dark iris outline, which reads as a ring)
+        cls[eye & (np.hypot(x - ce[0], z - ce[2]) < 0.42 * er) & (N[..., 1] < -0.3)] = 23
         print(f"eye {'own left' if sg > 0 else 'own right'}: radius {er * 1000:.0f} mm")
     print(f"mask on Tripo's face: {mk.sum():,} texels; snout radius {rr_ * 1000:.0f} mm")
 cls = clean(cls, valid, 60)                                    # ~1 cm^2 at this texel density

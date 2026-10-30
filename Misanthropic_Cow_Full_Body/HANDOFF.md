@@ -10,11 +10,11 @@ Goal: a clean, textured, rig-ready 3D model of the user's character, The Misanth
 |---|---|
 | 0-4 Intake, references, views, Tripo inputs, Tripo model | done (`views/`, `tripo_inputs/`, `tripo_eval/REPORT.md`) |
 | 6 Cleanup | done: `scripts/bl_stage6_cow.py` |
-| 6b Real scale + geometry swaps | done: 1.64 m; scanned mask, scan-guided horns, slippers on black-sock feet, cord tail (`checkpoints/CHECKPOINT_1`, `_2`) |
-| 7 Decimation | done: body 1.49M -> 200k, mask 249k -> 60k; silhouette IoU 0.9996+ in 8 views |
-| 8 UVs and bakes | done: body 4K atlas (texel-weighted), mask 2K atlas; colour, normal, per-texel geometry |
-| 9c Region map, tiles, live material, AO, final bakes | done; region map **approved by the user** (`checkpoints/CHECKPOINT_3_region_map.jpg`); live vs baked `checkpoints/CHECKPOINT_4_live_vs_baked.jpg` |
-| 10-11 Deliverables | done: `deliver/Misanthropic_Cow.glb` (28.1 MB) and `deliver/live/Cow_fabric_live.blend` + `textures/` |
+| 6b Real scale + geometry swaps | done: 1.64 m; scan-guided horns, slippers centred under the legs on black-sock feet, cord tail (`checkpoints/CHECKPOINT_1`, `_2`). The face is **Tripo's** (see §3) |
+| 7 Decimation | done: body 1.55M -> 230k; silhouette IoU 0.9996+ in 8 views (checked on the scan-mask version) |
+| 8 UVs and bakes | done: one 4K body atlas (texel-weighted, the face at 2x); colour, normal, per-texel geometry |
+| 9c Region map, tiles, live material, AO, final bakes | done; region map approved by the user (`checkpoints/CHECKPOINT_3_region_map.jpg`, then re-done for Tripo's face: `CHECKPOINT_5_tripo_face.jpg`) |
+| 10-11 Deliverables | done: `deliver/Misanthropic_Cow.glb` and `deliver/live/Cow_fabric_live.blend` + `textures/`; browser viewer `viewer/` |
 | Next | rigging (Rigify or AccuRig); optional polish (§5) |
 
 ## 2. The user
@@ -28,9 +28,9 @@ Goal: a clean, textured, rig-ready 3D model of the user's character, The Misanth
 - **No re-shoot** (the costume is gone). Proportions come from the **original photo shoot wearer** (8 photos).
 - **A-pose**, rigged and animated eventually.
 - **Real size: 1.64 m to the horn tips** (1.676 m per Tripo unit), set from the real mask's width at eye level (176 mm). Cross-checks: Tripo's feet come out 28.5 cm against the real 27 cm slippers; matching the eye spacing instead would give 1.54 m; a 1.6 m wearer would suggest about 1.72 m. Tripo's head is a little large for its body, so the user chose to keep the mask at its real size.
-- **Mask: the 2014 scan** (`cowMask.obj`, millimetres, 836k triangles, no texture) replaces Tripo's face. It is a better scan than the mask project's `cowMask1.stl` and also captured the horn tube, both real horns and the wire tuft.
+- **Mask: Tripo's own face** (the user's choice). The first version replaced it with the 2014 scan (`cowMask.obj`, millimetres, 836k triangles, no texture), coloured from REF_J; the user found it "all messed up" next to Tripo's face (noisy black-paint areas in the scan, ragged projected patches, the mask sitting deep in the hood). The scan now gives the real scale, the horn shapes and the mask's outline (which part of Tripo's face is mask, for the regions). `build_swaps_cow.py ... scan` still builds the scan version.
 - **Horns follow the scan** (user's choice over the REF_J ratios): clean swept tubes along the scan's horn centrelines. Long horn 18.5 cm along its curve on the costume's own left (3 black rings, pointed tip); short horn 4.9 cm on its own right (2 rings) with a five-strand twisted wire tuft. Both sit on Tripo's horn tube (bolster), which is about 11 cm long, like the real one.
-- **Slippers:** the finished pair (`Cow_Slippers_pair.glb`) at real size (27 cm), toes on Tripo's toes, own textures. **Black-sock feet** fill them.
+- **Slippers:** the finished pair (`Cow_Slippers_pair.glb`) at real size (27 cm), each **centred under its leg** (Tripo's legs come down 2.7 cm closer to the middle than Tripo's slippers; centring on those let the ankle poke out of the slipper's inner side, which the user spotted), toes on Tripo's toes, own textures. **Black-sock feet** (15 x 7 cm, toes only ~4 cm under the slipper's head) fill them.
 - **Tail:** a 4 mm white cord from the gold bow to knee height (0.45 m).
 - **Beige satin bloomers with lace side panels**; the back continues the front (satin, lace at the sides). The lace is see-through over the black leggings.
 - **No baked lighting in the colour.** AO is a separate glTF occlusion map. Metallic is 0 everywhere.
@@ -48,8 +48,8 @@ Goal: a clean, textured, rig-ready 3D model of the user's character, The Misanth
 
 1. **Rigging.** Suggest Rigify (in Blender, from `deliver/live/Cow_fabric_live.blend` or the GLB) or AccuRig. The mask, horns, wire and tube should be weighted 100 % to the head bone; the slippers to the feet; the cord tail can get a short bone chain.
 2. Optional polish the user may ask for:
-   - The fill cap under the chin and the bolster-end caps are flat fans (hidden or fur-coloured, but visible up close).
-   - The mask's sides take the nearest front-facing class from REF_J; `DETAIL_15` (STEP_5 kit) could paint the costume's own right side properly.
+   - The bolster-end caps are flat fans (fur-coloured, visible up close).
+   - The mask's patches follow Tripo's painted face, not REF_J.
    - The body's black patches and white leg spots follow Tripo's texture, not the photos.
    - The horns follow the 2014 scan, which hooks more than REF_J.
    - A lighter LOD (body 100k, slippers 2K) for real-time use.
@@ -85,10 +85,11 @@ Inputs: `<x>` = extracted uploads (Tripo OBJ, `cowMask.obj`, slipper `Cow_Slippe
 | 7 | `bl_decimate_cow.py <w>/cow_swapped.blend <w>/cow_low.blend <w>/ply` | Region-weighted decimation; `compare_lod_cow.py` checks it |
 | 8 | `bl_uv_cow.py <w>/cow_low.blend <w>/cow_uv.blend` | Joins the LOW parts (face attribute `part`), texel-weighted atlases |
 | 9 | `bl_bake_cow.py <w>/cow_uv.blend <w>/bake` | Colour, normal, per-texel position/normal/part; UV'd OBJs |
-| 10 | `make_regions_cow.py <w>/bake … REF_J <w>/regions` | Region classes (approved); `render_regions_cow.py` draws the map |
+| 10 | `make_regions_cow.py <w>/bake … <w>/swaps/swaps.json … REF_J <w>/regions` | Region classes; the mask from Tripo's colours inside the scan's outline (`swaps/mask_footprint.npz`); `render_regions_cow.py` draws the map |
 | 11 | `make_mix_masks_cow.py <w>/regions <w>/mix` | Soft sequential mix factors |
 | 12 | `bl_fabric_cow.py <w>/bake/cow_baked_work.blend <w>/tiles_ready <w>/mix <w>/bake <w>/fabric` | Live materials, AO, final bakes (about 12 min on CPU) |
 | 13 | `render_compare_cow.py`, `bl_export_cow.py <w>/fabric/Cow_fabric_live.blend <w>/fabric deliver` | Live vs baked; GLB + lean live .blend |
+| 14 | `bl_export_web_cow.py deliver/Misanthropic_Cow.glb <viewer>` | Lighter GLBs for the browser viewer (`viewer/README.md`) |
 
 Helpers: `geom_cow.py` (tube sweep), `bl_cow_common.py` (baked material with glTF occlusion), `render_clay_views.py`, `fit_scan_to_scan.py` (OBJ vs STL check; free-scale ICP collapses, see §8). Earlier stages: `prep_refs_cow.py`, `proportion_*`, `design_key_*`, `kit_*`, `fix_*_view.py`, `normalize_views_cow.py`, `render_model_cow.py`, `compare_silhouettes_cow.py`, `prep_fabric_crops_cow.py`, `build_tile_kit_cow.py`.
 
@@ -104,6 +105,8 @@ Numbers worth keeping are in `checkpoints/`: `mask_scan_fit.json`, `swaps.json` 
 6. **AI meshes are split at UV seams**: weld by position before finding boundary loops (sock rings, caps).
 7. **Black paint scans noisily** (the mask's black patches are rough in the scan); the geometry still fits.
 8. **Photo projection needs hand-checked landmarks** where shadows merge shapes (the nostril slits merge into the snout's shadow).
+9. **Show the user the textured result early.** The scanned mask passed the region-map check but looked wrong once textured; a quick textured render of a swapped part before the full pipeline would have caught it.
+10. **Place props under the AI body's limbs, not where the AI drew its own props**: Tripo's slippers were 2.7 cm off its legs.
 
 ## 9. Package map
 
@@ -120,13 +123,12 @@ Not in the repo: the Tripo OBJ (the user's RAR, 194 MB), the mask scan (`cowMask
 
 ## 10. The deliverable
 
-`deliver/Misanthropic_Cow.glb` (28.1 MB): glTF, +Y up, metres, the face toward +Z, the costume's own left at +X; 1.648 m tall.
+`deliver/Misanthropic_Cow.glb`: glTF, +Y up, metres, the face toward +Z, the costume's own left at +X; 1.648 m tall.
 
 | Object | Triangles | Maps |
 |---|---|---|
-| `Cow_body` (body, socks, cord tail, horns, wire tuft) | 212k | 4K base colour, roughness, normal; 2K occlusion |
-| `Cow_mask` (the real mask scan) | 60k | 2K base colour, roughness, normal; 1K occlusion |
+| `Cow_body` (body with the mask, socks, cord tail, horns, wire tuft) | 242k | 4K base colour, roughness, normal; 2K occlusion |
 | `Slipper_L`, `Slipper_R` (one mesh, mirrored) | 150k each | the slippers' own maps at 2K |
 
 Metallic 0 everywhere; JPEG maps; the occlusion maps are separate (no lighting in the colour).
-`deliver/live/Cow_fabric_live.blend`: the live fabric materials (`Cow_Fabric`, `Mask_Fabric`): tiles box-projected at real size (fur and shag 10 cm, fleece, satin, lace, plaster 8 cm, leggings, paint, knit 6 cm, snout 5 cm), mix masks (PNG, keep lossless), detail normals, see-through lace. Textures are relative (`//textures/...`).
+`deliver/live/Cow_fabric_live.blend`: the live fabric material `Cow_Fabric` (mask classes included): tiles box-projected at real size (fur and shag 10 cm, fleece, satin, lace, plaster 8 cm, leggings, paint, knit 6 cm, snout 5 cm), mix masks (PNG, keep lossless), detail normals, see-through lace. Textures are relative (`//textures/...`).
