@@ -347,7 +347,7 @@ depth and from the code's side. This file is the operational one.</p>
 </tr>
 <tr>
 <td><strong>This document</strong></td>
-<td><code>HANDOFF.md</code>, and <code>dist/AI-Summit-2026-handoff.pdf</code></td>
+<td><code>dist/handoff.html</code> (live), <code>dist/AI-Summit-2026-handoff.pdf</code>, <code>HANDOFF.md</code></td>
 <td>—</td>
 </tr>
 </tbody>
@@ -565,7 +565,8 @@ node tools/render.js --speaker &quot;Glenda Crisp|President &amp; CEO,|Vector In
 
 python3 tools/badges.py                # the four badge PDFs plus a combined one
 python3 tools/verify-badges.py         # contrast + layer checks, must pass
-python3 tools/handoff-pdf.py           # re-render this document to dist/
+python3 tools/handoff-pdf.py           # this document as a PDF
+python3 tools/build-handoff.py         # this document as a live web page
 </code></pre>
 <p>Output names itself from the mode, so the three masters do not overwrite each
 other:</p>
@@ -597,6 +598,10 @@ other:</p>
 <td><code>python3 tools/handoff-pdf.py</code></td>
 <td><code>dist/AI-Summit-2026-handoff.pdf</code></td>
 </tr>
+<tr>
+<td><code>python3 tools/build-handoff.py</code></td>
+<td><code>dist/handoff.html</code></td>
+</tr>
 </tbody>
 </table>
 <p>Full option list: <code>--fps --crf --gop --duration --workers --out --walls
@@ -608,10 +613,16 @@ deterministic: a rerun on a clean clone reproduces the same PDFs.</p>
 resolution across worker processes, pipe as raw RGBA into per-segment ffmpeg
 encoders, and are concatenated with a stream copy so nothing is re-encoded.</p>
 <h3>Previewing</h3>
-<p><code>dist/preview.html</code> is fully self-contained — it opens straight off disk with no
-server. It carries both pieces, a scrub track, the venue overlay, the room-state
-slider, speaker-name fields and a loop-seam test. <strong>The preview is exactly what
-gets encoded</strong>: the same scene functions drive both.</p>
+<p>Two self-contained pages, both of which open straight off disk with no server:</p>
+<ul>
+<li><strong><code>dist/handoff.html</code></strong> — this document with the room running live at the top
+  of it and the badge set below. The one to send to someone who needs to <em>see</em>
+  the design rather than read about it.</li>
+<li><strong><code>dist/preview.html</code></strong> — the working review tool. Same player, no prose.</li>
+</ul>
+<p>Both carry each piece, a scrub track, the venue overlay, the room-state slider,
+speaker-name fields and a loop-seam test. <strong>The preview is exactly what gets
+encoded</strong>: the same scene functions drive the page and the renderer.</p>
 <p>Earlier cuts stay viewable rather than merely recoverable:</p>
 <table>
 <thead>
@@ -775,6 +786,8 @@ src/scene.js           Convergence — one deterministic function of loop time
 src/logo-moment.js     Arrival — the arrows-into-logo piece
 src/preview.html       browser preview shell
 src/preview-main.js    preview controls
+src/handoff.html       browser handoff shell
+src/handoff-main.js    handoff player
 
 tools/render.js        parallel full-resolution render and encode
 tools/build-preview.js bundles the preview into one self-contained file
@@ -784,9 +797,11 @@ tools/moment-still.js  frames from Arrival
 tools/badges.py        layered name badge PDFs
 tools/verify-badges.py badge contrast and layer checks
 tools/handoff-pdf.py   renders HANDOFF.md to a print-ready PDF
+tools/build-handoff.py bundles HANDOFF.md + the live player into one HTML file
 tools/rejoin-windows.bat  reassembles a split master on Windows
 
-HANDOFF.md             this document — the operational one
+HANDOFF.md             this document — the operational one, and the source
+                       for both the PDF and the web version
 README.md              the same ground from the code's side
 
 Official Vector Logo.svg, Vector Official - Arrow {Regular,Long}.svg,
@@ -803,7 +818,7 @@ AI_Summit_2026_Presentation_DRAFT.pdf        the concept presentation
 the two pieces cannot drift apart.</p>
 <hr />
 <p><em>Repository:</em> <code>eccentricexhibits/main</code>, branch
-<code>claude/brand-animation-3wall-d2pcnv</code>. Generated from commit <code>c5de4db</code>, 30 October 2026 — <strong>working tree had uncommitted changes</strong>.</p></article>
+<code>claude/brand-animation-3wall-d2pcnv</code>. Generated from commit <code>89a489e</code>, 30 October 2026.</p></article>
 
 </div>
 
