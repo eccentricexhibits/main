@@ -1,0 +1,21 @@
+TILE_10_red_flocked_snout
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_10_red_flocked_snout.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the shaggy red flocked fabric (short, dense, slightly matted fibres) in the attached photo. Make it in crimson red.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 5 cm x 5 cm. Short tangled fibres with darker red in the gaps, a little sparkle. Ignore the two black slits in the photo: no slits, no stitching.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_10_red_flocked_snout.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

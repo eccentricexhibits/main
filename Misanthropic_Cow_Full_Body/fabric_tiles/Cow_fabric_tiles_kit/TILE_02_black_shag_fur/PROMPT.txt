@@ -1,0 +1,22 @@
+TILE_02_black_shag_fur
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_2_black_shag_fur.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the long black shaggy faux fur in the attached photo. Make it in black with a slight sheen.
+Important: the 3D model already has the big tufts as shapes. This texture is only the surface of the fur: fine strands lying flat and fuzz, NOT big clumps or tufts.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 10 cm x 10 cm. Long, glossy, slightly wavy strands.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_02_black_shag_fur.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

@@ -1,0 +1,21 @@
+TILE_08_white_knit
+============================================================
+NEW CHAT. ATTACH: 1_FABRIC_8_white_knit_glove.png
+PASTE:
+------------------------------------------------------------
+Create a seamless, tileable square texture of the fuzzy white knit (like a chenille or plush sock knit) in the attached photo. Make it in warm white.
+
+- View: straight down at a flat piece, filling the entire square edge to edge.
+- Scale: the square shows about 6 cm x 6 cm. Small soft loops in neat rows, slightly fuzzy.
+- Lighting: completely flat and even. No shadows, highlights, shine, vignetting or gradients.
+- Nothing else: no seams, stitching, edges, folds, objects or text.
+- It must tile seamlessly when repeated left-right and up-down.
+- Square image, as large as you can make it.
+------------------------------------------------------------
+SAVE AS: TILE_08_white_knit.png
+
+IF IT'S OFF, paste one of these in the same chat:
+- "Flatter, more even light, like a scanned swatch."
+- "Keep the same size of detail across the whole square."
+- "Only the flat material filling the square, nothing else."
+- "Closer in: only the surface texture." 

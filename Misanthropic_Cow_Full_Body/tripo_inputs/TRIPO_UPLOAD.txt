@@ -1,0 +1,19 @@
+UPLOADING TO TRIPO (multiview)
+============================================================
+  Front  <- Front.png
+  Back   <- Back.png
+  Left   <- Left_facing_left.png     (the cow faces the LEFT edge)
+  Right  <- Right_facing_right.png   (the cow faces the RIGHT edge)
+
+- All four are 1536x1536, pure white, same figure height (horn tips to slipper soles)
+  and the same ground line. lineup_check.jpg shows them side by side.
+- If the model comes out twisted, or with a face on two sides, swap Left and Right and
+  run it again.
+- Download the model as a zip (OBJ or GLB, with PBR textures) and send it back.
+
+Known, and handled after Tripo (don't spend generations on them):
+- Horns, udder nubs and the cord tail get modelled cleanly in Blender.
+- The slippers get replaced by the finished slipper model from the slipper project.
+- The far slipper sits a little high in both side views.
+- The hands are ~11% smaller in the left-facing view than in the front.
+- The back of the shorts gets painted at the texturing stage.

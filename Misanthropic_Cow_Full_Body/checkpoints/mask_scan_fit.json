@@ -1,0 +1,59 @@
+{
+ "scan_units": "millimetres",
+ "scan_eye_beads_mm": [
+  {
+   "centre": [
+    -28.38,
+    -54.4,
+    125.28
+   ],
+   "diameter": 24.09
+  },
+  {
+   "centre": [
+    30.65,
+    -49.42,
+    125.42
+   ],
+   "diameter": 27.34
+  }
+ ],
+ "scan_eye_spacing_mm": 59.25,
+ "mm_per_tripo_unit_used": 1676.19,
+ "mm_per_tripo_unit_free_scale_icp": 1499.99,
+ "mm_per_tripo_unit_mask_width": 1676.19,
+ "mm_per_tripo_unit_eye_spacing": 1578.03,
+ "icp_rotation_deg": 4.43,
+ "icp_residual_mm": {
+  "tripo_to_scan_median": 4.39,
+  "tripo_to_scan_p90": 15.43,
+  "scan_to_tripo_median": 4.16,
+  "scan_to_tripo_p90": 14.08
+ },
+ "scan_mm_to_tripo_units": {
+  "R": [
+   [
+    0.9975440473970871,
+    -0.026507067495373928,
+    0.06483246775678315
+   ],
+   [
+    0.028596424359080982,
+    0.9990941426454713,
+    -0.03151410232556199
+   ],
+   [
+    -0.06393839235165369,
+    0.03329068194414678,
+    0.9973984221358982
+   ]
+  ],
+  "s": 0.0005965909090909091,
+  "t": [
+   -0.005660241385501648,
+   -0.029253852001842072,
+   0.7854317955178375
+  ],
+  "formula": "X_tripo = s * R @ X_scan + t"
+ }
+}
