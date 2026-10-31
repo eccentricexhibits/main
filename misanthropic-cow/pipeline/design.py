@@ -122,21 +122,22 @@ HORN_SHIFT = TUBE_C - TUBE_C_SCAN
 TUBE_HALF, TUBE_R = .066, .037
 MASK_BACK_Z = .080 + MASK_SEAT[2]     # the scanned mask shell's back plane (its rim) after mask_transform
 
-# Round 19b: the whole head (mask, horns, tube, hood) is carried chin-up about the neck, as the approved side
-# views stand: upright, the snout forward and the throat showing above the chest.  Everything above is laid
-# out unpitched; head_pose() places it.
-HEAD_PITCH = np.deg2rad(10.) if BODY_SOURCE == 'tripo' else 0.
+# Round 19b: the whole head (mask, horns, tube, hood) is carried a little chin-up about the neck and lifted 1 cm,
+# as the approved side views stand: upright and looking ahead, the throat showing above the chest (10 degrees
+# looked upward).  Everything above is laid out unpitched; head_pose() places it.
+HEAD_PITCH = np.deg2rad(4.) if BODY_SOURCE == 'tripo' else 0.
+HEAD_LIFT = np.array([0, .010, 0]) if BODY_SOURCE == 'tripo' else np.zeros(3)
 HEAD_PIVOT = np.array([0, 1.395, -.035 + HEAD_DZ])
 _c, _s = np.cos(HEAD_PITCH), np.sin(HEAD_PITCH)
 HEAD_R = np.array([[1, 0, 0], [0, _c, _s], [0, -_s, _c]])     # chin up: the front rises, the crown goes back
 
 
 def head_pose(v):
-    return (np.asarray(v) - HEAD_PIVOT) @ HEAD_R.T + HEAD_PIVOT
+    return (np.asarray(v) - HEAD_PIVOT) @ HEAD_R.T + HEAD_PIVOT + HEAD_LIFT
 
 
 def head_unpose(p):
-    return (p - HEAD_PIVOT) @ HEAD_R + HEAD_PIVOT
+    return (p - HEAD_LIFT - HEAD_PIVOT) @ HEAD_R + HEAD_PIVOT
 
 
 J['Head'] = head_pose(J['Head'])
@@ -175,7 +176,7 @@ TAIL_KNOT = np.array([0, .935 + LEG_LIFT, -.217])     # the bowtie's knot on the
 if BODY_SOURCE == 'tripo':
     # no back-fat roll: the stuffed sack's back runs straight down (approved side views); the bow's knot is
     # tied on the sack's back where Tripo has it
-    BACK_ROLL_Y = float(TB.BOW[1]) - .010
+    BACK_ROLL_Y = .885                  # the bow just above the back of the hem, as in the approved back view
     BACK_ROLL_Z = TB.back_z(BACK_ROLL_Y) + .082
     TAIL_KNOT = np.array([0, BACK_ROLL_Y + .010, TB.back_z(BACK_ROLL_Y + .010) - .007])
 TORSO_BOX = ((-.30, .70, -.24), (.30, 1.45, .32)) if BODY_SOURCE != 'tripo' else ((-.37, .74, -.27), (.37, 1.45, .42))
@@ -246,13 +247,18 @@ def suit_parts(p, torso_only=False):
 
 def head_parts(p):
     """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
-    p = head_unpose(p)
+    pw, p = p, head_unpose(p)
     # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
     # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
     head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), (.090, .118, .099))     # back of the head 2 cm flatter
     hood_neck = S.round_cone(p, (0, 1.355, -.030 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), .060, .064)
     hood = S.smin(head, hood_neck, .04)
     hood = S.smin(hood, hood_face(p), .03)
+    if BODY_SOURCE == 'tripo':
+        # the hood's back falls straight from the crown to the shoulders (approved side views), not into the nape
+        cowl = S.round_cone(pw, (0, 1.53, -.022 + HEAD_DZ - .05), (0, 1.36, -.058 + HEAD_DZ - .05), .064, .068)
+        cowl = S.smax(cowl, pw[..., 2] - (HEAD_DZ - .05), .03)
+        hood = S.smin(hood, cowl, .04)
     hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z + .003), .004)   # ends just inside the mask shell
     # the fur-covered tube that carries the horns is part of the mask, resting on its top edge
     return {'hood': hood, 'tube': S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)}
@@ -347,8 +353,8 @@ def _foot(p, s, ankle):
     the front of the foot runs into the slipper's head, where it ends hidden; toed out 7 degrees like
     the slippers."""
     fwd = np.array([s * np.sin(np.deg2rad(7)), 0, np.cos(np.deg2rad(7))])
-    heel = S.ellipsoid(p, ankle + [0, -.040, 0] - .035 * fwd, (.031, .026, .034))
-    sole = S.round_cone(p, ankle + [0, -.035, 0], ankle + [0, -.050, 0] + .085 * fwd, .032, .026)
+    heel = S.ellipsoid(p, ankle + [0, -.042, 0] - .022 * fwd, (.029, .023, .030))
+    sole = S.round_cone(p, ankle + [0, -.040, 0], ankle + [0, -.050, 0] + .085 * fwd, .029, .026)
     return S.smin(heel, sole, .02)
 
 
@@ -356,7 +362,7 @@ LEG_INSET = .03          # above the hem the leggings (hidden inside the suit) s
 
 
 SHIN_TOP, SHIN_BLEND = .34, (.30, .40)     # below the calf the leg is a clean tapered tube to the ankle
-ANKLE_R = .039
+ANKLE_R = .034
 
 
 def tripo_legging_parts(p):
@@ -375,6 +381,11 @@ def tripo_legging_parts(p):
         inner = np.full_like(d, -1.)
         inner[up] = TB.stuffed_torso_sdf(p[up]) + .02 - .2 * (1 - w[up])
         d = S.smax(d, inner, .02)
+    # the seat: round under the briefs, out to the back of the suit (approved side views), cleft at the middle
+    for s in (1, -1):
+        cheek = S.ellipsoid(p, (s * .072, .790, -.034), (.114, .088, .110))
+        cheek = S.smax(cheek, -s * x - .004, .01)
+        d = S.smin(d, S.smax(cheek, .738 - y, .04), .035)
     d = S.smax(d, (z - .19) - 5 * np.maximum(hem - y, 0), .02)       # above the hem: not into the belly
     d = S.smax(d, np.abs(x) - .28, .02)                                # not the hands
     lo, hi = SHIN_BLEND
