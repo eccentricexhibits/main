@@ -66,7 +66,7 @@ HEM = {side: _j(f'Hem_{side}', 'Hips') for side in 'LR'}
 for _s in 'LR':
     ARM[_s]['fingers_rl'] = _j(f'HoofRingLittle_{_s}', f'Hand_{_s}')
 NB = len(NAMES)
-BELLY_C = np.array([0, .925, .085])
+BELLY_C = np.array([0, .925 + D.LEG_LIFT, .085])
 
 
 def bind_positions(glove_parts):
@@ -113,7 +113,7 @@ def hem_weights(v, side):
     return HEM_W * ss(1.0, HEM_CORE, e) * ss(.0, .06, s * v[:, 0])
 
 
-HEM_C, HEM_R, HEM_W, HEM_CORE, HEM_SMOOTH = (.155, .815, .055), (.19, .15, .24), .8, 0., 0
+HEM_C, HEM_R, HEM_W, HEM_CORE, HEM_SMOOTH = (.155, .815 + (D.LEG_LIFT + D.HEM_LIFT) / 2, .055), (.19, .15, .24), .8, 0., 0
 
 
 def arm_chain(p, side):
@@ -158,10 +158,11 @@ def suit_weights(v, f, face_labels):
     sleeve = {'L': vl == 2, 'R': vl == 3}
     W = np.zeros((len(v), NB))
     y = v[:, 1]
-    W[:, HIPS] = 1 - ss(.90, 1.02, y)
-    W[:, SPINE] = ss(.90, 1.02, y) * (1 - ss(1.10, 1.22, y))
+    lo, hi = .90 + D.LEG_LIFT, 1.02 + D.LEG_LIFT              # Hips to Spine, same band round the back-fat roll as before
+    W[:, HIPS] = 1 - ss(lo, hi, y)
+    W[:, SPINE] = ss(lo, hi, y) * (1 - ss(1.10, 1.22, y))
     W[:, CHEST] = ss(1.10, 1.22, y)
-    e = np.linalg.norm((v - [0, .915, .20]) / [.25, .21, .19], axis=1)
+    e = np.linalg.norm((v - [0, .915 + D.LEG_LIFT, .20]) / [.25, .21, .19], axis=1)
     bw = .65 * ss(1.05, .45, e)
     W *= (1 - bw)[:, None]; W[:, BELLY] += bw
     for side, s in [('L', 1), ('R', -1)]:
@@ -220,8 +221,8 @@ def leg_weights(v, f):
     for side, s in [('L', 1), ('R', -1)]:
         L = LEG[side]
         lateral = ss(-.045, .045, s * v[:, 0])                     # 0.5 on the centre line
-        inleg = ss(-.03, .02, c['pelvis'] - c['leg_' + side]) * (1 - ss(.80, .88, y))
-        below = 1 - ss(.66, .80, y)                                 # under the crotch it is all leg
+        inleg = ss(-.03, .02, c['pelvis'] - c['leg_' + side]) * (1 - ss(.80 + D.LEG_LIFT, .88 + D.LEG_LIFT, y))
+        below = 1 - ss(.66 + D.LEG_LIFT, .80 + D.LEG_LIFT, y)                                 # under the crotch it is all leg
         m = np.maximum(inleg, below) * lateral
         knee = D.J[f'Shin_{side}'][1]; ank = D.J[f'Foot_{side}'][1]
         shin = 1 - ss(knee - .04, knee + .05, y)

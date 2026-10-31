@@ -3,6 +3,7 @@ import io
 import numpy as np
 from PIL import Image
 from scipy import ndimage
+from design import LEG_LIFT
 import noise as N
 import render as R
 
@@ -66,9 +67,11 @@ def to_jpeg(img, q=90):
 # ----------------------------------------------------------------- markings (character frame: +X = left)
 SHAG_PATCHES = [
     ((-.115, 1.325, .045), (.085, .070, .11)),     # upper chest / shoulder, wearer's right (photos 0120, 0330)
-    ((.020, .875, .270), (.125, .105, .13)),       # low belly patch below the udder
+    # belly patch below the udder: round 18 centres it on the belly as in the original shoot (0077, "5 of 15"),
+    # its top under the teats; at .875 it sat on the hem, and over the briefs once the hem rose
+    ((.020, .960, .275), (.125, .105, .13)),
     ((-.095, 1.215, -.155), (.115, .125, .10)),    # upper back, wearer's right (12_388)
-    ((.120, .935, -.165), (.085, .075, .10)),      # lower back, wearer's left
+    ((.120, .935 + LEG_LIFT, -.165), (.085, .075, .10)),      # lower back, wearer's left
 ]
 
 
@@ -138,7 +141,7 @@ def legging_spots(charts_leg, seed=12):
     spots = []
     for ch in charts_leg:
         v = ch['v']
-        cand = v[(v[:, 1] > .23) & (v[:, 1] < .76)]       # none on the black socks below the calf
+        cand = v[(v[:, 1] > .23) & (v[:, 1] < .76 + LEG_LIFT)]       # none on the black socks below the calf
         chosen = []
         for i in rng.permutation(len(cand)):
             p = cand[i]

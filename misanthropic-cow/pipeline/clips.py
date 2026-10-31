@@ -12,6 +12,7 @@ targets with pitch so heel-strike / toe-off read and the slippers never go throu
 import numpy as np
 from scipy.spatial.transform import Rotation, Slerp
 import anim as AN
+import design as D
 import rig as RG
 
 rot = AN.rot
@@ -336,7 +337,7 @@ class SitCrossLegged(AN.Dance):
     SEAT = {'L': ((-.06, .12, 0.), (.36, .13, -.06), -1.2, .9), 'R': ((.06, .20, .07), (-.36, .15, .0), 1.2, -.9)}
     # standing with the feet crossed: the right foot steps across in front of the left
     STAND = {'L': ((.08, -.02), .12), 'R': ((.0, .22), -.30)}
-    DROP, BACK = .71, .30
+    DROP, BACK = .71 + D.LEG_LIFT, .30         # the hips land as low as before: the legs are longer
     # seated, the hooves rest on the outside of the knees, elbows out clear of the belly
     LAP_OFF, LAP_POLE = (.10, .14, -.06), (1.0, .3, -.4)
     # reaching back, the hooves land beside and behind the hips (relative to the seated hips)

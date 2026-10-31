@@ -109,7 +109,7 @@ def belly_fold(v, n):
     """The padded belly sags over the panty waistband: a soft horizontal fold a few centimetres above
     the hem across the front, deepest in the middle (Blue Shirt reference)."""
     x, y, z = v[:, 0], v[:, 1], v[:, 2]
-    hem = .768 + 2.0 * x * x + 1.5 * (z - .12) ** 2
+    hem = .768 + D.hem_lift(x, z) + 2.0 * x * x + 1.5 * (z - .12) ** 2
     front = np.clip((z - .06) / .14, 0, 1) * np.exp(-(x / .20) ** 2)
     fold = np.exp(-((y - hem - .045) / .010) ** 2) * front
     return v - n * (.007 * fold)[:, None]
@@ -217,8 +217,9 @@ def build_leggings(step=.0040, target=90000):
     parts = D.legging_parts(c)
     dist = np.stack([parts['pelvis'] - .02, parts['leg_L'], parts['leg_R']], 1)
     labels = dist.argmin(1)
-    labels[(c[:, 1] > .80)] = 0
-    labels[(c[:, 1] < .72) & (labels == 0)] = np.where(c[(c[:, 1] < .72) & (labels == 0), 0] > 0, 1, 2)
+    top, low = .80 + D.LEG_LIFT, .72 + D.LEG_LIFT
+    labels[(c[:, 1] > top)] = 0
+    labels[(c[:, 1] < low) & (labels == 0)] = np.where(c[(c[:, 1] < low) & (labels == 0), 0] > 0, 1, 2)
     charts = []
     charts.append(make_chart(v, f, labels, 0, lambda q: cyl_uv(q, [(0, .55, -.02), (0, 1.1, -.02)], (0, 0, -1), (0, 0, 1), .17, (.12, .50)), 'Leggings_seat_black_cotton'))
     for k, side in [(1, 'L'), (2, 'R')]:
@@ -246,6 +247,8 @@ BRIEFS_OFFSET = .0012      # the briefs lie this far over the leggings
 # back the line drops (MID_DROP, within about 2 cm of the midline, behind the crotch only), so the
 # back panel runs down the cleft and joins the crotch instead of stopping in a V above it.
 LEG_LINE = [(0, .805), (45, .772), (90, .742), (135, .712), (180, .692), (225, .742), (270, .788), (315, .832)]
+LEG_LINE = [(a, h + D.LEG_LIFT) for a, h in LEG_LINE]      # round 18: the same cut on the longer legs
+WAISTBAND = .955 + D.LEG_LIFT      # the briefs' (hidden) top edge, under the suit
 MID_DROP = .045
 
 
@@ -322,12 +325,12 @@ def build_briefs(lv, lf, ln, W_leg):
     world-scale UVs."""
     import xatlas
     from scipy.spatial import cKDTree
-    g = np.minimum(lv[:, 1] - leg_line(lv), .955 - lv[:, 1])
+    g = np.minimum(lv[:, 1] - leg_line(lv), WAISTBAND - lv[:, 1])
     band = (g[lf] > -.02).any(1)                      # the briefs' region and a margin round it
     vi = np.unique(lf[band]); rm = -np.ones(len(lv), np.int64); rm[vi] = np.arange(len(vi))
     X, f = np.hstack([lv[vi], ln[vi], W_leg[vi]]), rm[lf[band]]
     X, f = subdivide(X, f)                            # a finer mesh, so the cut runs as a smooth curve
-    X, f = clip_mesh(X, f, np.minimum(X[:, 1] - leg_line(X[:, :3]), .955 - X[:, 1]))
+    X, f = clip_mesh(X, f, np.minimum(X[:, 1] - leg_line(X[:, :3]), WAISTBAND - X[:, 1]))
     idx, f = S.largest_component(np.arange(len(X), dtype=float)[:, None], f)     # one piece only
     X = X[np.rint(idx[:, 0]).astype(np.int64)]
     base, n, W = X[:, :3], X[:, 3:6], X[:, 6:]
@@ -338,12 +341,12 @@ def build_briefs(lv, lf, ln, W_leg):
     rev = D_[:, 1] * len(X) + D_[:, 0]
     edge = D_[~np.isin(key, rev)]                     # directed, in the faces' winding
     bv = np.unique(edge)
-    dist, _ = cKDTree(base[bv[base[bv, 1] < .94]]).query(base)
+    dist, _ = cKDTree(base[bv[base[bv, 1] < WAISTBAND - .015]]).query(base)
     trim = _sm(.007, .002, dist)                      # the elastic: a rolled band about 5 mm wide
     lift = BRIEFS_OFFSET + .0012 * np.sqrt(np.clip(1 - (1 - trim) ** 2, 0, 1))
     theta = np.arctan2(base[:, 2] + .01, np.abs(base[:, 0]) - .11)          # round each thigh
     ruche = np.sin(theta * 20) * _sm(.022, .008, dist) * (1 - trim)
-    c0 = np.array([0, .705, .07])
+    c0 = np.array([0, .705 + D.LEG_LIFT, .07])
     rel = base - c0
     ang = np.arctan2(rel[:, 1], np.abs(rel[:, 0]) + 1e-6)
     r = np.linalg.norm(rel[:, :2], axis=1)

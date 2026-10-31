@@ -6,6 +6,9 @@ hangs to the crotch over pink satin panties, two large pink udder cups on the ch
 black leggings with painted white spots.  Measured ratios from the photos:
   belly width ~= 2.0 x mask width; muzzle-bottom -> crotch ~= 3 x mask height;
   crotch ~= 46 % of standing height (wearer without mask, shot 0077).
+Round 18 re-measured the two full-length shots of the original session (0077 and "5 of 15"): the crotch
+at 45-48 % (46.5 % on average) and the bottom of the belly at 52-53 %, so about 10 cm of briefs shows
+under it.  Round 17's model had them at 43.7 % and 47.9 %: LEG_LIFT and HEM_LIFT close the gap.
 Axes: +Y up, +Z forward (the way the character faces), +X = the character's LEFT.
 The broken horn with exposed wire is on the character's RIGHT (-X), as in the photos.
 """
@@ -13,6 +16,42 @@ import numpy as np
 import sdf as S
 
 SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-X)
+
+# Round 18 proportions (original shoot 0077 and "5 of 15"): the legs are LEG_LIFT longer, so the crotch,
+# hips, seat and the back-fat roll over the waistband all sit that much higher (the torso above the
+# belly is unchanged, so the wearer stays 1.60 m); the bottom of the belly sits HEM_LIFT higher at the
+# front, so more of the briefs shows under it.  At the back the hem rises only with the roll.
+# LEG_LIFT is a whole number of leggings grid steps (4 mm), so the gluteal fold is meshed exactly as before;
+# 3.8 cm (half a step off) cut the fold into thin triangles that stretched 3-9 % more in every clip
+LEG_LIFT = .040
+HEM_LIFT = .076
+FOOT_Y, HIP_Y = .092, .855 + LEG_LIFT
+LEG_SCALE = (HIP_Y - FOOT_Y) / (.855 - FOOT_Y)       # the leg chain stretches evenly from the ankle up
+
+
+def leg_y(y):
+    """Where a height on the round-17 leg (ankle to hip joint) lies on the longer leg."""
+    return FOOT_Y + (y - FOOT_Y) * LEG_SCALE
+
+
+HEM_SIDE = .15            # how far round from the middle the extra front lift reaches (gaussian width)
+
+
+def hem_lift(x, z):
+    """How far the suit's hem has risen: HEM_LIFT under and in front of the middle of the belly, only
+    LEG_LIFT at the sides and back, where the hem keeps its round-17 place relative to the hips (so it
+    stays clear of the thighs when they swing up, and the briefs' side panel shows as before)."""
+    return LEG_LIFT + (HEM_LIFT - LEG_LIFT) * np.clip((z + .10) / .20, 0, 1) * np.exp(-(x / HEM_SIDE) ** 2)
+
+
+def ellipsoid_low(p, c, r, ry_low):
+    """An ellipsoid whose lower half has its own (shorter) vertical radius; the upper half is unchanged."""
+    r = np.broadcast_to(np.asarray(r, float), p.shape).copy()
+    r[..., 1] = np.where(p[..., 1] < c[1], ry_low, r[..., 1])
+    q = (p - np.asarray(c)) / r
+    k0 = np.linalg.norm(q, axis=-1)
+    k1 = np.linalg.norm(q / r, axis=-1)
+    return k0 * (k0 - 1) / np.maximum(k1, 1e-9)
 
 
 def arm_points(s, d=None):
@@ -26,8 +65,8 @@ def arm_points(s, d=None):
 
 
 J = {
-    'Hips': np.array([0, .925, -.025]),
-    'Spine': np.array([0, 1.06, -.035]),
+    'Hips': np.array([0, .925 + LEG_LIFT, -.025]),
+    'Spine': np.array([0, 1.06 + LEG_LIFT / 2, -.035]),
     'Chest': np.array([0, 1.22, -.035]),
     'Neck': np.array([0, 1.395, -.035]),
     'Head': np.array([0, 1.465, -.020]),
@@ -38,9 +77,9 @@ for s, side in [(1, 'L'), (-1, 'R')]:
     J[f'UpperArm_{side}'] = sh
     J[f'Forearm_{side}'] = el
     J[f'Hand_{side}'] = wr
-    J[f'Thigh_{side}'] = np.array([s * .086, .855, -.020])
-    J[f'Shin_{side}'] = np.array([s * .094, .470, -.002])
-    J[f'Foot_{side}'] = np.array([s * .100, .092, -.022])
+    J[f'Thigh_{side}'] = np.array([s * .086, HIP_Y, -.020])
+    J[f'Shin_{side}'] = np.array([s * .094, leg_y(.470), -.002])
+    J[f'Foot_{side}'] = np.array([s * .100, FOOT_Y, -.022])
 
 HEAD_CENTER = np.array([0, 1.525, -.005])
 MASK_SCALE = .75           # scanned mask -> real size (0.21 m wide)
@@ -94,7 +133,7 @@ def hood_face(p):
 
 
 # ------------------------------------------------------------------ fur suit + hood
-BACK_ROLL_Y = .925       # the back-fat roll over the panty waistband
+BACK_ROLL_Y = .925 + LEG_LIFT       # the back-fat roll over the panty waistband
 
 def torso_sdf(p):
     return suit_parts(p, torso_only=True)['torso']
@@ -106,13 +145,15 @@ def suit_parts(p, torso_only=False):
     chest = S.ellipsoid(p, (0, 1.19, -.028), (.163, .205, .128))
     shoulders = S.capsule(p, (-.145, 1.318, -.036), (.145, 1.318, -.036), .062)
     neck = S.round_cone(p, (0, 1.30, -.034), (0, 1.43, -.030), .080, .070)
-    belly = S.ellipsoid(p, (0, .888, .072), (.236, .212, .234))     # full and low, as in Blue Shirt
-    back = S.ellipsoid(p, (0, .99, -.045), (.186, .225, .148))
+    # full and low, as in Blue Shirt; round 18 shortens only its lower half, so its bottom rises with the
+    # hem while the upper half, under the cups where the teats hang and the arms rest, stays as it was
+    belly = ellipsoid_low(p, (0, .888, .072), (.236, .212, .234), .212 - HEM_LIFT)
+    back = S.ellipsoid(p, (0, .99 + LEG_LIFT / 2, -.045), (.186, .225 - LEG_LIFT / 2, .148))
     torso = S.smin(chest, shoulders, .07)
     torso = S.smin(torso, back, .09)
     # a soft, round join where the lower belly meets the sides (owner's note); above the waist the join
     # stays tighter, so the belly doesn't grow under the cups where the teats hang and the arms rest
-    torso = S.smin(torso, belly, .10 + .05 * np.clip((.93 - p[..., 1]) / .12, 0, 1))
+    torso = S.smin(torso, belly, .10 + .05 * np.clip((.93 + LEG_LIFT - p[..., 1]) / .12, 0, 1))
     torso = S.smin(torso, neck, .05)
     # neckline: the torso garment stops at the base of the neck; the hood's neck tucks inside it
     torso = S.smax(torso, p[..., 1] - 1.405, .02)
@@ -125,7 +166,7 @@ def suit_parts(p, torso_only=False):
     torso = S.smin(torso, roll, .035)
     # the hem rises gently round the sides, so the bottom of the belly stays round instead of being sliced
     # off on a diagonal (owner's note); at the back it ends where it did, tucked under the roll
-    hem = .768 + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
+    hem = .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
     torso = S.smax(torso, hem - p[..., 1], .08)
     out['torso'] = torso          # the trunk: what the arms are kept clear of
     if torso_only:
@@ -203,15 +244,15 @@ THIGH_OUT, THIGH_R = .024, .096
 FOOTBED = .032           # top of the slippers' footbed (just under it), where the socked foot stands
 def legging_parts(p):
     out = {}
-    pelvis = S.ellipsoid(p, (0, .885, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
+    pelvis = S.ellipsoid(p, (0, .885 + LEG_LIFT, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
     for s, side in [(1, 'L'), (-1, 'R')]:
         hip, knee, ankle = J[f'Thigh_{side}'], J[f'Shin_{side}'], J[f'Foot_{side}']
         # the thigh's axis sits 2.4 cm out from the hip joint and it is slimmer at the top, so the hips keep
         # their width while the inner thighs part below the crotch (owner's note: more separation)
         thigh = S.round_cone(p, hip + [s * THIGH_OUT, .03, 0], knee, THIGH_R, .066)
         shin = S.round_cone(p, knee, ankle + [0, -.03, 0], .063, .040)
-        calf = S.ellipsoid(p, (s * .098, .330, -.030), (.060, .110, .062))
-        butt = S.ellipsoid(p, (s * .084, .800, -.068), (.106, .105, .092))
+        calf = S.ellipsoid(p, (s * .098, leg_y(.330), -.030), (.060, .110 * LEG_SCALE, .062))
+        butt = S.ellipsoid(p, (s * .084, .800 + LEG_LIFT, -.068), (.106, .105, .092))
         leg = S.smin(S.smin(thigh, shin, .03), calf, .045)
         # the black-socked foot standing in the open-back mule slipper: the heel shows on the footbed and
         # the front of the foot runs into the slipper's head, where it ends hidden; toed out 7 degrees
@@ -231,7 +272,7 @@ def legging_sdf(p):
     d = S.smin(c['pelvis'], c['leg_L'], .045)
     d = S.smin(d, c['leg_R'], .045)
     d = np.minimum(d, np.minimum(c['leg_L'], c['leg_R']))
-    d = S.smax(d, p[..., 1] - 1.02, .02)     # top hidden inside the suit
+    d = S.smax(d, p[..., 1] - 1.02, .02)     # top hidden inside the suit (kept below the cups' backs)
     d = S.smax(d, FOOTBED - p[..., 1], .004)  # the sock's sole rests on the slippers' footbed
     return d
 

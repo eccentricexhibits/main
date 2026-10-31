@@ -159,12 +159,19 @@ def _depth_into(src, dst_v, dst_n, lim=.08):
 def leg_body_metrics(model, groups, mats, step=3):
     """Leggings and briefs against the suit torso and cups, both ways (sitting, crouching and high
     kicks are where a thigh can pass into the belly or hem). What already overlaps at rest by design
-    (the tops of the leggings and briefs under the suit) is left out."""
+    (the tops of the leggings and briefs under the suit) is left out.
+
+    The 'visible' readings (round 18) count only surface that can be seen at rest: leg points outside
+    the suit and cup points standing clear of the torso.  The plain readings also count the hidden tops
+    of the leggings and briefs inside the suit and the backs of the cups against the chest, which come
+    within reach of each other as the body bends without ever showing."""
     names = [p['name'] for p in model.parts]
     body = [i for i, n in enumerate(names) if n.startswith('Suit_torso') or groups[i] == 'udder']
     legs = [i for i, n in enumerate(names) if n.startswith(('Leggings_', 'Panties'))]
     if not body or not legs:
         return {}
+    import design as D
+    body_ix = body
     # pose only the parts measured (the full model is mostly shag strands)
     sub = type(model)(); sub.parts = [model.parts[i] for i in body + legs]
     body, legs = list(range(len(body))), list(range(len(body), len(body) + len(legs)))
@@ -172,11 +179,19 @@ def leg_body_metrics(model, groups, mats, step=3):
     rest = sub.parts
     mask_b = _depth_into(stack(rest, body, 'v'), stack(rest, legs, 'v'), stack(rest, legs, 'n')) > -.002
     mask_l = _depth_into(stack(rest, legs, 'v'), stack(rest, body, 'v'), stack(rest, body, 'n')) > -.002
-    b2l, l2b = 0., 0.
+    is_cup = np.concatenate([np.full(len(rest[i]['v']), groups[j] == 'udder') for i, j in zip(body, body_ix)])
+    hide_b = mask_b | (is_cup & (D.torso_sdf(stack(rest, body, 'v')) <= .005))
+    hide_l = mask_l | (D.suit_sdf(stack(rest, legs, 'v')) <= .005)
+    b2l, l2b, vb2l, vl2b = 0., 0., 0., 0.
     for k in range(0, len(mats), step):
         P = posed(sub, mats[k])
         d = _depth_into(stack(P, body, 'v'), stack(P, legs, 'v'), stack(P, legs, 'n')); d[mask_b] = 0
         b2l = max(b2l, float(np.percentile(d, 99.5)))
+        d[hide_b] = 0
+        vb2l = max(vb2l, float(np.percentile(d, 99.5)))
         d = _depth_into(stack(P, legs, 'v'), stack(P, body, 'v'), stack(P, body, 'n')); d[mask_l] = 0
         l2b = max(l2b, float(np.percentile(d, 99.5)))
-    return {'body_into_legs_p995_max_m': b2l, 'legs_into_body_p995_max_m': l2b}
+        d[hide_l] = 0
+        vl2b = max(vl2b, float(np.percentile(d, 99.5)))
+    return {'body_into_legs_p995_max_m': b2l, 'legs_into_body_p995_max_m': l2b,
+            'visible_body_into_legs_p995_max_m': vb2l, 'visible_legs_into_body_p995_max_m': vl2b}

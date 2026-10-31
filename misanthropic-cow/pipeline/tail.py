@@ -11,7 +11,7 @@ import sdf as S
 import design as D
 import garments as Gm
 
-KNOT = np.array([0, .935, -.217])         # on the back-fat roll at the bottom of the white fur, over the waistband
+KNOT = np.array([0, .935 + D.LEG_LIFT, -.217])         # on the back-fat roll at the bottom of the white fur, over the waistband
 ANCHOR = KNOT + np.array([0, -.014, -.004])
 N_SEG = 12
 SEG = .036                                 # 12 x 3.6 cm = 43 cm of cord

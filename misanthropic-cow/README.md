@@ -12,7 +12,8 @@ Later v10 passes added:
 - the mask seated on the hood, shoulders that grow out of the body, and the shag tufts rebuilt from the user's long-lock sheet;
 - four mood animations (Depressed Walk, Sit Cross-Legged, Crying, Exasperated) and an "alt" set that plays the first seven heavy, awkward and slumped;
 - a pass informed by two models the owner made with Tripo (see "Tripo references" below): Blue Shirt's udders, belly and hips, Shy Cow's hoof hands, folding sleeves and slippers;
-- the black shag regrown as real strands (clumped, tapered fibre tubes over a short undercoat) instead of flat lock cards, which read as feathers.
+- the black shag regrown as real strands (clumped, tapered fibre tubes over a short undercoat) instead of flat lock cards, which read as feathers;
+- round 18: the proportions re-measured from the two full-length photos of the original shoot, which lengthened the legs by 4 cm and raised the bottom of the belly by 7.6 cm at the front (see "Round 18 proportions" below).
 
 | File | What it is |
 |---|---|
@@ -35,6 +36,21 @@ Both GLBs pass the Khronos glTF Validator with 0 errors and 0 warnings.
 
 The wearer is built at about 1.60 m. v09 had scaled the whole figure to fit an oversized mask, which gave it broad, square shoulders and a short barrel torso. v10 instead scales the scanned mask to 0.75 (about 0.21 m wide). The body has narrow, sloped shoulders and a long, round padded belly that hangs to the crotch. Pink satin panties show under the belly, as in shots 0077, 0120 and 0191.
 
+**Round 18 proportions.** The owner asked for the proportions of the original photo session only: the costume was later worn by other people, restuffed, and worn with a replacement pair of briefs, so photos from later shoots inform details (spots, textures) but not proportions. Two photos of the original session show the whole standing figure: 0077 and "Cow - Original Photo Shoot (5 of 15)" (the same session, mask off). Measured as a share of the wearer's height, crown to floor:
+
+| | Crotch | Bottom of the belly (front) | Briefs showing under the belly |
+|---|---|---|---|
+| Shot 0077 | 45.1 % | 52.2 % | 11 cm |
+| Shot "5 of 15" | 47.9 % | 53.1 % | 8 cm |
+| Round 17 model | 43.7 % (0.708 m) | 47.9 % (0.767 m) | 6.6 cm |
+| **Round 18 model** | **46.7 % (0.747 m)** | **52.5 % (0.840 m)** | **9.3 cm** |
+
+- **Legs:** 4.0 cm longer (`design.LEG_LIFT`). The leg chain stretches evenly from the ankle to the hip joint; the hips, pelvis, seat, back-fat roll, briefs (leg line and waistband), tail knot and the rig's hip and leg weight bands all move up with them. Everything from the waist up is unchanged, so the wearer stays 1.60 m. The lift is exactly ten steps of the leggings' 4 mm meshing grid: at 3.8 cm the gluteal fold was meshed half a step differently and its thin triangles stretched 3–9 % more in every animation.
+- **Belly:** its bottom is 7.6 cm higher at the front (`design.HEM_LIFT`). Only the lower half of the belly is shorter (`design.ellipsoid_low`); its upper half, under the cups where the teats hang and the arms rest, is exactly as before. The extra front lift fades out round the sides (`HEM_SIDE`), so at the sides and back the hem keeps its round-17 place relative to the hips: it stays clear of the thighs when they swing up, the briefs' side panel shows under the hem as before, and the approved back is unchanged.
+- **Belly patch:** the black shag patch below the udder is centred on the belly, its top under the teats, as in both photos (centre 0.96 m; at 0.875 m it sat on the hem, and its locks would have hung over the briefs once the hem rose).
+- The camera in both photos is above the waist, and the bottom of the belly stands about 30 cm closer to it than the legs, so its true height may be 2–3 cm above the measured one.
+- Reference: the Tripo model made from four generated views (round 18) has the crotch at about 40 %; the generated front view itself has it at about 44 %, so the 3D reconstruction, not the drawing, shortened the legs. Its udder cups are about 20 % shorter and sit 4 cm further back than the photos show; v10's cups already match the photos (pair width 0.88 of the belly's, height 0.51), so they are unchanged.
+
 **Head.** The head is built as the costume is worn, following the mask and hood photos (`IMG_2003`–`2034`, `0006`, `0013`, `0014`, `Nathan 32`). There are three separate pieces:
 - **Hood.** A snug fur balaclava, about 2 cm of fur over a 1.6 m wearer's head. Its neck tucks into the torso garment's neckline, which stops at the base of the neck. The head is skinned only to the Head and Neck bones, so it turns freely without dragging the torso up into a hump.
 - **Mask.** The scanned papier-mâché mask covers the hood's whole front, and its rim sits on the hood all the way round. The mask, tube and horns were pushed 2.5 cm back as one rigid piece, so the tube and horns keep exactly their size and placement relative to the mask. The hood has a padded face opening shaped to the mask's outline: the outline is a Fourier fit to the scanned rim, with an rms error of 1.3 mm. Just behind the rim the opening is 2 mm inside that outline, and it tapers back into the head. Earlier the rim floated 2–7 cm in front of a plain egg-shaped hood, which showed as a gap from the side.
@@ -52,7 +68,7 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
   - are closed at every teat tip. The two forward teats used to reach past the edge of the volume the udder was meshed in, which left a hole in each tip.
 - The black shag follows the patch layout in the photos:
   - upper chest and shoulder on the wearer's right;
-  - low belly;
+  - the belly, centred under the teats (round 18; it sat on the hem before);
   - both elbows;
   - upper back right and lower back left.
 - Under the strands, each patch is painted on the suit from the user's black shag swatch (`textures/black_shag_tile.jpg`), with edges that break into hanging tufts. It is painted at half brightness: only the black backing shows in the gaps between strands, and the swatch photo is lighter than that.
@@ -68,9 +84,9 @@ The white paint in the mask photo gets a lift; the eyes, the muzzle and the weat
 - The belly's underside is a shallow bowl with a soft edge, so it reads round from below instead of sliced flat.
 - The sides of the belly are rounded off (owner's note). Below the waist the belly blends into the sides with a wider, softer join (above it, under the cups, it is unchanged), and the suit's hem rises more gently round the sides, so the bottom of the belly stays round from the side instead of being cut off on a steep diagonal. At the back the hem still tucks under the roll of back fat.
 - The belly is fuller and sits lower and further forward (Blue Shirt), and sags over the panty waistband in a soft fold across the front. The hips and the tops of the thighs are about 3 cm wider, so the panties stretch across a broad seat.
-- **Legs.** The legs are separated a little more (owner's note). Each thigh's axis sits 2.4 cm out from the hip joint, and the thigh is slimmer at the top, so the hips keep their width while the inner thighs part below a natural crotch at about 0.71 m, as in the Blue Shirt photo. Before, the thighs overlapped down to 0.66 m and left only a narrow slot below.
+- **Legs.** The legs are separated a little more (owner's note). Each thigh's axis sits 2.4 cm out from the hip joint, and the thigh is slimmer at the top, so the hips keep their width while the inner thighs part below a natural crotch at about 0.75 m (0.71 m before round 18), as in the Blue Shirt photo. Before, the thighs overlapped down to 0.66 m and left only a narrow slot below.
 - **Briefs.** The briefs are grown from the leggings' own surface (`garments.build_briefs`). They are the leggings' triangles over the hips, seat and crotch, subdivided once and lifted 1.2 mm along their normals. Each briefs vertex sits over a point of the leggings and takes exactly that point's skin weights, so the briefs wrap the leggings in every pose and move with them. Until round 13 they were a separate, looser surface 4.5 mm out, weighted from the six nearest leggings points, and they stood off the tights like a floating lip.
-  - **Leg line:** one smooth closed curve round each thigh, a periodic spline of its height by angle about the thigh (`LEG_LINE`), so the openings have no corners anywhere. It is cut like full briefs, following the owner's photos and videos of the same kind of briefs worn over black tights. It runs low under the crotch, rises diagonally across the front of the thigh to the side, and at the back runs diagonally from the gluteal fold up across the cheek. The back keeps the shape the owner approved in round 9. The side sits at about 0.80 m, below the suit's hem, so the side panel shows under the belly from the front and the side, also while walking. Until round 13 the front rose to 0.87 m at the hip, under the hem, and a box-shaped gusset met the leg lines in sharp corners. `reviews/v10_briefs_before_after.jpg` compares the two.
+  - **Leg line:** one smooth closed curve round each thigh, a periodic spline of its height by angle about the thigh (`LEG_LINE`), so the openings have no corners anywhere. It is cut like full briefs, following the owner's photos and videos of the same kind of briefs worn over black tights. It runs low under the crotch, rises diagonally across the front of the thigh to the side, and at the back runs diagonally from the gluteal fold up across the cheek. The back keeps the shape the owner approved in round 9. The side sits at about 0.84 m (0.80 m before round 18), below the suit's hem, so the side panel shows under the belly from the front and the side, also while walking. Until round 13 the front rose to 0.87 m at the hip, under the hem, and a box-shaped gusset met the leg lines in sharp corners. `reviews/v10_briefs_before_after.jpg` compares the two.
   - **Crotch:** the leg lines meet under the crotch, so the briefs cover it and show pink when the legs spread (Jumping Jacks). Along the centre of the back the line drops by up to 4.5 cm (`MID_DROP`, within about 2 cm of the midline, behind the crotch only), so the back panel runs down the cleft into the crotch in one piece. In round 13 it stopped in a V above the cleft and the briefs didn't connect in the middle.
   - **Fabric cues:** the leg openings are finished with a rolled elastic hem about 5 mm wide and 1.2 mm proud, and the hem tucks down onto the leggings, so the edge never shows a gap. The fabric just inside the hem is gathered into small ruches, a few shallow tension wrinkles fan out from the crotch, and the fabric weave has the same fine scale everywhere. The briefs stay a separate surface rather than a texture on the tights, so the hems stand up as real edges.
 - **Tail.** A gold satin bowtie is tied on at the back, on the roll of back fat at the bottom of the white fur. It has two puffed, pleated wings flaring from a pinched centre knot and is about 12 cm wide. A tan two-core lamp cord hangs from the knot to about mid-thigh, 43 cm, and ends in a two-prong plug with brass blades (`tail.py`).
@@ -334,7 +350,7 @@ To view them locally, run `python3 -m http.server` inside `viewer/` and open the
 
 ## Known limits
 
-- The proportions come from photos at an assumed 1.6 m height. Nothing was measured from the costume.
+- The proportions come from two full-length photos of the original session at an assumed 1.6 m height (round 18). Nothing was measured from the costume itself, and the camera's height puts about ±2–3 cm of uncertainty on the bottom of the belly.
 - The side-jaw photo projection on the mask is still stretched in pure side views, as in v09.
 - The black shag is a static groom of strand meshes that follow six baked spring bones; it is not a simulated groom. Strands don't collide with the arms, so an arm that swings against a patch can pass through its strands. The strands add about 310k triangles and 2 MB to the compressed web copy.
 - The physics is baked springs, not live simulation. Only the teats (with the belly) and the tail cord (with the seat, legs, slippers and floor) collide with anything. The cord does not collide with the arms or with itself.
