@@ -81,7 +81,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 18 &middot; original-shoot proportions &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 19 preview &middot; round 18 animated &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
@@ -90,17 +90,19 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <div class="phase-now" id="phaseNow">Chicken dance</div>
         <div class="figlabel" id="lab17" hidden>Round 17</div>
         <div class="figlabel" id="lab18" hidden>Round 18</div>
+        <div class="figlabel" id="lab19" hidden>Round 19</div>
         <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
       </div>
 
       <div class="row" id="versions">
         <span class="label">Compare</span>
+        <button data-ver="r19" aria-pressed="false" disabled>Round 19</button>
         <button data-ver="r18" aria-pressed="true" disabled>Round 18</button>
         <button data-ver="r17" aria-pressed="false" disabled>Round 17</button>
-        <button data-ver="side" aria-pressed="false" disabled>Side by side</button>
-        <button data-ver="overlay" aria-pressed="false" disabled>Overlay</button>
+        <button data-ver="side" aria-pressed="false" disabled>18 | 19 side by side</button>
+        <button data-ver="overlay" aria-pressed="false" disabled>19 over 18</button>
         <button id="guides" aria-pressed="false" disabled>Height lines</button>
-        <span class="note" id="verNote">Round 18 has 4&nbsp;cm longer legs and the bottom of the belly 7.6&nbsp;cm higher; the head, arms and udders are unchanged. Compare it with round 17 in any animation.</span>
+        <span class="note" id="verNote">Round 18, animated.</span>
       </div>
 
       <div class="row" id="clips">
@@ -173,8 +175,9 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Use <em>Compare</em> under the picture to see round 17 in place, side by side or as a ghost, with height lines for the crotch <span class="swatch" style="background:#3f73e0"></span>before and <span class="swatch" style="background:#d23a4a"></span>after.</li>
-          <li>Last round &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
+          <li><strong>Round 19 (static preview):</strong> a new body. Its shape comes from your Tripo model (shoulders sloping into the arms, the deep padded chest, the round belly), cleaned of Tripo's lumpy surface, and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The cups are smaller and sit high on the chest, behind the belly; the briefs are boy shorts with a level leg opening; and the black shag (including the fur under the armpits) and the white spots on the leggings are painted straight from the approved views. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 18 under the picture.</li>
+          <li>Last round &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Use <em>Compare</em> under the picture to see round 17 in place, side by side or as a ghost, with height lines for the crotch <span class="swatch" style="background:#3f73e0"></span>before and <span class="swatch" style="background:#d23a4a"></span>after.</li>
+          <li>Earlier &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
           <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
           <li>Earlier &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
           <li>Earlier &middot; <strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
@@ -253,9 +256,9 @@ const timeEl = document.getElementById('time');
 const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
 // Before/after: round 17 loads on first use and plays the same clip at the same time as round 18.
-let before = null, mainRoot = null, version = 'r18', guidesOn = false, currentView = 'front';
-const SIDE_X = 0.38;                       // side by side: round 17 on the left, round 18 on the right (from the front)
-const lab17 = document.getElementById('lab17'), lab18 = document.getElementById('lab18');
+let mainRoot = null, version = 'r18', guidesOn = false, currentView = 'front';
+const SIDE_X = 0.47;                       // side by side: the earlier round on the left, the later on the right (from the front)
+const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r19: document.getElementById('lab19') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -321,7 +324,7 @@ function setView(name) {
   currentView = name;
   const v = VIEWS[name];
   const t = new THREE.Vector3(...v.target), off = new THREE.Vector3(...v.pos).sub(t);
-  if (version === 'side') { t.x = 0; off.multiplyScalar(name === 'head' || name === 'hands' ? 1.9 : 1.32); }
+  if (version === 'side') { t.x = 0; off.multiplyScalar(name === 'head' || name === 'hands' ? 2.1 : 1.5); }
   controls.target.copy(t); camera.position.copy(t).add(off); controls.update();
   document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
 }
@@ -399,6 +402,7 @@ async function start() {
   selectClip('Chicken Dance');
   status.hidden = true;
   document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; });
+  setVersion('r19');                // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -417,66 +421,88 @@ function prepare(root, list, rest) {
   });
 }
 
-// Round 17's web copy, loaded the first time a compare mode is chosen
-let beforeLoading = null;
-function ensureBefore() {
-  if (before) return Promise.resolve(before);
-  if (beforeLoading) return beforeLoading;
-  status.hidden = false; status.textContent = 'Loading round 17 for comparison (16.7 MB)...';
+// Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 19 is a
+// static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before.
+const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
+               r19: { file: 'cow-r19-meshopt', mb: 12.6, f: null, loading: null } };
+function ensureFig(key) {
+  const F = FIGS[key];
+  if (F.f) return Promise.resolve(F.f);
+  if (F.loading) return F.loading;
+  status.hidden = false; status.textContent = `Loading round ${key.slice(1)} (${F.mb} MB)...`;
   document.querySelectorAll('#versions button').forEach(b => { b.disabled = true; });
-  beforeLoading = load('cow-r17-meshopt', true).then(gltf => {
+  F.loading = load(F.file, true).then(gltf => {
     const f = { root: gltf.scene, meshes: [], rest: [], clips: {}, action: null };
     prepare(f.root, f.meshes, f.rest);
     f.root.visible = false; scene.add(f.root);
     f.mixer = new THREE.AnimationMixer(f.root);
     gltf.animations.forEach(c => { f.clips[c.name] = c; });
-    before = f;
-    syncBeforeClip(); setLight(lightMode);
+    F.f = f;
+    syncFigClips(); setLight(lightMode);
     status.hidden = true;
     return f;
   }).catch(err => {
-    status.textContent = 'Round 17 could not be loaded: ' + err.message;
-    beforeLoading = null;
+    status.textContent = `Round ${key.slice(1)} could not be loaded: ` + err.message;
+    F.loading = null;
     return null;
   }).finally(() => { document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; }); });
-  return beforeLoading;
+  return F.loading;
 }
-// round 17 follows round 18's clip; its time is copied every frame, so scrubbing and pausing stay in step
-function syncBeforeClip() {
-  if (!before) return;
-  before.mixer.stopAllAction(); before.action = null;
-  if (clipName === '__pose') {
-    before.rest.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
-    return;
+// the other rounds follow round 18's clip; their time is copied every frame, so scrubbing and pausing stay in step
+// (round 19 has no clips yet and keeps its default pose)
+function syncFigClips() {
+  for (const F of Object.values(FIGS)) {
+    const f = F.f;
+    if (!f) continue;
+    f.mixer.stopAllAction(); f.action = null;
+    if (clipName === '__pose') {
+      f.rest.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+      continue;
+    }
+    const clip = f.clips[clipName];
+    if (clip) { f.action = f.mixer.clipAction(clip); f.action.reset().play(); }
   }
-  const clip = before.clips[clipName];
-  if (clip) { before.action = before.mixer.clipAction(clip); before.action.reset().play(); }
 }
+// which rounds each mode shows, where (x), and which one is a ghost
+const MODES = {
+  r19: { show: { r19: 0 }, note: 'Round 19: your Tripo model\u2019s body fitted to your approved views (outline, belly, cups, briefs, patches, spots). A static preview: it stands in the default pose until its rig is rebuilt.' },
+  r18: { show: { r18: 0 }, note: 'Round 18, animated.' },
+  r17: { show: { r17: 0 }, note: 'Round 17, animated.' },
+  side: { show: { r18: -SIDE_X, r19: SIDE_X }, note: 'Round 18 (left, animated) beside round 19 (right, default pose).' },
+  overlay: { show: { r19: 0, r18: 0 }, ghost: 'r18', note: 'Round 19, with round 18 as a blue ghost. Pick Default pose so both stand the same way.' },
+};
+const rootOf = k => k === 'r18' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
+const meshesOf = k => k === 'r18' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
 async function setVersion(v) {
-  if (v !== 'r18' && !(await ensureBefore())) return;
+  const M = MODES[v];
+  for (const k of Object.keys(M.show)) if (k !== 'r18' && !(await ensureFig(k))) return;
   version = v;
-  mainRoot.visible = v !== 'r17';
-  mainRoot.position.x = v === 'side' ? SIDE_X : 0;
-  if (before) {
-    before.root.visible = v !== 'r18';
-    before.root.position.x = v === 'side' ? -SIDE_X : 0;
-    before.meshes.forEach(m => { m.castShadow = v !== 'overlay'; m.renderOrder = v === 'overlay' ? 2 : 0; });
+  for (const k of ['r17', 'r18', 'r19']) {
+    const r = rootOf(k);
+    if (!r) continue;
+    r.visible = k in M.show;
+    r.position.x = M.show[k] ?? 0;
+    const ghost = M.ghost === k;
+    meshesOf(k).forEach(m => { m.castShadow = !ghost; m.renderOrder = ghost ? 2 : 0; });
   }
   floor.scale.x = v === 'side' ? 2.2 : 1;
   if ((v === 'side' || v === 'overlay') && !guidesOn) setGuides(true);
   applyMaterials();
   setView(currentView);
   document.querySelectorAll('#versions button[data-ver]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ver === v)));
-  lab18.textContent = v === 'overlay' ? 'Round 18 \u00b7 blue ghost = round 17' : 'Round 18';
+  document.getElementById('verNote').textContent = M.note;
+  LABELS.r19.textContent = v === 'overlay' ? 'Round 19 \u00b7 blue ghost = round 18' : 'Round 19';
 }
 document.querySelectorAll('#versions button[data-ver]').forEach(b => b.addEventListener('click', () => setVersion(b.dataset.ver)));
 
-// Height lines: each round's crotch and the bottom of its belly, drawn across the figures facing the camera
+// Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
 const GUIDES = [
-  { y: 0.708, color: '#3f73e0', text: 'R17 crotch 0.71 m', end: -1 },
-  { y: 0.767, color: '#3f73e0', text: 'R17 belly 0.77 m', end: -1 },
-  { y: 0.747, color: '#d23a4a', text: 'R18 crotch 0.75 m', end: 1 },
-  { y: 0.840, color: '#d23a4a', text: 'R18 belly 0.84 m', end: 1 },
+  { y: 0.708, color: '#7d8796', text: 'R17 crotch 0.71 m', end: -1, round: 'r17' },
+  { y: 0.767, color: '#7d8796', text: 'R17 belly 0.77 m', end: -1, round: 'r17' },
+  { y: 0.747, color: '#3f73e0', text: 'R18 crotch 0.75 m', end: -1, round: 'r18' },
+  { y: 0.840, color: '#3f73e0', text: 'R18 belly 0.84 m', end: -1, round: 'r18' },
+  { y: 0.747, color: '#d23a4a', text: 'R19 crotch 0.75 m', end: 1, round: 'r19' },
+  { y: 0.815, color: '#d23a4a', text: 'R19 belly 0.815 m', end: 1, round: 'r19' },
 ];
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
 GUIDES.forEach(gd => {
@@ -508,18 +534,21 @@ function updateOverlays() {
   toCam.normalize();
   const right = new THREE.Vector3(toCam.z, 0, -toCam.x);
   const half = version === 'side' ? 0.95 : 0.5;
+  const shown = MODES[version].show;
   GUIDES.forEach(gd => {
+    gd.line.visible = gd.round in shown;
     const c = new THREE.Vector3(controls.target.x, gd.y, controls.target.z);
     const a = c.clone().addScaledVector(right, -half), b = c.clone().addScaledVector(right, half);
     const pos = gd.line.geometry.attributes.position; pos.setXYZ(0, a.x, a.y, a.z); pos.setXYZ(1, b.x, b.y, b.z); pos.needsUpdate = true;
-    if (guidesOn) place(gd.el, gd.end < 0 ? a : b, gd.end < 0); else gd.el.hidden = true;
+    if (guidesOn && gd.line.visible) place(gd.el, gd.end < 0 ? a : b, gd.end < 0); else gd.el.hidden = true;
   });
-  // figure labels once a comparison has been opened
-  const show17 = !!before && before.root.visible && version !== 'overlay';
-  const show18 = !!before && mainRoot && mainRoot.visible;
-  if (show17) place(lab17, new THREE.Vector3(before.root.position.x, 1.86, 0), false); else lab17.hidden = true;
-  if (show18) place(lab18, new THREE.Vector3(mainRoot.position.x, 1.86, 0), false); else lab18.hidden = true;
-  [lab17, lab18].forEach(l => { if (!l.hidden) l.style.transform += ' translateX(-50%)'; });
+  // a label over each figure shown (one label for the overlay)
+  for (const k of ['r17', 'r18', 'r19']) {
+    const r = rootOf(k), l = LABELS[k];
+    const show = r && r.visible && !(version === 'overlay' && k === 'r18') && !(version === k && k === 'r18');
+    if (show) { place(l, new THREE.Vector3(r.position.x, 1.86, 0), false); l.style.transform += ' translateX(-50%)'; }
+    else l.hidden = true;
+  }
 }
 
 const ticks = document.getElementById('ticks');
@@ -544,7 +573,7 @@ function selectClip(name) {
     action = null; clipName = name;
     phaseNow.textContent = 'Default pose';
     scrub.disabled = true; timeEl.textContent = '';
-    syncBeforeClip();
+    syncFigClips();
     return;
   }
   scrub.disabled = false;
@@ -552,7 +581,7 @@ function selectClip(name) {
   action = mixer.clipAction(clipMap[name]);
   action.reset().play();
   scrub.max = clipMap[name].duration.toFixed(2);
-  syncBeforeClip();
+  syncFigClips();
 }
 document.querySelectorAll('#clips button').forEach(b => b.addEventListener('click', () => selectClip(b.dataset.clip)));
 document.querySelectorAll('#styles button').forEach(b => b.addEventListener('click', () => {
@@ -578,7 +607,10 @@ function applyMaterials() {
   const flat = !!LIGHTS[lightMode].unlit;
   const pick = m => clayOn ? (flat ? clayFlat : clayMat) : (flat ? m.userData.flat : m.userData.mat);
   meshes.forEach(m => { m.material = pick(m); });
-  if (before) before.meshes.forEach(m => { m.material = version === 'overlay' ? ghostMat : pick(m); });
+  for (const k of ['r17', 'r18', 'r19']) {
+    const ghost = MODES[version].ghost === k;
+    meshesOf(k).forEach(m => { m.material = ghost ? ghostMat : pick(m); });
+  }
 }
 function setLight(name) {
   const L = LIGHTS[name];
@@ -587,7 +619,7 @@ function setLight(name) {
   key.visible = key.intensity > 0; rim.visible = rim.intensity > 0; hemi.visible = hemi.intensity > 0;
   spot.visible = !!L.spot;
   floor.visible = !L.spot; shadowFloor.visible = !!L.spot;
-  meshes.concat(before ? before.meshes : []).forEach(m => { m.userData.mat.envMapIntensity = m.userData.env * (L.env ?? 0); });
+  ['r17', 'r18', 'r19'].flatMap(meshesOf).forEach(m => { m.userData.mat.envMapIntensity = m.userData.env * (L.env ?? 0); });
   clayMat.envMapIntensity = L.env ?? 0;
   applyMaterials();
   document.getElementById('lightNote').textContent = L.note;
@@ -612,7 +644,7 @@ renderer.setAnimationLoop(() => {
     timeEl.textContent = t.toFixed(2) + ' s';
     phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
-  if (before && before.action && action) { before.action.time = action.time; before.mixer.update(0); }
+  for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = action.time; F.f.mixer.update(0); }
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);
