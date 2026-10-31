@@ -139,12 +139,13 @@ def build_suit(step=.0042, target=170000):
     Face labels: 0 torso, 1 hood, 2 sleeve L, 3 sleeve R, 4 horn tube."""
     V, F, Nn, L, charts = [], [], [], [], []
     off = 0
-    tube_axis = [D.TUBE_C - [.12, 0, 0], D.TUBE_C + [.12, 0, 0]]
+    tc = D.head_pose(D.TUBE_C)
+    tube_axis = [tc - [.12, 0, 0], tc + [.12, 0, 0]]
     pieces = [(0, D.suit_sdf, *D.TORSO_BOX, 1.0, .62,
                lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
-              (1, D.hood_sdf, (-.12, 1.32, -.16), (.12, 1.67, .09), .7, .10,
+              (1, D.hood_sdf, (-.13, 1.31, -.20), (.13, 1.70, .13), .7, .10,
                lambda q: sphere_uv(q, np.array([0, 1.52, -.02]), (0, 0, -1), .10), 'Hood_white_faux_fur'),
-              (4, D.tube_sdf, D.TUBE_C - [.09, .05, .05], D.TUBE_C + [.09, .05, .05], .6, .02,
+              (4, D.tube_sdf, tc - [.09, .06, .06], tc + [.09, .06, .06], .6, .02,
                lambda q: cyl_uv(q, tube_axis, (0, -1, -1), (0, 1, 0), .037, (0, .24)), 'Mask_horn_tube_white_faux_fur')]
     for side, lab in [('L', 2), ('R', 3)]:
         s = 1 if side == 'L' else -1

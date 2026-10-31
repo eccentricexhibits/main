@@ -141,6 +141,84 @@ def set_occluders(points, leg_v):
                 _LEG_EXTENT[(name, side)] = (ys[ok], lo[ok], hi[ok])
 
 
+BLOBS = False             # set by fit_projected_patches: the shag is drawn as round 18's tufted blobs
+MIN_PATCH_AREA = 6e-4     # m^2: smaller specks of the projection are dropped
+MIN_SPOT_AREA = 1.5e-4
+SPLIT_FILL = .70          # a component filling less of its ellipse than this is split in two
+
+
+def _fit_blobs(pts, area, nrm, depth=0):
+    """Ellipsoids (centre, radii, axes) covering one connected patch on the surface: an ellipse in the patch's
+    tangent plane from its area-weighted spread, split in two (k-means) while it is a poor fit."""
+    wgt = area / area.sum()
+    c = wgt @ pts
+    nz = wgt @ nrm; nz /= max(np.linalg.norm(nz), 1e-9)
+    t1 = np.cross(nz, [0, 1, 0]); t1 = t1 / np.linalg.norm(t1) if np.linalg.norm(t1) > 1e-6 else np.array([1., 0, 0])
+    t2 = np.cross(nz, t1)
+    q = np.stack([(pts - c) @ t1, (pts - c) @ t2], 1)
+    cov = (q * wgt[:, None]).T @ q
+    ev, evec = np.linalg.eigh(cov)
+    r = 2 * np.sqrt(np.maximum(ev, 1e-8)) * 1.08
+    fill = area.sum() / (np.pi * r[0] * r[1])
+    if fill < SPLIT_FILL and depth < 3 and len(pts) > 40 and area.sum() > 2 * MIN_PATCH_AREA:
+        # split along the long axis, then refine with a few k-means steps
+        lab = (q @ evec[:, 1]) > 0
+        for _ in range(8):
+            cs = [q[lab == k].mean(0) for k in (0, 1)]
+            lab = np.linalg.norm(q - cs[1], axis=1) < np.linalg.norm(q - cs[0], axis=1)
+        if 0 < lab.sum() < len(lab):
+            return sum((_fit_blobs(pts[lab == k], area[lab == k], nrm[lab == k], depth + 1) for k in (False, True)), [])
+    a1, a2 = evec[0, 0] * t1 + evec[1, 0] * t2, evec[0, 1] * t1 + evec[1, 1] * t2
+    sag = np.abs((pts - c) @ nz).max()
+    radii = np.array([r[0], r[1], max(.035, 1.5 * sag + .02)])
+    return [(c, radii, np.stack([a1, a2, nz]))]
+
+
+def _mask_blobs(cen, area, nrm, m, vox, min_area):
+    """Ellipsoid blobs for the connected regions of faces (centres cen) where the projected mask m > 0.5."""
+    from scipy import ndimage
+    on = np.flatnonzero(m > .5)
+    if not len(on):
+        return []
+    ijk = np.floor((cen[on] - cen[on].min(0)) / vox).astype(int)
+    grid = np.zeros(ijk.max(0) + 1, bool); grid[tuple(ijk.T)] = True
+    lab, nlab = ndimage.label(grid, np.ones((3, 3, 3)))
+    fl = lab[tuple(ijk.T)]
+    out = []
+    for i in range(1, nlab + 1):
+        f = on[fl == i]
+        if area[f].sum() >= min_area:
+            out += _fit_blobs(cen[f], area[f], nrm[f])
+    return out
+
+
+def fit_projected_patches(sv, sf, labels, quick=False):
+    """Round 19b: the approved views' patches, projected onto the suit, become round 18's kind of patch: a few
+    tufted ellipses per patch, drawn by shag_mask and grown with strands, instead of the projection's own
+    ragged per-texel edges (which made the shag look patchy and glitchy)."""
+    global _TRIPO, TORSO_PATCHES, SLEEVE_PATCHES, PATCH_BONE, BLOBS
+    from scipy import ndimage
+    cen = sv[sf].mean(1)
+    fn = np.cross(sv[sf[:, 1]] - sv[sf[:, 0]], sv[sf[:, 2]] - sv[sf[:, 0]])
+    area = .5 * np.linalg.norm(fn, axis=1)
+    fn = fn / np.maximum(2 * area[:, None], 1e-12)
+    piece = np.where(labels == 2, 1, np.where(labels == 3, 2, np.where(labels == 0, 0, 3)))
+    sel = piece < 3
+    m = np.zeros(len(sf)); m[sel] = patch_mask(cen[sel], fn[sel])
+    blobs = []
+    for k, name in [(0, 'torso'), (1, 'sleeve_L'), (2, 'sleeve_R')]:
+        sel = piece == k
+        for c, r, U in _mask_blobs(cen[sel], area[sel], fn[sel], m[sel], .012, MIN_PATCH_AREA):
+            bone = int(bone_of(c[None], np.array([k]))[0])
+            blobs.append((c, r, U, name, bone))
+    _TRIPO = blobs
+    TORSO_PATCHES = [i for i, t in enumerate(blobs) if t[3] == 'torso']
+    SLEEVE_PATCHES = {s: [i for i, t in enumerate(blobs) if t[3] == 'sleeve_' + s] for s in 'LR'}
+    PATCH_BONE = [t[4] for t in blobs]
+    BLOBS = True
+    return blobs
+
+
 def patch_mask(p, n):
     import approved_views as AV
     shp = p.shape[:-1]
@@ -206,7 +284,7 @@ def shag_detail(p, black):
 
 
 def suit_color(p, n, white, black, which=None):
-    m = patch_mask(p, n) if PROJECTED else shag_mask(p, which)
+    m = patch_mask(p, n) if (PROJECTED and not BLOBS) else shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
     # under the strands only the black backing shows in the gaps; the swatch photo is too light for it
     bc = shag_detail(p, triplanar(black, p, n, .22)) * .5
@@ -220,8 +298,19 @@ def legging_spots(charts_leg, seed=12):
     """Painted spots: round 19 takes them from the approved generated views (markings.leg_spots); before,
     random spots spaced out on the leg charts' surfaces."""
     if PROJECTED:
+        # round 19b: the spots projected from the approved views become painted blobs (an ellipse or a few per
+        # spot), so their edges are clean paint rather than the projection's streaks at the legs' sides
         import approved_views as AV
-        return lambda p, n: AV.project_spots(p.reshape(-1, 3), n.reshape(-1, 3), _OCC, _LEG_EXTENT).reshape(p.shape[:-1])
+        out = []
+        for ch in charts_leg:
+            v, f = ch['v'], ch['f']
+            cen = v[f].mean(1)
+            fn = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]])
+            area = .5 * np.linalg.norm(fn, axis=1)
+            fn = fn / np.maximum(2 * area[:, None], 1e-12)
+            m = AV.project_spots(cen, fn, _OCC, _LEG_EXTENT)
+            out += [(c, r * np.array([1.06, 1.06, 1.]), U) for c, r, U in _mask_blobs(cen, area, fn, m, .008, MIN_SPOT_AREA)]
+        return out
     rng = np.random.default_rng(seed)
     spots = []
     for ch in charts_leg:
@@ -252,7 +341,7 @@ def legging_color(p, n, cotton, spots):
     base = triplanar(cotton, p, n, TILE * .6)
     lum = base.mean(-1, keepdims=True)
     black = np.array([.085, .085, .092]) * (.75 + .5 * lum)
-    m = spots(p, n) if callable(spots) else blob_mask(p, spots, rough=.45, edge=.10, seed=21)
+    m = spots(p, n) if callable(spots) else blob_mask(p, spots, rough=(.30 if PROJECTED else .45), edge=.10, seed=21)
     brush = .88 + .12 * N.fbm(p * 160, 2, seed=4)[..., None]
     paint = np.array([.94, .94, .92]) * brush
     out = black * (1 - m[..., None]) + paint * m[..., None]

@@ -121,6 +121,25 @@ TUBE_C = np.array([0, 1.629, .070]) + MASK_SEAT
 HORN_SHIFT = TUBE_C - TUBE_C_SCAN
 TUBE_HALF, TUBE_R = .066, .037
 MASK_BACK_Z = .080 + MASK_SEAT[2]     # the scanned mask shell's back plane (its rim) after mask_transform
+
+# Round 19b: the whole head (mask, horns, tube, hood) is carried chin-up about the neck, as the approved side
+# views stand: upright, the snout forward and the throat showing above the chest.  Everything above is laid
+# out unpitched; head_pose() places it.
+HEAD_PITCH = np.deg2rad(10.) if BODY_SOURCE == 'tripo' else 0.
+HEAD_PIVOT = np.array([0, 1.395, -.035 + HEAD_DZ])
+_c, _s = np.cos(HEAD_PITCH), np.sin(HEAD_PITCH)
+HEAD_R = np.array([[1, 0, 0], [0, _c, _s], [0, -_s, _c]])     # chin up: the front rises, the crown goes back
+
+
+def head_pose(v):
+    return (np.asarray(v) - HEAD_PIVOT) @ HEAD_R.T + HEAD_PIVOT
+
+
+def head_unpose(p):
+    return (p - HEAD_PIVOT) @ HEAD_R + HEAD_PIVOT
+
+
+J['Head'] = head_pose(J['Head'])
 # Outline of the mask rim in the XY plane, as a polar radius around MASK_RIM_C (Fourier fit of the
 # scanned shell's outermost rim points, rms error 1.3 mm): [a0, cos1, sin1, cos2, sin2, ...]
 MASK_RIM_C = np.array([0, 1.4775])
@@ -154,10 +173,11 @@ BACK_ROLL_Y = .925 + LEG_LIFT       # the back-fat roll over the panty waistband
 BACK_ROLL_Z = -.128
 TAIL_KNOT = np.array([0, .935 + LEG_LIFT, -.217])     # the bowtie's knot on the roll
 if BODY_SOURCE == 'tripo':
-    # the roll sits where Tripo's bow is tied, bulging 3 cm beyond Tripo's back; the knot on its surface
+    # no back-fat roll: the stuffed sack's back runs straight down (approved side views); the bow's knot is
+    # tied on the sack's back where Tripo has it
     BACK_ROLL_Y = float(TB.BOW[1]) - .010
-    BACK_ROLL_Z = TB.back_z(BACK_ROLL_Y) + .082 - .030
-    TAIL_KNOT = np.array([0, BACK_ROLL_Y + .010, BACK_ROLL_Z - .082 - .007])
+    BACK_ROLL_Z = TB.back_z(BACK_ROLL_Y) + .082
+    TAIL_KNOT = np.array([0, BACK_ROLL_Y + .010, TB.back_z(BACK_ROLL_Y + .010) - .007])
 TORSO_BOX = ((-.30, .70, -.24), (.30, 1.45, .32)) if BODY_SOURCE != 'tripo' else ((-.37, .74, -.27), (.37, 1.45, .42))
 
 
@@ -165,8 +185,11 @@ def hem_height(x, z):
     """The suit's hem: a shallow bowl, lowest under the front of the belly (round 18 heights).  Round 19: as in
     the approved views, 0.815 m under the front of the belly, 0.845 m at the sides, 0.86 m at the back."""
     if BODY_SOURCE == 'tripo':
-        th = np.arctan2(x, z - .07)
-        return .8375 - .0225 * np.cos(th) + .0075 * np.sin(th) ** 2
+        # round 19b: the stuffed belly hangs lower (approved side views): 0.785 m at the front, 0.82 m at the
+        # sides, 0.835 m at the back
+        # (soft direction around the centre line, so the cap under the hem has no pinch point)
+        rr2 = x * x + (z - .07) ** 2 + .06 ** 2
+        return .81 - .025 * (z - .07) / np.sqrt(rr2) + .01 * x * x / rr2
     return .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
 
 def torso_sdf(p):
@@ -223,6 +246,7 @@ def suit_parts(p, torso_only=False):
 
 def head_parts(p):
     """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
+    p = head_unpose(p)
     # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
     # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
     head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), (.090, .118, .099))     # back of the head 2 cm flatter
@@ -240,20 +264,24 @@ def tripo_suit_parts(p, torso_only=False):
     are tubes along Tripo's arms; the hood and horn tube are as before."""
     out = {}
     x, z = p[..., 0], p[..., 2]
-    torso = TB.fitted_torso_sdf(p)
+    torso = TB.stuffed_torso_sdf(p)
+    # the shoulders slope away from the neck (the approved views): Tripo's hood drape is cut off, so the neck
+    # stands clear of the shoulders and the head sits up on it instead of sinking into a raised collar
+    zn = -.030 + HEAD_DZ
+    dx = np.maximum(np.abs(x) - .075, 0)
+    dzb = np.maximum((zn - .055) - z, 0)
+    torso = S.smax(torso, p[..., 1] - (1.405 - .55 * np.sqrt(dx * dx + dzb * dzb + 1e-8)), .03)
     neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
     torso = S.smin(torso, neck, .04)
-    # the neckline dips at the front to below the mask's chin: above it Tripo's torso is its own chin and hood
+    # the neckline dips at the front to just under the mask's chin (1.358 m); the chest fills forward under it
     w = np.clip((z - (HEAD_DZ - .04)) / .10, 0, 1)
-    torso = S.smax(torso, p[..., 1] - (1.405 - .075 * w * w * (3 - 2 * w)), .02)
+    torso = S.smax(torso, p[..., 1] - (1.405 - .060 * w * w * (3 - 2 * w)), .02)
     # behind the udder cups the chest recedes: where the Tripo cups were filled in, the fill spans their rims,
     # in front of the chest itself; the cups (separate pieces) cover the carved hollow
     cups = np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1))
     torso = S.smax(torso, -(cups + .006), .015)
     torso = S.smax(torso, p[..., 1] - 1.405, .02)
-    roll = S.ellipsoid(p, (0, BACK_ROLL_Y, BACK_ROLL_Z), (.170, .052, .082))
-    torso = S.smin(torso, roll, .035)
-    torso = S.smax(torso, hem_height(x, z) - p[..., 1], .03)
+    torso = S.smax(torso, hem_height(x, z) - p[..., 1], .04)
     out['torso'] = torso
     if torso_only:
         return out
@@ -327,25 +355,41 @@ def _foot(p, s, ankle):
 LEG_INSET = .03          # above the hem the leggings (hidden inside the suit) sit this far inside Tripo's surface
 
 
+SHIN_TOP, SHIN_BLEND = .34, (.30, .40)     # below the calf the leg is a clean tapered tube to the ankle
+ANKLE_R = .039
+
+
 def tripo_legging_parts(p):
-    """Round 19: Tripo's legs and hips at the photo leg length.  Above the hem they continue hidden, 3 cm
-    inside the suit (and no further forward than the hips), so the belly overhang stays the suit's own.
-    Below the ankle the socked foot stands on the slipper's footbed."""
+    """Round 19: Tripo's legs and hips at the photo leg length.  Above the hem they continue hidden inside the
+    stuffed suit (2 cm inside it and 3 cm inside Tripo's surface, no further forward than the hips), so the
+    belly overhang stays the suit's own.  Below the calf the leg is a smooth tube tapering straight to the
+    ankle joint (Tripo's lower legs and feet were lumpy and off the ankle), and the socked foot stands on the
+    slipper's footbed."""
     x, y, z = p[..., 0], p[..., 1], p[..., 2]
     hem = hem_height(x, z)
     w = np.clip((y - (hem - .01)) / .05, 0, 1)
-    d = TB.body_legs_sdf(p) + LEG_INSET * w * w * (3 - 2 * w)
+    w = w * w * (3 - 2 * w)
+    d = TB.body_legs_sdf(p) + LEG_INSET * w
+    up = y > .70
+    if up.any():
+        inner = np.full_like(d, -1.)
+        inner[up] = TB.stuffed_torso_sdf(p[up]) + .02 - .2 * (1 - w[up])
+        d = S.smax(d, inner, .02)
     d = S.smax(d, (z - .19) - 5 * np.maximum(hem - y, 0), .02)       # above the hem: not into the belly
     d = S.smax(d, np.abs(x) - .28, .02)                                # not the hands
-    out = {}
+    lo, hi = SHIN_BLEND
+    t = np.clip((hi - y) / (hi - lo), 0, 1); t = t * t * (3 - 2 * t)
     legs = {}
     for s, side in [(1, 'L'), (-1, 'R')]:
         ankle = J[f'Foot_{side}']
-        stub = S.round_cone(p, ankle + [0, .07, 0], ankle + [0, -.03, 0], .046, .040)
-        legs[side] = S.smin(stub, _foot(p, s, ankle), .03)
-    above = S.smax(d, (FOOT_Y + .045) - y, .02)                        # Tripo's leg ends above its slipper
-    full = S.smin(above, np.minimum(legs['L'], legs['R']), .03)
-    out['full'] = full
+        top, r_top = TB.leg_section(s, SHIN_TOP)
+        shin = S.round_cone(p, top, ankle + [0, .025, -.010], r_top, ANKLE_R)
+        stub = S.round_cone(p, ankle + [0, .02, -.006], ankle + [0, -.03, 0], ANKLE_R, ANKLE_R - .002)
+        legs[side] = S.smin(S.smin(shin, stub, .02), _foot(p, s, ankle), .03)
+    lower = np.minimum(legs['L'], legs['R'])
+    full = np.where(t > 0, d * (1 - t) + lower * t, d)
+    full = np.where(y < lo - .01, lower, full)
+    out = {'full': full}
     out['pelvis'] = S.smax(full, .76 - y, .01)
     for s, side in [(1, 'L'), (-1, 'R')]:
         out['leg_' + side] = S.smax(full, -s * x, .01)

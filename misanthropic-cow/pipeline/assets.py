@@ -58,6 +58,9 @@ def load(src, keep_gloves=False, keep_slippers=False):
         p['v'] = D.mask_transform(p['v'])
         if 'Horn' in name or 'Wires' in name:
             p['v'] = p['v'] + D.HORN_SHIFT          # horns ride on the ends of the tube
+        p['v'] = D.head_pose(p['v'])
+        if p.get('n') is not None:
+            p['n'] = np.asarray(p['n']) @ D.HEAD_R.T
         p['v'] = p['v'].astype(np.float32)
         p['name'] = NEW_NAMES[name]
         out.append((p, 'head'))

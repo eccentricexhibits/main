@@ -90,7 +90,7 @@ def body_legs_sdf(p):
 # sewn on (their back), and above the shoulders and below the hem the torso keeps Tripo's shape.
 FIT_Y = np.round(np.arange(.70, 1.50, .01), 3)
 FLUFF = .012              # the views' outline is the fur's (and the shag's) tips, about this far out
-CHEST_FRONT = [(1.14, .14), (1.17, .118), (1.30, .115), (1.33, .15)]
+CHEST_FRONT = [(1.14, .14), (1.17, .118), (1.30, .115), (1.33, .150), (1.36, .160), (1.40, .150)]
 
 
 def _model_profile(ys):
@@ -120,7 +120,7 @@ def _fit():
     m = _model_profile(ys)
     front_t = g['front'] - FLUFF
     chest = np.interp(ys, [c[0] for c in CHEST_FRONT], [c[1] for c in CHEST_FRONT])
-    under_cups = (ys >= 1.14) & (ys <= 1.33)
+    under_cups = (ys >= 1.14) & (ys <= 1.40)
     front_t = np.where(under_cups, chest, front_t)
     back_t = g['back'] - FLUFF * .5
     width_t = g['halfwidth'] - FLUFF * .5
@@ -128,8 +128,8 @@ def _fit():
     b = back_t - a * m[:, 1]
     c = np.clip(width_t / m[:, 2], .85, 1.15)
     # where the fit applies: the torso from the hem to the neck (z), the belly below the armpits (x)
-    wz = _smoothstep(.76, .80, ys) * (1 - _smoothstep(1.36, 1.42, ys))
-    wx = _smoothstep(.76, .80, ys) * (1 - _smoothstep(1.08, 1.13, ys))     # above, the views' arms join the body
+    wz = _smoothstep(.76, .80, ys) * (1 - _smoothstep(1.40, 1.45, ys))
+    wx = 0 * ys       # no width fit: the views' arms hide the torso's sides, and the reading pinched the waist
     a = np.where(np.isfinite(a), a, 1); b = np.where(np.isfinite(b), b, 0); c = np.where(np.isfinite(c), c, 1)
     a, b, c = 1 + (a - 1) * wz, b * wz, 1 + (c - 1) * wx
     return gaussian_filter1d(a, 2), gaussian_filter1d(b, 2), gaussian_filter1d(c, 2)
@@ -150,11 +150,63 @@ def fitted_torso_sdf(p):
     return torso_sdf(q) * np.minimum(a, c)
 
 
+# ---------------------------------------------------------------- the stuffed midsection
+# The costume's midsection is a stuffed fur sack worn over the wearer (owner's photo of the empty suit): below
+# the cups it hangs full and round down to the hem, with no waist.  Below 1.0 m the torso is this sack, lofted
+# from the approved side and back views' outlines (fur surface, ~1 cm inside the drawn fur tips); from 1.0 to
+# 1.12 m it blends into the fitted Tripo torso.  Per height: front z, back z (as a distance behind z=0), half
+# width.  The widest part of each cross-section is at z=SACK_Z0.
+SACK = np.array([
+    # y     front  back   half-width
+    [.74,  .100,  .100,  .160],
+    [.76,  .125,  .122,  .175],
+    [.78,  .158,  .136,  .183],
+    [.80,  .198,  .145,  .189],
+    [.82,  .229,  .151,  .194],
+    [.84,  .249,  .155,  .199],
+    [.86,  .266,  .157,  .205],
+    [.90,  .296,  .159,  .213],
+    [.94,  .309,  .158,  .218],
+    [.98,  .313,  .156,  .219],
+    [1.02, .306,  .156,  .215],
+    [1.06, .282,  .158,  .209],
+    [1.10, .240,  .160,  .201],
+    [1.14, .195,  .162,  .195]])
+SACK_Z0 = .06
+SACK_EXP = 2.3            # a little squarer than an ellipse: stuffed, not a body
+SACK_BLEND = (1.00, 1.12)
+
+
+def sack_sdf(p):
+    y = p[..., 1]
+    zf, zb, w = (np.interp(y, SACK[:, 0], SACK[:, i]) for i in (1, 2, 3))
+    dz = p[..., 2] - SACK_Z0
+    rz = np.where(dz >= 0, zf - SACK_Z0, zb + SACK_Z0)
+    u, v = np.abs(p[..., 0]) / w, np.abs(dz) / rz
+    k = SACK_EXP
+    rr = (u ** k + v ** k) ** (1 / k)
+    d = (rr - 1) * np.minimum(w, rz)
+    return np.maximum(d, SACK[0, 0] + .01 - y)              # closed below (the hem cuts it anyway)
+
+
+def stuffed_torso_sdf(p):
+    """The fitted Tripo torso above, the stuffed sack below."""
+    lo, hi = SACK_BLEND
+    t = np.clip((hi - p[..., 1]) / (hi - lo), 0, 1)
+    t = t * t * (3 - 2 * t)
+    y = p[..., 1]
+    need = t > 0
+    d = fitted_torso_sdf(p)
+    if need.any():
+        d = np.where(need, d * (1 - t) + sack_sdf(p) * t, d)
+    return d
+
+
 def back_z(y, x=0.):
     """Where the back of the torso is at height y (for seating the back-fat roll and the bow)."""
     z = np.linspace(.1, -.35, 451)
     p = np.stack([np.full_like(z, x), np.full_like(z, y), z], -1)
-    d = fitted_torso_sdf(p)
+    d = stuffed_torso_sdf(p)
     j = np.flatnonzero(d > 0)
     return float(z[j[0]]) if len(j) else -.2
 
@@ -162,7 +214,7 @@ def back_z(y, x=0.):
 def front_z(x, y):
     z = np.linspace(-.05, .45, 501)[::-1]
     p = np.stack([np.full_like(z, x), np.full_like(z, y), z], -1)
-    d = fitted_torso_sdf(p)
+    d = stuffed_torso_sdf(p)
     j = np.flatnonzero(d < 0)
     return float(z[j[0]]) if len(j) else .2
 
@@ -215,3 +267,18 @@ def leg_points(s):
     return (np.array([s * .086, .893, -.020]),
             np.array([knee[0], float(leg_y(knee[1])), knee[2]]),
             np.array([ankle[0], ANKLE_DST, ankle[2]]))
+
+
+_LEG_SEC = {}
+
+
+def leg_section(s, y):
+    """Centre (x, z) and mean radius of Tripo's leg s at height y (model heights)."""
+    key = (s, round(float(y), 4))
+    if key not in _LEG_SEC:
+        xs, zs = np.arange(0, .3, .002) * s, np.arange(-.2, .25, .002)
+        X, Z = np.meshgrid(xs, zs, indexing='ij')
+        m = body_legs_sdf(np.stack([X, np.full_like(X, y), Z], -1)) < 0
+        r = .5 * (np.ptp(X[m]) + np.ptp(Z[m])) / 2
+        _LEG_SEC[key] = (np.array([X[m].mean(), y, Z[m].mean()]), float(r))
+    return _LEG_SEC[key]

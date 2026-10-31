@@ -175,7 +175,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Round 19 (static preview):</strong> a new body. Its shape comes from your Tripo model (shoulders sloping into the arms, the deep padded chest, the round belly), cleaned of Tripo's lumpy surface, and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The cups are smaller and sit high on the chest, behind the belly; the briefs are boy shorts with a level leg opening; and the black shag (including the fur under the armpits) and the white spots on the leggings are painted straight from the approved views. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 18 under the picture.</li>
+          <li><strong>Round 19 (static preview, revised):</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revision answers your notes. The head is carried chin-up on a visible throat, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle. The lower legs taper cleanly to the ankle, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 18 under the picture.</li>
           <li>Last round &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Use <em>Compare</em> under the picture to see round 17 in place, side by side or as a ghost, with height lines for the crotch <span class="swatch" style="background:#3f73e0"></span>before and <span class="swatch" style="background:#d23a4a"></span>after.</li>
           <li>Earlier &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
           <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
@@ -424,7 +424,7 @@ function prepare(root, list, rest) {
 // Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 19 is a
 // static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before.
 const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
-               r19: { file: 'cow-r19-meshopt', mb: 12.6, f: null, loading: null } };
+               r19: { file: 'cow-r19-meshopt', mb: 13.2, f: null, loading: null } };
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
@@ -465,7 +465,7 @@ function syncFigClips() {
 }
 // which rounds each mode shows, where (x), and which one is a ghost
 const MODES = {
-  r19: { show: { r19: 0 }, note: 'Round 19: your Tripo model\u2019s body fitted to your approved views (outline, belly, cups, briefs, patches, spots). A static preview: it stands in the default pose until its rig is rebuilt.' },
+  r19: { show: { r19: 0 }, note: 'Round 19 (revised): upright head, sloping shoulders, a stuffed round midsection down to a lower hem, clean lower legs and clean shag and spots. A static preview: it stands in the default pose until its rig is rebuilt.' },
   r18: { show: { r18: 0 }, note: 'Round 18, animated.' },
   r17: { show: { r17: 0 }, note: 'Round 17, animated.' },
   side: { show: { r18: -SIDE_X, r19: SIDE_X }, note: 'Round 18 (left, animated) beside round 19 (right, default pose).' },
@@ -501,8 +501,8 @@ const GUIDES = [
   { y: 0.767, color: '#7d8796', text: 'R17 belly 0.77 m', end: -1, round: 'r17' },
   { y: 0.747, color: '#3f73e0', text: 'R18 crotch 0.75 m', end: -1, round: 'r18' },
   { y: 0.840, color: '#3f73e0', text: 'R18 belly 0.84 m', end: -1, round: 'r18' },
-  { y: 0.747, color: '#d23a4a', text: 'R19 crotch 0.75 m', end: 1, round: 'r19' },
-  { y: 0.815, color: '#d23a4a', text: 'R19 belly 0.815 m', end: 1, round: 'r19' },
+  { y: 0.747, color: '#d23a4a', text: 'R19 crotch 0.75 m', end: 1, round: 'r19', dy: 8 },
+  { y: 0.785, color: '#d23a4a', text: 'R19 belly 0.785 m', end: 1, round: 'r19', dy: -8 },
 ];
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
 GUIDES.forEach(gd => {
@@ -523,10 +523,10 @@ function toScreen(p) {
   _v.copy(p).project(camera);
   return [(_v.x + 1) / 2 * stage.clientWidth, (1 - _v.y) / 2 * stage.clientHeight, _v.z < 1];
 }
-function place(el, p, alignRight) {
+function place(el, p, alignRight, dy = 0) {
   const [x, y, ok] = toScreen(p);
   el.hidden = !ok;
-  el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(${alignRight ? '-100%' : '0'}, -50%)`;
+  el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y + dy)}px) translate(${alignRight ? '-100%' : '0'}, -50%)`;
 }
 function updateOverlays() {
   const toCam = camera.position.clone().sub(controls.target); toCam.y = 0;
@@ -540,7 +540,7 @@ function updateOverlays() {
     const c = new THREE.Vector3(controls.target.x, gd.y, controls.target.z);
     const a = c.clone().addScaledVector(right, -half), b = c.clone().addScaledVector(right, half);
     const pos = gd.line.geometry.attributes.position; pos.setXYZ(0, a.x, a.y, a.z); pos.setXYZ(1, b.x, b.y, b.z); pos.needsUpdate = true;
-    if (guidesOn && gd.line.visible) place(gd.el, gd.end < 0 ? a : b, gd.end < 0); else gd.el.hidden = true;
+    if (guidesOn && gd.line.visible) place(gd.el, gd.end < 0 ? a : b, gd.end < 0, gd.dy || 0); else gd.el.hidden = true;
   });
   // a label over each figure shown (one label for the overlay)
   for (const k of ['r17', 'r18', 'r19']) {

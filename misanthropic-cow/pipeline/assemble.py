@@ -53,6 +53,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
         udder = Gm.build_udder(step=.004 if quick else .0028, target=20000 if quick else 50000)
         T.set_occluders(np.vstack([sv, leg['v']] + [c['v'] for c in udder]), leg['v'])
+        T.fit_projected_patches(sv, sf, suit['labels'])
     sizes = {'Suit_torso': (2048, 2048), 'Hood_white': (1024, 1024), 'Suit_sleeve_L': (1024, 1024), 'Suit_sleeve_R': (1024, 1024),
              'Mask_horn': (512, 512)}
     for ch in suit['charts']:
@@ -76,7 +77,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     piece = np.where(fl == 2, 1, np.where(fl == 3, 2, np.where(fl == 0, 0, 3)))   # torso, sleeve L, sleeve R, hood/tube
     allowed = [T.TORSO_PATCHES, T.SLEEVE_PATCHES['L'], T.SLEEVE_PATCHES['R'], []]
     m_face = np.zeros(len(sf))
-    if T.PROJECTED:
+    if T.PROJECTED and not T.BLOBS:
         fnrm = np.cross(sv[sf[:, 1]] - sv[sf[:, 0]], sv[sf[:, 2]] - sv[sf[:, 0]])
         fnrm /= np.maximum(np.linalg.norm(fnrm, axis=1, keepdims=True), 1e-12)
         sel = piece < 3
@@ -90,7 +91,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     tco, sid, roots, rface, rbc = hair['t'], hair['cid'], hair['roots'], hair['face'], hair['bc']
     # strand roots follow the face they grew from; tips swing with that piece's own patch spring bone
     W_root = np.einsum('ij,ijk->ik', rbc, W_suit[sf[rface]])
-    if T.PROJECTED:
+    if T.PROJECTED and not T.BLOBS:
         bone = T.bone_of(roots, piece[rface])
     else:
         pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
