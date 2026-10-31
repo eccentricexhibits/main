@@ -199,30 +199,30 @@ The **default pose** is the rest pose: arms relaxed and down at the sides. In th
 
 ### Animation clipping
 
-All depths are the 99.5th percentile over every frame.
+All depths are the 99.5th percentile over every frame. The two clipping columns between the belly and the legs count only surface that is visible at rest (round 18, `validate.leg_body_metrics`); round 17's values are in brackets, measured the same way on a rebuild of round 17 that reproduces its validation exactly. The plain readings in `reviews/validation_v10.json` (`body_into_legs_p995_max_m`, `legs_into_body_p995_max_m`) also count hidden geometry: the tops of the leggings and briefs inside the suit, and the backs of the cups against the chest.
 
-| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Belly into legs | Leggings stretch, worst frame | Lowest slipper point | Lowest tail point (cord or plug) |
-|---|---|---|---|---|---|---|---|
-| Idle | 0 mm | 0 mm | 0 mm | 0 mm | 1.17× | 3.0 mm above floor | 436 mm above floor |
-| Walk | 0 mm | 0 mm | 0 mm | 2.1 mm | 2.44× | 3.0 mm above floor | 387 mm above floor |
-| Run | 0 mm | 0.1 mm | 0 mm | 19.9 mm | 3.40× | 3.0 mm above floor | 400 mm above floor |
-| Sneak | 0 mm | 0 mm | 0 mm | 32.5 mm | 3.47× | 3.0 mm above floor | 400 mm above floor |
-| Jumping Jacks | 0 mm | 0 mm | 0 mm | 0.1 mm | 2.14× | 3.0 mm above floor | 360 mm above floor |
-| Look Around | 0 mm | 0 mm | 0 mm | 0 mm | 1.27× | 3.0 mm above floor | 431 mm above floor |
-| Chicken Dance | 0 mm | 2.7 mm | 0 mm | 0 mm | 2.08× | 3.0 mm above floor | 345 mm above floor |
-| Depressed Walk | 0 mm | 0 mm | 0 mm | 3.4 mm | 2.25× | 3.0 mm above floor | 390 mm above floor |
-| Sit Cross-Legged | 0 mm | 2.1 mm | 0 mm | 2.6 mm | 4.61× | 3.0 mm above floor | on the floor (0.4 mm into it) |
-| Crying | 0 mm | 0 mm | 0 mm | 0 mm | 1.65× | 3.0 mm above floor | 406 mm above floor |
-| Exasperated | 0 mm | 0 mm | 0 mm | 0 mm | 1.31× | 3.0 mm above floor | 430 mm above floor |
-| Idle (alt) | 0 mm | 0 mm | 0 mm | 0 mm | 1.47× | 3.0 mm above floor | 420 mm above floor |
-| Walk (alt) | 0 mm | 0 mm | 0 mm | 1.1 mm | 2.30× | 3.0 mm above floor | 382 mm above floor |
-| Run (alt) | 0 mm | 3.7 mm | 0 mm | 18.6 mm | 3.04× | 3.0 mm above floor | 380 mm above floor |
-| Sneak (alt) | 0 mm | 2 mm | 0 mm | 28.3 mm | 3.16× | 3.0 mm above floor | 399 mm above floor |
-| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 0.7 mm | 2.02× | 3.0 mm above floor | 368 mm above floor |
-| Look Around (alt) | 0 mm | 0 mm | 0 mm | 0 mm | 1.48× | 3.0 mm above floor | 420 mm above floor |
-| Chicken Dance (alt) | 0 mm | 5.7 mm | 1.4 mm | 0 mm | 2.06× | 3.0 mm above floor | 350 mm above floor |
+| Animation | Arms into cups or torso | Teats into belly | Gloves into body | Belly into legs (visible) | Legs into belly (visible) | Leggings stretch, worst frame | Lowest slipper point | Lowest tail point (cord or plug) |
+|---|---|---|---|---|---|---|---|---|
+| Idle | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 0 mm (0 mm) | 1.17× | 3.0 mm above floor | 476 mm above floor |
+| Walk | 0 mm | 0 mm | 0 mm | 0 mm (2.1 mm) | 35.5 mm (42.9 mm) | 2.41× | 3.0 mm above floor | 427 mm above floor |
+| Run | 0 mm | 0 mm | 0 mm | 10.9 mm (19.9 mm) | 65.2 mm (72.8 mm) | 3.35× | 3.0 mm above floor | 440 mm above floor |
+| Sneak | 0 mm | 0 mm | 0 mm | 21.2 mm (32.5 mm) | 65.3 mm (73.1 mm) | 3.42× | 3.0 mm above floor | 440 mm above floor |
+| Jumping Jacks | 0 mm | 0 mm | 0 mm | 0 mm (0.1 mm) | 26.5 mm (29.5 mm) | 2.13× | 3.0 mm above floor | 400 mm above floor |
+| Look Around | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 0 mm (0 mm) | 1.27× | 3.0 mm above floor | 471 mm above floor |
+| Chicken Dance | 0 mm | 2.5 mm | 0 mm | 0 mm (0 mm) | 15.4 mm (23.1 mm) | 2.14× | 3.0 mm above floor | 385 mm above floor |
+| Depressed Walk | 0 mm | 0 mm | 0 mm | 0 mm (3.4 mm) | 29.5 mm (35.2 mm) | 2.23× | 3.0 mm above floor | 430 mm above floor |
+| Sit Cross-Legged | 0 mm | 2.1 mm | 0 mm | 3.1 mm (2.6 mm) | 15.6 mm (19.9 mm) | 4.57× | 3.0 mm above floor | on the floor (0.4 mm into it) |
+| Crying | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 11.5 mm (15.0 mm) | 1.67× | 3.0 mm above floor | 446 mm above floor |
+| Exasperated | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 0 mm (0.3 mm) | 1.30× | 3.0 mm above floor | 470 mm above floor |
+| Idle (alt) | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 3.6 mm (6.6 mm) | 1.49× | 3.0 mm above floor | 460 mm above floor |
+| Walk (alt) | 0 mm | 0 mm | 0 mm | 0 mm (1.1 mm) | 29.4 mm (36.1 mm) | 2.27× | 3.0 mm above floor | 422 mm above floor |
+| Run (alt) | 0 mm | 3.6 mm | 0 mm | 6.7 mm (18.6 mm) | 55.1 mm (69.9 mm) | 3.05× | 3.0 mm above floor | 420 mm above floor |
+| Sneak (alt) | 0 mm | 2.0 mm | 0 mm | 15.5 mm (28.3 mm) | 56.4 mm (70.9 mm) | 3.13× | 3.0 mm above floor | 439 mm above floor |
+| Jumping Jacks (alt) | 0 mm | 0 mm | 0 mm | 0 mm (0.7 mm) | 23.6 mm (27.5 mm) | 2.01× | 3.0 mm above floor | 408 mm above floor |
+| Look Around (alt) | 0 mm | 0 mm | 0 mm | 0 mm (0 mm) | 3.5 mm (6.5 mm) | 1.48× | 3.0 mm above floor | 460 mm above floor |
+| Chicken Dance (alt) | 0 mm | 5.6 mm | 1.4 mm | 0 mm (0 mm) | 14.9 mm (22.6 mm) | 2.11× | 3.0 mm above floor | 390 mm above floor |
 
-The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.7 mm in the slumped alt Chicken Dance. The hooves stay clear of the mask in Crying and in Exasperated's face-palm. With the round-17 gloves, which are about 6 mm fuller on the palm side than the Tripo ones, the left glove brushed the left cup at the front of Run's arm pump (up to 4.3 mm in the alt version); Run now holds the arms 3° further out (0 mm). In the alt Chicken Dance's claps the palm of each glove brushes the other hand's sleeve end by 1.4 mm (0 before). The shortened cord ends about 35–44 cm above the floor while standing; when she sits, the cord and plug lie on the floor.
+The relaxed arms no longer press into the sides of the body in Look Around, Crying or Exasperated (2–5 mm before): the soft IK leaves the elbows slightly bent instead of locking them straight against the sides. The fuller Blue Shirt udder hangs lower, so the teats touch the belly in a few clips: 2.7 mm at the bottom of the Wiggle squat in the Chicken Dance, and up to 5.7 mm in the slumped alt Chicken Dance. The hooves stay clear of the mask in Crying and in Exasperated's face-palm. With the round-17 gloves, which are about 6 mm fuller on the palm side than the Tripo ones, the left glove brushed the left cup at the front of Run's arm pump (up to 4.3 mm in the alt version); Run now holds the arms 3° further out (0 mm). In the alt Chicken Dance's claps the palm of each glove brushes the other hand's sleeve end by 1.4 mm (0 before). The shortened cord ends about 39–48 cm above the floor while standing (4 cm higher since round 18, with the hips); when she sits, the cord and plug lie on the floor.
 
 **Sitting (round 16).** Crouch and Sit clipped badly: the belly hangs to the crotch, so in the crouch the thighs passed 5–6 cm up through the belly and the suit's hem (60 mm in the belly-into-legs column), the seat sank 3.3–3.8 cm through the floor, and the upper arms pressed 19 mm into the cups. Sit Cross-Legged replaces it:
 - She leans back 26° as she lands, which takes most of the bend out of the hips, and the belly settles onto her crossed legs.
@@ -231,7 +231,9 @@ The relaxed arms no longer press into the sides of the body in Look Around, Cryi
 - Reaching back for the floor, the arms go round the outside of the body; seated, the forearms rest on the outside of the knees, elbows out, so the arms stay clear of the cups (2 mm).
 - The chest stays back as she slumps, so the cups don't fold down onto the belly (the teats touch it by 2.1 mm at the bottom of a sigh).
 
-In Run and Sneak the belly still meets the tops of the thighs at the highest knee lift (20 and 33 mm). The same hem helpers could take that up; they are left off there for now, so those animations are exactly as they were. The leggings' stretch is highest at the seat (4.6×, 5.0× before), from the deep seated hip bend, which linear skinning handles poorly. `validate.py` also measures how far the leggings and briefs pass into the suit (`legs_into_body_p995_max_m`). That reading is high in every walking animation too (45 mm in Walk, 73 mm in Run) because it counts the tops of the briefs and leggings tucked up under the hem, which are never seen; for the sit it fell from 75 to 46 mm.
+**Round 18.** With the longer legs the hips land 4 cm further down (`DROP`), so the seat still reaches the floor. The side of the hem touches the thighs slightly more on the way down and up (3.1 mm visible, 2.6 mm before), the sleeves stretch a little more as the hooves reach the higher knees (2.11×, 2.00× before), and the leggings pass less into the belly (15.6 mm, 19.9 mm before). The torso's worst stretch in the clip is 1.57× (1.65× before).
+
+In Run and Sneak the belly still meets the tops of the thighs at the highest knee lift (11 and 21 mm visible; 20 and 33 mm before the round-18 proportions, whose higher belly leaves the thighs more room). The same hem helpers could take that up; they are left off there for now, so those animations are exactly as they were. The leggings' stretch is highest at the seat (4.6×, 5.0× before), from the deep seated hip bend, which linear skinning handles poorly. `validate.py` also measures how far the leggings and briefs pass into the suit (`legs_into_body_p995_max_m`). That reading is high in every walking animation too (45 mm in Walk, 73 mm in Run) because it counts the tops of the briefs and leggings tucked up under the hem, which are never seen; for the sit it fell from 75 to 46 mm.
 
 In every animation the gloves stay tucked into the sleeves: within a clip the sleeve-to-glove distance changes by at most 0.4 mm. The glove-into-body check counts only points within 4 cm of the body surface. The hooves reach about 19 cm past the wrist, and without that limit, hoof tips far from the body that happened to lie behind a surface's normal plane were counted as deep penetrations.
 
@@ -240,8 +242,8 @@ In every animation the gloves stay tucked into the sleeves: within a clip the sl
 | Check | v09 | v10 |
 |---|---|---|
 | Arms and gloves into the udder cups or torso, 99.5th percentile | not measured | 0 mm in all four phases |
-| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.7 mm at the bottom of the Wiggle squat |
-| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 1.99× |
+| Teats into the belly, 99.5th percentile | not measured | 0 mm, except 2.5 mm at the bottom of the Wiggle squat |
+| Torso edge stretch, 99.9th percentile, worst frame | 4.08× | 2.00× |
 | Sleeve edge stretch, 99.9th percentile, worst frame | 12.85× | 2.56× |
 | Sleeve end to glove distance, at rest and at the worst frame | not measured | 17.3 mm at rest, 17.6 mm at the worst frame (the mitten is slimmer than the sleeve end, which sits loosely round its wrist; 25.8 mm with the previous gloves) |
 | Glove into body, 99.5th percentile | not measured | 0 mm in all four phases |

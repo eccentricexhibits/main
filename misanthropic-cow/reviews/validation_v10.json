@@ -34,7 +34,9 @@
       "tail_lowest_point_m": 0.4757848083972931,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.0
+      "legs_into_body_p995_max_m": 0.0,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.0
     },
     "Walk": {
       "joints": 58,
@@ -63,7 +65,9 @@
       "tail_lowest_point_m": 0.4266284704208374,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.03855037054046975
+      "legs_into_body_p995_max_m": 0.03855037054046975,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.03552437970414746
     },
     "Run": {
       "joints": 58,
@@ -92,7 +96,9 @@
       "tail_lowest_point_m": 0.43990403413772583,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.016485255062580285,
-      "legs_into_body_p995_max_m": 0.06562155485153198
+      "legs_into_body_p995_max_m": 0.06562155485153198,
+      "visible_body_into_legs_p995_max_m": 0.010880355685949694,
+      "visible_legs_into_body_p995_max_m": 0.06522992443293324
     },
     "Sneak": {
       "joints": 58,
@@ -121,7 +127,9 @@
       "tail_lowest_point_m": 0.4402640163898468,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.021150791794061773,
-      "legs_into_body_p995_max_m": 0.06556320935487747
+      "legs_into_body_p995_max_m": 0.06556320935487747,
+      "visible_body_into_legs_p995_max_m": 0.021150791794061773,
+      "visible_legs_into_body_p995_max_m": 0.06532146781682968
     },
     "Jumping Jacks": {
       "joints": 58,
@@ -150,7 +158,9 @@
       "tail_lowest_point_m": 0.39980000257492065,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.03778046742081642
+      "legs_into_body_p995_max_m": 0.03778046742081642,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.026537509448826088
     },
     "Look Around": {
       "joints": 58,
@@ -179,7 +189,9 @@
       "tail_lowest_point_m": 0.47130143642425537,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.061092328280210495
+      "legs_into_body_p995_max_m": 0.061092328280210495,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.0
     },
     "Chicken Dance": {
       "joints": 58,
@@ -224,7 +236,9 @@
       "tail_lowest_point_m": 0.38547658920288086,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.006469682399183574,
-      "legs_into_body_p995_max_m": 0.019854420004412513
+      "legs_into_body_p995_max_m": 0.019854420004412513,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.015412542037665844
     },
     "Depressed Walk": {
       "joints": 58,
@@ -253,7 +267,9 @@
       "tail_lowest_point_m": 0.42974528670310974,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.009513420388102687,
-      "legs_into_body_p995_max_m": 0.03206593941897137
+      "legs_into_body_p995_max_m": 0.03206593941897137,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.029475688934326172
     },
     "Sit Cross-Legged": {
       "joints": 58,
@@ -282,7 +298,9 @@
       "tail_lowest_point_m": -0.0004133358597755432,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.008824735134840037,
-      "legs_into_body_p995_max_m": 0.06574643924832337
+      "legs_into_body_p995_max_m": 0.06574643924832337,
+      "visible_body_into_legs_p995_max_m": 0.0031253328267485335,
+      "visible_legs_into_body_p995_max_m": 0.01563653163611889
     },
     "Crying": {
       "joints": 58,
@@ -312,7 +330,9 @@
       "tail_lowest_point_m": 0.4458792507648468,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.006304515488446172,
-      "legs_into_body_p995_max_m": 0.015075490130111547
+      "legs_into_body_p995_max_m": 0.015075490130111547,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.011476698331534863
     },
     "Exasperated": {
       "joints": 58,
@@ -342,7 +362,9 @@
       "tail_lowest_point_m": 0.47023242712020874,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.05278845606371759
+      "legs_into_body_p995_max_m": 0.05278845606371759,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.0
     },
     "Idle (alt)": {
       "joints": 58,
@@ -372,7 +394,9 @@
       "tail_lowest_point_m": 0.45994389057159424,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0,
-      "legs_into_body_p995_max_m": 0.006278155837208033
+      "legs_into_body_p995_max_m": 0.006278155837208033,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.0035673574847168337
     },
     "Walk (alt)": {
       "joints": 58,
@@ -401,7 +425,9 @@
       "tail_lowest_point_m": 0.42235586047172546,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0033905974775557315,
-      "legs_into_body_p995_max_m": 0.03248113337904207
+      "legs_into_body_p995_max_m": 0.03248113337904207,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.029424306005239487
     },
     "Run (alt)": {
       "joints": 58,
@@ -430,7 +456,9 @@
       "tail_lowest_point_m": 0.4203717112541199,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.019178954884410238,
-      "legs_into_body_p995_max_m": 0.05550594916567201
+      "legs_into_body_p995_max_m": 0.05550594916567201,
+      "visible_body_into_legs_p995_max_m": 0.006739838179201232,
+      "visible_legs_into_body_p995_max_m": 0.05510407408699374
     },
     "Sneak (alt)": {
       "joints": 58,
@@ -459,7 +487,9 @@
       "tail_lowest_point_m": 0.4391036033630371,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.020030023530125705,
-      "legs_into_body_p995_max_m": 0.05678030315786597
+      "legs_into_body_p995_max_m": 0.05678030315786597,
+      "visible_body_into_legs_p995_max_m": 0.015468637496233253,
+      "visible_legs_into_body_p995_max_m": 0.05644393131136889
     },
     "Jumping Jacks (alt)": {
       "joints": 58,
@@ -488,7 +518,9 @@
       "tail_lowest_point_m": 0.40779998898506165,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.00027331792749474217,
-      "legs_into_body_p995_max_m": 0.027255145832896233
+      "legs_into_body_p995_max_m": 0.027255145832896233,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.023573049586266128
     },
     "Look Around (alt)": {
       "joints": 58,
@@ -518,7 +550,9 @@
       "tail_lowest_point_m": 0.4599916338920593,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.0015501977922394898,
-      "legs_into_body_p995_max_m": 0.05641690447926488
+      "legs_into_body_p995_max_m": 0.05641690447926488,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.003545128295663682
     },
     "Chicken Dance (alt)": {
       "joints": 58,
@@ -563,7 +597,9 @@
       "tail_lowest_point_m": 0.3904407024383545,
       "tail_cord_into_legs_max_m": 0.0,
       "body_into_legs_p995_max_m": 0.011095815226435672,
-      "legs_into_body_p995_max_m": 0.024266767539083835
+      "legs_into_body_p995_max_m": 0.024266767539083835,
+      "visible_body_into_legs_p995_max_m": 0.0,
+      "visible_legs_into_body_p995_max_m": 0.014892034227959806
     }
   }
 }
