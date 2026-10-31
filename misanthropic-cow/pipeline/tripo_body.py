@@ -228,9 +228,23 @@ BOW = np.array(_d['bow'], float)
 BOW[1] = float(torso_y(BOW[1]))
 
 
+# Round 20: a pose with the arms lifted, to show the fur under them (build with COW_ARM_RAISE=<degrees>): each
+# arm turns straight up and out about its shoulder pivot.
+import os as _os
+ARM_RAISE = float(_os.environ.get('COW_ARM_RAISE', 0))
+
+
+def arm_rotation(s):
+    """(rotation matrix, pivot) taking the A-pose arm to the lifted one."""
+    a = np.deg2rad(s * ARM_RAISE)
+    c, sn = np.cos(a), np.sin(a)
+    return np.array([[c, -sn, 0], [sn, c, 0], [0, 0, 1]]), np.array(ARM[s][0], float)
+
+
 def arm_points(s):
     sh, el, wr, _ = ARM[s]
-    return np.array(sh, float), np.array(el, float), np.array(wr, float)
+    R, piv = arm_rotation(s)
+    return tuple((np.asarray(v, float) - piv) @ R.T + piv for v in (sh, el, wr))
 
 
 def _seg(p, a, b):

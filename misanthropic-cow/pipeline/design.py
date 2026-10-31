@@ -264,13 +264,36 @@ def head_parts(p):
     return {'hood': hood, 'tube': S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)}
 
 
+def _shoulder_warp(p):
+    """With the arms lifted, the suit's shoulder caps turn with the arms.  Round each shoulder pivot (front view),
+    the body's side straight below it stays put, the cap turns with the arm, and the armpit between them
+    stretches; the shoulder's top bunches a little.  The torso is evaluated at each point's A-pose place."""
+    q = p.copy()
+    lo, top = np.deg2rad(-105), np.deg2rad(100)
+    for s in (1, -1):
+        R, piv = TB.arm_rotation(s)
+        th = s * np.arctan2(R[1, 0], R[0, 0])                           # the lift, positive
+        sh, el, _ = (np.asarray(v, float) for v in TB.ARM[s][:3])
+        arm = np.arctan2(el[1] - sh[1], s * (el[0] - sh[0]))           # the A-pose arm's direction
+        dx, dy = s * (p[..., 0] - piv[0]), p[..., 1] - piv[1]
+        r = np.hypot(dx, dy)
+        phi = np.arctan2(dy, dx)
+        side = (s * p[..., 0] > abs(piv[0]) - .10)
+        src = np.interp(phi, [-np.pi, lo, arm + th, top, np.pi], [-np.pi, lo, arm, top, np.pi])
+        w = np.clip((.26 - r) / .08, 0, 1) * side
+        phi2 = phi + (src - phi) * w
+        q[..., 0] = np.where(side, piv[0] + s * r * np.cos(phi2), q[..., 0])
+        q[..., 1] = np.where(side, piv[1] + r * np.sin(phi2), q[..., 1])
+    return q
+
+
 def tripo_suit_parts(p, torso_only=False):
     """Round 19: the torso is Tripo's (with its shoulder caps), finished as the costume is worn: the neck
     tucks into the neckline, the back-fat roll carries the bow, the hem is round 18's bowl.  The sleeves
     are tubes along Tripo's arms; the hood and horn tube are as before."""
     out = {}
     x, z = p[..., 0], p[..., 2]
-    torso = TB.stuffed_torso_sdf(p)
+    torso = TB.stuffed_torso_sdf(_shoulder_warp(p) if TB.ARM_RAISE else p)
     # the shoulders slope away from the neck (the approved views): Tripo's hood drape is cut off, so the neck
     # stands clear of the shoulders and the head sits up on it instead of sinking into a raised collar
     zn = -.030 + HEAD_DZ

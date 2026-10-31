@@ -224,7 +224,7 @@ def _spot_image(name):
     key = ('spot', name)
     if key not in _cache:
         v = view(name)
-        white = ((v.L > 140) & (v.sat < 70)).astype(np.float32)
+        white = ((v.L > 95) & (v.sat < 70)).astype(np.float32)          # paint in shade is mid grey; the leggings are under 40
         white[:int(v.row(.745))] = 0                        # the briefs' lace above the leg line is not paint
         white[int(v.row(.19)):] = 0                         # nor the slippers below the socks' cuffs
         if name in HANDS:
@@ -270,3 +270,180 @@ def project_spots(p, n, occ, leg_extent):
         if m.any():
             res[m] = _blend(p[m], n[m], occ, sample, ('front', 'back', sv))
     return np.clip((res - .3) / .4, 0, 1)
+
+
+# ------------------------------------------------------------------------------------ spots as decals
+# Round 20: each painted spot is taken whole from the view that sees it most squarely and laid onto the leg as a
+# decal: around the spot's centre the leg is unwrapped (arc length round the leg, height up it) and the view's
+# picture is mapped on with the linear map the view has there.  A spot seen at a glancing angle in its view is
+# so un-foreshortened properly instead of being smeared across the side of the leg, and every spot keeps the
+# drawing's own brushed outline.
+MIN_SPOT_PX = 40
+
+
+def _leg_pixel(name, q, leg_extent):
+    """Image (row, col) of leggings points q in view name, matching the model's leg to the drawing's leg row by
+    row; ok marks points with a match."""
+    v = view(name)
+    rf = v.row(q[:, 1])
+    rows = np.clip(np.rint(rf).astype(int), 0, v.h - 1)
+    segs = _leg_rows(name)[rows]
+    side = np.where(q[:, 0] > 0, 1, -1)
+    if name in ('front', 'back'):
+        first = (side < 0) == (v.sign > 0)
+        seg = np.where(first[:, None], segs[:, 0], segs[:, 1])
+    else:
+        seg = segs[:, 0]
+    lo, hi = np.zeros(len(q)), np.zeros(len(q))
+    for sd in (1, -1):
+        m = side == sd
+        if (name, sd) in leg_extent and m.any():
+            ys, l_, h_ = leg_extent[(name, sd)]
+            lo[m], hi[m] = np.interp(q[m, 1], ys, l_), np.interp(q[m, 1], ys, h_)
+    ok = np.isfinite(seg).all(1) & (hi - lo > 1e-3)
+    u = (q[:, v.hax] - lo) / np.maximum(hi - lo, 1e-9)
+    if v.sign < 0:
+        u = 1 - u
+    col = seg[:, 0] + u * (seg[:, 1] - seg[:, 0])
+    return rf, col, ok
+
+
+def _leg_axis(pts):
+    """Per side, the leg's centre (x, z) by height, for unwrapping round the leg."""
+    out = {}
+    ys = np.arange(.15, .80, .02)
+    for sd in (1, -1):
+        q = pts[pts[:, 0] * sd > 0]
+        cx, cz = [], []
+        for y in ys:
+            s = q[np.abs(q[:, 1] - y) < .012]
+            cx.append(s[:, 0].mean() if len(s) else np.nan); cz.append(s[:, 2].mean() if len(s) else np.nan)
+        cx, cz = np.array(cx), np.array(cz)
+        ok = np.isfinite(cx)
+        out[sd] = (ys[ok], cx[ok], cz[ok])
+    return out
+
+
+def _unwrap(q, c, axis):
+    """(u, v) of points q relative to centre c: arc length round the leg (counter-clockwise seen from above) and
+    height."""
+    ys, cx, cz = axis
+    ax, az = np.interp(q[:, 1], ys, cx), np.interp(q[:, 1], ys, cz)
+    a0x, a0z = np.interp(c[1], ys, cx), np.interp(c[1], ys, cz)
+    ang = np.arctan2(q[:, 2] - az, q[:, 0] - ax)
+    ang0 = np.arctan2(c[2] - a0z, c[0] - a0x)
+    r0 = np.hypot(c[2] - a0z, c[0] - a0x)
+    da = (ang - ang0 + np.pi) % (2 * np.pi) - np.pi
+    return r0 * da, q[:, 1] - c[1]
+
+
+def _spot_labels(name):
+    """Connected spots of a view, only inside the drawing's legs (the white backdrop beside them is not paint)."""
+    key = ('spotlab', name)
+    if key not in _cache:
+        v = view(name)
+        segs = _leg_rows(name)
+        legs = np.zeros((v.h, v.w), bool)
+        for r in range(v.h):
+            for k in range(2):
+                a, b = segs[r, k]
+                if np.isfinite(a) and np.isfinite(b):
+                    legs[r, int(a):int(b) + 1] = True
+        legs = ndimage.binary_dilation(legs, iterations=3)
+        # the backdrop seen between the legs (and between near and far leg in the side views) is not paint
+        bg = ndimage.binary_dilation((v.L > 246) & (v.sat < 10), iterations=2)
+        img = _spot_image(name) * legs * ~bg
+        lab, nl = ndimage.label(img > .35)
+        _cache[key] = (img.astype(np.float32), lab, nl)
+    return _cache[key]
+
+
+def spot_decals(pts, nrm, occ, leg_extent):
+    """Find every spot in the four views, place it on the leg, and keep each spot once (from the view facing it
+    most squarely).  pts/nrm: leggings surface samples."""
+    axes = _leg_axis(pts)
+    found = []
+    for name in ('front', 'back', 'left', 'right'):
+        v = view(name)
+        img, lab, nl = _spot_labels(name)
+        if not nl:
+            continue
+        sel = np.ones(len(pts), bool)
+        if name == 'left':
+            sel = pts[:, 0] > 0
+        elif name == 'right':
+            sel = pts[:, 0] <= 0
+        q, nq = pts[sel], nrm[sel]
+        face = nq @ v.cam
+        vis = occ.visible(name, q) & (face > .15)
+        rf, col, ok = _leg_pixel(name, q, leg_extent)
+        ok &= vis & (q[:, 1] > .20) & (q[:, 1] < .735)
+        col = np.where(ok, col, 0.)
+        ri, ci = np.clip(np.rint(rf).astype(int), 0, v.h - 1), np.clip(np.rint(col).astype(int), 0, v.w - 1)
+        hit = np.where(ok, lab[ri, ci], 0)
+        sizes = ndimage.sum(np.ones_like(img), lab, np.arange(1, nl + 1))
+        for i in range(1, nl + 1):
+            if sizes[i - 1] < MIN_SPOT_PX:
+                continue
+            sl = ndimage.find_objects((lab == i).astype(int))[0]
+            bh, bw = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+            if sizes[i - 1] / (bh * bw) < .22 and max(bh, bw) > 25:     # a thin sliver (an edge highlight), not paint
+                continue
+            f = np.flatnonzero(hit == i)
+            if len(f) < 4:
+                continue
+            w = face[f] ** 2
+            c = (w[:, None] * q[f]).sum(0) / w.sum()
+            c = q[f][np.argmin(np.linalg.norm(q[f] - c, axis=1))]          # on the surface
+            nc = (w[:, None] * nq[f]).sum(0); nc /= np.linalg.norm(nc)
+            sd = 1 if c[0] > 0 else -1
+            # the view's linear map at the centre: d(row, col) / d(u, v), u round the leg, v up it
+            axis = axes[sd]
+            a0x, a0z = np.interp(c[1], axis[0], axis[1]), np.interp(c[1], axis[0], axis[2])
+            radial = np.array([c[0] - a0x, 0, c[2] - a0z]); radial /= np.linalg.norm(radial)
+            t1 = np.array([-radial[2], 0, radial[0]])                       # counter-clockwise seen from above
+            e = .004
+            r0, c0, _ = _leg_pixel(name, c[None], leg_extent)
+            r1, c1, _ = _leg_pixel(name, (c + e * t1)[None], leg_extent)
+            r2, c2, _ = _leg_pixel(name, (c + [0, e, 0])[None], leg_extent)
+            J = np.array([[r1[0] - r0[0], r2[0] - r0[0]], [c1[0] - c0[0], c2[0] - c0[0]]]) / e
+            full = 1 / v.k
+            gs = J[1, 0]
+            if abs(gs) < .35 * full:                                        # at most ~3x un-foreshortening
+                J[1, 0] = np.sign(gs if gs != 0 else 1) * .35 * full
+            J[1, 1] = np.clip(J[1, 1], -.4 * full, .4 * full)               # little shear where the legs widen
+            ys_, xs_ = np.nonzero(lab == i)
+            reach = np.hypot((ys_ - r0[0]).max() - (ys_ - r0[0]).min(), (xs_ - c0[0]).max() - (xs_ - c0[0]).min()) * v.k
+            found.append(dict(view=name, label=i, c=c, n=nc, side=sd, face=float(np.median(face[f])), row=r0[0], col=c0[0],
+                              J=J, reach=float(np.clip(reach * 1.3 / max(abs(J[1, 0]) / full, .35), .03, .13)), area=sizes[i - 1] * v.k ** 2))
+    # one decal per spot: drop a spot already taken from a view that faces it more squarely
+    found.sort(key=lambda d: -d['face'])
+    keep = []
+    for d in found:
+        if any(k['side'] == d['side'] and np.linalg.norm(k['c'] - d['c']) < .5 * min(k['reach'], d['reach'], .06) for k in keep):
+            continue
+        keep.append(d)
+    for d in keep:
+        d['axis'] = axes[d['side']]
+        img, lab, _ = _spot_labels(d['view'])
+        own = ndimage.binary_dilation(lab == d['label'], iterations=4)
+        d['img'] = (img * own).astype(np.float32)
+    return keep
+
+
+def paint_decals(p, n, decals):
+    """How white (0..1) the paint is at points p from the spot decals."""
+    out = np.zeros(len(p))
+    for d in decals:
+        side = (p[:, 0] > 0) if d['side'] > 0 else (p[:, 0] <= 0)
+        near = side & (np.linalg.norm(p - d['c'], axis=1) < d['reach']) & (n @ d['n'] > -.2)
+        near &= (p[:, 1] > .20) & (p[:, 1] < .745)
+        if not near.any():
+            continue
+        u, w = _unwrap(p[near], d['c'], d['axis'])
+        r = d['row'] + d['J'][0, 0] * u + d['J'][0, 1] * w
+        c = d['col'] + d['J'][1, 0] * u + d['J'][1, 1] * w
+        val = _bilinear(d['img'], r, c)
+        fade = np.clip((.735 - p[near, 1]) / .02, 0, 1)
+        out[near] = np.maximum(out[near], val * fade)
+    return np.clip((out - .3) / .4, 0, 1)

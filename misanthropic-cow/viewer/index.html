@@ -47,6 +47,8 @@ h1 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .row .label { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); width: 64px; flex: none; }
 .row .note { flex: 1 1 200px; }
+.row .slider { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); }
+.row .slider input { width: 110px; }
 button:disabled { opacity: .45; cursor: default; }
 button { font: 500 14px/1 var(--body); color: var(--ink); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
 button:hover { border-color: var(--ink-soft); }
@@ -81,7 +83,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 19 preview &middot; round 18 animated &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 20 preview &middot; round 18 animated &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
@@ -90,18 +92,19 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <div class="phase-now" id="phaseNow">Chicken dance</div>
         <div class="figlabel" id="lab17" hidden>Round 17</div>
         <div class="figlabel" id="lab18" hidden>Round 18</div>
-        <div class="figlabel" id="lab19" hidden>Round 19</div>
+        <div class="figlabel" id="lab20" hidden>Round 20</div>
         <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
       </div>
 
       <div class="row" id="versions">
         <span class="label">Compare</span>
-        <button data-ver="r19" aria-pressed="false" disabled>Round 19</button>
+        <button data-ver="r20" aria-pressed="false" disabled>Round 20</button>
         <button data-ver="r18" aria-pressed="true" disabled>Round 18</button>
         <button data-ver="r17" aria-pressed="false" disabled>Round 17</button>
-        <button data-ver="side" aria-pressed="false" disabled>18 | 19 side by side</button>
-        <button data-ver="overlay" aria-pressed="false" disabled>19 over 18</button>
+        <button data-ver="side" aria-pressed="false" disabled>18 | 20 side by side</button>
+        <button data-ver="overlay" aria-pressed="false" disabled>20 over 18</button>
         <button id="guides" aria-pressed="false" disabled>Height lines</button>
+        <button id="arms" aria-pressed="false" disabled title="Round 20 with its arms lifted, to show the fur under them">Arms raised</button>
         <span class="note" id="verNote">Round 18, animated.</span>
       </div>
 
@@ -160,8 +163,31 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-light="studio" aria-pressed="true">Studio</button>
         <button data-light="soft" aria-pressed="false">Soft</button>
         <button data-light="spot" aria-pressed="false">Spotlight</button>
+        <button data-light="daylight" aria-pressed="false">Daylight</button>
+        <button data-light="golden" aria-pressed="false">Golden hour</button>
+        <button data-light="night" aria-pressed="false">Moonlight</button>
+        <button data-light="stage" aria-pressed="false">Stage</button>
+        <button data-light="backlit" aria-pressed="false">Backlit</button>
         <button data-light="none" aria-pressed="false">No lighting</button>
         <span class="note" id="lightNote">Key and rim lights over a soft room reflection.</span>
+      </div>
+
+      <div class="row" id="lightAdjust">
+        <span class="label">Adjust</span>
+        <label class="slider">Brightness <input type="range" id="exposure" min="0.3" max="2.2" step="0.01" value="1" aria-label="Brightness"></label>
+        <label class="slider">Turn lights <input type="range" id="lightTurn" min="-180" max="180" step="1" value="0" aria-label="Turn the lights round the figure (degrees)"></label>
+        <label class="slider">Light height <input type="range" id="lightHeight" min="-35" max="35" step="1" value="0" aria-label="Raise or lower the lights (degrees)"></label>
+        <button id="shadows" aria-pressed="false">Cast shadows</button>
+        <button id="lightReset">Reset</button>
+      </div>
+
+      <div class="row" id="backdrops">
+        <span class="label">Backdrop</span>
+        <button data-bg="auto" aria-pressed="true">With the light</button>
+        <button data-bg="pink" aria-pressed="false">Pink</button>
+        <button data-bg="grey" aria-pressed="false">Grey</button>
+        <button data-bg="white" aria-pressed="false">White</button>
+        <button data-bg="dark" aria-pressed="false">Dark</button>
       </div>
 
       <div class="row">
@@ -175,7 +201,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Round 19 (static preview, revised):</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revisions answer your notes. The head sits up on a visible throat, looking ahead, the hood falls straight from the crown to the shoulders at the back, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle, over a round seat in the briefs; the bow sits just above the hem. Under the suit there is a person: the hips and thighs are a wearer's own, meeting in a soft groin crease. The udders are pink cloth panels sewn into holes in the fur and stuffed from behind, so they swell out of the suit with flush, stitched edges. The lower legs taper cleanly to a slim ankle, the heels stand on the slippers' footbeds, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 18 under the picture.</li>
+          <li><strong>Round 20 (static preview):</strong> <em>Arms raised</em> (next to Compare) shows the same model with its arms lifted, so you can see the black fur under them; the suit's shoulders turn with the arms and the armpits stretch like the real suit's. The white spots on the leggings are now each taken whole from the approved view that sees them most squarely, with the drawing's own brushed outline, and laid round the leg (spots seen side-on are no longer smeared or squashed). Lighting has five new rigs (Daylight, Golden hour, Moonlight, Stage, Backlit) and an <em>Adjust</em> row: brightness, turning the lights round the figure, raising or lowering them, cast shadows, and a choice of backdrop.</li>
+          <li>Round 19 &middot; <strong>The new body:</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revisions answer your notes. The head sits up on a visible throat, looking ahead, the hood falls straight from the crown to the shoulders at the back, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle, over a round seat in the briefs; the bow sits just above the hem. Under the suit there is a person: the hips and thighs are a wearer's own, meeting in a soft groin crease. The udders are pink cloth panels sewn into holes in the fur and stuffed from behind, so they swell out of the suit with flush, stitched edges. The lower legs taper cleanly to a slim ankle, the heels stand on the slippers' footbeds, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 18 under the picture.</li>
           <li>Last round &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Use <em>Compare</em> under the picture to see round 17 in place, side by side or as a ghost, with height lines for the crotch <span class="swatch" style="background:#3f73e0"></span>before and <span class="swatch" style="background:#d23a4a"></span>after.</li>
           <li>Earlier &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
           <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
@@ -258,7 +285,7 @@ const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
 // Before/after: round 17 loads on first use and plays the same clip at the same time as round 18.
 let mainRoot = null, version = 'r18', guidesOn = false, currentView = 'front';
 const SIDE_X = 0.47;                       // side by side: the earlier round on the left, the later on the right (from the front)
-const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r19: document.getElementById('lab19') };
+const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r20: document.getElementById('lab20') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -272,21 +299,44 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
 // The model carries colour only, with no shading baked in, so all of its light and shadow comes from
 // the rig chosen here, the way it would in a game engine or renderer.
-const key = new THREE.DirectionalLight(0xfff1e8, 1.6); key.position.set(-1.2, 2.4, 2.2); scene.add(key);
-const rim = new THREE.DirectionalLight(0xffc6dc, 1.1); rim.position.set(1.6, 1.8, -2.0); scene.add(rim);
+const key = new THREE.DirectionalLight(0xfff1e8, 1.6); key.position.set(-1.2, 2.4, 2.2); scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xffc6dc, 1.1); rim.position.set(1.6, 1.8, -2.0); scene.add(rim, rim.target);
+const fill = new THREE.DirectionalLight(0xffffff, 0); scene.add(fill, fill.target);
 const hemi = new THREE.HemisphereLight(0xffffff, 0x6a4a5a, 0.35); scene.add(hemi);
+key.target.position.set(0, 0.85, 0); rim.target.position.set(0, 0.85, 0); fill.target.position.set(0, 0.85, 0);
+// the key light can cast real shadows (Cast shadows), over the figure and the floor
+key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
+Object.assign(key.shadow.camera, { left: -1.4, right: 1.4, top: 2.1, bottom: -0.5, near: 0.5, far: 9 });
 const spot = new THREE.SpotLight(0xfff4ea, 26, 9, Math.PI / 7.5, 0.5, 2);
 spot.position.set(-0.9, 3.3, 1.7); spot.target.position.set(0, 0.85, 0);
 spot.castShadow = true; spot.shadow.mapSize.set(2048, 2048); spot.shadow.bias = -0.0003; spot.shadow.normalBias = 0.015;
 scene.add(spot, spot.target);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// Each light: intensity, colour, and direction (azimuth round the figure from the front, elevation), in degrees.
 const LIGHTS = {
-  studio: { env: 1, key: 1.6, rim: 1.1, hemi: 0.35, spot: false, note: 'Key and rim lights over a soft room reflection.' },
-  soft:   { env: 1.2, key: 0, rim: 0, hemi: 1.1, spot: false, note: 'Even light from every side, with no direction.' },
-  spot:   { env: 0.2, key: 0, rim: 0.35, hemi: 0.12, spot: true, note: 'One spotlight from above and in front, casting real shadows on the body and the floor.' },
-  none:   { unlit: true, note: 'Colours only: no lighting or shading at all.' },
+  studio:   { env: 1, key: [1.6, 0xfff1e8, -29, 44], rim: [1.1, 0xffc6dc, 141, 35], hemi: [0.35, 0xffffff, 0x6a4a5a], bg: 'pink',
+              note: 'Key and rim lights over a soft room reflection.' },
+  soft:     { env: 1.2, hemi: [1.1, 0xffffff, 0x6a4a5a], bg: 'pink', note: 'Even light from every side, with no direction.' },
+  spot:     { env: 0.2, rim: [0.35, 0xffc6dc, 141, 35], hemi: [0.12, 0xffffff, 0x6a4a5a], spot: true, bg: 'pink',
+              note: 'One spotlight from above and in front, casting real shadows on the body and the floor.' },
+  daylight: { env: 0.55, exposure: 1.0, key: [2.6, 0xfff4e0, -40, 55], fill: [0.35, 0xcfe0ff, 120, 20], hemi: [0.6, 0xbcd8ff, 0x8a7a60], shadows: true, bg: 'sky',
+              note: 'Midday sun from high in front, with a blue sky overhead; the sun casts shadows.' },
+  golden:   { env: 0.3, exposure: 1.1, key: [2.4, 0xffa25a, -70, 12], rim: [0.9, 0xa58bff, 125, 22], hemi: [0.28, 0xffc9a0, 0x3c2c55], shadows: true, bg: 'sunset',
+              note: 'A low, warm evening sun from the side, a violet sky behind.' },
+  night:    { env: 0.12, exposure: 1.25, key: [1.0, 0x9fb8ff, 40, 50], rim: [1.0, 0x6f8cff, 160, 25], hemi: [0.14, 0x223355, 0x0a0a14], shadows: true, bg: 'night',
+              note: 'Cool moonlight from above, with a blue rim.' },
+  stage:    { env: 0.15, rim: [1.7, 0xff3fb4, 125, 22], fill: [1.7, 0x3fd8ff, -125, 22], hemi: [0.08, 0xffffff, 0x220011], spot: true, bg: 'dark',
+              note: 'A white spotlight with magenta and cyan side lights, as on a stage.' },
+  backlit:  { env: 0.3, key: [0.4, 0xfff1e8, -20, 18], rim: [2.8, 0xfff1e0, 180, 30], hemi: [0.3, 0xffffff, 0x5a4a5a], bg: 'white',
+              note: 'Strong light from behind for a bright outline, with little in front: the shag and the fuzz show at the edges.' },
+  none:     { unlit: true, note: 'Colours only: no lighting or shading at all.' },
 };
-let lightMode = 'studio', clayOn = false;
+const BACKDROPS = {
+  pink: null,
+  grey: ['#d9d9de', '#8d8d96'], white: ['#ffffff', '#e4e4e8'], dark: ['#26222a', '#060507'],
+  sky: ['#cfe6ff', '#8fb6e0'], sunset: ['#ffcf9a', '#6a4a8a'], night: ['#1c2a48', '#05070d'],
+};
+let lightMode = 'studio', clayOn = false, lightTurn = 0, lightHeight = 0, exposure = 1, shadowsOn = false, bgChoice = 'auto';
 
 // soft floor shadow
 const sh = document.createElement('canvas'); sh.width = sh.height = 128;
@@ -402,7 +452,7 @@ async function start() {
   selectClip('Chicken Dance');
   status.hidden = true;
   document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; });
-  setVersion('r19');                // open on the newest round
+  setVersion('r20');                // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -421,15 +471,20 @@ function prepare(root, list, rest) {
   });
 }
 
-// Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 19 is a
+// Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 20 is a
 // static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before.
 const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
-               r19: { file: 'cow-r19-meshopt', mb: 12.7, f: null, loading: null } };
+               r20: { file: 'cow-r20-meshopt', mb: 12.7, f: null, loading: null, name: '20' },
+               r20up: { file: 'cow-r20-up-meshopt', mb: 12.9, f: null, loading: null, name: '20 (arms raised)' } };
+// round 20 can stand with its arms lifted (a second static model, swapped in its place)
+let armsUp = false;
+const figKey = k => (k === 'r20' && armsUp) ? 'r20up' : k;
+const ALLK = ['r17', 'r18', 'r20', 'r20up'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
   if (F.loading) return F.loading;
-  status.hidden = false; status.textContent = `Loading round ${key.slice(1)} (${F.mb} MB)...`;
+  status.hidden = false; status.textContent = `Loading round ${F.name || key.slice(1)} (${F.mb} MB)...`;
   document.querySelectorAll('#versions button').forEach(b => { b.disabled = true; });
   F.loading = load(F.file, true).then(gltf => {
     const f = { root: gltf.scene, meshes: [], rest: [], clips: {}, action: null };
@@ -442,14 +497,14 @@ function ensureFig(key) {
     status.hidden = true;
     return f;
   }).catch(err => {
-    status.textContent = `Round ${key.slice(1)} could not be loaded: ` + err.message;
+    status.textContent = `Round ${F.name || key.slice(1)} could not be loaded: ` + err.message;
     F.loading = null;
     return null;
   }).finally(() => { document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; }); });
   return F.loading;
 }
 // the other rounds follow round 18's clip; their time is copied every frame, so scrubbing and pausing stay in step
-// (round 19 has no clips yet and keeps its default pose)
+// (round 20 has no clips yet and keeps its default pose)
 function syncFigClips() {
   for (const F of Object.values(FIGS)) {
     const f = F.f;
@@ -465,23 +520,25 @@ function syncFigClips() {
 }
 // which rounds each mode shows, where (x), and which one is a ghost
 const MODES = {
-  r19: { show: { r19: 0 }, note: 'Round 19 (revised): head up and looking ahead, the hood falling straight down the back, sloping shoulders, a stuffed round midsection over a round seat, heels on the slippers, natural hips and thighs, udders sewn into the fur, clean shag and spots. A static preview: it stands in the default pose until its rig is rebuilt.' },
+  r20: { show: { r20: 0 }, note: 'Round 20: arms that lift to show the fur under them (Arms raised), the leggings\u2019 spots taken whole from your approved views, and more lighting. A static preview: it stands in the default pose until its rig is rebuilt.' },
   r18: { show: { r18: 0 }, note: 'Round 18, animated.' },
   r17: { show: { r17: 0 }, note: 'Round 17, animated.' },
-  side: { show: { r18: -SIDE_X, r19: SIDE_X }, note: 'Round 18 (left, animated) beside round 19 (right, default pose).' },
-  overlay: { show: { r19: 0, r18: 0 }, ghost: 'r18', note: 'Round 19, with round 18 as a blue ghost. Pick Default pose so both stand the same way.' },
+  side: { show: { r18: -SIDE_X, r20: SIDE_X }, note: 'Round 18 (left, animated) beside round 20 (right, default pose).' },
+  overlay: { show: { r20: 0, r18: 0 }, ghost: 'r18', note: 'Round 20, with round 18 as a blue ghost. Pick Default pose so both stand the same way.' },
 };
 const rootOf = k => k === 'r18' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
 const meshesOf = k => k === 'r18' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
+const modeKey = k => k === 'r20up' ? 'r20' : k;          // where a figure stands in a mode
 async function setVersion(v) {
   const M = MODES[v];
-  for (const k of Object.keys(M.show)) if (k !== 'r18' && !(await ensureFig(k))) return;
+  for (const k of Object.keys(M.show)) if (k !== 'r18' && !(await ensureFig(figKey(k)))) return;
   version = v;
-  for (const k of ['r17', 'r18', 'r19']) {
+  const shownKeys = Object.keys(M.show).map(figKey);
+  for (const k of ALLK) {
     const r = rootOf(k);
     if (!r) continue;
-    r.visible = k in M.show;
-    r.position.x = M.show[k] ?? 0;
+    r.visible = shownKeys.includes(k);
+    r.position.x = M.show[modeKey(k)] ?? 0;
     const ghost = M.ghost === k;
     meshesOf(k).forEach(m => { m.castShadow = !ghost; m.renderOrder = ghost ? 2 : 0; });
   }
@@ -491,9 +548,18 @@ async function setVersion(v) {
   setView(currentView);
   document.querySelectorAll('#versions button[data-ver]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ver === v)));
   document.getElementById('verNote').textContent = M.note;
-  LABELS.r19.textContent = v === 'overlay' ? 'Round 19 \u00b7 blue ghost = round 18' : 'Round 19';
+  const r20name = armsUp ? 'Round 20 \u00b7 arms raised' : 'Round 20';
+  LABELS.r20.textContent = v === 'overlay' ? r20name + ' \u00b7 blue ghost = round 18' : r20name;
+  armsBtn.disabled = !('r20' in M.show);
 }
 document.querySelectorAll('#versions button[data-ver]').forEach(b => b.addEventListener('click', () => setVersion(b.dataset.ver)));
+const armsBtn = document.getElementById('arms');
+armsBtn.addEventListener('click', async () => {
+  armsUp = !armsUp;
+  armsBtn.setAttribute('aria-pressed', String(armsUp));
+  if (!(await ensureFig(figKey('r20')))) { armsUp = !armsUp; armsBtn.setAttribute('aria-pressed', String(armsUp)); return; }
+  await setVersion(version);
+});
 
 // Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
 const GUIDES = [
@@ -501,8 +567,8 @@ const GUIDES = [
   { y: 0.767, color: '#7d8796', text: 'R17 belly 0.77 m', end: -1, round: 'r17' },
   { y: 0.747, color: '#3f73e0', text: 'R18 crotch 0.75 m', end: -1, round: 'r18' },
   { y: 0.840, color: '#3f73e0', text: 'R18 belly 0.84 m', end: -1, round: 'r18' },
-  { y: 0.747, color: '#d23a4a', text: 'R19 crotch 0.75 m', end: 1, round: 'r19', dy: 8 },
-  { y: 0.785, color: '#d23a4a', text: 'R19 belly 0.785 m', end: 1, round: 'r19', dy: -8 },
+  { y: 0.747, color: '#d23a4a', text: 'R20 crotch 0.75 m', end: 1, round: 'r20', dy: 8 },
+  { y: 0.785, color: '#d23a4a', text: 'R20 belly 0.785 m', end: 1, round: 'r20', dy: -8 },
 ];
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
 GUIDES.forEach(gd => {
@@ -543,8 +609,8 @@ function updateOverlays() {
     if (guidesOn && gd.line.visible) place(gd.el, gd.end < 0 ? a : b, gd.end < 0, gd.dy || 0); else gd.el.hidden = true;
   });
   // a label over each figure shown (one label for the overlay)
-  for (const k of ['r17', 'r18', 'r19']) {
-    const r = rootOf(k), l = LABELS[k];
+  for (const k of ['r17', 'r18', 'r20']) {
+    const r = rootOf(figKey(k)), l = LABELS[k];
     const show = r && r.visible && !(version === 'overlay' && k === 'r18') && !(version === k && k === 'r18');
     if (show) { place(l, new THREE.Vector3(r.position.x, 1.86, 0), false); l.style.transform += ' translateX(-50%)'; }
     else l.hidden = true;
@@ -607,25 +673,58 @@ function applyMaterials() {
   const flat = !!LIGHTS[lightMode].unlit;
   const pick = m => clayOn ? (flat ? clayFlat : clayMat) : (flat ? m.userData.flat : m.userData.mat);
   meshes.forEach(m => { m.material = pick(m); });
-  for (const k of ['r17', 'r18', 'r19']) {
+  for (const k of ALLK) {
     const ghost = MODES[version].ghost === k;
     meshesOf(k).forEach(m => { m.material = ghost ? ghostMat : pick(m); });
   }
 }
+function aim(light, az, el, d = 3.2) {
+  const a = THREE.MathUtils.degToRad(az + lightTurn), e = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(el + lightHeight, -10, 88));
+  light.position.set(d * Math.sin(a) * Math.cos(e), 0.85 + d * Math.sin(e), d * Math.cos(a) * Math.cos(e));
+}
+function setBackdrop() {
+  const L = LIGHTS[lightMode];
+  const name = bgChoice === 'auto' ? (L.bg || 'pink') : bgChoice;
+  const c = BACKDROPS[name];
+  stage.style.background = c ? `radial-gradient(120% 90% at 50% 18%, ${c[0]}, ${c[1]})` : '';
+  document.querySelectorAll('#backdrops button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bg === bgChoice)));
+}
 function setLight(name) {
   const L = LIGHTS[name];
+  if (name !== lightMode) shadowsOn = !!L.shadows;
   lightMode = name;
-  key.intensity = L.key ?? 0; rim.intensity = L.rim ?? 0; hemi.intensity = L.hemi ?? 0;
-  key.visible = key.intensity > 0; rim.visible = rim.intensity > 0; hemi.visible = hemi.intensity > 0;
+  for (const [light, spec] of [[key, L.key], [rim, L.rim], [fill, L.fill]]) {
+    light.intensity = spec ? spec[0] : 0; light.visible = light.intensity > 0;
+    if (spec) { light.color.setHex(spec[1]); aim(light, spec[2], spec[3]); }
+  }
+  hemi.intensity = L.hemi ? L.hemi[0] : 0; hemi.visible = hemi.intensity > 0;
+  if (L.hemi) { hemi.color.setHex(L.hemi[1]); hemi.groundColor.setHex(L.hemi[2]); }
   spot.visible = !!L.spot;
-  floor.visible = !L.spot; shadowFloor.visible = !!L.spot;
-  ['r17', 'r18', 'r19'].flatMap(meshesOf).forEach(m => { m.userData.mat.envMapIntensity = m.userData.env * (L.env ?? 0); });
+  aim(spot, -28, 52, 3.1);
+  key.castShadow = shadowsOn && key.visible && !L.spot;
+  const realShadow = !!L.spot || key.castShadow;
+  floor.visible = !realShadow; shadowFloor.visible = realShadow;
+  renderer.toneMappingExposure = 1.05 * (L.exposure ?? 1) * exposure;
+  ALLK.flatMap(meshesOf).forEach(m => { m.userData.mat.envMapIntensity = m.userData.env * (L.env ?? 0); });
   clayMat.envMapIntensity = L.env ?? 0;
   applyMaterials();
+  setBackdrop();
   document.getElementById('lightNote').textContent = L.note;
   document.querySelectorAll('#lights button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.light === name)));
+  const sb = document.getElementById('shadows');
+  sb.setAttribute('aria-pressed', String(realShadow)); sb.disabled = !!L.spot || !L.key || !!L.unlit;
 }
 document.querySelectorAll('#lights button').forEach(b => b.addEventListener('click', () => setLight(b.dataset.light)));
+const expEl = document.getElementById('exposure'), turnEl = document.getElementById('lightTurn'), heightEl = document.getElementById('lightHeight');
+expEl.addEventListener('input', () => { exposure = parseFloat(expEl.value); setLight(lightMode); });
+turnEl.addEventListener('input', () => { lightTurn = parseFloat(turnEl.value); setLight(lightMode); });
+heightEl.addEventListener('input', () => { lightHeight = parseFloat(heightEl.value); setLight(lightMode); });
+document.getElementById('shadows').addEventListener('click', () => { shadowsOn = !shadowsOn; setLight(lightMode); });
+document.getElementById('lightReset').addEventListener('click', () => {
+  exposure = 1; lightTurn = 0; lightHeight = 0; expEl.value = 1; turnEl.value = 0; heightEl.value = 0;
+  shadowsOn = !!LIGHTS[lightMode].shadows; bgChoice = 'auto'; setLight(lightMode);
+});
+document.querySelectorAll('#backdrops button').forEach(b => b.addEventListener('click', () => { bgChoice = b.dataset.bg; setBackdrop(); }));
 const clayBtn = document.getElementById('clay');
 clayBtn.addEventListener('click', () => {
   clayOn = clayBtn.getAttribute('aria-pressed') !== 'true';

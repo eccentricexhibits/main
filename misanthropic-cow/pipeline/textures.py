@@ -192,6 +192,39 @@ def _mask_blobs(cen, area, nrm, m, vox, min_area):
     return out
 
 
+def _markings_cache(key, value, transform):
+    """The arms-down build's markings, reused by the lifted-arms build (COW_MARKINGS_CACHE names the file): the
+    approved views show the arms down, so projecting them onto lifted arms would paint the wrong places.  The
+    sleeve patches turn with the arms instead."""
+    import os, pickle
+    path = os.environ.get('COW_MARKINGS_CACHE')
+    if not path:
+        return value
+    data = {}
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            data = pickle.load(f)
+    if _TB.ARM_RAISE:
+        if key not in data:
+            raise RuntimeError(f'build the arms-down model first: {path} has no {key}')
+        return transform(data[key]) if transform else data[key]
+    if value is not None:
+        data[key] = value
+        with open(path, 'wb') as f:
+            pickle.dump(data, f)
+    return value
+
+
+def _raise_sleeve_blobs(blobs):
+    out = []
+    for c, r, U, piece, bone in blobs:
+        if piece.startswith('sleeve_'):
+            R, piv = _TB.arm_rotation(1 if piece.endswith('L') else -1)
+            c, U = (np.asarray(c) - piv) @ R.T + piv, np.asarray(U) @ R.T
+        out.append((c, r, U, piece, bone))
+    return out
+
+
 def fit_projected_patches(sv, sf, labels, quick=False):
     """Round 19b: the approved views' patches, projected onto the suit, become round 18's kind of patch: a few
     tufted ellipses per patch, drawn by shag_mask and grown with strands, instead of the projection's own
@@ -211,6 +244,7 @@ def fit_projected_patches(sv, sf, labels, quick=False):
         for c, r, U in _mask_blobs(cen[sel], area[sel], fn[sel], m[sel], .012, MIN_PATCH_AREA):
             bone = int(bone_of(c[None], np.array([k]))[0])
             blobs.append((c, r, U, name, bone))
+    blobs = _markings_cache('blobs', blobs, _raise_sleeve_blobs)
     _TRIPO = blobs
     TORSO_PATCHES = [i for i, t in enumerate(blobs) if t[3] == 'torso']
     SLEEVE_PATCHES = {s: [i for i, t in enumerate(blobs) if t[3] == 'sleeve_' + s] for s in 'LR'}
@@ -263,6 +297,8 @@ def patches_for(chart_name):
 def shag_mask(p, which=None):
     """Patch mask whose edges break into hanging tufts (noise stretched along gravity)."""
     m = np.zeros(p.shape[:-1], np.float32)
+    if _TRIPO and _TB.ARM_RAISE and which is not None and list(which) == list(TORSO_PATCHES):
+        p = _D._shoulder_warp(p)          # lifted arms: the patches stay on the same piece of the stretched suit
     nz = N.fbm(p * np.array([30, 9, 30]), 4, seed=3) + .6 * N.fbm(p * np.array([90, 22, 90]), 2, seed=10)
     allp = all_patches()
     for blob in [allp[i] for i in (which if which is not None else range(len(allp)))]:
@@ -298,19 +334,19 @@ def legging_spots(charts_leg, seed=12):
     """Painted spots: round 19 takes them from the approved generated views (markings.leg_spots); before,
     random spots spaced out on the leg charts' surfaces."""
     if PROJECTED:
-        # round 19b: the spots projected from the approved views become painted blobs (an ellipse or a few per
-        # spot), so their edges are clean paint rather than the projection's streaks at the legs' sides
+        # round 20: each spot of the approved views laid on as a decal from the view that sees it most squarely
+        # (approved_views.spot_decals), keeping the drawing's brushed outline
         import approved_views as AV
-        out = []
+        pts, nrm = [], []
         for ch in charts_leg:
             v, f = ch['v'], ch['f']
-            cen = v[f].mean(1)
             fn = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]])
-            area = .5 * np.linalg.norm(fn, axis=1)
-            fn = fn / np.maximum(2 * area[:, None], 1e-12)
-            m = AV.project_spots(cen, fn, _OCC, _LEG_EXTENT)
-            out += [(c, r * np.array([1.06, 1.06, 1.]), U) for c, r, U in _mask_blobs(cen, area, fn, m, .008, MIN_SPOT_AREA)]
-        return out
+            pts.append(v[f].mean(1)); nrm.append(fn / np.maximum(np.linalg.norm(fn, axis=1, keepdims=True), 1e-12))
+        decals = _markings_cache('decals', None, None) if _TB.ARM_RAISE else None
+        if decals is None:
+            decals = AV.spot_decals(np.vstack(pts), np.vstack(nrm), _OCC, _LEG_EXTENT)
+            _markings_cache('decals', decals, None)
+        return lambda p, n: AV.paint_decals(p.reshape(-1, 3), n.reshape(-1, 3), decals).reshape(p.shape[:-1])
     rng = np.random.default_rng(seed)
     spots = []
     for ch in charts_leg:
