@@ -744,6 +744,7 @@ renderer.setAnimationLoop(() => {
     phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
   for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = action.time; F.f.mixer.update(0); }
+  phaseNow.hidden = !('r18' in MODES[version].show || 'r17' in MODES[version].show);   // round 20 has no animation yet
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);

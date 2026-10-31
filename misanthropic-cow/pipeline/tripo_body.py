@@ -20,6 +20,9 @@ _d = np.load(ASSET)
 _H, _LO, _SC = float(_d['h']), _d['origin'], float(_d['scale_m'])
 _BODY = _d['body'].astype(np.float32) * _SC
 _TORSO = _d['torso'].astype(np.float32) * _SC
+# Tripo's surface carries small lumps and wrinkles (a cm-high ridge across the back, among others) that a stuffed
+# fur shell does not have: smooth them out of the torso (about 16 mm), keeping its large shapes
+_TORSO = ndimage.gaussian_filter(_TORSO, 4.0)
 
 # vertical maps, Tripo height -> model height (both monotonic, piecewise linear)
 CROTCH, BELLY, SHOULDER = float(_d['crotch']), float(_d['belly_bottom']), float(_d['shoulder'])
@@ -132,7 +135,8 @@ def _fit():
     wx = 0 * ys       # no width fit: the views' arms hide the torso's sides, and the reading pinched the waist
     a = np.where(np.isfinite(a), a, 1); b = np.where(np.isfinite(b), b, 0); c = np.where(np.isfinite(c), c, 1)
     a, b, c = 1 + (a - 1) * wz, b * wz, 1 + (c - 1) * wx
-    return gaussian_filter1d(a, 2), gaussian_filter1d(b, 2), gaussian_filter1d(c, 2)
+    # smoothed over ~4 cm: the views' outline wobbles where the hanging arms meet the back
+    return gaussian_filter1d(a, 4), gaussian_filter1d(b, 4), gaussian_filter1d(c, 2)
 
 
 _FIT = None
@@ -166,22 +170,24 @@ SACK = np.array([
     [.84,  .249,  .155,  .199],
     [.86,  .266,  .157,  .205],
     [.90,  .296,  .159,  .213],
-    [.94,  .309,  .158,  .218],
-    [.98,  .313,  .156,  .219],
-    [1.02, .306,  .156,  .215],
-    [1.06, .282,  .158,  .209],
-    [1.10, .240,  .160,  .201],
-    [1.14, .195,  .162,  .195]])
+    [.94,  .309,  .160,  .218],
+    [.98,  .313,  .163,  .220],
+    [1.02, .306,  .168,  .218],
+    [1.06, .282,  .172,  .212],
+    [1.10, .228,  .174,  .204],
+    [1.14, .150,  .172,  .194],
+    [1.18, .095,  .150,  .160],
+    [1.22, .075,  .090,  .100]])
 SACK_Z0 = .06
 SACK_EXP = 2.3            # a little squarer than an ellipse: stuffed, not a body
-SACK_BLEND = (1.00, 1.12)
+SACK_BLEND = (1.06, 1.12)        # Tripo's torso starts at the first; the sack runs on up inside the chest
 
 
 def sack_sdf(p):
     y = p[..., 1]
     zf, zb, w = (np.interp(y, SACK[:, 0], SACK[:, i]) for i in (1, 2, 3))
     dz = p[..., 2] - SACK_Z0
-    rz = np.where(dz >= 0, zf - SACK_Z0, zb + SACK_Z0)
+    rz = np.maximum(np.where(dz >= 0, zf - SACK_Z0, zb + SACK_Z0), .005)
     u, v = np.abs(p[..., 0]) / w, np.abs(dz) / rz
     k = SACK_EXP
     rr = (u ** k + v ** k) ** (1 / k)
@@ -189,17 +195,20 @@ def sack_sdf(p):
     return np.maximum(d, SACK[0, 0] + .01 - y)              # closed below (the hem cuts it anyway)
 
 
+def _smin(a, b, k):
+    h = np.clip(.5 + .5 * (b - a) / k, 0, 1)
+    return b * (1 - h) + a * h - k * h * (1 - h)
+
+
 def stuffed_torso_sdf(p):
-    """The fitted Tripo torso above, the stuffed sack below."""
-    lo, hi = SACK_BLEND
-    t = np.clip((hi - p[..., 1]) / (hi - lo), 0, 1)
-    t = t * t * (3 - 2 * t)
-    y = p[..., 1]
-    need = t > 0
-    d = fitted_torso_sdf(p)
-    if need.any():
-        d = np.where(need, d * (1 - t) + sack_sdf(p) * t, d)
-    return d
+    """The fitted Tripo torso above, the stuffed sack below: Tripo's torso ends just under 1 m and the sack, which
+    runs up inside the chest, is joined to it smoothly (a smooth union, so no crease or hollow where they meet)."""
+    f = fitted_torso_sdf(p)
+    cut = SACK_BLEND[0] - p[..., 1]
+    k = .05
+    h = np.clip(.5 - .5 * (cut - f) / k, 0, 1)                         # smooth max(f, cut)
+    f = cut * (1 - h) + f * h + k * h * (1 - h)
+    return _smin(f, sack_sdf(p), .045)
 
 
 def back_z(y, x=0.):

@@ -277,8 +277,8 @@ def _lifted_shoulders(p, torso):
         rel = p - sh
         along = rel @ d0
         perp = np.linalg.norm(rel - along[..., None] * d0, axis=-1)
-        stub = np.maximum(np.maximum(.050 - along, perp - .080), np.linalg.norm(rel, axis=-1) - .24)   # round the arm only
-        torso = S.smax(torso, -stub, .02)
+        stub = np.maximum(np.maximum(.045 - along, perp - .095), np.linalg.norm(rel, axis=-1) - .24)   # round the arm only
+        torso = S.smax(torso, -stub, .03)
         torso = S.smin(torso, S.sphere(p, sh, SHOULDER_BALL), .03)
     return torso
 
