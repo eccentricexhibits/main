@@ -9,11 +9,22 @@ black leggings with painted white spots.  Measured ratios from the photos:
 Round 18 re-measured the two full-length shots of the original session (0077 and "5 of 15"): the crotch
 at 45-48 % (46.5 % on average) and the bottom of the belly at 52-53 %, so about 10 cm of briefs shows
 under it.  Round 17's model had them at 43.7 % and 47.9 %: LEG_LIFT and HEM_LIFT close the gap.
+Round 19: the body (torso, sleeves, legs and hips) takes the shape of the owner's Tripo model of the
+costume (tripo_body.py; BODY_SOURCE), at the photo proportions above.  The head (scanned mask, horns,
+snug hood), the udder cups, gloves and slippers are unchanged.  BODY_SOURCE = 'analytic' builds the
+round-18 body from the primitives below.
 Axes: +Y up, +Z forward (the way the character faces), +X = the character's LEFT.
 The broken horn with exposed wire is on the character's RIGHT (-X), as in the photos.
 """
 import numpy as np
 import sdf as S
+
+BODY_SOURCE = 'tripo'
+if BODY_SOURCE == 'tripo':
+    import tripo_body as TB
+# Round 19: Tripo's chest is deeper than the round-18 body's, so the head (mask, horns, tube and hood as one
+# piece; their sizes unchanged) moves forward onto its neck, as in the approved generated side view
+HEAD_DZ = .05 if BODY_SOURCE == 'tripo' else 0.
 
 SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-X)
 
@@ -55,6 +66,8 @@ def ellipsoid_low(p, c, r, ry_low):
 
 
 def arm_points(s, d=None):
+    if BODY_SOURCE == 'tripo' and not d:
+        return TB.arm_points(s)          # Tripo's A-pose arm: shoulder pivot, elbow, wrist
     d = d or {}
     sh = np.array([s * .170, 1.308, -.032])
     up_angle = np.deg2rad(d.get('arm_abduction', 20.0))
@@ -68,8 +81,8 @@ J = {
     'Hips': np.array([0, .925 + LEG_LIFT, -.025]),
     'Spine': np.array([0, 1.06 + LEG_LIFT / 2, -.035]),
     'Chest': np.array([0, 1.22, -.035]),
-    'Neck': np.array([0, 1.395, -.035]),
-    'Head': np.array([0, 1.465, -.020]),
+    'Neck': np.array([0, 1.395, -.035 + HEAD_DZ]),
+    'Head': np.array([0, 1.465, -.020 + HEAD_DZ]),
 }
 for s, side in [(1, 'L'), (-1, 'R')]:
     sh, el, wr = arm_points(s)
@@ -78,6 +91,9 @@ for s, side in [(1, 'L'), (-1, 'R')]:
     J[f'Forearm_{side}'] = el
     J[f'Hand_{side}'] = wr
     J[f'Thigh_{side}'] = np.array([s * .086, HIP_Y, -.020])
+    if BODY_SOURCE == 'tripo':
+        J[f'Thigh_{side}'], J[f'Shin_{side}'], J[f'Foot_{side}'] = TB.leg_points(s)
+        continue
     J[f'Shin_{side}'] = np.array([s * .094, leg_y(.470), -.002])
     J[f'Foot_{side}'] = np.array([s * .100, FOOT_Y, -.022])
 
@@ -87,6 +103,7 @@ MASK_OLD_ANCHOR = np.array([0, 1.73, .070])     # eye height on the mask's back 
 # The mask, its horn tube and horns move as one rigid piece.  MASK_SEAT pushes that piece back
 # onto the hood so its rim sits on the cheeks instead of floating in front of the face.
 MASK_SEAT = np.array([0, 0, -.025])
+MASK_SEAT = MASK_SEAT + [0, 0, HEAD_DZ]
 MASK_NEW_ANCHOR = np.array([0, 1.512, .080]) + MASK_SEAT
 
 
@@ -134,6 +151,19 @@ def hood_face(p):
 
 # ------------------------------------------------------------------ fur suit + hood
 BACK_ROLL_Y = .925 + LEG_LIFT       # the back-fat roll over the panty waistband
+BACK_ROLL_Z = -.128
+TAIL_KNOT = np.array([0, .935 + LEG_LIFT, -.217])     # the bowtie's knot on the roll
+if BODY_SOURCE == 'tripo':
+    # the roll sits where Tripo's bow is tied, bulging 3 cm beyond Tripo's back; the knot on its surface
+    BACK_ROLL_Y = float(TB.BOW[1]) - .010
+    BACK_ROLL_Z = TB.back_z(BACK_ROLL_Y) + .082 - .030
+    TAIL_KNOT = np.array([0, BACK_ROLL_Y + .010, BACK_ROLL_Z - .082 - .007])
+TORSO_BOX = ((-.30, .70, -.24), (.30, 1.45, .32)) if BODY_SOURCE != 'tripo' else ((-.37, .74, -.27), (.37, 1.45, .42))
+
+
+def hem_height(x, z):
+    """The suit's hem: a shallow bowl, lowest under the front of the belly (round 18 heights)."""
+    return .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
 
 def torso_sdf(p):
     return suit_parts(p, torso_only=True)['torso']
@@ -141,6 +171,8 @@ def torso_sdf(p):
 
 def suit_parts(p, torso_only=False):
     """Return dict of component SDFs (used for both the surface and skin-weight membership)."""
+    if BODY_SOURCE == 'tripo':
+        return tripo_suit_parts(p, torso_only)
     out = {}
     chest = S.ellipsoid(p, (0, 1.19, -.028), (.163, .205, .128))
     shoulders = S.capsule(p, (-.145, 1.318, -.036), (.145, 1.318, -.036), .062)
@@ -162,12 +194,11 @@ def suit_parts(p, torso_only=False):
     x, z = p[..., 0], p[..., 2]
     # a little back fat: a padded roll across the lower back that bulges out and overhangs the
     # panty waistband as a lip, rather than the back ending flat (owner's note)
-    roll = S.ellipsoid(p, (0, BACK_ROLL_Y, -.128), (.170, .052, .082))
+    roll = S.ellipsoid(p, (0, BACK_ROLL_Y, BACK_ROLL_Z), (.170, .052, .082))
     torso = S.smin(torso, roll, .035)
     # the hem rises gently round the sides, so the bottom of the belly stays round instead of being sliced
     # off on a diagonal (owner's note); at the back it ends where it did, tucked under the roll
-    hem = .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
-    torso = S.smax(torso, hem - p[..., 1], .08)
+    torso = S.smax(torso, hem_height(x, z) - p[..., 1], .08)
     out['torso'] = torso          # the trunk: what the arms are kept clear of
     if torso_only:
         return out
@@ -182,16 +213,49 @@ def suit_parts(p, torso_only=False):
         d = (wr - el) / np.linalg.norm(wr - el)
         arm = S.smax(arm, S.plane(p, wr - .004 * d, d), .012)
         out['arm_' + side] = arm
+    out.update(head_parts(p))
+    return out
+
+
+def head_parts(p):
+    """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
     # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
     # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
-    head = S.ellipsoid(p, (0, 1.519, -.012), (.090, .118, .099))     # back of the head 2 cm flatter
-    hood_neck = S.round_cone(p, (0, 1.355, -.030), (0, 1.47, -.022), .060, .064)
+    head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), (.090, .118, .099))     # back of the head 2 cm flatter
+    hood_neck = S.round_cone(p, (0, 1.355, -.030 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), .060, .064)
     hood = S.smin(head, hood_neck, .04)
     hood = S.smin(hood, hood_face(p), .03)
     hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z + .003), .004)   # ends just inside the mask shell
     # the fur-covered tube that carries the horns is part of the mask, resting on its top edge
-    out['tube'] = S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)
-    out['hood'] = hood
+    return {'hood': hood, 'tube': S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)}
+
+
+def tripo_suit_parts(p, torso_only=False):
+    """Round 19: the torso is Tripo's (with its shoulder caps), finished as the costume is worn: the neck
+    tucks into the neckline, the back-fat roll carries the bow, the hem is round 18's bowl.  The sleeves
+    are tubes along Tripo's arms; the hood and horn tube are as before."""
+    out = {}
+    x, z = p[..., 0], p[..., 2]
+    torso = TB.torso_sdf(p)
+    neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
+    torso = S.smin(torso, neck, .04)
+    # the neckline dips at the front to below the mask's chin: above it Tripo's torso is its own chin and hood
+    w = np.clip((z - (HEAD_DZ - .04)) / .10, 0, 1)
+    torso = S.smax(torso, p[..., 1] - (1.405 - .075 * w * w * (3 - 2 * w)), .02)
+    # behind the udder cups the chest recedes: where the Tripo cups were filled in, the fill spans their rims,
+    # in front of the chest itself; the cups (separate pieces) cover the carved hollow
+    cups = np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1))
+    torso = S.smax(torso, -(cups + .006), .015)
+    torso = S.smax(torso, p[..., 1] - 1.405, .02)
+    roll = S.ellipsoid(p, (0, BACK_ROLL_Y, BACK_ROLL_Z), (.170, .052, .082))
+    torso = S.smin(torso, roll, .035)
+    torso = S.smax(torso, hem_height(x, z) - p[..., 1], .03)
+    out['torso'] = torso
+    if torso_only:
+        return out
+    for s, side in [(1, 'L'), (-1, 'R')]:
+        out['arm_' + side] = TB.sleeve_sdf(p, s)
+    out.update(head_parts(p))
     return out
 
 
@@ -218,19 +282,23 @@ def with_deltoids(p, torso):
 def suit_sdf(p):
     """The torso garment only (with its shoulder caps).  Sleeves are separate tubes set into the
     shoulder (as the costume is sewn), so the chest never fuses with the inner arm; the hood and the
-    horn tube are separate too."""
+    horn tube are separate too.  Tripo's torso keeps its own shoulder caps."""
+    if BODY_SOURCE == 'tripo':
+        return torso_sdf(p)
     return with_deltoids(p, torso_sdf(p))
 
 
 def hood_sdf(p):
-    return suit_parts(p)['hood']
+    return head_parts(p)['hood']
 
 
 def tube_sdf(p):
-    return suit_parts(p)['tube']
+    return head_parts(p)['tube']
 
 
 def sleeve_sdf(p, side):
+    if BODY_SOURCE == 'tripo':
+        return TB.sleeve_sdf(p, 1 if side == 'L' else -1)
     return suit_parts(p)['arm_' + side]
 
 
@@ -242,7 +310,47 @@ def body_sdf(p):
 # ------------------------------------------------------------------ leggings
 THIGH_OUT, THIGH_R = .024, .096
 FOOTBED = .032           # top of the slippers' footbed (just under it), where the socked foot stands
+def _foot(p, s, ankle):
+    """The black-socked foot standing in the open-back mule slipper: the heel shows on the footbed and
+    the front of the foot runs into the slipper's head, where it ends hidden; toed out 7 degrees like
+    the slippers."""
+    fwd = np.array([s * np.sin(np.deg2rad(7)), 0, np.cos(np.deg2rad(7))])
+    heel = S.ellipsoid(p, ankle + [0, -.040, 0] - .035 * fwd, (.031, .026, .034))
+    sole = S.round_cone(p, ankle + [0, -.035, 0], ankle + [0, -.050, 0] + .085 * fwd, .032, .026)
+    return S.smin(heel, sole, .02)
+
+
+LEG_INSET = .03          # above the hem the leggings (hidden inside the suit) sit this far inside Tripo's surface
+
+
+def tripo_legging_parts(p):
+    """Round 19: Tripo's legs and hips at the photo leg length.  Above the hem they continue hidden, 3 cm
+    inside the suit (and no further forward than the hips), so the belly overhang stays the suit's own.
+    Below the ankle the socked foot stands on the slipper's footbed."""
+    x, y, z = p[..., 0], p[..., 1], p[..., 2]
+    hem = hem_height(x, z)
+    w = np.clip((y - (hem - .01)) / .05, 0, 1)
+    d = TB.body_legs_sdf(p) + LEG_INSET * w * w * (3 - 2 * w)
+    d = S.smax(d, (z - .19) - 5 * np.maximum(hem - y, 0), .02)       # above the hem: not into the belly
+    d = S.smax(d, np.abs(x) - .28, .02)                                # not the hands
+    out = {}
+    legs = {}
+    for s, side in [(1, 'L'), (-1, 'R')]:
+        ankle = J[f'Foot_{side}']
+        stub = S.round_cone(p, ankle + [0, .07, 0], ankle + [0, -.03, 0], .046, .040)
+        legs[side] = S.smin(stub, _foot(p, s, ankle), .03)
+    above = S.smax(d, (FOOT_Y + .045) - y, .02)                        # Tripo's leg ends above its slipper
+    full = S.smin(above, np.minimum(legs['L'], legs['R']), .03)
+    out['full'] = full
+    out['pelvis'] = S.smax(full, .76 - y, .01)
+    for s, side in [(1, 'L'), (-1, 'R')]:
+        out['leg_' + side] = S.smax(full, -s * x, .01)
+    return out
+
+
 def legging_parts(p):
+    if BODY_SOURCE == 'tripo':
+        return tripo_legging_parts(p)
     out = {}
     pelvis = S.ellipsoid(p, (0, .885 + LEG_LIFT, -.030), (.192, .130, .130))    # wide hips (Blue Shirt)
     for s, side in [(1, 'L'), (-1, 'R')]:
@@ -269,6 +377,9 @@ def legging_parts(p):
 
 def legging_sdf(p):
     c = legging_parts(p)
+    if BODY_SOURCE == 'tripo':
+        d = S.smax(c['full'], p[..., 1] - 1.02, .02)
+        return S.smax(d, FOOTBED - p[..., 1], .004)
     d = S.smin(c['pelvis'], c['leg_L'], .045)
     d = S.smin(d, c['leg_R'], .045)
     d = np.minimum(d, np.minimum(c['leg_L'], c['leg_R']))
@@ -285,6 +396,13 @@ CUP_C = {1: np.array([.100, 1.130, .100]), -1: np.array([-.096, 1.138, .097])}
 CUP_R = {1: np.array([.112, .114, .142]), -1: np.array([.108, .110, .138])}
 CUP_SAG = {1: (np.array([.006, -.040, .060]), np.array([.094, .080, .112])),
            -1: (np.array([-.004, -.036, .056]), np.array([.090, .076, .108]))}
+# round 18's chest surface under each cup's centre; with Tripo's deeper chest the cups move forward with it
+CUP_CHEST_Z = {1: .104, -1: .102}
+CUP_PROUD = .05          # how much further forward than round 18's cups sit relative to Tripo's (filled) chest
+if BODY_SOURCE == 'tripo':
+    # the cups' fronts end about 5 cm past the belly's front, as in the approved side view (round 18: level)
+    for _s in SIDES:
+        CUP_C[_s] = CUP_C[_s] + [0, 0, TB.front_z(CUP_C[_s][0], CUP_C[_s][1]) - CUP_CHEST_Z[_s] - CUP_PROUD]
 
 
 def cup_sdf_one(p, s):

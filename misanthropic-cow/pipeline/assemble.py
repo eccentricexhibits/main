@@ -86,7 +86,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     patch = pm.argmax(1)
     W_strand = W_root[sid].copy()
     k = (.85 * tco ** 1.2)[:, None]
-    tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[patch[sid]]] = 1
+    tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[np.asarray(T.PATCH_BONE)[patch[sid]]]] = 1
     W_strand = W_strand * (1 - k) + tipw * k
     # opaque, untextured strands: the tubes' own round shading and the root-to-tip tone do the work.
     # Specular is turned down and there is no sheen: thousands of thin glossy tubes otherwise pick up

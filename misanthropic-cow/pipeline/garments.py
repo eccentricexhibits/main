@@ -140,7 +140,7 @@ def build_suit(step=.0042, target=170000):
     V, F, Nn, L, charts = [], [], [], [], []
     off = 0
     tube_axis = [D.TUBE_C - [.12, 0, 0], D.TUBE_C + [.12, 0, 0]]
-    pieces = [(0, D.suit_sdf, (-.30, .70, -.24), (.30, 1.45, .32), 1.0, .62,
+    pieces = [(0, D.suit_sdf, *D.TORSO_BOX, 1.0, .62,
                lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
               (1, D.hood_sdf, (-.12, 1.32, -.16), (.12, 1.67, .09), .7, .10,
                lambda q: sphere_uv(q, np.array([0, 1.52, -.02]), (0, 0, -1), .10), 'Hood_white_faux_fur'),
@@ -209,7 +209,7 @@ def junction_normals(v, f, n, face_labels, k=.03, band=(.004, .018), reach=(.075
 # ---------------------------------------------------------------- leggings
 def build_leggings(step=.0040, target=90000):
     import textures as T
-    v, f = mesh_from(D.legging_sdf, (-.27, .03, -.21), (.27, 1.05, .17), step, target)
+    v, f = mesh_from(D.legging_sdf, (-.30, .03, -.23), (.30, 1.05, .24), step, target)
     n = S.vertex_normals(v, f)
     v = v + n * (.0022 * T.sock_cuff(v[:, 1]))[:, None]      # the sock's ribbed cuff stands slightly proud
     n = S.vertex_normals(v, f)

@@ -90,7 +90,7 @@ def bind_positions(glove_parts):
             d = (b - a) / np.linalg.norm(b - a)
             B[TEAT[(side, k)]] = a + .012 * d
     import textures as T
-    for j, (c, r) in zip(SHAG, T.all_patches()):
+    for j, c in zip(SHAG, T.bone_centres()):
         B[j] = c
     for side in 'LR':
         B[HEM[side]] = D.J[f'Thigh_{side}']

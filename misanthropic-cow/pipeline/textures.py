@@ -36,12 +36,21 @@ def triplanar(tile, p, n, scale):
     return cx * w[..., :1] + cy * w[..., 1:2] + cz * w[..., 2:]
 
 
+def _local(p, blob):
+    """Coordinates of p in a blob's ellipsoid: (centre, radii) is axis-aligned; (centre, radii, axes) is
+    turned so its rows are the ellipse's axes (round 19's patches and spots follow the surface)."""
+    c, r = np.asarray(blob[0]), np.asarray(blob[1])
+    if len(blob) > 2:
+        return ((p - c) @ np.asarray(blob[2]).T) / r
+    return (p - c) / r
+
+
 def blob_mask(p, blobs, rough=.32, edge=.06, seed=3):
-    """Union of noisy ellipsoids. blobs: list of (centre, radii)."""
+    """Union of noisy ellipsoids. blobs: list of (centre, radii) or (centre, radii, axes)."""
     m = np.zeros(p.shape[:-1], np.float32)
     nz = N.fbm(p * 22, 4, seed=seed) + .5 * N.fbm(p * 70, 2, seed=seed + 7)
-    for c, r in blobs:
-        d = np.linalg.norm((p - np.asarray(c)) / np.asarray(r), axis=-1)
+    for blob in blobs:
+        d = np.linalg.norm(_local(p, blob), axis=-1)
         d = d * (1 + rough * nz)
         m = np.maximum(m, np.clip((1 - d) / edge + .5, 0, 1))
     return m
@@ -85,11 +94,35 @@ def elbow_patches():
 
 
 def all_patches():
+    if _TRIPO:
+        return [(c, r, U) for c, r, U, piece, bone in _TRIPO]
     return SHAG_PATCHES + elbow_patches()
 
 
-# which patches may appear on which suit piece (a patch never spills across the sleeve seam)
+# which patches may appear on which suit piece (a patch never spills across the sleeve seam), and which
+# spring bone each patch's strands swing with (rig.SHAG order)
 TORSO_PATCHES, SLEEVE_PATCHES = [0, 1, 2, 3], {'L': [4], 'R': [5]}
+PATCH_BONE = [0, 1, 2, 3, 4, 5]
+_TRIPO = []
+import design as _D
+if _D.BODY_SOURCE == 'tripo':
+    # round 19: the patch layout of the approved generated views, as the Tripo model carries it (markings.py)
+    import markings as _MK
+    import tripo_body as _TB
+    _TRIPO = _MK.shag_patches(_TB.MARKINGS['patches'], _TB.torso_y, _D.HEAD_DZ)
+    TORSO_PATCHES = [i for i, t in enumerate(_TRIPO) if t[3] == 'torso']
+    SLEEVE_PATCHES = {s: [i for i, t in enumerate(_TRIPO) if t[3] == 'sleeve_' + s] for s in 'LR'}
+    PATCH_BONE = [t[4] for t in _TRIPO]
+
+
+def bone_centres():
+    """Where each shag spring bone sits: the middle of the patches that swing with it."""
+    allp = all_patches()
+    out = []
+    for b in range(6):
+        cs = [np.asarray(allp[i][0]) for i in range(len(allp)) if PATCH_BONE[i] == b]
+        out.append(np.mean(cs, 0) if cs else np.asarray(SHAG_PATCHES[min(b, 3)][0]))
+    return out
 
 
 def patches_for(chart_name):
@@ -106,11 +139,11 @@ def shag_mask(p, which=None):
     m = np.zeros(p.shape[:-1], np.float32)
     nz = N.fbm(p * np.array([30, 9, 30]), 4, seed=3) + .6 * N.fbm(p * np.array([90, 22, 90]), 2, seed=10)
     allp = all_patches()
-    for c, r in [allp[i] for i in (which if which is not None else range(len(allp)))]:
-        q = (p - np.asarray(c)) / np.asarray(r)
+    for blob in [allp[i] for i in (which if which is not None else range(len(allp)))]:
+        q = _local(p, blob)
         d = np.linalg.norm(q, axis=-1)
-        below = np.clip(-q[..., 1], 0, 1)          # tufts hang lower under the patch
-        d = d * (1 + .38 * nz) - .18 * below * np.clip(nz + .4, 0, 1)
+        below = np.clip(-(p[..., 1] - blob[0][1]) / np.asarray(blob[1])[:2].mean(), 0, 1)   # tufts hang lower under the patch
+        d = d * (1 + (.28 if _TRIPO else .38) * nz) - .18 * below * np.clip(nz + .4, 0, 1)
         m = np.maximum(m, np.clip((1 - d) / .05 + .5, 0, 1))
     return m
 
@@ -136,7 +169,10 @@ def suit_color(p, n, white, black, which=None):
 
 
 def legging_spots(charts_leg, seed=12):
-    """Random painted spots, spaced out, placed on the leg charts' surfaces."""
+    """Painted spots: round 19 takes them from the approved generated views (markings.leg_spots); before,
+    random spots spaced out on the leg charts' surfaces."""
+    if _TRIPO:
+        return _MK.leg_spots(_D.legging_sdf)
     rng = np.random.default_rng(seed)
     spots = []
     for ch in charts_leg:
