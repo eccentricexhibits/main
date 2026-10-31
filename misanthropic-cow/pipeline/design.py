@@ -162,7 +162,11 @@ TORSO_BOX = ((-.30, .70, -.24), (.30, 1.45, .32)) if BODY_SOURCE != 'tripo' else
 
 
 def hem_height(x, z):
-    """The suit's hem: a shallow bowl, lowest under the front of the belly (round 18 heights)."""
+    """The suit's hem: a shallow bowl, lowest under the front of the belly (round 18 heights).  Round 19: as in
+    the approved views, 0.815 m under the front of the belly, 0.845 m at the sides, 0.86 m at the back."""
+    if BODY_SOURCE == 'tripo':
+        th = np.arctan2(x, z - .07)
+        return .8375 - .0225 * np.cos(th) + .0075 * np.sin(th) ** 2
     return .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
 
 def torso_sdf(p):
@@ -236,7 +240,7 @@ def tripo_suit_parts(p, torso_only=False):
     are tubes along Tripo's arms; the hood and horn tube are as before."""
     out = {}
     x, z = p[..., 0], p[..., 2]
-    torso = TB.torso_sdf(p)
+    torso = TB.fitted_torso_sdf(p)
     neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
     torso = S.smin(torso, neck, .04)
     # the neckline dips at the front to below the mask's chin: above it Tripo's torso is its own chin and hood
@@ -397,12 +401,14 @@ CUP_R = {1: np.array([.112, .114, .142]), -1: np.array([.108, .110, .138])}
 CUP_SAG = {1: (np.array([.006, -.040, .060]), np.array([.094, .080, .112])),
            -1: (np.array([-.004, -.036, .056]), np.array([.090, .076, .108]))}
 # round 18's chest surface under each cup's centre; with Tripo's deeper chest the cups move forward with it
-CUP_CHEST_Z = {1: .104, -1: .102}
-CUP_PROUD = .05          # how much further forward than round 18's cups sit relative to Tripo's (filled) chest
 if BODY_SOURCE == 'tripo':
-    # the cups' fronts end about 5 cm past the belly's front, as in the approved side view (round 18: level)
-    for _s in SIDES:
-        CUP_C[_s] = CUP_C[_s] + [0, 0, TB.front_z(CUP_C[_s][0], CUP_C[_s][1]) - CUP_CHEST_Z[_s] - CUP_PROUD]
+    # Round 19, from the approved views: smaller cups, high on the chest (1.14-1.32 m) and pressed together in
+    # the middle, each about 17 cm wide, 18 cm tall and 13 cm deep, sewn on where the chest is (z 0.09) and
+    # reaching 0.22 m forward, behind the belly's front; the left one a little larger
+    CUP_C = {1: np.array([.088, 1.228, .155]), -1: np.array([-.088, 1.222, .152])}
+    CUP_R = {1: np.array([.085, .088, .066]), -1: np.array([.083, .086, .064])}
+    CUP_SAG = {1: (np.array([.004, -.025, .022]), np.array([.068, .062, .056])),
+               -1: (np.array([-.004, -.024, .020]), np.array([.066, .060, .054]))}
 
 
 def cup_sdf_one(p, s):
@@ -417,7 +423,14 @@ def cup_sdf_one(p, s):
 def teat_specs(s):
     """(direction from cup centre to the base, teat pointing direction) per teat: one under each cup
     hanging forward and down, one on the outer side pointing out and down.  Sewn on by hand, so the
-    two sides do not mirror each other."""
+    two sides do not mirror each other.  Round 19 (approved views): the lower teat hangs forward and down
+    from the cup's lower front; the outer one stands out sideways and forward at the cup's middle."""
+    if BODY_SOURCE == 'tripo':
+        if s == 1:
+            return [(np.array([-.30, -.55, .80]), np.array([.02, -.74, .67])),
+                    (np.array([.95, .05, .45]), np.array([.74, .10, .66]))]
+        return [(np.array([.26, -.58, .78]), np.array([-.04, -.70, .71])),
+                (np.array([-.95, .02, .42]), np.array([-.78, .06, .62]))]
     if s == 1:
         return [(np.array([-.22, -.70, 1.70]), np.array([.06, -.60, .92])),
                 (np.array([1.0, -.50, .62]), np.array([.90, -.45, .32]))]

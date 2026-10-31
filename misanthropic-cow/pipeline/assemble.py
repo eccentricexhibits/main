@@ -47,6 +47,12 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     suit = Gm.build_suit(step=.006 if quick else .0042, target=60000 if quick else 170000)
     sv, sf, sn = suit['v'], suit['f'], suit['n']
     W_suit = RG.suit_weights(sv, sf, suit['labels'])
+    leg = udder = None
+    if T.PROJECTED:
+        # the markings are projected from the approved views, so the whole figure's depth is needed first
+        leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
+        udder = Gm.build_udder(step=.004 if quick else .0028, target=20000 if quick else 50000)
+        T.set_occluders(np.vstack([sv, leg['v']] + [c['v'] for c in udder]), leg['v'])
     sizes = {'Suit_torso': (2048, 2048), 'Hood_white': (1024, 1024), 'Suit_sleeve_L': (1024, 1024), 'Suit_sleeve_R': (1024, 1024),
              'Mask_horn': (512, 512)}
     for ch in suit['charts']:
@@ -70,23 +76,32 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     piece = np.where(fl == 2, 1, np.where(fl == 3, 2, np.where(fl == 0, 0, 3)))   # torso, sleeve L, sleeve R, hood/tube
     allowed = [T.TORSO_PATCHES, T.SLEEVE_PATCHES['L'], T.SLEEVE_PATCHES['R'], []]
     m_face = np.zeros(len(sf))
-    for k in range(3):
-        sel = piece == k
-        m_face[sel] = T.shag_mask(cen[sel], allowed[k])
+    if T.PROJECTED:
+        fnrm = np.cross(sv[sf[:, 1]] - sv[sf[:, 0]], sv[sf[:, 2]] - sv[sf[:, 0]])
+        fnrm /= np.maximum(np.linalg.norm(fnrm, axis=1, keepdims=True), 1e-12)
+        sel = piece < 3
+        m_face[sel] = T.patch_mask(cen[sel], fnrm[sel])
+    else:
+        for k in range(3):
+            sel = piece == k
+            m_face[sel] = T.shag_mask(cen[sel], allowed[k])
     import groom as GR
     hair = GR.shag_strands(sv, sf, sn, m_face, scene_sdf, scale=(.6 if quick else 1.0))
     tco, sid, roots, rface, rbc = hair['t'], hair['cid'], hair['roots'], hair['face'], hair['bc']
     # strand roots follow the face they grew from; tips swing with that piece's own patch spring bone
     W_root = np.einsum('ij,ijk->ik', rbc, W_suit[sf[rface]])
-    pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
-    for k in range(3):
-        mask = np.ones(pm.shape[1], bool); mask[allowed[k]] = False
-        rows = np.nonzero(piece[rface] == k)[0]
-        pm[np.ix_(rows, np.nonzero(mask)[0])] = -1
-    patch = pm.argmax(1)
+    if T.PROJECTED:
+        bone = T.bone_of(roots, piece[rface])
+    else:
+        pm = np.stack([T.blob_mask(roots, [pc]) for pc in T.all_patches()], 1)
+        for k in range(3):
+            mask = np.ones(pm.shape[1], bool); mask[allowed[k]] = False
+            rows = np.nonzero(piece[rface] == k)[0]
+            pm[np.ix_(rows, np.nonzero(mask)[0])] = -1
+        bone = np.asarray(T.PATCH_BONE)[pm.argmax(1)]
     W_strand = W_root[sid].copy()
     k = (.85 * tco ** 1.2)[:, None]
-    tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[np.asarray(T.PATCH_BONE)[patch[sid]]]] = 1
+    tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[bone[sid]]] = 1
     W_strand = W_strand * (1 - k) + tipw * k
     # opaque, untextured strands: the tubes' own round shading and the root-to-tip tone do the work.
     # Specular is turned down and there is no sheen: thousands of thin glossy tubes otherwise pick up
@@ -111,7 +126,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     report['shag_strands'] = int(hair['strands'])
 
     # --- leggings
-    leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
+    if leg is None:
+        leg = Gm.build_leggings(step=.006 if quick else .0040, target=40000 if quick else 90000)
     lv, lf, ln = leg['v'], leg['f'], leg['n']
     W_leg = RG.leg_weights(lv, lf)
     pan = Gm.build_briefs(lv, lf, ln, W_leg)
@@ -131,7 +147,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             'W': W_leg[ch['src']]})
     # --- briefs (pink satin over the leggings; they carry the leggings' own weights)
     W_pan = pan['W']
-    satin = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.97, .79, .83))))
+    # round 19: the approved views' briefs are a pale blush satin
+    satin = model.add_image(T.to_jpeg(tinted_tile(tiles['cotton'], (.93, .83, .80) if T.PROJECTED else (.97, .79, .83))))
     mat = model.add_material({'name': 'Panties_pink_satin', 'pbrMetallicRoughness': {
         'baseColorTexture': {'image': satin, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .58},
         'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .30}, 'extensions': SHEEN(.45, .35)})
@@ -144,7 +161,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     umat = model.add_material({'name': 'Udder_soft_pink_cloth', 'pbrMetallicRoughness': {
         'baseColorTexture': {'image': pink, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .80},
         'normalTexture': {'image': img_cot_n, 'texCoord': 1, 'scale': .18}, 'extensions': SHEEN(.35, .5)})
-    for ch in Gm.build_udder(step=.004 if quick else .0028, target=20000 if quick else 50000):
+    for ch in (udder or Gm.build_udder(step=.004 if quick else .0028, target=20000 if quick else 50000)):
         n = S.vertex_normals(ch['v'], ch['f'])
         model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': n.astype(np.float32),
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),

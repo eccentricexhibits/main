@@ -250,6 +250,11 @@ LEG_LINE = [(0, .805), (45, .772), (90, .742), (135, .712), (180, .692), (225, .
 LEG_LINE = [(a, h + D.LEG_LIFT) for a, h in LEG_LINE]      # round 18: the same cut on the longer legs
 WAISTBAND = .955 + D.LEG_LIFT      # the briefs' (hidden) top edge, under the suit
 MID_DROP = .045
+if D.BODY_SOURCE == 'tripo':
+    # round 19, as in the approved views: boy-short legs, the opening almost level round the thigh just above
+    # the crotch, dipping under it at the gusset; the back covers the seat with no drop into the cleft
+    LEG_LINE = [(0, .765), (45, .765), (90, .760), (135, .750), (180, .735), (225, .745), (270, .755), (315, .762)]
+    MID_DROP = 0.
 
 
 def leg_line(p):

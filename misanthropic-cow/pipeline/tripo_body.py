@@ -24,7 +24,8 @@ _TORSO = _d['torso'].astype(np.float32) * _SC
 # vertical maps, Tripo height -> model height (both monotonic, piecewise linear)
 CROTCH, BELLY, SHOULDER = float(_d['crotch']), float(_d['belly_bottom']), float(_d['shoulder'])
 TORSO_SRC = np.array([-1., BELLY, SHOULDER, 3.])
-TORSO_DST = np.array([-1. + .05, .84, SHOULDER, 3.])          # belly bottom 0.79 -> 0.84; shoulders unchanged
+BELLY_DST = .815          # the bottom of the belly in the approved views (round 18's photo reading was 0.84)
+TORSO_DST = np.array([-1. + BELLY_DST - BELLY, BELLY_DST, SHOULDER, 3.])     # shoulders unchanged
 ANKLE_SRC, ANKLE_DST = .14, .092
 WAIST_SRC = .90
 
@@ -83,11 +84,77 @@ def body_legs_sdf(p):
     return _sample(_BODY, q, np.interp(y, LEG_DST, LEG_SRC)) * k
 
 
+# ---------------------------------------------------------------- fit to the approved views
+# The torso is reshaped height by height so its outline matches the approved views: front and back from the
+# side views, width from the front and back views.  Under the cups the chest sits where the views' cups are
+# sewn on (their back), and above the shoulders and below the hem the torso keeps Tripo's shape.
+FIT_Y = np.round(np.arange(.70, 1.50, .01), 3)
+FLUFF = .012              # the views' outline is the fur's (and the shag's) tips, about this far out
+CHEST_FRONT = [(1.14, .14), (1.17, .118), (1.30, .115), (1.33, .15)]
+
+
+def _model_profile(ys):
+    xs, zs = np.arange(-.30, .301, .005), np.arange(-.35, .45, .005)
+    X, Z = np.meshgrid(xs, zs, indexing='ij')
+    out = []
+    for y in ys:
+        p = np.stack([X, np.full_like(X, y), Z], -1)
+        inside = torso_sdf(p) < 0
+        if not inside.any():
+            out.append((np.nan, np.nan, np.nan)); continue
+        zi, xi = Z[inside], X[inside]
+        out.append((zi.max(), zi.min(), np.abs(xi).max()))
+    return np.array(out)
+
+
+def _smoothstep(e0, e1, x):
+    t = np.clip((x - e0) / (e1 - e0), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
+def _fit():
+    import approved_views as AV
+    from scipy.ndimage import gaussian_filter1d
+    ys = FIT_Y
+    g = AV.profiles(ys)
+    m = _model_profile(ys)
+    front_t = g['front'] - FLUFF
+    chest = np.interp(ys, [c[0] for c in CHEST_FRONT], [c[1] for c in CHEST_FRONT])
+    under_cups = (ys >= 1.14) & (ys <= 1.33)
+    front_t = np.where(under_cups, chest, front_t)
+    back_t = g['back'] - FLUFF * .5
+    width_t = g['halfwidth'] - FLUFF * .5
+    a = (front_t - back_t) / (m[:, 0] - m[:, 1])
+    b = back_t - a * m[:, 1]
+    c = np.clip(width_t / m[:, 2], .85, 1.15)
+    # where the fit applies: the torso from the hem to the neck (z), the belly below the armpits (x)
+    wz = _smoothstep(.76, .80, ys) * (1 - _smoothstep(1.36, 1.42, ys))
+    wx = _smoothstep(.76, .80, ys) * (1 - _smoothstep(1.08, 1.13, ys))     # above, the views' arms join the body
+    a = np.where(np.isfinite(a), a, 1); b = np.where(np.isfinite(b), b, 0); c = np.where(np.isfinite(c), c, 1)
+    a, b, c = 1 + (a - 1) * wz, b * wz, 1 + (c - 1) * wx
+    return gaussian_filter1d(a, 2), gaussian_filter1d(b, 2), gaussian_filter1d(c, 2)
+
+
+_FIT = None
+
+
+def fitted_torso_sdf(p):
+    """Tripo's torso reshaped to the approved views' outline (z = a(y) z0 + b(y), x = c(y) x0)."""
+    global _FIT
+    if _FIT is None:
+        _FIT = _fit()
+    a, b, c = (np.interp(p[..., 1], FIT_Y, f) for f in _FIT)
+    q = p.copy()
+    q[..., 0] = p[..., 0] / c
+    q[..., 2] = (p[..., 2] - b) / a
+    return torso_sdf(q) * np.minimum(a, c)
+
+
 def back_z(y, x=0.):
     """Where the back of the torso is at height y (for seating the back-fat roll and the bow)."""
     z = np.linspace(.1, -.35, 451)
     p = np.stack([np.full_like(z, x), np.full_like(z, y), z], -1)
-    d = torso_sdf(p)
+    d = fitted_torso_sdf(p)
     j = np.flatnonzero(d > 0)
     return float(z[j[0]]) if len(j) else -.2
 
@@ -95,7 +162,7 @@ def back_z(y, x=0.):
 def front_z(x, y):
     z = np.linspace(-.05, .45, 501)[::-1]
     p = np.stack([np.full_like(z, x), np.full_like(z, y), z], -1)
-    d = torso_sdf(p)
+    d = fitted_torso_sdf(p)
     j = np.flatnonzero(d < 0)
     return float(z[j[0]]) if len(j) else .2
 

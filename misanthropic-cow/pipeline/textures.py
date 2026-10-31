@@ -115,7 +115,55 @@ if _D.BODY_SOURCE == 'tripo':
     PATCH_BONE = [t[4] for t in _TRIPO]
 
 
+# Round 19: the markings are painted straight from the approved views (approved_views.py), so the shag and
+# the leggings' spots have the drawing's own shapes; set_occluders() must run first (assemble.build does).
+PROJECTED = _D.BODY_SOURCE == 'tripo'
+_OCC, _LEG_EXTENT = None, {}
+
+
+def set_occluders(points, leg_v):
+    """Depth maps of the whole figure per view, and the model legs' extents by height (for matching the
+    drawing's legs row by row)."""
+    global _OCC
+    import approved_views as AV
+    _OCC = AV.Occluders(points)
+    ys = np.arange(.02, .82, .01)
+    for name, (f, top, crotch, floor, axis, hax, sign, cam) in AV.VIEWS.items():
+        for side in (1, -1):
+            v = leg_v[(leg_v[:, 0] * side) > .0]
+            lo, hi = np.full(len(ys), np.nan), np.full(len(ys), np.nan)
+            for i, y in enumerate(ys):
+                q = v[np.abs(v[:, 1] - y) < .006, hax]
+                if len(q) > 3:
+                    lo[i], hi[i] = q.min(), q.max()
+            ok = np.isfinite(lo)
+            if ok.sum() > 2:
+                _LEG_EXTENT[(name, side)] = (ys[ok], lo[ok], hi[ok])
+
+
+def patch_mask(p, n):
+    import approved_views as AV
+    shp = p.shape[:-1]
+    m = AV.project_patches(p.reshape(-1, 3), n.reshape(-1, 3), _OCC)
+    return m.reshape(shp).astype(np.float32)
+
+
+def bone_of(p, piece):
+    """Shag spring bone for strand roots p on suit piece (0 torso, 1 sleeve L, 2 sleeve R), by region."""
+    front, high = p[:, 2] > 0, p[:, 1] > 1.15
+    b = np.where(front, np.where(high, 0, 1), np.where(high, 2, 3))
+    return np.where(piece == 1, 4, np.where(piece == 2, 5, b))
+
+
 def bone_centres():
+    if PROJECTED:
+        import design as D
+        return [np.array([-.05, 1.30, .14]), np.array([0., .97, .28]), np.array([.03, 1.26, -.16]),
+                np.array([0., 1.0, -.16]), D.J['Forearm_L'] + [0, .08, 0], D.J['Forearm_R'] + [0, .08, 0]]
+    return _bone_centres_patches()
+
+
+def _bone_centres_patches():
     """Where each shag spring bone sits: the middle of the patches that swing with it."""
     allp = all_patches()
     out = []
@@ -158,7 +206,7 @@ def shag_detail(p, black):
 
 
 def suit_color(p, n, white, black, which=None):
-    m = shag_mask(p, which)
+    m = patch_mask(p, n) if PROJECTED else shag_mask(p, which)
     wc = triplanar(white, p, n, TILE)
     # under the strands only the black backing shows in the gaps; the swatch photo is too light for it
     bc = shag_detail(p, triplanar(black, p, n, .22)) * .5
@@ -171,8 +219,9 @@ def suit_color(p, n, white, black, which=None):
 def legging_spots(charts_leg, seed=12):
     """Painted spots: round 19 takes them from the approved generated views (markings.leg_spots); before,
     random spots spaced out on the leg charts' surfaces."""
-    if _TRIPO:
-        return _MK.leg_spots(_D.legging_sdf)
+    if PROJECTED:
+        import approved_views as AV
+        return lambda p, n: AV.project_spots(p.reshape(-1, 3), n.reshape(-1, 3), _OCC, _LEG_EXTENT).reshape(p.shape[:-1])
     rng = np.random.default_rng(seed)
     spots = []
     for ch in charts_leg:
@@ -203,7 +252,7 @@ def legging_color(p, n, cotton, spots):
     base = triplanar(cotton, p, n, TILE * .6)
     lum = base.mean(-1, keepdims=True)
     black = np.array([.085, .085, .092]) * (.75 + .5 * lum)
-    m = blob_mask(p, spots, rough=.45, edge=.10, seed=21)
+    m = spots(p, n) if callable(spots) else blob_mask(p, spots, rough=.45, edge=.10, seed=21)
     brush = .88 + .12 * N.fbm(p * 160, 2, seed=4)[..., None]
     paint = np.array([.94, .94, .92]) * brush
     out = black * (1 - m[..., None]) + paint * m[..., None]
