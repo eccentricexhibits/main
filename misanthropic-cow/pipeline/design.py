@@ -633,7 +633,7 @@ def surface_point(fn, origin, direction, tmax=.3):
 # (out, up, forward), length, droop.
 TEAT_SPECS = {
     1: [((-.12, -.70), (.05, -.80, .60), .062, .35),
-        ((.55, -.05), (.65, .42, .63), .064, .45)],
+        ((.55, -.35), (.75, .10, .64), .064, .45)],     # round 23: level with the other side's outer teat
     -1: [((-.10, -.68), (.00, -.78, .62), .060, .35),
          ((.55, -.35), (.75, .05, .64), .064, .45)],
 }
@@ -678,6 +678,24 @@ TEATS = {s: teats(s) for s in SIDES}
 
 
 
+# Round 23: the white fur comes right up to the stuffed cup (the empty suit on its stool): the pink shows only on
+# the cup itself, a teardrop lower and smaller than the swelling, which the fur covers round its edge and top.
+PINK_SCALE, PINK_DROP = (.86, .80), .18
+
+
+def pink_sdf(p, s=None):
+    """Signed distance (x-y, front only) to the outline of the visible pink cloth of each cup."""
+    out = np.full(p.shape[:-1], 1e3)
+    for side in (SIDES if s is None else [s]):
+        c, r = PANEL[side]
+        q = (p[..., :2] - c) / r
+        q = np.stack([q[..., 0] / PINK_SCALE[0], (q[..., 1] + PINK_DROP) / PINK_SCALE[1]], -1)
+        e = (np.sqrt(_panel_rr(q)) - 1) * (r * np.array(PINK_SCALE)).min()
+        e = np.maximum(e, -(p[..., 2] - .02))
+        out = np.minimum(out, e)
+    return out
+
+
 def panel_sdf(p, s=None):
     """Signed distance (in x-y, front of the chest only) to the outline of the pink panel(s): an ellipse a
     little larger than where each cup meets the chest."""
@@ -695,8 +713,11 @@ def with_cups(p, torso):
     """The suit with the cups' stuffing swelling out of it, the fur inside the panels sunk under the cloth."""
     if BODY_SOURCE != 'tripo':
         return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
-    t = torso
-    e = panel_sdf(p)
+    # the stuffed cups, as a solid behind the cloth's surface within the panels, join the suit: the fur covers
+    # the swelling round each cup with exactly the surface the cloth has, so the two meet flush at the seam
+    cup = np.maximum(cloth_sdf(p), panel_sdf(p))
+    t = S.smin(torso, cup, .012)
+    e = pink_sdf(p)
     w = np.clip(-e / .008, 0, 1)
     return t + PANEL_SINK * w * w * (3 - 2 * w)
 
@@ -707,7 +728,7 @@ def udder_sdf(p):
         # thin layer deep; teats sewn on
         u = cloth_sdf(p)
         shell = np.maximum(u, -(u + .014))
-        d = np.maximum(shell, panel_sdf(p))
+        d = np.maximum(shell, pink_sdf(p))
         for s in SIDES:
             for (a, b), m in zip(TEATS[s], TEAT_MID[s]):
                 t = S.smin(S.round_cone(p, a, m, .0150, .0130), S.round_cone(p, m, b, .0130, .0108), .006)

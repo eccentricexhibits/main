@@ -394,7 +394,7 @@ def build_udder(step=.0028, target=50000):
     seam = np.zeros(len(v))
     if D.BODY_SOURCE == 'tripo':
         # the cloth is sewn into the fur round the panel's outline: a shallow stitched dip just inside the edge
-        e = D.panel_sdf(v)
+        e = D.pink_sdf(v)
         seam = np.exp(-((e + .004) / .003) ** 2) * (1 + .5 * np.sin(np.arctan2(v[:, 1] - 1.22, np.abs(v[:, 0]) - .09) * 60))
     else:
         for s in D.SIDES:

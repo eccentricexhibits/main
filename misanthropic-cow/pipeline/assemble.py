@@ -87,7 +87,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             sel = piece == k
             m_face[sel] = T.shag_mask(cen[sel], allowed[k])
     if D.BODY_SOURCE == 'tripo':
-        m_face[(piece == 0) & (D.panel_sdf(cen) < .004)] = 0      # no shag grows under the sewn-in udder panels
+        m_face[(piece == 0) & (D.pink_sdf(cen) < .004)] = 0       # no shag grows under the sewn-in udder cloth
     import groom as GR
     hair = GR.shag_strands(sv, sf, sn, m_face, scene_sdf, scale=(.6 if quick else 1.0))
     tco, sid, roots, rface, rbc = hair['t'], hair['cid'], hair['roots'], hair['face'], hair['bc']
