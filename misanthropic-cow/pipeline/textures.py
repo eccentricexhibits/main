@@ -216,11 +216,31 @@ def _markings_cache(key, value, transform):
 
 
 def _raise_sleeve_blobs(blobs):
+    """Lifted arms: sleeve patches turn with the sleeves; the armpit patches, which sat on the short arm stub
+    the stuffed body loses (design._lifted_shoulders), move onto the body's side under the arm."""
     out = []
     for c, r, U, piece, bone in blobs:
+        c, U, r = np.asarray(c, float), np.asarray(U, float), np.asarray(r, float)
         if piece.startswith('sleeve_'):
             R, piv = _TB.arm_rotation(1 if piece.endswith('L') else -1)
-            c, U = (np.asarray(c) - piv) @ R.T + piv, np.asarray(U) @ R.T
+            c, U = (c - piv) @ R.T + piv, U @ R.T
+        else:
+            for s in (1, -1):
+                sh, el = (np.asarray(v, float) for v in _TB.ARM[s][:2])
+                d0 = (el - sh) / np.linalg.norm(el - sh)
+                rel = c - sh
+                if rel @ d0 > .04 and np.linalg.norm(rel) < .2:
+                    for _ in range(6):                                  # onto the body's surface
+                        e = .002
+                        g = np.array([(_D.torso_sdf((c + e * a)[None])[0] - _D.torso_sdf((c - e * a)[None])[0]) / (2 * e) for a in np.eye(3)])
+                        g /= max(np.linalg.norm(g), 1e-9)
+                        c = c - _D.torso_sdf(c[None])[0] * g
+                    t1 = np.cross(g, [0, 0, 1.]) if abs(g[2]) < .9 else np.cross(g, [1., 0, 0])
+                    t1 /= np.linalg.norm(t1); t2 = np.cross(g, t1)
+                    a1 = U[1] - (U[1] @ g) * g                              # keep the patch's long axis up the side
+                    if np.linalg.norm(a1) > 1e-6:
+                        t2 = a1 / np.linalg.norm(a1); t1 = np.cross(t2, g)
+                    U = np.stack([t1, t2, g]); r = np.array([r[0] * 1.3, r[1] * 1.3, .04])
         out.append((c, r, U, piece, bone))
     return out
 
@@ -297,8 +317,6 @@ def patches_for(chart_name):
 def shag_mask(p, which=None):
     """Patch mask whose edges break into hanging tufts (noise stretched along gravity)."""
     m = np.zeros(p.shape[:-1], np.float32)
-    if _TRIPO and _TB.ARM_RAISE and which is not None and list(which) == list(TORSO_PATCHES):
-        p = _D._shoulder_warp(p)          # lifted arms: the patches stay on the same piece of the stretched suit
     nz = N.fbm(p * np.array([30, 9, 30]), 4, seed=3) + .6 * N.fbm(p * np.array([90, 22, 90]), 2, seed=10)
     allp = all_patches()
     for blob in [allp[i] for i in (which if which is not None else range(len(allp)))]:
