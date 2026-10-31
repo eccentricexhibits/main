@@ -574,7 +574,16 @@ def pillow_h(p, s):
     t = np.clip((.9 - q[..., 1]) / 1.1, 0, 1); t = t * t * (3 - 2 * t)      # fullest a little below the middle
     H = PANEL_TOP_H + (PANEL_MAX_H - PANEL_TOP_H) * t
     gate = np.clip((p[..., 2] - .02) / .03, 0, 1)
-    return H * inside ** (.50 - .22 * t) * gate      # fuller (steeper) at the stuffed lower edge
+    # the stuffing pushes the cloth forward; where the chest turns to face sideways it fades out, so the cup's
+    # outer side rounds back onto the body instead of standing out as a forward fin
+    x, y, e = p[..., 0], p[..., 1], .004
+    gx = (chest_base(x + e, y) - chest_base(x - e, y)) / (2 * e)
+    gy = (chest_base(x, y + e) - chest_base(x, y - e)) / (2 * e)
+    nz = 1 / np.sqrt(1 + gx * gx + np.minimum(gy, 0) ** 2)
+    facing = np.clip((nz - .45) / .30, 0, 1); facing = facing * facing * (3 - 2 * facing)
+    # steep only along the bottom, where the sack hangs over the belly; its sides and top round off
+    bottom = np.clip((-.35 - q[..., 1]) / .45, 0, 1); bottom = bottom * bottom * (3 - 2 * bottom)
+    return H * inside ** (.62 - .36 * bottom) * gate * facing
 
 
 def _panel_rr(q):
@@ -684,13 +693,20 @@ PINK_SCALE, PINK_DROP = (.86, .80), .18
 
 
 def pink_sdf(p, s=None):
-    """Signed distance (x-y, front only) to the outline of the visible pink cloth of each cup."""
+    """Signed distance (x-y, front only) to the outline of the visible pink cloth of each cup.  Round 24: the
+    fur covers the top of the swelling as in round 23, but under the cup the pink runs right down to the seam
+    with the belly, at the cup's full width (the owner: too much fur under the udders)."""
     out = np.full(p.shape[:-1], 1e3)
     for side in (SIDES if s is None else [s]):
         c, r = PANEL[side]
         q = (p[..., :2] - c) / r
-        q = np.stack([q[..., 0] / PINK_SCALE[0], (q[..., 1] + PINK_DROP) / PINK_SCALE[1]], -1)
-        e = (np.sqrt(_panel_rr(q)) - 1) * (r * np.array(PINK_SCALE)).min()
+        lower = np.clip((.20 - q[..., 1]) / .80, 0, 1); lower = lower * lower * (3 - 2 * lower)
+        sx = PINK_SCALE[0] + (1.02 - PINK_SCALE[0]) * lower             # wider towards the bottom, the full cup
+        sy = .97 + .06 * lower                                           # and past the cup's underside to the belly seam
+        full = (np.sqrt(_panel_rr(np.stack([q[..., 0] / sx, q[..., 1] / sy], -1))) - 1) * r.min() * .97
+        top = -PINK_DROP + PINK_SCALE[1] * np.sqrt(np.clip(1 - (q[..., 0] / PINK_SCALE[0]) ** 2, 0, 1))
+        e = np.maximum(full, (q[..., 1] - top) * r[1] * .8)             # round 23's top edge
+        e = np.maximum(e, (.012 - pillow_h(p, side)) * .6)              # and only where the cup really bulges
         e = np.maximum(e, -(p[..., 2] - .02))
         out = np.minimum(out, e)
     return out
@@ -709,14 +725,20 @@ def panel_sdf(p, s=None):
     return out
 
 
+def cup_solid(p):
+    """The stuffed cups as a solid: behind the cloth's surface, within the panels, and no deeper than the chest
+    (so where the chest curves away at the sides no wall of it stands out beside the body)."""
+    behind_chest = (chest_base(p[..., 0], p[..., 1]) - .015) - p[..., 2]
+    return np.maximum(np.maximum(cloth_sdf(p), panel_sdf(p)), behind_chest)
+
+
 def with_cups(p, torso):
     """The suit with the cups' stuffing swelling out of it, the fur inside the panels sunk under the cloth."""
     if BODY_SOURCE != 'tripo':
         return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
     # the stuffed cups, as a solid behind the cloth's surface within the panels, join the suit: the fur covers
     # the swelling round each cup with exactly the surface the cloth has, so the two meet flush at the seam
-    cup = np.maximum(cloth_sdf(p), panel_sdf(p))
-    t = S.smin(torso, cup, .012)
+    t = S.smin(torso, cup_solid(p), .012)
     e = pink_sdf(p)
     w = np.clip(-e / .008, 0, 1)
     return t + PANEL_SINK * w * w * (3 - 2 * w)
@@ -726,7 +748,8 @@ def udder_sdf(p):
     if BODY_SOURCE == 'tripo':
         # the pink panels: the swollen suit surface, a hair proud of the fur, cut to the panel outline and only a
         # thin layer deep; teats sewn on
-        u = cloth_sdf(p)
+        # the cloth is the stuffed cup's whole surface where it shows pink: its front and, below, its underside
+        u = cup_solid(p)
         shell = np.maximum(u, -(u + .014))
         d = np.maximum(shell, pink_sdf(p))
         for s in SIDES:
