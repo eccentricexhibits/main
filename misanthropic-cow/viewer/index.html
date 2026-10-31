@@ -76,14 +76,14 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; 2012 shoot proportions &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 18 &middot; original-shoot proportions &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Chicken dance</div>
-        <div class="status" id="status">Loading the model (16.7 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
       </div>
 
       <div class="row" id="clips">
@@ -156,8 +156,9 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
-          <li>Last round &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
+          <li><strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before.</li>
+          <li>Last round &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
+          <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
           <li>Earlier &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
           <li>Earlier &middot; <strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
           <li><strong>Gloves rebuilt:</strong> each glove is rebuilt as one smooth solid from your Tripo glove, with the same shape, thumb, hooves and texture but without the spiky edges, and with a clean round cuff that fits inside the sleeve instead of the ragged wrist.</li>
@@ -177,38 +178,38 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <h2>Measured per animation</h2>
         <div style="overflow-x:auto">
         <table class="metrics">
-          <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Belly into legs</th><th>Lowest sole</th></tr></thead>
+          <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Belly into legs</th><th>Legs into belly</th><th>Lowest sole</th></tr></thead>
           <tbody>
-            <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>2.1 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Run</td><td>0 mm</td><td>0.1 mm</td><td>19.9 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>32.5 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>0.1 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Chicken Dance</td><td>0 mm</td><td>2.7 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>3.4 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sit Cross-Legged</td><td>0 mm</td><td>2.1 mm</td><td>2.6 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>1.1 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>3.7 mm</td><td>18.6 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>2 mm</td><td>28.3 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0.7 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>5.7 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>35.5 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Run</td><td>0 mm</td><td>0 mm</td><td>10.9 mm</td><td>65.2 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>21.2 mm</td><td>65.3 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>26.5 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Chicken Dance</td><td>0 mm</td><td>2.5 mm</td><td>0 mm</td><td>15.4 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>29.5 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Sit Cross-Legged</td><td>0 mm</td><td>2.1 mm</td><td>3.1 mm</td><td>15.6 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>11.5 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.6 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>29.4 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>3.6 mm</td><td>6.7 mm</td><td>55.1 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>2.0 mm</td><td>15.5 mm</td><td>56.4 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>23.6 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm</td><td>3.5 mm</td><td>3.0 mm</td></tr>
+            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>5.6 mm</td><td>0 mm</td><td>14.9 mm</td><td>3.0 mm</td></tr>
           </tbody>
         </table>
         </div>
-        <p class="note">Depths are 99.5th percentiles over every frame. In every animation the gloves stay out of the body and tucked into the sleeves. The figures of about 7 mm are the relaxed arms resting against the plush sides. Crouch and sit is higher because at the bottom of the squat the upper arms press into the sides of the soft udder cups. In Crying and Exasperated the hooves press about 5 mm into the mask at the eyes and brow.</p>
+        <p class="note">Depths are 99.5th percentiles over every frame, counting only surface you can see (the tops of the tights and briefs tucked inside the suit are left out). In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is the tops of the thighs meeting the belly at the highest knee lifts; with the higher belly of round 18 it is 10&ndash;45&nbsp;% lower than before wherever they meet.</p>
       </section>
       <figure>
         <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
         <figcaption>Mask and hood photos &middot; matching v10 views</figcaption>
       </figure>
       <figure>
-        <img src="compare.jpg" alt="Two 2012 shoot photos beside the v09 render and the v10 front and quarter renders">
-        <figcaption>2012 shoot (0120, 0071) &middot; v09 before &middot; v10 after</figcaption>
+        <img src="compare.jpg" alt="Two original shoot photos beside the v09 render and the round-18 v10 front and quarter renders">
+        <figcaption>Original shoot (0077, 0120) &middot; v09 before &middot; v10 round 18</figcaption>
       </figure>
     </aside>
   </div>
