@@ -625,7 +625,44 @@ def surface_point(fn, origin, direction, tmax=.3):
     return origin + d * t0
 
 
+# Round 22: the teats as sewn on in the original shoot (close-ups in shots 4 and 5 of 15): two short stuffed
+# fabric teats per cup, on the cloth's front, not at its rim.  The lower one sits low and a little inside of
+# centre and points down and forward; the outer one sits at the outer side, at or a little below the middle,
+# and points out and forward.  Each droops a little along its length, and the two sides differ (sewn by
+# hand).  Per teat: position in the panel (out from the middle line, up; in panel radii), pointing direction
+# (out, up, forward), length, droop.
+TEAT_SPECS = {
+    1: [((-.12, -.70), (.05, -.80, .60), .062, .35),
+        ((.55, -.05), (.65, .42, .63), .064, .45)],
+    -1: [((-.10, -.68), (.00, -.78, .62), .060, .35),
+         ((.55, -.35), (.75, .05, .64), .064, .45)],
+}
+TEAT_MID = {}
+
+
+def _tripo_teats(s):
+    (cx, cy), (rx, ry) = PANEL[s]
+    out, mids = [], []
+    f = lambda q: cloth_sdf(np.asarray(q, float)[None])[0]
+    for (qo, qy), (do, du, df), L, droop in TEAT_SPECS[s]:
+        x, y = cx + s * qo * rx, cy + qy * ry
+        base = surface_point(f, np.array([x, y, .06]), np.array([0, 0, 1.]))
+        e = .002
+        n = np.array([(f(base + e * a) - f(base - e * a)) / (2 * e) for a in np.eye(3)]); n /= np.linalg.norm(n)
+        d1 = np.array([s * do, du, df]); d1 /= np.linalg.norm(d1)
+        if d1 @ n < .35:                                        # always leaves the cloth, not along it
+            d1 = d1 + (.35 - d1 @ n) * n; d1 /= np.linalg.norm(d1)
+        mid = base + .5 * L * d1
+        d2 = d1 + np.array([0, -droop, 0]); d2 /= np.linalg.norm(d2)
+        out.append((base - .010 * d1, mid + .5 * L * d2))
+        mids.append(mid)
+    TEAT_MID[s] = mids
+    return out
+
+
 def teats(s):
+    if BODY_SOURCE == 'tripo':
+        return _tripo_teats(s)
     out = []
     for base_dir, point in teat_specs(s):
         origin = (np.array([PANEL[s][0][0], PANEL[s][0][1], .06]) if BODY_SOURCE == 'tripo'
@@ -672,8 +709,9 @@ def udder_sdf(p):
         shell = np.maximum(u, -(u + .014))
         d = np.maximum(shell, panel_sdf(p))
         for s in SIDES:
-            for a, b in TEATS[s]:
-                d = S.smin(d, S.round_cone(p, a, b, .0160, .0122), .014)
+            for (a, b), m in zip(TEATS[s], TEAT_MID[s]):
+                t = S.smin(S.round_cone(p, a, m, .0150, .0130), S.round_cone(p, m, b, .0130, .0108), .006)
+                d = S.smin(d, t, .012)
         return d
     d = np.full(p.shape[:-1], 1e3)
     for s in SIDES:
