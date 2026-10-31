@@ -378,15 +378,29 @@ def build_briefs(lv, lf, ln, W_leg):
 
 # ---------------------------------------------------------------- udder
 def build_udder(step=.0028, target=50000):
-    v, f = mesh_from(D.udder_sdf, (-.34, .97, -.07), (.34, 1.34, .37), step, target, smooth=4)   # room for the forward teats' tips
+    if D.BODY_SOURCE == 'tripo':
+        # the two sewn-in panels are separate pieces of cloth: mesh each on its own (the mesher keeps one piece)
+        vs, fs, off = [], [], 0
+        for s in D.SIDES:
+            lo, hi = ((0., .97, -.07), (.34, 1.38, .37)) if s == 1 else ((-.34, .97, -.07), (0., 1.38, .37))
+            vv, ff = mesh_from(lambda q, s=s: np.maximum(D.udder_sdf(q), -s * q[..., 0]), lo, hi, step, target // 2, smooth=4)
+            vs.append(vv); fs.append(ff + off); off += len(vv)
+        v, f = np.vstack(vs), np.vstack(fs)
+    else:
+        v, f = mesh_from(D.udder_sdf, (-.34, .97, -.07), (.34, 1.34, .37), step, target, smooth=4)   # room for the forward teats' tips
     # stuffed-cloth softness: shallow wrinkles + a gathered seam ring where each cup meets the suit
     n = S.vertex_normals(v, f)
     wr = N.fbm(v * np.array([30, 55, 30]), 3, seed=31)
     seam = np.zeros(len(v))
-    for s in D.SIDES:
-        rel = (v - D.CUP_C[s]) / D.CUP_R[s]
-        dz = rel[:, 2] + .15
-        seam += np.exp(-(dz / .06) ** 2) * (np.sign(v[:, 0]) == s)
+    if D.BODY_SOURCE == 'tripo':
+        # the cloth is sewn into the fur round the panel's outline: a shallow stitched dip just inside the edge
+        e = D.panel_sdf(v)
+        seam = np.exp(-((e + .004) / .003) ** 2) * (1 + .5 * np.sin(np.arctan2(v[:, 1] - 1.22, np.abs(v[:, 0]) - .09) * 60))
+    else:
+        for s in D.SIDES:
+            rel = (v - D.CUP_C[s]) / D.CUP_R[s]
+            dz = rel[:, 2] + .15
+            seam += np.exp(-(dz / .06) ** 2) * (np.sign(v[:, 0]) == s)
     v = v + n * (.0016 * wr - .0018 * seam)[:, None]
     # sewn-on teats gather the cloth: radial puckers fanning out round each teat's base
     n = S.vertex_normals(v, f)
@@ -401,7 +415,7 @@ def build_udder(step=.0028, target=50000):
             dist = np.linalg.norm(radial, axis=1)
             e1 = np.cross(d, [0, 1, 0]); e1 /= np.linalg.norm(e1); e2 = np.cross(d, e1)
             ang = np.arctan2(radial @ e2, radial @ e1)
-            ring = np.exp(-((dist - .026) / .012) ** 2) * (along < .012)
+            ring = np.exp(-((dist - .026) / .012) ** 2) * (along < .012) * (along > -.018)
             puck += ring * np.cos(7 * ang + 1.3 * k + s)
     v = v + n * (.0018 * puck)[:, None]
     out = []

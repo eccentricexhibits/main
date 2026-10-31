@@ -282,10 +282,9 @@ def tripo_suit_parts(p, torso_only=False):
     # the neckline dips at the front to just under the mask's chin (1.358 m); the chest fills forward under it
     w = np.clip((z - (HEAD_DZ - .04)) / .10, 0, 1)
     torso = S.smax(torso, p[..., 1] - (1.405 - .060 * w * w * (3 - 2 * w)), .02)
-    # behind the udder cups the chest recedes: where the Tripo cups were filled in, the fill spans their rims,
-    # in front of the chest itself; the cups (separate pieces) cover the carved hollow
-    cups = np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1))
-    torso = S.smax(torso, -(cups + .006), .015)
+    # the udder cups are sewn into holes in the fur (round 19c): the suit swells into each cup, and inside the
+    # panel's outline the fur lies just under the pink cloth (udder_sdf), which covers it flush to the seam
+    torso = with_cups(p, torso)
     torso = S.smax(torso, p[..., 1] - 1.405, .02)
     torso = S.smax(torso, hem_height(x, z) - p[..., 1], .04)
     out['torso'] = torso
@@ -365,6 +364,27 @@ SHIN_TOP, SHIN_BLEND = .34, (.30, .40)     # below the calf the leg is a clean t
 ANKLE_R = .034
 
 
+THIGH_BLEND = (.50, .60)
+PELVIS_C, PELVIS_R = np.array([0, .835, -.005]), np.array([.190, .105, .135])
+THIGH_TOP, THIGH_KNEE, THIGH_R, THIGH_DEPTH = (.095, .80), (.093, .52), (.100, .066), 1.25
+
+
+def _thigh(p, s):
+    a = np.array([s * THIGH_TOP[0], THIGH_TOP[1], .008])
+    b = np.array([s * THIGH_KNEE[0], THIGH_KNEE[1], .000])
+    q = p.copy()
+    zc = np.interp(p[..., 1], [b[1], a[1]], [b[2], a[2]])
+    q[..., 2] = zc + (p[..., 2] - zc) / THIGH_DEPTH
+    return S.round_cone(q, a, b, THIGH_R[0], THIGH_R[1])
+
+
+def _person_hips(p):
+    """The wearer's pelvis and thighs down to above the knee."""
+    pelvis = S.ellipsoid(p, PELVIS_C, PELVIS_R)
+    thighs = np.minimum(_thigh(p, 1), _thigh(p, -1))
+    return S.smin(pelvis, thighs, .045)
+
+
 def tripo_legging_parts(p):
     """Round 19: Tripo's legs and hips at the photo leg length.  Above the hem they continue hidden inside the
     stuffed suit (2 cm inside it and 3 cm inside Tripo's surface, no further forward than the hips), so the
@@ -375,7 +395,14 @@ def tripo_legging_parts(p):
     hem = hem_height(x, z)
     w = np.clip((y - (hem - .01)) / .05, 0, 1)
     w = w * w * (3 - 2 * w)
-    d = TB.body_legs_sdf(p) + LEG_INSET * w
+    d = TB.body_legs_sdf(p)
+    # round 19c: from mid-thigh up, the wearer's own pelvis and thighs (Tripo's thighs, widened to the photos'
+    # width, had become two blocky columns with flat tops and a slot between them).  Thighs are tapered,
+    # slightly oval (deeper than wide), meet the pelvis in a soft groin crease and nearly touch at the top.
+    u = np.clip((y - THIGH_BLEND[0]) / (THIGH_BLEND[1] - THIGH_BLEND[0]), 0, 1); u = u * u * (3 - 2 * u)
+    if (u > 0).any():
+        d = np.where(u > 0, d * (1 - u) + _person_hips(p) * u, d)
+    d = d + LEG_INSET * w
     up = y > .70
     if up.any():
         inner = np.full_like(d, -1.)
@@ -466,9 +493,77 @@ if BODY_SOURCE == 'tripo':
                -1: (np.array([-.004, -.024, .020]), np.array([.066, .060, .054]))}
 
 
+# Round 19c: the udders are pink cloth panels sewn into holes in the fur, stuffed from behind.  Each panel's
+# outline (front view, x-y) and how far its stuffing pushes the cloth out from the suit's chest: little at the
+# top edge, most at the lower part, so from the side each is a teardrop (approved views, owner's photo).
+PANEL = {1: (np.array([.098, 1.218]), np.array([.094, .097])), -1: (np.array([-.096, 1.214]), np.array([.092, .095]))}
+PANEL_TOP_H, PANEL_MAX_H = .020, .085
+PANEL_PROUD = .0035                    # the pink cloth lies this far over the fur's base surface (fur pile ~4.5 mm)
+PANEL_SINK = .010                      # inside the panel the fur is pushed this far under the cloth
+
+
+_CHEST = None
+
+
+def chest_base(x, y):
+    """Where the cloth panels are sewn on: the suit's chest surface (z, by x and y), smoothed so Tripo's small
+    lumps don't show through the cloth, and not following the belly forward under the panels' lower edge."""
+    global _CHEST
+    if _CHEST is None:
+        from scipy import ndimage
+        xs, ys = np.arange(-.24, .2401, .005), np.arange(1.06, 1.3801, .005)
+        zs = np.linspace(.36, -.06, 421)
+        X, Y = np.meshgrid(xs, ys, indexing='ij')
+        P = np.stack([np.broadcast_to(X[..., None], X.shape + zs.shape), np.broadcast_to(Y[..., None], X.shape + zs.shape),
+                      np.broadcast_to(zs, X.shape + zs.shape)], -1)
+        inside = TB.stuffed_torso_sdf(P) < 0
+        first = np.argmax(inside, -1)
+        Z = np.where(inside.any(-1), zs[first], -.06)
+        Z = ndimage.gaussian_filter(Z, 3.0, mode='nearest')
+        j = int(round((1.17 - ys[0]) / .005))
+        Z[:, :j] = np.minimum(Z[:, :j], Z[:, j:j + 1])
+        _CHEST = (xs, ys, Z)
+    xs, ys, Z = _CHEST
+    from scipy import ndimage
+    i = (np.asarray(x) - xs[0]) / .005
+    j = (np.asarray(y) - ys[0]) / .005
+    shp = np.shape(x)
+    return ndimage.map_coordinates(Z, [np.ravel(i), np.ravel(j)], order=1, mode='nearest').reshape(shp)
+
+
+def cloth_sdf(p):
+    """Front of the pink cloth (both panels): the chest pushed out by each panel's stuffing (a height field)."""
+    def zc(x, y):
+        q = np.stack([x, y, p[..., 2]], -1)
+        return chest_base(x, y) + pillow_h(q, 1) + pillow_h(q, -1) + PANEL_PROUD
+    x, y, e = p[..., 0], p[..., 1], .003
+    gx = (zc(x + e, y) - zc(x - e, y)) / (2 * e)
+    gy = (zc(x, y + e) - zc(x, y - e)) / (2 * e)
+    # a true distance where the chest slopes away to the side (keeps the thin cloth layer whole at the edges)
+    return (p[..., 2] - zc(x, y)) / np.sqrt(1 + gx * gx + gy * gy)
+
+
+def pillow_h(p, s):
+    c, r = PANEL[s]
+    q = (p[..., :2] - c) / r
+    inside = np.clip(1 - _panel_rr(q), 0, 1)
+    t = np.clip((.9 - q[..., 1]) / 1.1, 0, 1); t = t * t * (3 - 2 * t)      # fullest a little below the middle
+    H = PANEL_TOP_H + (PANEL_MAX_H - PANEL_TOP_H) * t
+    gate = np.clip((p[..., 2] - .02) / .03, 0, 1)
+    return H * inside ** (.55 - .20 * t) * gate      # fuller (steeper) at the stuffed lower edge
+
+
+def _panel_rr(q):
+    """Squared normalised radius of the panel outline: round at the top, broad (squarer) at the bottom."""
+    k = np.where(q[..., 1] < 0, 2.8, 2.0)
+    return (np.abs(q[..., 0]) ** k + np.abs(q[..., 1]) ** k) ** (2 / k)
+
+
 def cup_sdf_one(p, s):
     """A pillow wider than it is tall, its stuffing settled into a lobe that hangs forward and down,
     so seen from the side the cup is a teardrop with the bottom teat at its lower front tip."""
+    if BODY_SOURCE == 'tripo':
+        return p[..., 2] - (chest_base(p[..., 0], p[..., 1]) + pillow_h(p, s) + PANEL_PROUD)
     a = S.ellipsoid(p, CUP_C[s], CUP_R[s])
     off, r = CUP_SAG[s]
     b = S.ellipsoid(p, CUP_C[s] + off, r)
@@ -481,11 +576,12 @@ def teat_specs(s):
     two sides do not mirror each other.  Round 19 (approved views): the lower teat hangs forward and down
     from the cup's lower front; the outer one stands out sideways and forward at the cup's middle."""
     if BODY_SOURCE == 'tripo':
+        # round 19c: the lower teat at the bottom of the panel pointing down, the outer one out and a little up
         if s == 1:
-            return [(np.array([-.30, -.55, .80]), np.array([.02, -.74, .67])),
-                    (np.array([.95, .05, .45]), np.array([.74, .10, .66]))]
-        return [(np.array([.26, -.58, .78]), np.array([-.04, -.70, .71])),
-                (np.array([-.95, .02, .42]), np.array([-.78, .06, .62]))]
+            return [(np.array([-.05, -.38, .92]), np.array([.02, -.80, .60])),
+                    (np.array([.62, .02, .78]), np.array([.72, .30, .62]))]
+        return [(np.array([.06, -.40, .91]), np.array([-.03, -.78, .62])),
+                (np.array([-.64, .00, .77]), np.array([-.74, .26, .62]))]
     if s == 1:
         return [(np.array([-.22, -.70, 1.70]), np.array([.06, -.60, .92])),
                 (np.array([1.0, -.50, .62]), np.array([.90, -.45, .32]))]
@@ -508,7 +604,9 @@ def surface_point(fn, origin, direction, tmax=.3):
 def teats(s):
     out = []
     for base_dir, point in teat_specs(s):
-        base = surface_point(lambda q: cup_sdf_one(q, s), CUP_C[s] + [0, -.02, .02], base_dir)
+        origin = (np.array([PANEL[s][0][0], PANEL[s][0][1], .06]) if BODY_SOURCE == 'tripo'
+                  else CUP_C[s] + [0, -.02, .02])
+        base = surface_point(lambda q: cup_sdf_one(q, s), origin, base_dir)
         d = point / np.linalg.norm(point)
         out.append((base - .012 * d, base + .072 * d))
     return out
@@ -517,7 +615,42 @@ def teats(s):
 TEATS = {s: teats(s) for s in SIDES}
 
 
+
+
+def panel_sdf(p, s=None):
+    """Signed distance (in x-y, front of the chest only) to the outline of the pink panel(s): an ellipse a
+    little larger than where each cup meets the chest."""
+    out = np.full(p.shape[:-1], 1e3)
+    for side in (SIDES if s is None else [s]):
+        c, r = PANEL[side]
+        q = (p[..., :2] - c) / r
+        e = (np.sqrt(_panel_rr(q)) - 1) * r.min()
+        e = np.maximum(e, -(p[..., 2] - .02))
+        out = np.minimum(out, e)
+    return out
+
+
+def with_cups(p, torso):
+    """The suit with the cups' stuffing swelling out of it, the fur inside the panels sunk under the cloth."""
+    if BODY_SOURCE != 'tripo':
+        return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
+    t = torso
+    e = panel_sdf(p)
+    w = np.clip(-e / .008, 0, 1)
+    return t + PANEL_SINK * w * w * (3 - 2 * w)
+
+
 def udder_sdf(p):
+    if BODY_SOURCE == 'tripo':
+        # the pink panels: the swollen suit surface, a hair proud of the fur, cut to the panel outline and only a
+        # thin layer deep; teats sewn on
+        u = cloth_sdf(p)
+        shell = np.maximum(u, -(u + .014))
+        d = np.maximum(shell, panel_sdf(p))
+        for s in SIDES:
+            for a, b in TEATS[s]:
+                d = S.smin(d, S.round_cone(p, a, b, .0160, .0122), .014)
+        return d
     d = np.full(p.shape[:-1], 1e3)
     for s in SIDES:
         c = cup_sdf_one(p, s)
