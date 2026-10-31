@@ -517,8 +517,11 @@ if BODY_SOURCE == 'tripo':
 # Round 19c: the udders are pink cloth panels sewn into holes in the fur, stuffed from behind.  Each panel's
 # outline (front view, x-y) and how far its stuffing pushes the cloth out from the suit's chest: little at the
 # top edge, most at the lower part, so from the side each is a teardrop (approved views, owner's photo).
-PANEL = {1: (np.array([.098, 1.218]), np.array([.094, .097])), -1: (np.array([-.096, 1.214]), np.array([.092, .095]))}
-PANEL_TOP_H, PANEL_MAX_H = .020, .085
+# Round 21: sized from the original photo shoot (shots 4-7 of 15), as the cups were first stuffed: each about
+# 22 cm wide and 24 cm tall (1.10-1.34 m), the pair filling the chest and meeting in the middle, and stuffed
+# into full round globes that stand out about 15 cm (the approved views drew them smaller and flatter).
+PANEL = {1: (np.array([.106, 1.218]), np.array([.111, .118])), -1: (np.array([-.104, 1.214]), np.array([.109, .116]))}
+PANEL_TOP_H, PANEL_MAX_H = .030, .150
 PANEL_PROUD = .0035                    # the pink cloth lies this far over the fur's base surface (fur pile ~4.5 mm)
 PANEL_SINK = .010                      # inside the panel the fur is pushed this far under the cloth
 
@@ -556,7 +559,7 @@ def cloth_sdf(p):
     """Front of the pink cloth (both panels): the chest pushed out by each panel's stuffing (a height field)."""
     def zc(x, y):
         q = np.stack([x, y, p[..., 2]], -1)
-        return chest_base(x, y) + pillow_h(q, 1) + pillow_h(q, -1) + PANEL_PROUD
+        return chest_base(x, y) + np.maximum(pillow_h(q, 1), pillow_h(q, -1)) + PANEL_PROUD   # the two press together, a crease between
     x, y, e = p[..., 0], p[..., 1], .003
     gx = (zc(x + e, y) - zc(x - e, y)) / (2 * e)
     gy = (zc(x, y + e) - zc(x, y - e)) / (2 * e)
@@ -571,7 +574,7 @@ def pillow_h(p, s):
     t = np.clip((.9 - q[..., 1]) / 1.1, 0, 1); t = t * t * (3 - 2 * t)      # fullest a little below the middle
     H = PANEL_TOP_H + (PANEL_MAX_H - PANEL_TOP_H) * t
     gate = np.clip((p[..., 2] - .02) / .03, 0, 1)
-    return H * inside ** (.55 - .20 * t) * gate      # fuller (steeper) at the stuffed lower edge
+    return H * inside ** (.50 - .22 * t) * gate      # fuller (steeper) at the stuffed lower edge
 
 
 def _panel_rr(q):
