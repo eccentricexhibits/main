@@ -6,12 +6,12 @@ Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything need
 
 There are two models, and they come from two different builds.
 
-- **Round 25 (the newest, a static preview; the handoff package was made at round 24).** The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`.
+- **Round 25 (the newest, a static preview).** The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r25.glb` and `..._r25_arms_raised.glb`.
 - **Round 18 (animated).** This is the last rigged model: 58 joints, 18 clips and baked physics, built by `pipeline/build_v10.py`. It uses the older body, made from SDF primitives.
 
-The viewer opens on round 24, with round 18 beside it for comparison.
+The viewer opens on round 25, with round 18 beside it for comparison.
 
-**The next step the owner asked for is the rig and the animations on the round 24 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
+**The next step the owner asked for is the rig and the animations on the round 25 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
 
 ## The project
 
@@ -224,14 +224,14 @@ Rounds 19–24 added these modules and functions (everything else is as in round
 
 ## How to rebuild and check
 
-**Round 24 static models** (about 12 minutes each at full resolution; `--quick` takes about 2 minutes):
+**Round 25 static models** (about 12 minutes each at full resolution; `--quick` takes about 2 minutes):
 
 ```bash
 pip install numpy scipy pillow scikit-image vtk xatlas     # plus g++ on PATH
 cd Cow_v10/pipeline
 export REBUILD=../../Rebuild_Inputs/project COW_MARKINGS_CACHE=../build/markings.pkl
-python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r24.glb
-COW_ARM_RAISE=70 python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r24_arms_raised.glb
+python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r25.glb
+COW_ARM_RAISE=70 python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r25_arms_raised.glb
 ```
 
 Build the arms-down model first, because it writes the markings cache that the arms-raised build reads. Then:
@@ -247,7 +247,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 
 ## Next steps (the owner's plan)
 
-1. **Rig the round 24 body.** `rig.py`, `anim.py` and `build_v10.py` were written for the round 18 SDF body. Expect to re-check:
+1. **Rig the round 25 body.** `rig.py`, `anim.py` and `build_v10.py` were written for the round 18 SDF body. Expect to re-check:
    - joint positions: `design.J` already follows the Tripo legs and arms, and `J['Head']` follows the head pose;
    - skin-weight bands: the torso is now the stuffed sack plus the Tripo chest;
    - the udders, which are now part of the suit surface. They should move with the chest and have only a little give. The teat bones should come from `TEAT_SPECS` and `TEAT_MID`.
@@ -258,7 +258,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 
 ## Known open items
 
-**Round 24 static model**
+**Round 25 static model**
 - The Gemini views disagree with each other about the 3D positions of some leggings spots. Front and back match closely; the side views are close but not exact. The view facing a spot most squarely wins.
 - The stuffed sack meets the Tripo chest at about 1.06–1.12 m. It is smooth now, but any reshaping of the sack's top rows (`SACK` 1.06–1.22) needs a check from the back with the arms raised.
 - The arms-raised pose is a separate static build at 70°, not a rig pose. Its armpit fur patches are moved onto the body side by a heuristic (`textures._raise_sleeve_blobs`).
@@ -295,7 +295,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 - **Lifted arms:** keep the stuffed body rigid. Trim only outside the body's side wall: a half-space trim cut into the chest side and made a pinch, and a plain cylinder trim cut through the chest and left pockets and slivers (holes, round 25b). Check cross-sections of `torso_sdf` at 1.10–1.22 m, and count enclosed pockets with `binary_fill_holes`.
 - **Approved views:** their side outlines include the hanging arms, so smooth fits over about 4 cm. Their white backdrop shows between the legs; it is excluded from the spots by removing pure-background pixels. Paint in shade is mid-grey (luminance about 95–140).
 - **Build times:** quick builds take about 2 minutes and full builds about 12 minutes per pose. The CPU renderer (`render.py`) gives comparison sheets in seconds.
-- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r24-meshopt.b64.1.txt` and so on. Each viewer round renames its files (r19 → r24): rename the keys in `index.html` (`FIGS`, `MODES`, `GUIDES`, labels) with them.
+- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r25-meshopt.b64.1.txt` and so on. Each viewer round renames its files (r19 → r25): rename the keys in `index.html` (`FIGS`, `MODES`, `GUIDES`, labels) with them.
 
 **From earlier rounds**
 

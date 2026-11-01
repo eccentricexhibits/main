@@ -1,21 +1,21 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 24 complete; rounds 19-24 are a static preview of the new body, round 18 is the last animated model)",
+ "version": "v10 (feedback round 25 complete; rounds 19-25 are a static preview of the new body, round 18 is the last animated model)",
  "date": "2026-11-01",
  "git_branch": "claude/quirky-darwin-pij3xe",
- "git_commit": "8d0ccb1 (round 24)",
+ "git_commit": "551cc25 (round 25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
- "round_24_model": {
-  "body": "owner's Tripo model (assets/tripo_body.npz) fitted to the four approved Gemini views; stuffed sack midsection; person's hips and thighs under the leggings",
-  "udders": "stuffed pink cups sewn into the fur, 22 x 24 cm, about 15 cm proud, sized from the original shoot (shots 4-7 of 15); fur over the tops, pink all the way under",
+ "round_25_model": {
+  "body": "owner's Tripo model (assets/tripo_body.npz) fitted to the four approved Gemini views; stuffed sack midsection; person's hips and thighs under the leggings; sides dip in under the udders (round 25)",
+  "udders": "stuffed pink cups sewn into the fur, 22 x 24 cm, about 15 cm proud, sized from the original shoot (shots 4-7 of 15); fur over the tops, pink all the way under; briefs pass under the crotch with a gusset (round 25); no holes under the raised arms (round 25b)",
   "poses": [
    "arms down (A-pose)",
    "arms raised 70 degrees (COW_ARM_RAISE=70)"
   ],
   "rig": "none yet (next step)",
-  "triangles_arms_down": 1426108,
-  "vertices_arms_down": 908598,
-  "shag_strands_arms_down": 16018,
+  "triangles_arms_down": 1432410,
+  "vertices_arms_down": 915020,
+  "shag_strands_arms_down": 16027,
   "gltf_validator": "0 errors (web copies); 19 warnings are generated-tangent notices",
   "build": "pipeline/review_tools/build_static.py (about 12 min per pose at full resolution, 2 min --quick)"
  },
@@ -32,12 +32,12 @@
   "static_glb_bytes": 83115800
  },
  "files": {
-  "round_24_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r24.glb",
-  "round_24_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r24_arms_raised.glb",
+  "round_25_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb",
+  "round_25_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r25_arms_raised.glb",
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
-  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 24, version 31)",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 25, version 33)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/"
  },
@@ -235,6 +235,26 @@
    "commit": "8d0ccb1fbf7f2fbdea48af7cc2df107cae95309b",
    "date": "2026-10-31",
    "summary": "Cow round 24: udder cups pink all the way under; fur only over their tops"
+  },
+  {
+   "commit": "d2ec4e58e39525903b0ee0ed0fc612298e1e4104",
+   "date": "2026-11-01",
+   "summary": "Cow v10 handoff at round 24: docs, review tools and review sheets"
+  },
+  {
+   "commit": "38d3c90c622cfc65128d1b8a70a841231d9d7310",
+   "date": "2026-11-01",
+   "summary": "Cow handoff: review tools README points to the package's original-name Gemini views"
+  },
+  {
+   "commit": "1e7b9497b8d11d8fbab7e6a37b4251d577add1b1",
+   "date": "2026-11-01",
+   "summary": "Cow round 25: sides dip under the udders; briefs pass under the crotch"
+  },
+  {
+   "commit": "551cc257ce7a98e618d15900ecdb9bd6f560ec10",
+   "date": "2026-11-01",
+   "summary": "Cow round 25b: no holes under the arms when they are raised"
   }
  ],
  "validation_per_clip_round_18": {
@@ -564,7 +584,7 @@
   }
  },
  "next_steps": [
-  "Rig the round 24 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Rig the round 25 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
   "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
   "Lace side panels on the briefs (offered, not yet done)"
  ],
