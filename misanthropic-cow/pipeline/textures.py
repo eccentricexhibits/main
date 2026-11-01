@@ -245,6 +245,28 @@ def _raise_sleeve_blobs(blobs):
     return out
 
 
+# Round 30 (the owner's notes and photos of the costume): the approved views' patches the owner marked are dropped,
+# by where they sit (centre, radius; x = the cow's left): the patch at the front of the neck, which the Gemini
+# views drew there in five pieces, a small one high on the cow's left shoulder, and a small one on the right side of
+# the belly.  The neck patch is really on the cow's right upper chest, just above the right udder, a round shag
+# patch about 12 cm across (PATCH_ADD: x, y, half-width, half-height).
+PATCH_REMOVE = [((-.03, 1.35, .05), .07), ((.14, 1.353, .014), .03), ((-.145, .975, .264), .03)]
+PATCH_ADD = [(-.105, 1.340, .064, .060)]
+
+
+def _edit_patches(blobs, cen, fn):
+    out = [b for b in blobs if not (b[3] == 'torso' and any(np.linalg.norm(b[0] - np.array(c)) < r for c, r in PATCH_REMOVE))]
+    for x, y, rx, ry in PATCH_ADD:
+        near = (np.abs(cen[:, 0] - x) < .01) & (np.abs(cen[:, 1] - y) < .01) & (fn[:, 2] > 0)
+        i = np.flatnonzero(near)[np.argmax(cen[near, 2])]            # the suit's front surface there
+        c, g = cen[i].copy(), fn[i] / np.linalg.norm(fn[i])
+        t1 = np.cross([0., 1., 0.], g); t1 /= np.linalg.norm(t1)
+        t2 = np.cross(g, t1)
+        bone = int(bone_of(c[None], np.array([0]))[0])
+        out.append((c, np.array([rx, ry, .035]), np.stack([t1, t2, g]), 'torso', bone))
+    return out
+
+
 def fit_projected_patches(sv, sf, labels, quick=False):
     """Round 19b: the approved views' patches, projected onto the suit, become round 18's kind of patch: a few
     tufted ellipses per patch, drawn by shag_mask and grown with strands, instead of the projection's own
@@ -268,6 +290,7 @@ def fit_projected_patches(sv, sf, labels, quick=False):
         for c, r, U in _mask_blobs(cen[sel], area[sel], fn[sel], m[sel], .012, MIN_PATCH_AREA):
             bone = int(bone_of(c[None], np.array([k]))[0])
             blobs.append((c, r, U, name, bone))
+    blobs = _edit_patches(blobs, cen[piece == 0], fn[piece == 0])
     blobs = _markings_cache('blobs', blobs, _raise_sleeve_blobs)
     _TRIPO = blobs
     TORSO_PATCHES = [i for i, t in enumerate(blobs) if t[3] == 'torso']

@@ -293,6 +293,23 @@ def _lifted_shoulders(p, torso):
     return torso
 
 
+# Round 30: Tripo's torso keeps a nub at the front of each armpit (where its arm met the body), up to 4 cm
+# proud of the side wall at 1.14-1.18 m, just in front of the side; it showed as a lump between each cup and arm.
+# There the side wall is capped at its width 3 cm further back (ARMPIT_WALL, per height), fading out by the
+# shoulder.
+ARMPIT_WALL = np.array([[1.08, .180], [1.10, .179], [1.12, .187], [1.14, .195], [1.16, .202], [1.18, .220],
+                        [1.20, .249], [1.22, .274]])
+
+
+def _trim_armpit_nubs(p, torso):
+    y, z = p[..., 1], p[..., 2]
+    w = np.interp(y, ARMPIT_WALL[:, 0], ARMPIT_WALL[:, 1]) + .003
+    band = np.clip((y - 1.09) / .02, 0, 1) * np.clip((1.215 - y) / .025, 0, 1)
+    front = np.clip((z + .03) / .02, 0, 1)
+    cut = np.abs(p[..., 0]) - w - (1 - band * front) * .5      # no effect outside the band
+    return S.smax(torso, cut, .015)
+
+
 def tripo_suit_parts(p, torso_only=False):
     """Round 19: the torso is Tripo's (with its shoulder caps), finished as the costume is worn: the neck
     tucks into the neckline, the back-fat roll carries the bow, the hem is round 18's bowl.  The sleeves
@@ -300,6 +317,7 @@ def tripo_suit_parts(p, torso_only=False):
     out = {}
     x, z = p[..., 0], p[..., 2]
     torso = TB.stuffed_torso_sdf(p)
+    torso = _trim_armpit_nubs(p, torso)
     if TB.ARM_RAISE:
         torso = _lifted_shoulders(p, torso)
     # the shoulders slope away from the neck (the approved views): Tripo's hood drape is cut off, so the neck
