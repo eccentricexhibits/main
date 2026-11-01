@@ -247,18 +247,17 @@ def suit_parts(p, torso_only=False):
 
 def head_parts(p):
     """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
-    pw, p = p, head_unpose(p)
+    p = head_unpose(p)
     # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
     # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
     head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), (.090, .118, .099))     # back of the head 2 cm flatter
     hood_neck = S.round_cone(p, (0, 1.355, -.030 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), .060, .064)
     hood = S.smin(head, hood_neck, .04)
     hood = S.smin(hood, hood_face(p), .03)
-    if BODY_SOURCE == 'tripo':
-        # the hood's back falls straight from the crown to the shoulders (approved side views), not into the nape
-        cowl = S.round_cone(pw, (0, 1.53, -.022 + HEAD_DZ - .05), (0, 1.36, -.058 + HEAD_DZ - .05), .064, .068)
-        cowl = S.smax(cowl, pw[..., 2] - (HEAD_DZ - .05), .03)
-        hood = S.smin(hood, cowl, .04)
+    # Round 26: no cowl.  Rounds 19c-25 filled the back of the hood down to the shoulders (a round cone from
+    # the crown to 1.36 m), following the approved side views; it read as one smoothed back rather than a hood
+    # on a bigger costume, so the hood is again rounds 17/18's: the round back of the head over a snug neck
+    # that tucks into the suit's neckline.
     hood = S.smax(hood, p[..., 2] - (MASK_BACK_Z + .003), .004)   # ends just inside the mask shell
     # the fur-covered tube that carries the horns is part of the mask, resting on its top edge
     return {'hood': hood, 'tube': S.round_cylinder_x(p, TUBE_C, TUBE_HALF, TUBE_R, .012)}
@@ -291,6 +290,25 @@ def _lifted_shoulders(p, torso):
     return torso
 
 
+# Round 26: the suit's top is padded like rounds 17/18's, so the hood reads as a hood sitting on a bigger costume
+# rather than one smoothed back.  Tripo's upper back is a person's: it sloped 8.5 cm in towards the neck between
+# 1.30 and 1.38 m (round 18: 2.7 cm), and its shoulders by the neck were 3 cm lower.  The yoke is round 18's
+# padded shoulders (a capsule across them) over a full upper back, moved forward with the head (HEAD_DZ); the
+# neckline and the shoulder slope cut below still shape its top, so the shoulders still fall away from the neck.
+YOKE_BACK = ((0, 1.285, -.075), (.165, .125, .115))     # centre (x, y, z before HEAD_DZ) and radii (m)
+YOKE_SHOULDER = (.145, 1.318, -.036, .062)               # round 18's shoulder capsule: half-width, y, z, radius
+YOKE_K = .05
+YOKE_BACK_SLOPE = .35                                    # 1 = rounds 19-25's cut behind the neck
+
+
+def padded_yoke(p):
+    (cx, cy, cz), r = YOKE_BACK
+    back = S.ellipsoid(p, (cx, cy, cz + HEAD_DZ), r)
+    hx, sy, sz, sr = YOKE_SHOULDER
+    shoulders = S.capsule(p, (-hx, sy, sz + HEAD_DZ), (hx, sy, sz + HEAD_DZ), sr)
+    return S.smin(back, shoulders, .07)
+
+
 def tripo_suit_parts(p, torso_only=False):
     """Round 19: the torso is Tripo's (with its shoulder caps), finished as the costume is worn: the neck
     tucks into the neckline, the back-fat roll carries the bow, the hem is round 18's bowl.  The sleeves
@@ -300,11 +318,14 @@ def tripo_suit_parts(p, torso_only=False):
     torso = TB.stuffed_torso_sdf(p)
     if TB.ARM_RAISE:
         torso = _lifted_shoulders(p, torso)
+    torso = S.smin(torso, padded_yoke(p), YOKE_K)
     # the shoulders slope away from the neck (the approved views): Tripo's hood drape is cut off, so the neck
     # stands clear of the shoulders and the head sits up on it instead of sinking into a raised collar
     zn = -.030 + HEAD_DZ
     dx = np.maximum(np.abs(x) - .075, 0)
-    dzb = np.maximum((zn - .055) - z, 0)
+    # round 26: behind the neck the cut falls away less steeply (YOKE_BACK_SLOPE), so the padded upper back
+    # stays full up to the neckline as on rounds 17/18 instead of sloping into the hood
+    dzb = YOKE_BACK_SLOPE * np.maximum((zn - .055) - z, 0)
     torso = S.smax(torso, p[..., 1] - (1.405 - .55 * np.sqrt(dx * dx + dzb * dzb + 1e-8)), .03)
     neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
     torso = S.smin(torso, neck, .04)

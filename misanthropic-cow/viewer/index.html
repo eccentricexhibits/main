@@ -84,7 +84,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 25 preview &middot; rounds 17 and 18 animated &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 26 preview &middot; rounds 17 and 18 animated &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
@@ -94,6 +94,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <div class="figlabel" id="lab17" hidden>Round 17</div>
         <div class="figlabel" id="lab18" hidden>Round 18</div>
         <div class="figlabel" id="lab25" hidden>Round 25</div>
+        <div class="figlabel" id="lab26" hidden>Round 26</div>
         <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
       </div>
 
@@ -102,6 +103,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-round="r17" aria-pressed="false" disabled><span class="swatch" style="background:#c27c0e"></span>Round 17</button>
         <button data-round="r18" aria-pressed="true" disabled><span class="swatch" style="background:#3f73e0"></span>Round 18</button>
         <button data-round="r25" aria-pressed="false" disabled><span class="swatch" style="background:#d23a4a"></span>Round 25</button>
+        <button data-round="r26" aria-pressed="false" disabled><span class="swatch" style="background:#1f8f5a"></span>Round 26</button>
         <span class="note" id="verNote">Round 18, animated.</span>
       </div>
 
@@ -110,8 +112,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-layout="side" aria-pressed="true" disabled>Side by side</button>
         <button data-layout="overlay" aria-pressed="false" disabled>Overlay</button>
         <button id="guides" aria-pressed="false" disabled>Height lines</button>
-        <button id="arms" aria-pressed="false" disabled title="Round 25 with its arms lifted, to show the fur under them">Arms raised</button>
-        <span class="note" id="layoutNote">Pick two or three rounds above to compare them.</span>
+        <button id="arms" aria-pressed="false" disabled title="Rounds 25 and 26 with their arms lifted, to show the fur under them">Arms raised</button>
+        <span class="note" id="layoutNote">Pick two or more rounds above to compare them.</span>
       </div>
 
       <div class="row" id="clips">
@@ -207,7 +209,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Round 25 (static preview):</strong> the costume's sides come in a little under the udders and the belly swells out below, as in the original shoot (4 of 15), instead of one straight wall. The briefs pass under the crotch between the legs again: a gusset runs down the middle from front to back, and the seat's cleft is a soft crease that the fabric bridges. With the arms raised there are no more holes under the arms: the body stays solid where the arm is trimmed back to the rounded shoulder.</li>
+          <li><strong>Round 26 (static preview) &middot; Hood:</strong> the hood is a hood again, as in rounds 17 and 18: the round back of the head over a snug neck that tucks into the suit&rsquo;s neckline. Since round 19 its back had been filled down to the shoulders in one straight slope, so hood and back read as one smoothed shape. The suit&rsquo;s top is padded like round 18&rsquo;s: the upper back stays full up to the neckline (it used to slope 8.5&nbsp;cm in towards the neck over its last 8&nbsp;cm of height; now 5&nbsp;cm, round 18 2.7&nbsp;cm), and the shoulders beside the neck are 2&nbsp;cm fuller, so the hood sits on a bigger costume. The shoulders still fall away to the sides as in the approved views. Everything else is round 25&rsquo;s. Pick <em>Round 25</em> and <em>Round 26</em> to compare.</li>
+          <li>Round 25 &middot; <strong>Sides and briefs:</strong> the costume's sides come in a little under the udders and the belly swells out below, as in the original shoot (4 of 15), instead of one straight wall. The briefs pass under the crotch between the legs again: a gusset runs down the middle from front to back, and the seat's cleft is a soft crease that the fabric bridges. With the arms raised there are no more holes under the arms: the body stays solid where the arm is trimmed back to the rounded shoulder.</li>
           <li>Round 24 &middot; <strong>Udders pink underneath:</strong> the udders are pink all the way under: each stuffed cup's underside is cloth right down to the seam where it meets the belly, with no more fur under them. The fur still covers the tops as in round 23. The cups' outer sides now round back onto the body instead of rising as a cliff, and the bulge fades where the chest turns to face sideways, so no pink edge stands out beside the body.</li>
           <li>Round 23 &middot; <strong>Fur over the udders:</strong> the white fur now comes right up to each stuffed cup, as on the empty suit: pink shows only on the cup itself, a teardrop, and the fur covers the swelling round its top and outer edge, meeting the cloth flush at the seam. There is no more pink spreading over the upper chest towards the shoulders. The right-hand udder's outer teat (as you look at her) is lowered to the same height as the left-hand one's.</li>
           <li>Round 22 &middot; <strong>Teats:</strong> the teats are placed as they were sewn on in the original shoot (close-ups in shots 4 and 5 of 15). They sit on the cloth itself rather than at the rim of each cup. The lower teat is low and a little inside of centre, hanging down and slightly forward; the outer one is on the cup's lower outer face, pointing out and forward (the cow's left one tilts up). They are shorter (about 6 cm), droop a little along their length, and differ slightly between the two sides, as hand-sewn ones do.</li>
@@ -293,14 +296,14 @@ const scrub = document.getElementById('scrub');
 const timeEl = document.getElementById('time');
 const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
-// Round 18 is the main, animated model; round 17 (animated) and round 25 (static) load on first use.
+// Round 18 is the main, animated model; round 17 (animated) and rounds 25 and 26 (static) load on first use.
 // Any of the three can be shown alone, side by side (oldest on the left) or overlaid (newest solid, the others as ghosts).
-const ROUNDS = ['r17', 'r18', 'r25'];
-const COLORS = { r17: '#c27c0e', r18: '#3f73e0', r25: '#d23a4a' };
-const NAMES = { r17: 'Round 17', r18: 'Round 18', r25: 'Round 25' };
+const ROUNDS = ['r17', 'r18', 'r25', 'r26'];
+const COLORS = { r17: '#c27c0e', r18: '#3f73e0', r25: '#d23a4a', r26: '#1f8f5a' };
+const NAMES = { r17: 'Round 17', r18: 'Round 18', r25: 'Round 25', r26: 'Round 26' };
 let mainRoot = null, shown = ['r18'], layout = 'side', guidesOn = false, currentView = 'front';
 const SPACING = 0.94;                      // side by side: distance between neighbouring figures (m)
-const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r25: document.getElementById('lab25') };
+const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r25: document.getElementById('lab25'), r26: document.getElementById('lab26') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -321,7 +324,7 @@ const hemi = new THREE.HemisphereLight(0xffffff, 0x6a4a5a, 0.35); scene.add(hemi
 key.target.position.set(0, 0.85, 0); rim.target.position.set(0, 0.85, 0); fill.target.position.set(0, 0.85, 0);
 // the key light can cast real shadows (Cast shadows), over the figure and the floor
 key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
-Object.assign(key.shadow.camera, { left: -1.4, right: 1.4, top: 2.1, bottom: -0.5, near: 0.5, far: 9 });
+Object.assign(key.shadow.camera, { left: -2.2, right: 2.2, top: 2.1, bottom: -0.5, near: 0.5, far: 9 });
 const spot = new THREE.SpotLight(0xfff4ea, 26, 9, Math.PI / 7.5, 0.5, 2);
 spot.position.set(-0.9, 3.3, 1.7); spot.target.position.set(0, 0.85, 0);
 spot.castShadow = true; spot.shadow.mapSize.set(2048, 2048); spot.shadow.bias = -0.0003; spot.shadow.normalBias = 0.015;
@@ -365,7 +368,7 @@ shadowFloor.rotation.x = -Math.PI / 2; shadowFloor.receiveShadow = true; scene.a
 
 const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.05, 30);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 9;
+controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 12;
 // Wheel zoom proportional to how far the wheel or trackpad actually scrolled.  OrbitControls
 // (three r160) zooms a fixed 5% per wheel event, so trackpads and smooth-scrolling mice, which send
 // dozens of small events per gesture, raced straight in to the closest distance.
@@ -468,7 +471,7 @@ async function start() {
   selectClip('Idle');                // open on Idle, not the Chicken Dance
   status.hidden = true;
   enableCompare(true);
-  setRounds(['r25']);               // open on the newest round
+  setRounds(['r26']);               // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -491,11 +494,14 @@ function prepare(root, list, rest) {
 // static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before 18.
 const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
                r25: { file: 'cow-r25-meshopt', mb: 12.6, f: null, loading: null, name: '25' },
-               r25up: { file: 'cow-r25-up-meshopt', mb: 12.6, f: null, loading: null, name: '25 (arms raised)' } };
-// round 25 can stand with its arms lifted (a second static model, swapped in its place)
+               r25up: { file: 'cow-r25-up-meshopt', mb: 12.6, f: null, loading: null, name: '25 (arms raised)' },
+               r26: { file: 'cow-r26-meshopt', mb: 12.7, f: null, loading: null, name: '26' },
+               r26up: { file: 'cow-r26-up-meshopt', mb: 12.8, f: null, loading: null, name: '26 (arms raised)' } };
+// rounds 25 and 26 can stand with their arms lifted (a second static model each, swapped in its place)
 let armsUp = false;
-const figKey = k => (k === 'r25' && armsUp) ? 'r25up' : k;
-const ALLK = ['r17', 'r18', 'r25', 'r25up'];
+const STATIC = ['r25', 'r26'];                 // no rig yet: they stand in the default pose
+const figKey = k => (STATIC.includes(k) && armsUp) ? k + 'up' : k;
+const ALLK = ['r17', 'r18', 'r25', 'r25up', 'r26', 'r26up'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
@@ -545,13 +551,15 @@ const ghostOf = k => layout === 'overlay' && shown.length > 1 && shown.includes(
 const xOf = k => sideCount() > 1 ? (shown.indexOf(k) - (shown.length - 1) / 2) * SPACING : 0;
 const rootOf = k => k === 'r18' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
 const meshesOf = k => k === 'r18' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
-const modeKey = k => k === 'r25up' ? 'r25' : k;          // which round a figure belongs to
+const modeKey = k => k.endsWith('up') ? k.slice(0, -2) : k;          // which round a figure belongs to
 const list = ks => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] : ks[0];
 function describe() {
   const num = shown.map(k => k.slice(1));
-  const still = shown.includes('r25') ? ' Round 25 has no rig yet, so it stands in the default pose.' : '';
+  const st = shown.filter(k => STATIC.includes(k)).map(k => k.slice(1));
+  const still = st.length ? ` Round${st.length > 1 ? 's' : ''} ${list(st)} ${st.length > 1 ? 'have' : 'has'} no rig yet, so ${st.length > 1 ? 'they stand' : 'it stands'} in the default pose.` : '';
   if (shown.length === 1) return {
     r25: 'Round 25: the sides dip in under the udders before the belly swells out, and the briefs pass under the crotch again. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.',
+    r26: 'Round 26: round 25 with a hood like rounds 17 and 18, sitting on a padded suit top. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.',
     r18: 'Round 18, animated.', r17: 'Round 17, animated.' }[shown[0]];
   if (layout === 'side') return `Rounds ${list(num)} side by side, oldest on the left.` + still;
   const solid = num[num.length - 1], ghosts = num.slice(0, -1);
@@ -563,7 +571,7 @@ function refreshButtons() {
     b.setAttribute('aria-pressed', String(b.dataset.layout === layout));
     b.disabled = shown.length < 2;
   });
-  armsBtn.disabled = !shown.includes('r25');
+  armsBtn.disabled = !shown.some(k => STATIC.includes(k));
 }
 async function setRounds(next, nextLayout = layout) {
   next = ROUNDS.filter(k => next.includes(k));
@@ -585,8 +593,7 @@ async function setRounds(next, nextLayout = layout) {
   applyMaterials();
   setView(currentView);
   document.getElementById('verNote').textContent = describe();
-  document.getElementById('layoutNote').textContent = shown.length > 1 ? (layout === 'side' ? 'Each round stands in its own place.' : 'The rounds stand in the same place.') : 'Pick two or three rounds above to compare them.';
-  LABELS.r25.textContent = armsUp ? 'Round 25 · arms raised' : 'Round 25';
+  document.getElementById('layoutNote').textContent = shown.length > 1 ? (layout === 'side' ? 'Each round stands in its own place.' : 'The rounds stand in the same place.') : 'Pick two or more rounds above to compare them.';
   refreshButtons();
 }
 // a round button adds that round to the view or takes it away (one round always stays)
@@ -600,7 +607,8 @@ const armsBtn = document.getElementById('arms');
 armsBtn.addEventListener('click', async () => {
   armsUp = !armsUp;
   armsBtn.setAttribute('aria-pressed', String(armsUp));
-  if (!(await ensureFig(figKey('r25')))) { armsUp = !armsUp; armsBtn.setAttribute('aria-pressed', String(armsUp)); return; }
+  for (const k of shown.filter(k => STATIC.includes(k)))
+    if (!(await ensureFig(figKey(k)))) { armsUp = !armsUp; armsBtn.setAttribute('aria-pressed', String(armsUp)); return; }
   await setRounds(shown);
 });
 
@@ -612,6 +620,8 @@ const GUIDES = [
   { y: 0.840, text: 'R18 belly 0.84 m', round: 'r18' },
   { y: 0.747, text: 'R25 crotch 0.75 m', round: 'r25' },
   { y: 0.785, text: 'R25 belly 0.785 m', round: 'r25' },
+  { y: 0.747, text: 'R26 crotch 0.75 m', round: 'r26' },
+  { y: 0.785, text: 'R26 belly 0.785 m', round: 'r26' },
 ];
 GUIDES.forEach(gd => { gd.color = COLORS[gd.round]; });
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
@@ -673,7 +683,7 @@ function updateOverlays() {
   for (const k of ROUNDS) {
     const r = rootOf(figKey(k)), l = LABELS[k];
     if (!(r && r.visible && !ghostOf(k))) { l.hidden = true; continue; }
-    const base = k === 'r25' && armsUp ? 'Round 25 \u00b7 arms raised' : NAMES[k];
+    const base = STATIC.includes(k) && armsUp ? NAMES[k] + ' \u00b7 arms raised' : NAMES[k];
     l.textContent = overlay ? base + ' \u00b7 ghosts: ' + shown.filter(ghostOf).map(g => g.slice(1)).join(', ') : base;
     place(l, new THREE.Vector3(r.position.x, 1.86, 0), false); l.style.transform += ' translateX(-50%)';
   }
@@ -806,7 +816,7 @@ renderer.setAnimationLoop(() => {
     phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
   for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = action.time; F.f.mixer.update(0); }
-  phaseNow.hidden = !(shown.includes('r18') || shown.includes('r17'));   // round 25 has no animation yet
+  phaseNow.hidden = !(shown.includes('r18') || shown.includes('r17'));   // rounds 25 and 26 have no animation yet
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);
