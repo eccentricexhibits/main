@@ -659,10 +659,27 @@ TEAT_SPECS = {
 TEAT_MID = {}
 
 
+# Round 28: each cup is a stuffed globe sitting on the chest, sunk part-way in (rounds 19-27 grew it as a raised
+# panel from the chest, whose outer side was a steep wall).  Centre and radii are fitted to rounds 21-27's cup
+# fronts (rms 1.2 cm); the two differ a little, as hand-made ones do.
+GLOBE = {1: (np.array([.089, 1.174, .094]), np.array([.114, .120, .152])),
+         -1: (np.array([-.086, 1.172, .100]), np.array([.107, .120, .154]))}
+GLOBE_CAP = None    # a fur cap over each cup's top (its edge this far above the globe's centre), as in round 23; None: all pink
+
+
+def globe_sdf(p, s):
+    c, r = GLOBE[s]
+    return S.ellipsoid(p, c, r)
+
+
+def globes(p):
+    return np.minimum(globe_sdf(p, 1), globe_sdf(p, -1))
+
+
 def _tripo_teats(s):
     (cx, cy), (rx, ry) = PANEL[s]
     out, mids = [], []
-    f = lambda q: cloth_sdf(np.asarray(q, float)[None])[0]
+    f = lambda q: globes(np.asarray(q, float)[None])[0]          # round 28: on the globe
     for (qo, qy), (do, du, df), L, droop in TEAT_SPECS[s]:
         x, y = cx + s * qo * rx, cy + qy * ry
         base = surface_point(f, np.array([x, y, .06]), np.array([0, 0, 1.]))
@@ -702,8 +719,8 @@ TEATS = {s: teats(s) for s in SIDES}
 PINK_SCALE, PINK_DROP = (.86, .80), .18
 
 
-def pink_sdf(p, s=None, seam=True):
-    """Signed distance (x-y, front only) to the outline of the visible pink cloth of each cup.  Round 24: the
+def _pink_panel(p, s=None):
+    """Rounds 24-26: signed distance (x-y, front only) to the outline of the visible pink cloth of each cup.  Round 24: the
     fur covers the top of the swelling as in round 23, but under the cup the pink runs right down to the seam
     with the belly, at the cup's full width (the owner: too much fur under the udders)."""
     out = np.full(p.shape[:-1], 1e3)
@@ -718,37 +735,32 @@ def pink_sdf(p, s=None, seam=True):
         e = np.maximum(full, (q[..., 1] - top) * r[1] * .8)             # round 23's top edge
         e = np.maximum(e, (.012 - pillow_h(p, side)) * .6)              # and only where the cup really bulges
         e = np.maximum(e, -(p[..., 2] - .02))
-        # round 27: on the cup's outer side the pink ends at a plane through a point inside the cup, tilted
-        # CUP_SEAM_DEG out from straight ahead, so the seam crosses the cup's side at a steep angle.  The front
-        # outline above is a shape pushed straight back, which ran along the steep outer side and left a
-        # saw-tooth edge (and a flat pink wall seen from the side); below the seam the fur covers the flank.
-        if seam:                    # seam=False: the pink's extent before round 27
-            a = cup_apex(side)
-            lat, fwd = side * (p[..., 0] - a[0]), p[..., 2] - a[2]
-            th = np.deg2rad(CUP_SEAM_DEG)
-            e = np.maximum(e, lat * np.cos(th) - fwd * np.sin(th))
         out = np.minimum(out, e)
     return out
 
 
-CUP_SEAM_DEG = 58.          # the pink's outer edge, in degrees out from straight ahead, seen from the cup's centre
-CUP_FLANK = .035            # extra fillet where the fur meets the cup's outer flank, so it rounds into the body
-_APEX = {}
-
-
-def cup_apex(s):
-    """A point inside each cup, 3 cm behind the chest at the panel's centre: the outer seam pivots about it."""
-    if s not in _APEX:
-        c, _ = PANEL[s]
-        _APEX[s] = np.array([c[0], c[1], float(chest_base(np.array(c[0]), np.array(c[1]))) - .03])
-    return _APEX[s]
-
-
-def _outer(p, s):
-    """0 on the cup's inner half, rising to 1 towards its outer edge."""
-    c, r = PANEL[s]
-    t = np.clip((s * (p[..., 0] - c[0]) / r[0] - .35) / .45, 0, 1)
-    return t * t * (3 - 2 * t)
+def pink_sdf(p, s=None, seam=True, body=None):
+    """Signed distance to the edge of the visible pink cloth.  Round 28: the pink covers each globe wherever it
+    stands outside the suit's body, so it runs round the sides and under the cup right down to the crease where
+    the globe meets the suit (a clean seam): a full pink globe, as in rounds 17/18.  With GLOBE_CAP set, round 23's
+    fur cap covers the top: on the front its edge is at round 23's height, and round the sides it is GLOBE_CAP above
+    the globe's centre (a plane, so the edge crosses the globe steeply; from the front it reads as a straight line).  seam=False gives the panel extent of rounds 24-26 (_pink_panel)."""
+    if not seam:
+        return _pink_panel(p, s)
+    if body is None:
+        body = TB.stuffed_torso_sdf(p)
+    out = np.full(p.shape[:-1], 1e3)
+    for side in (SIDES if s is None else [s]):
+        c, r = GLOBE[side]
+        pc, pr = PANEL[side]
+        y_front = pc[1] + (PINK_SCALE[1] - PINK_DROP) * pr[1]          # round 23's top edge on the front
+        ys = c[1] + (GLOBE_CAP or 0.)
+        k = (y_front - ys) / r[2]
+        e = ((p[..., 1] - ys) - k * (p[..., 2] - c[2])) / np.sqrt(1 + k * k) if GLOBE_CAP is not None else -1e3
+        e = np.maximum(e, globe_sdf(p, side) - .01)                    # only on this globe
+        out = np.minimum(out, e)
+    out = np.maximum(out, -body)                                       # only outside the suit's body
+    return np.maximum(out, -(p[..., 2] - .02))
 
 
 def panel_sdf(p, s=None):
@@ -765,10 +777,12 @@ def panel_sdf(p, s=None):
 
 
 def cup_solid(p, body=None, reach=True):
-    """The stuffed cups as a solid: behind the cloth's surface, within the panels, and no deeper than the chest
+    """Round 28: the two globes (GLOBE).  Before, the stuffed cups as a solid: behind the cloth's surface, within the panels, and no deeper than the chest
     (so where the chest curves away at the sides no wall of it stands out beside the body).  Round 25b: it also
     reaches back to the body wherever the body is within 3 cm, so no gap (and no sliver of skin outside one) is
     left at the cups' outer edges, where the smoothed chest stands in front of the real side."""
+    if BODY_SOURCE == 'tripo':
+        return globes(p)
     behind_chest = (chest_base(p[..., 0], p[..., 1]) - .015) - p[..., 2]
     if reach:                                   # for the fur join only; the cloth shell keeps the plain limit
         if body is None:
@@ -783,9 +797,9 @@ def with_cups(p, torso):
         return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
     # the stuffed cups, as a solid behind the cloth's surface within the panels, join the suit: the fur covers
     # the swelling round each cup with exactly the surface the cloth has, so the two meet flush at the seam
-    k = .012 + CUP_FLANK * np.maximum(_outer(p, 1), _outer(p, -1))   # round 27: the outer flank rounds into the body
-    t = S.smin(torso, cup_solid(p, torso), k)
-    e = pink_sdf(p)
+    # round 28: the fur follows each globe just inside the cloth (PANEL_PROUD), meeting the chest in a crease
+    t = S.smin(torso, globes(p) + PANEL_PROUD, .012)
+    e = pink_sdf(p, body=torso)
     w = np.clip(-e / .008, 0, 1)
     return t + PANEL_SINK * w * w * (3 - 2 * w)
 
