@@ -432,7 +432,7 @@ def tripo_legging_parts(p):
     # the seat: round under the briefs, out to the back of the suit (approved side views), cleft at the middle
     for s in (1, -1):
         cheek = S.ellipsoid(p, (s * .072, .790, -.034), (.114, .088, .110))
-        cheek = S.smax(cheek, -s * x - .004, .01)
+        cheek = S.smax(cheek, -s * x - .004, .025)                        # a soft crease, which the briefs bridge
         d = S.smin(d, S.smax(cheek, .738 - y, .04), .035)
     d = S.smax(d, (z - .19) - 5 * np.maximum(hem - y, 0), .02)       # above the hem: not into the belly
     d = S.smax(d, np.abs(x) - .28, .02)                                # not the hands

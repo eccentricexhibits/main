@@ -256,6 +256,9 @@ if D.BODY_SOURCE == 'tripo':
     # the crotch, dipping under it at the gusset; the back covers the seat with no drop into the cleft
     LEG_LINE = [(0, .765), (45, .765), (90, .760), (135, .750), (180, .735), (225, .745), (270, .755), (315, .762)]
     MID_DROP = 0.
+    # round 25: the gusset. Down the middle, front to back, the opening drops under the crotch, so the briefs pass
+    # between the legs like real underwear (since round 19d's person hips the level cut left the leggings showing)
+    GUSSET_DROP, GUSSET_W = .035, .028
 
 
 def leg_line(p):
@@ -266,7 +269,10 @@ def leg_line(p):
     s = np.where(x >= 0, 1., -1.)
     cx = D.J['Thigh_L'][0] + D.THIGH_OUT              # the thigh's axis at the top (mirrored for the right leg)
     phi = np.degrees(np.arctan2(z - D.J['Thigh_L'][2], s * x - cx)) % 360
-    return cs(phi) - MID_DROP * np.exp(-(x / .022) ** 2) * _sm(0., -.04, z)
+    h = cs(phi) - MID_DROP * np.exp(-(x / .022) ** 2) * _sm(0., -.04, z)
+    if D.BODY_SOURCE == 'tripo':
+        h = h - GUSSET_DROP * np.exp(-(x / GUSSET_W) ** 2)
+    return h
 
 
 def clip_mesh(v, f, g):

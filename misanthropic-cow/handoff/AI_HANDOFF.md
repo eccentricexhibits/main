@@ -1,4 +1,4 @@
-# AI handoff: The Misanthropic Cow, v10 at round 24
+# AI handoff: The Misanthropic Cow, v10 at round 25
 
 Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything needed to continue is in this folder. Nothing depends on a network service except three.js, which the viewer loads from jsDelivr.
 
@@ -6,7 +6,7 @@ Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything need
 
 There are two models, and they come from two different builds.
 
-- **Round 24 (the newest, a static preview).** The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`.
+- **Round 25 (the newest, a static preview; the handoff package was made at round 24).** The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`.
 - **Round 18 (animated).** This is the last rigged model: 58 joints, 18 clips and baked physics, built by `pipeline/build_v10.py`. It uses the older body, made from SDF primitives.
 
 The viewer opens on round 24, with round 18 beside it for comparison.
@@ -38,7 +38,7 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
 
 **Body**
 - The body is the Tripo model (`assets/tripo_body.npz`), cleaned and fitted height by height to the Gemini outlines. Its legs follow the original photos: crotch at 0.747 m.
-- **Midsection:** a stuffed sack below the cups (`tripo_body.SACK`), full and round down to the hem, with no waist, no corset and no bustle. The back runs straight down, and there is **no back-fat roll** any more (removed in round 19b). The hem is at 0.785 m at the front, 0.82 m at the sides and 0.835 m at the back.
+- **Midsection:** a stuffed sack below the cups (`tripo_body.SACK`), full and round down to the hem, with no corset and no bustle. The sides dip in gently under the udders, by about 2.8 cm at 1.10 m (round 25), before the belly swells out. The back runs straight down, and there is **no back-fat roll** any more (removed in round 19b). The hem is at 0.785 m at the front, 0.82 m at the sides and 0.835 m at the back.
 - **Head:** the snug hood is kept (the owner chose it over Gemini's loose hood). The mask, horns, tube and hood are carried 4° chin-up and lifted 1 cm (`design.head_pose`). The hood has a fuller back, so it falls straight from the crown to the shoulders. Do not change the size of the tube and horns relative to the mask.
 - **Shoulders** slope away from the neck. The body is stuffed and rigid: when the arms lift, the body does not deform. The sleeves turn out of rounded, padded shoulders like a ball in a socket (`design._lifted_shoulders`; "v18 was more faithful"). Folds there should be very minor, if any.
 - **The person underneath:** from mid-thigh up, the leggings follow a real pelvis and thighs (`design._person_hips`), meeting in a soft groin crease. There is a round seat with a cleft under the briefs. The lower legs taper cleanly to a slim ankle, and the heels stand on the slipper footbeds.
@@ -149,6 +149,7 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
 22. The teats were placed more naturally, from the shoot close-ups.
 23. The right-hand udder's outer teat was lowered to match the left-hand one's. Too much pink bled into the chest and shoulders, so the fur now covers the swelling up to the stuffed cups (from the owner's photo of the empty suit, `Reference_Photos/round_19_to_24/empty_suit_on_stool.jpg`).
 24. There was too much fur under the udders; the tops were fine. The cups are now pink all the way under, with their outer sides rounded and no fin.
+25. The body felt like one big square block. In the original shoot (4 of 15) the sides come in a little under the udders before the belly swells out. The sides now dip by about 2.8 cm at 1.10 m: `tripo_body.SACK` widths, `SIDE_DIP` on the chest, and a tighter sack/chest join. The briefs no longer went under the crotch: since round 19d's person hips, the level leg line left the leggings showing between the legs. A gusset now runs down the middle (`garments.GUSSET_DROP`), and the seat's cleft is a soft crease that the fabric bridges.
 
 ## Where things are
 

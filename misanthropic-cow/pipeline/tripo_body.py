@@ -140,6 +140,7 @@ def _fit():
 
 
 _FIT = None
+SIDE_DIP, SIDE_DIP_Y = .075, 1.085     # round 25: the costume's sides come in a little between the udders and the belly
 
 
 def fitted_torso_sdf(p):
@@ -148,6 +149,7 @@ def fitted_torso_sdf(p):
     if _FIT is None:
         _FIT = _fit()
     a, b, c = (np.interp(p[..., 1], FIT_Y, f) for f in _FIT)
+    c = c * (1 - SIDE_DIP * np.exp(-((p[..., 1] - SIDE_DIP_Y) / .035) ** 2))   # the dip under the udders
     q = p.copy()
     q[..., 0] = p[..., 0] / c
     q[..., 2] = (p[..., 2] - b) / a
@@ -172,10 +174,10 @@ SACK = np.array([
     [.90,  .296,  .159,  .213],
     [.94,  .309,  .160,  .218],
     [.98,  .313,  .163,  .220],
-    [1.02, .306,  .168,  .218],
-    [1.06, .282,  .172,  .212],
-    [1.10, .228,  .174,  .204],
-    [1.14, .150,  .172,  .194],
+    [1.02, .306,  .168,  .211],
+    [1.06, .282,  .172,  .192],            # round 25: the sides dip in under the udders (original shoot 4 of 15)
+    [1.10, .228,  .174,  .184],
+    [1.14, .150,  .172,  .184],
     [1.18, .095,  .150,  .160],
     [1.22, .075,  .090,  .100]])
 SACK_Z0 = .06
@@ -208,7 +210,7 @@ def stuffed_torso_sdf(p):
     k = .05
     h = np.clip(.5 - .5 * (cut - f) / k, 0, 1)                         # smooth max(f, cut)
     f = cut * (1 - h) + f * h + k * h * (1 - h)
-    return _smin(f, sack_sdf(p), .045)
+    return _smin(f, sack_sdf(p), .025)
 
 
 def back_z(y, x=0.):
