@@ -23,7 +23,7 @@ REBUILD=../../Rebuild_Inputs/project COW_MARKINGS_CACHE=/tmp/marks.pkl COW_ARM_R
 python review_tools/pair_sheet.py . ../build/r24.glb ../references/approved_views pairs.jpg "Round 24"
 ```
 
-`pair_sheet.py`, `spot_cmp.py` and `head_cmp.py` take the Gemini views from `references/approved_views`. They expect the original file names, so for these tools make a folder with:
+`pair_sheet.py`, `spot_cmp.py` and `head_cmp.py` take the Gemini views under their original file names. In the handoff package these are in `Reference_Photos/approved_gemini_views`. Otherwise, make a folder from `references/approved_views` with:
 - `1_FRONT_approved.png`, a copy of `front.png`;
 - `2_BACK_approved.png`, a copy of `back.png`;
 - `3_SIDE_facing_left_approved.png`, a copy of `left.png`;
