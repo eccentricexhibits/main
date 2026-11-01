@@ -277,9 +277,17 @@ def _lifted_shoulders(p, torso):
         rel = p - sh
         along = rel @ d0
         perp = np.linalg.norm(rel - along[..., None] * d0, axis=-1)
-        stub = np.maximum(np.maximum(.045 - along, perp - .095), np.linalg.norm(rel, axis=-1) - .24)   # round the arm only
-        torso = S.smax(torso, -stub, .03)
-        torso = S.smin(torso, S.sphere(p, sh, SHOULDER_BALL), .03)
+        # round 25b: the trim stays outside the body's side wall (it used to cut a cylinder through the chest and
+        # left hollow pockets and thin slivers at the armpit, which showed as holes), with a generous radius so
+        # no skin of the arm stub is left
+        wall = (abs(sh[0]) - .025) - s * p[..., 0]
+        stub = np.maximum(np.maximum(.045 - along, perp - .12), np.linalg.norm(rel, axis=-1) - .26)
+        stub = np.maximum(stub, -wall)
+        trimmed = S.smax(torso, -stub, .02)
+        # the body is filled back in solid up to its side wall (the stuffing doesn't hollow out)
+        core = S.smax(torso + .015, -wall, .02)
+        torso = S.smin(trimmed, core, .03)
+        torso = S.smin(torso, S.sphere(p, sh, SHOULDER_BALL), .05)
     return torso
 
 
@@ -725,10 +733,16 @@ def panel_sdf(p, s=None):
     return out
 
 
-def cup_solid(p):
+def cup_solid(p, body=None, reach=True):
     """The stuffed cups as a solid: behind the cloth's surface, within the panels, and no deeper than the chest
-    (so where the chest curves away at the sides no wall of it stands out beside the body)."""
+    (so where the chest curves away at the sides no wall of it stands out beside the body).  Round 25b: it also
+    reaches back to the body wherever the body is within 3 cm, so no gap (and no sliver of skin outside one) is
+    left at the cups' outer edges, where the smoothed chest stands in front of the real side."""
     behind_chest = (chest_base(p[..., 0], p[..., 1]) - .015) - p[..., 2]
+    if reach:                                   # for the fur join only; the cloth shell keeps the plain limit
+        if body is None:
+            body = TB.stuffed_torso_sdf(p)
+        behind_chest = np.minimum(behind_chest, body - .03)
     return np.maximum(np.maximum(cloth_sdf(p), panel_sdf(p)), behind_chest)
 
 
@@ -738,7 +752,7 @@ def with_cups(p, torso):
         return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
     # the stuffed cups, as a solid behind the cloth's surface within the panels, join the suit: the fur covers
     # the swelling round each cup with exactly the surface the cloth has, so the two meet flush at the seam
-    t = S.smin(torso, cup_solid(p), .012)
+    t = S.smin(torso, cup_solid(p, torso), .012)
     e = pink_sdf(p)
     w = np.clip(-e / .008, 0, 1)
     return t + PANEL_SINK * w * w * (3 - 2 * w)
@@ -749,7 +763,7 @@ def udder_sdf(p):
         # the pink panels: the swollen suit surface, a hair proud of the fur, cut to the panel outline and only a
         # thin layer deep; teats sewn on
         # the cloth is the stuffed cup's whole surface where it shows pink: its front and, below, its underside
-        u = cup_solid(p)
+        u = cup_solid(p, reach=False)
         shell = np.maximum(u, -(u + .014))
         d = np.maximum(shell, pink_sdf(p))
         for s in SIDES:

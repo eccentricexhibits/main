@@ -389,7 +389,13 @@ def build_udder(step=.0028, target=50000):
         vs, fs, off = [], [], 0
         for s in D.SIDES:
             lo, hi = ((0., .97, -.07), (.34, 1.38, .37)) if s == 1 else ((-.34, .97, -.07), (0., 1.38, .37))
-            vv, ff = mesh_from(lambda q, s=s: np.maximum(D.udder_sdf(q), -s * q[..., 0]), lo, hi, step, target // 2, smooth=4)
+            fn = lambda q, s=s: np.maximum(D.udder_sdf(q), -s * q[..., 0])
+            vv, ff = mesh_from(fn, lo, hi, step, target // 2, smooth=4)
+            # round 25b: drop any vertex the remesher flung off the surface (thin slivers of the cloth shell), and
+            # anything outside the meshing box, then keep the main piece
+            off_surf = (np.abs(fn(vv)) > .004) | (vv < np.array(lo) - .002).any(1) | (vv > np.array(hi) + .002).any(1)
+            ff = ff[~off_surf[ff].any(1)]
+            vv, ff = S.largest_component(vv, ff)
             vs.append(vv); fs.append(ff + off); off += len(vv)
         v, f = np.vstack(vs), np.vstack(fs)
     else:
