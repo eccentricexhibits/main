@@ -76,6 +76,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 .figlabel, .glabel { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; will-change: transform; }
 .figlabel { font-family: var(--display); font-size: 15px; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--paper) 78%, transparent); padding: 3px 9px; border-radius: 999px; }
 .glabel { font: 500 11px/1.2 var(--mono); padding: 1px 4px; border-radius: 3px; background: color-mix(in srgb, var(--paper) 80%, transparent); }
+.row button .swatch { width: 10px; height: 10px; border-radius: 50%; margin: 0 6px 1px 0; }
 .swatch { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin: 0 4px 2px 0; border-radius: 2px; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
 </style>
@@ -83,7 +84,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 25 preview &middot; round 17 animated &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 25 preview &middot; rounds 17 and 18 animated &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
@@ -91,19 +92,26 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Idle</div>
         <div class="figlabel" id="lab17" hidden>Round 17</div>
+        <div class="figlabel" id="lab18" hidden>Round 18</div>
         <div class="figlabel" id="lab25" hidden>Round 25</div>
-        <div class="status" id="status">Loading the model (16.7 MB)&hellip;</div>
+        <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
       </div>
 
       <div class="row" id="versions">
+        <span class="label">Rounds</span>
+        <button data-round="r17" aria-pressed="false" disabled><span class="swatch" style="background:#c27c0e"></span>Round 17</button>
+        <button data-round="r18" aria-pressed="true" disabled><span class="swatch" style="background:#3f73e0"></span>Round 18</button>
+        <button data-round="r25" aria-pressed="false" disabled><span class="swatch" style="background:#d23a4a"></span>Round 25</button>
+        <span class="note" id="verNote">Round 18, animated.</span>
+      </div>
+
+      <div class="row" id="layout">
         <span class="label">Compare</span>
-        <button data-ver="r25" aria-pressed="false" disabled>Round 25</button>
-        <button data-ver="r17" aria-pressed="true" disabled>Round 17</button>
-        <button data-ver="side" aria-pressed="false" disabled>17 | 25 side by side</button>
-        <button data-ver="overlay" aria-pressed="false" disabled>25 over 17</button>
+        <button data-layout="side" aria-pressed="true" disabled>Side by side</button>
+        <button data-layout="overlay" aria-pressed="false" disabled>Overlay</button>
         <button id="guides" aria-pressed="false" disabled>Height lines</button>
         <button id="arms" aria-pressed="false" disabled title="Round 25 with its arms lifted, to show the fur under them">Arms raised</button>
-        <span class="note" id="verNote">Round 17, animated.</span>
+        <span class="note" id="layoutNote">Pick two or three rounds above to compare them.</span>
       </div>
 
       <div class="row" id="clips">
@@ -205,8 +213,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
           <li>Round 22 &middot; <strong>Teats:</strong> the teats are placed as they were sewn on in the original shoot (close-ups in shots 4 and 5 of 15). They sit on the cloth itself rather than at the rim of each cup. The lower teat is low and a little inside of centre, hanging down and slightly forward; the outer one is on the cup's lower outer face, pointing out and forward (the cow's left one tilts up). They are shorter (about 6 cm), droop a little along their length, and differ slightly between the two sides, as hand-sewn ones do.</li>
           <li>Round 21 &middot; <strong>Udders:</strong> the udders are sized and stuffed as in the original photo shoot (shots 4 to 7 of 15), where the approved views drew them too small and too flat. Each is now about 22 cm wide and 24 cm tall, the pair filling the chest and meeting in the middle, and they are stuffed into full, round globes that stand out about 15 cm from the chest, heaviest low down. They are still sewn into the fur, with their teats re-seated.</li>
           <li>Round 20 &middot; <strong>Arms raised, spots and lighting:</strong> <em>Arms raised</em> (next to Compare) shows the same model with its arms lifted, so you can see the black fur under them. As on the real suit, the stuffed body keeps its shape: its shoulders are rounded, and the unstuffed sleeves turn out of them like a ball in a socket, with no folds. The white spots on the leggings are now each taken whole from the approved view that sees them most squarely, with the drawing's own brushed outline, and laid round the leg (spots seen side-on are no longer smeared or squashed). Lighting has five new rigs (Daylight, Golden hour, Moonlight, Stage, Backlit) and an <em>Adjust</em> row: brightness, turning the lights round the figure, raising or lowering them, cast shadows, and a choice of backdrop.</li>
-          <li>Round 19 &middot; <strong>The new body:</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revisions answer your notes. The head sits up on a visible throat, looking ahead, the hood falls straight from the crown to the shoulders at the back, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle, over a round seat in the briefs; the bow sits just above the hem. Under the suit there is a person: the hips and thighs are a wearer's own, meeting in a soft groin crease. The udders are pink cloth panels sewn into holes in the fur and stuffed from behind, so they swell out of the suit with flush, stitched edges. The lower legs taper cleanly to a slim ankle, the heels stand on the slippers' footbeds, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with round 17 under the picture.</li>
-          <li>Round 18 &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. (Round 18 is no longer in this viewer; its model stays in the handoff.)</li>
+          <li>Round 19 &middot; <strong>The new body:</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revisions answer your notes. The head sits up on a visible throat, looking ahead, the hood falls straight from the crown to the shoulders at the back, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle, over a round seat in the briefs; the bow sits just above the hem. Under the suit there is a person: the hips and thighs are a wearer's own, meeting in a soft groin crease. The udders are pink cloth panels sewn into holes in the fur and stuffed from behind, so they swell out of the suit with flush, stitched edges. The lower legs taper cleanly to a slim ankle, the heels stand on the slippers' footbeds, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with rounds 17 and 18 under the picture.</li>
+          <li>Round 18 &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Pick <em>Round 17</em> and <em>Round 18</em> under the picture to see them side by side or overlaid, with height lines for each round&rsquo;s crotch and belly: <span class="swatch" style="background:#c27c0e"></span>round 17 and <span class="swatch" style="background:#3f73e0"></span>round 18.</li>
           <li>Earlier &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
           <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
           <li>Earlier &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
@@ -228,34 +236,38 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <h2>Measured per animation</h2>
         <div style="overflow-x:auto">
         <table class="metrics">
-          <thead><tr><th>Animation (round 17)</th><th>Belly into legs</th><th>Legs into belly</th></tr></thead>
+          <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Belly into legs</th><th>Legs into belly</th><th>Lowest sole</th></tr></thead>
           <tbody>
-            <tr><td>Idle</td><td>0 mm</td><td>0 mm</td></tr>
-            <tr><td>Walk</td><td>2.1 mm</td><td>42.9 mm</td></tr>
-            <tr><td>Run</td><td>19.9 mm</td><td>72.8 mm</td></tr>
-            <tr><td>Sneak</td><td>32.5 mm</td><td>73.1 mm</td></tr>
-            <tr><td>Jumping Jacks</td><td>0.1 mm</td><td>29.5 mm</td></tr>
-            <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td></tr>
-            <tr><td>Chicken Dance</td><td>0 mm</td><td>23.1 mm</td></tr>
-            <tr><td>Depressed Walk</td><td>3.4 mm</td><td>35.2 mm</td></tr>
-            <tr><td>Sit Cross-Legged</td><td>2.6 mm</td><td>19.9 mm</td></tr>
-            <tr><td>Crying</td><td>0 mm</td><td>15.0 mm</td></tr>
-            <tr><td>Exasperated</td><td>0 mm</td><td>0.3 mm</td></tr>
-            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>6.6 mm</td></tr>
-            <tr><td>Walk <span class="note">alt</span></td><td>1.1 mm</td><td>36.1 mm</td></tr>
-            <tr><td>Run <span class="note">alt</span></td><td>18.6 mm</td><td>69.9 mm</td></tr>
-            <tr><td>Sneak <span class="note">alt</span></td><td>28.3 mm</td><td>70.9 mm</td></tr>
-            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0.7 mm</td><td>27.5 mm</td></tr>
-            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>6.5 mm</td></tr>
-            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>22.6 mm</td></tr>
+            <tr><td>Idle</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>0 mm <span class="note">(0)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Walk</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(2.1)</span></td><td>35.5 mm <span class="note">(42.9)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Run</td><td>0 mm</td><td>0 mm</td><td>10.9 mm <span class="note">(19.9)</span></td><td>65.2 mm <span class="note">(72.8)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Sneak</td><td>0 mm</td><td>0 mm</td><td>21.2 mm <span class="note">(32.5)</span></td><td>65.3 mm <span class="note">(73.1)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Jumping Jacks</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0.1)</span></td><td>26.5 mm <span class="note">(29.5)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Look Around</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>0 mm <span class="note">(0)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Chicken Dance</td><td>0 mm</td><td>2.5 mm</td><td>0 mm <span class="note">(0)</span></td><td>15.4 mm <span class="note">(23.1)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Depressed Walk</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(3.4)</span></td><td>29.5 mm <span class="note">(35.2)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Sit Cross-Legged</td><td>0 mm</td><td>2.1 mm</td><td>3.1 mm <span class="note">(2.6)</span></td><td>15.6 mm <span class="note">(19.9)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Crying</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>11.5 mm <span class="note">(15.0)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Exasperated</td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>0 mm <span class="note">(0.3)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>3.6 mm <span class="note">(6.6)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(1.1)</span></td><td>29.4 mm <span class="note">(36.1)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>3.6 mm</td><td>6.7 mm <span class="note">(18.6)</span></td><td>55.1 mm <span class="note">(69.9)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>2.0 mm</td><td>15.5 mm <span class="note">(28.3)</span></td><td>56.4 mm <span class="note">(70.9)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0.7)</span></td><td>23.6 mm <span class="note">(27.5)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>0 mm</td><td>0 mm <span class="note">(0)</span></td><td>3.5 mm <span class="note">(6.5)</span></td><td>3.0 mm</td></tr>
+            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>5.6 mm</td><td>0 mm <span class="note">(0)</span></td><td>14.9 mm <span class="note">(22.6)</span></td><td>3.0 mm</td></tr>
           </tbody>
         </table>
         </div>
-        <p class="note">Round 17, the animated model in this viewer. Depths are 99.5th percentiles over every frame, counting only surface you can see (the tops of the tights and briefs tucked inside the suit are left out), measured on a rebuild of round 17 that reproduces its validation exactly. <em>Legs into belly</em> is the tops of the thighs meeting the belly at the highest knee lifts. Round 25 has no rig yet, so it has no per-animation readings.</p>
+        <p class="note">Round 18; round 17&rsquo;s readings for the two leg columns are in brackets, measured the same way on a rebuild of round 17. Depths are 99.5th percentiles over every frame, counting only surface you can see (the tops of the tights and briefs tucked inside the suit are left out). In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is the tops of the thighs meeting the belly at the highest knee lifts; with the higher belly of round 18 it is 10&ndash;45&nbsp;% lower than before wherever they meet.</p>
       </section>
       <figure>
         <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
         <figcaption>Mask and hood photos &middot; matching v10 views</figcaption>
+      </figure>
+      <figure>
+        <img src="compare.jpg" alt="Two original shoot photos beside the v09 render and the round-18 v10 front and quarter renders">
+        <figcaption>Original shoot (0077, 0120) &middot; v09 before &middot; v10 round 18</figcaption>
       </figure>
     </aside>
   </div>
@@ -281,10 +293,14 @@ const scrub = document.getElementById('scrub');
 const timeEl = document.getElementById('time');
 const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
-// Round 17 is the main, animated model; round 25 (static, no rig yet) loads on first use.
-let mainRoot = null, version = 'r17', guidesOn = false, currentView = 'front';
-const SIDE_X = 0.47;                       // side by side: the earlier round on the left, the later on the right (from the front)
-const LABELS = { r17: document.getElementById('lab17'), r25: document.getElementById('lab25') };
+// Round 18 is the main, animated model; round 17 (animated) and round 25 (static) load on first use.
+// Any of the three can be shown alone, side by side (oldest on the left) or overlaid (newest solid, the others as ghosts).
+const ROUNDS = ['r17', 'r18', 'r25'];
+const COLORS = { r17: '#c27c0e', r18: '#3f73e0', r25: '#d23a4a' };
+const NAMES = { r17: 'Round 17', r18: 'Round 18', r25: 'Round 25' };
+let mainRoot = null, shown = ['r18'], layout = 'side', guidesOn = false, currentView = 'front';
+const SPACING = 0.94;                      // side by side: distance between neighbouring figures (m)
+const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r25: document.getElementById('lab25') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -349,7 +365,7 @@ shadowFloor.rotation.x = -Math.PI / 2; shadowFloor.receiveShadow = true; scene.a
 
 const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.05, 30);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 7;
+controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 9;
 // Wheel zoom proportional to how far the wheel or trackpad actually scrolled.  OrbitControls
 // (three r160) zooms a fixed 5% per wheel event, so trackpads and smooth-scrolling mice, which send
 // dozens of small events per gesture, raced straight in to the closest distance.
@@ -373,7 +389,8 @@ function setView(name) {
   currentView = name;
   const v = VIEWS[name];
   const t = new THREE.Vector3(...v.target), off = new THREE.Vector3(...v.pos).sub(t);
-  if (version === 'side') { t.x = 0; off.multiplyScalar(name === 'head' || name === 'hands' ? 2.1 : 1.5); }
+  const n = sideCount();
+  if (n > 1) { t.x = 0; off.multiplyScalar(name === 'head' || name === 'hands' ? 1 + 1.1 * (n - 1) : 1 + 0.5 * (n - 1)); }
   controls.target.copy(t); camera.position.copy(t).add(off); controls.update();
   document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
 }
@@ -392,7 +409,7 @@ const restPose = [];   // every bone's rest transform, recorded at load (the def
 const clayMat = new THREE.MeshStandardMaterial({ color: 0xcfc6bd, roughness: 0.8, metalness: 0 });
 const clayFlat = new THREE.MeshBasicMaterial({ color: 0xcfc6bd });
 const meshes = [];
-const ghostMat = new THREE.MeshBasicMaterial({ color: 0x3f73e0, transparent: true, opacity: 0.32, depthWrite: false });
+const ghostMats = Object.fromEntries(ROUNDS.map(k => [k, new THREE.MeshBasicMaterial({ color: COLORS[k], transparent: true, opacity: 0.32, depthWrite: false })]));
 
 // Each model ships as a .glb (local copy) and as base64 text for hosts that only serve text: one
 // .b64.txt file, or numbered parts (.b64.1.txt, .b64.2.txt, ...) when one file would pass the
@@ -433,8 +450,14 @@ async function load(base, useMeshopt) {
 }
 
 async function start() {
-  await MeshoptDecoder.ready;
-  const gltf = await load('cow-r17-meshopt', true);
+  let gltf;
+  try {
+    await MeshoptDecoder.ready;
+    gltf = await load('cow-meshopt', true);
+  } catch (e) {
+    status.textContent = 'Loading the simplified copy (17.9 MB)...';
+    gltf = await load('cow-plain', false);
+  }
   const root = gltf.scene;
   prepare(root, meshes, restPose);
   mainRoot = root;
@@ -444,8 +467,8 @@ async function start() {
   gltf.animations.forEach(c => { clipMap[c.name] = c; });
   selectClip('Idle');                // open on Idle, not the Chicken Dance
   status.hidden = true;
-  document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; });
-  setVersion('r25');                // open on the newest round
+  enableCompare(true);
+  setRounds(['r25']);               // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -464,20 +487,21 @@ function prepare(root, list, rest) {
   });
 }
 
-// Other rounds, loaded the first time they are shown.  Round 17 is the main, animated model; round 25 is a
-// static preview of the new body (no rig yet, so it stands in the default pose).
-const FIGS = { r25: { file: 'cow-r25-meshopt', mb: 12.6, f: null, loading: null, name: '25' },
+// Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 25 is a
+// static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before 18.
+const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
+               r25: { file: 'cow-r25-meshopt', mb: 12.6, f: null, loading: null, name: '25' },
                r25up: { file: 'cow-r25-up-meshopt', mb: 12.6, f: null, loading: null, name: '25 (arms raised)' } };
 // round 25 can stand with its arms lifted (a second static model, swapped in its place)
 let armsUp = false;
 const figKey = k => (k === 'r25' && armsUp) ? 'r25up' : k;
-const ALLK = ['r17', 'r25', 'r25up'];
+const ALLK = ['r17', 'r18', 'r25', 'r25up'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
   if (F.loading) return F.loading;
   status.hidden = false; status.textContent = `Loading round ${F.name || key.slice(1)} (${F.mb} MB)...`;
-  document.querySelectorAll('#versions button').forEach(b => { b.disabled = true; });
+  enableCompare(false);
   F.loading = load(F.file, true).then(gltf => {
     const f = { root: gltf.scene, meshes: [], rest: [], clips: {}, action: null };
     prepare(f.root, f.meshes, f.rest);
@@ -492,10 +516,10 @@ function ensureFig(key) {
     status.textContent = `Round ${F.name || key.slice(1)} could not be loaded: ` + err.message;
     F.loading = null;
     return null;
-  }).finally(() => { document.querySelectorAll('#versions button').forEach(b => { b.disabled = false; }); });
+  }).finally(() => enableCompare(true));
   return F.loading;
 }
-// any other animated round follows round 17's clip; its time is copied every frame, so scrubbing and pausing stay in step
+// the other rounds follow round 18's clip; their time is copied every frame, so scrubbing and pausing stay in step
 // (round 25 has no clips yet and keeps its default pose)
 function syncFigClips() {
   for (const F of Object.values(FIGS)) {
@@ -510,55 +534,86 @@ function syncFigClips() {
     if (clip) { f.action = f.mixer.clipAction(clip); f.action.reset().play(); }
   }
 }
-// which rounds each mode shows, where (x), and which one is a ghost
-const MODES = {
-  r25: { show: { r25: 0 }, note: 'Round 25: the sides dip in under the udders before the belly swells out, and the briefs pass under the crotch again. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.' },
-  r17: { show: { r17: 0 }, note: 'Round 17, animated.' },
-  side: { show: { r17: -SIDE_X, r25: SIDE_X }, note: 'Round 17 (left, animated) beside round 25 (right, default pose).' },
-  overlay: { show: { r25: 0, r17: 0 }, ghost: 'r17', note: 'Round 25, with round 17 as a blue ghost. Pick Default pose so both stand the same way.' },
-};
-const rootOf = k => k === 'r17' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
-const meshesOf = k => k === 'r17' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
-const modeKey = k => k === 'r25up' ? 'r25' : k;          // where a figure stands in a mode
-async function setVersion(v) {
-  const M = MODES[v];
-  for (const k of Object.keys(M.show)) if (k !== 'r17' && !(await ensureFig(figKey(k)))) return;
-  version = v;
-  const shownKeys = Object.keys(M.show).map(figKey);
+// what is shown: which rounds (in ROUNDS order), and how (side by side or overlaid)
+function enableCompare(on) {
+  document.querySelectorAll('#versions button, #layout button').forEach(b => { b.disabled = !on; });
+  if (on) refreshButtons();
+}
+function sideCount() { return layout === 'side' ? shown.length : 1; }   // figures standing apart (hoisted: setView uses it at load)
+// in an overlay the newest round shown is solid and the others are ghosts in their own colour
+const ghostOf = k => layout === 'overlay' && shown.length > 1 && shown.includes(k) && k !== shown[shown.length - 1];
+const xOf = k => sideCount() > 1 ? (shown.indexOf(k) - (shown.length - 1) / 2) * SPACING : 0;
+const rootOf = k => k === 'r18' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
+const meshesOf = k => k === 'r18' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
+const modeKey = k => k === 'r25up' ? 'r25' : k;          // which round a figure belongs to
+const list = ks => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] : ks[0];
+function describe() {
+  const num = shown.map(k => k.slice(1));
+  const still = shown.includes('r25') ? ' Round 25 has no rig yet, so it stands in the default pose.' : '';
+  if (shown.length === 1) return {
+    r25: 'Round 25: the sides dip in under the udders before the belly swells out, and the briefs pass under the crotch again. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.',
+    r18: 'Round 18, animated.', r17: 'Round 17, animated.' }[shown[0]];
+  if (layout === 'side') return `Rounds ${list(num)} side by side, oldest on the left.` + still;
+  const solid = num[num.length - 1], ghosts = num.slice(0, -1);
+  return `Round ${solid} solid, with round${ghosts.length > 1 ? 's' : ''} ${list(ghosts)} as ${ghosts.length > 1 ? 'coloured ghosts' : 'a ghost'}.` + still + ' Pick Default pose so they all stand the same way.';
+}
+function refreshButtons() {
+  document.querySelectorAll('#versions button[data-round]').forEach(b => b.setAttribute('aria-pressed', String(shown.includes(b.dataset.round))));
+  document.querySelectorAll('#layout button[data-layout]').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.layout === layout));
+    b.disabled = shown.length < 2;
+  });
+  armsBtn.disabled = !shown.includes('r25');
+}
+async function setRounds(next, nextLayout = layout) {
+  next = ROUNDS.filter(k => next.includes(k));
+  if (!next.length) return;
+  for (const k of next) if (k !== 'r18' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
+  const wasMulti = shown.length > 1;
+  shown = next; layout = nextLayout;
   for (const k of ALLK) {
     const r = rootOf(k);
     if (!r) continue;
-    r.visible = shownKeys.includes(k);
-    r.position.x = M.show[modeKey(k)] ?? 0;
-    const ghost = M.ghost === k;
+    const mk = modeKey(k);
+    r.visible = shown.includes(mk) && figKey(mk) === k;
+    r.position.x = xOf(mk);
+    const ghost = ghostOf(mk);
     meshesOf(k).forEach(m => { m.castShadow = !ghost; m.renderOrder = ghost ? 2 : 0; });
   }
-  floor.scale.x = v === 'side' ? 2.2 : 1;
-  if ((v === 'side' || v === 'overlay') && !guidesOn) setGuides(true);
+  floor.scale.x = 1 + 1.2 * (sideCount() - 1);
+  if (shown.length > 1 && !wasMulti && !guidesOn) setGuides(true);
   applyMaterials();
   setView(currentView);
-  document.querySelectorAll('#versions button[data-ver]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ver === v)));
-  document.getElementById('verNote').textContent = M.note;
-  const r25name = armsUp ? 'Round 25 \u00b7 arms raised' : 'Round 25';
-  LABELS.r25.textContent = v === 'overlay' ? r25name + ' \u00b7 blue ghost = round 17' : r25name;
-  armsBtn.disabled = !('r25' in M.show);
+  document.getElementById('verNote').textContent = describe();
+  document.getElementById('layoutNote').textContent = shown.length > 1 ? (layout === 'side' ? 'Each round stands in its own place.' : 'The rounds stand in the same place.') : 'Pick two or three rounds above to compare them.';
+  LABELS.r25.textContent = armsUp ? 'Round 25 · arms raised' : 'Round 25';
+  refreshButtons();
 }
-document.querySelectorAll('#versions button[data-ver]').forEach(b => b.addEventListener('click', () => setVersion(b.dataset.ver)));
+// a round button adds that round to the view or takes it away (one round always stays)
+document.querySelectorAll('#versions button[data-round]').forEach(b => b.addEventListener('click', () => {
+  const k = b.dataset.round;
+  if (shown.includes(k)) { if (shown.length > 1) setRounds(shown.filter(x => x !== k)); }
+  else setRounds([...shown, k]);
+}));
+document.querySelectorAll('#layout button[data-layout]').forEach(b => b.addEventListener('click', () => setRounds(shown, b.dataset.layout)));
 const armsBtn = document.getElementById('arms');
 armsBtn.addEventListener('click', async () => {
   armsUp = !armsUp;
   armsBtn.setAttribute('aria-pressed', String(armsUp));
   if (!(await ensureFig(figKey('r25')))) { armsUp = !armsUp; armsBtn.setAttribute('aria-pressed', String(armsUp)); return; }
-  await setVersion(version);
+  await setRounds(shown);
 });
 
 // Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
 const GUIDES = [
-  { y: 0.708, color: '#3f73e0', text: 'R17 crotch 0.71 m', end: -1, round: 'r17' },
-  { y: 0.767, color: '#3f73e0', text: 'R17 belly 0.77 m', end: -1, round: 'r17' },
-  { y: 0.747, color: '#d23a4a', text: 'R25 crotch 0.75 m', end: 1, round: 'r25', dy: 8 },
-  { y: 0.785, color: '#d23a4a', text: 'R25 belly 0.785 m', end: 1, round: 'r25', dy: -8 },
+  { y: 0.708, text: 'R17 crotch 0.71 m', round: 'r17' },
+  { y: 0.767, text: 'R17 belly 0.77 m', round: 'r17' },
+  { y: 0.747, text: 'R18 crotch 0.75 m', round: 'r18' },
+  { y: 0.840, text: 'R18 belly 0.84 m', round: 'r18' },
+  { y: 0.747, text: 'R25 crotch 0.75 m', round: 'r25' },
+  { y: 0.785, text: 'R25 belly 0.785 m', round: 'r25' },
 ];
+GUIDES.forEach(gd => { gd.color = COLORS[gd.round]; });
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
 GUIDES.forEach(gd => {
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(6), 3));
@@ -583,26 +638,44 @@ function place(el, p, alignRight, dy = 0) {
   el.hidden = !ok;
   el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y + dy)}px) translate(${alignRight ? '-100%' : '0'}, -50%)`;
 }
+// the oldest round shown labels its lines on the left, the others on the right
+const labelSide = k => shown.length > 1 && shown[0] === k ? -1 : 1;
 function updateOverlays() {
   const toCam = camera.position.clone().sub(controls.target); toCam.y = 0;
   if (toCam.lengthSq() < 1e-8) toCam.set(0, 0, 1);
   toCam.normalize();
   const right = new THREE.Vector3(toCam.z, 0, -toCam.x);
-  const half = version === 'side' ? 0.95 : 0.5;
-  const shown = MODES[version].show;
+  const half = (sideCount() - 1) * SPACING / 2 + 0.48;
+  const tags = [];
   GUIDES.forEach(gd => {
-    gd.line.visible = gd.round in shown;
+    gd.line.visible = shown.includes(gd.round);
     const c = new THREE.Vector3(controls.target.x, gd.y, controls.target.z);
     const a = c.clone().addScaledVector(right, -half), b = c.clone().addScaledVector(right, half);
     const pos = gd.line.geometry.attributes.position; pos.setXYZ(0, a.x, a.y, a.z); pos.setXYZ(1, b.x, b.y, b.z); pos.needsUpdate = true;
-    if (guidesOn && gd.line.visible) place(gd.el, gd.end < 0 ? a : b, gd.end < 0, gd.dy || 0); else gd.el.hidden = true;
+    if (!(guidesOn && gd.line.visible)) { gd.el.hidden = true; return; }
+    const side = labelSide(gd.round), [x, y, ok] = toScreen(side < 0 ? a : b);
+    tags.push({ el: gd.el, x, y, ok, side });
   });
-  // a label over each figure shown (one label for the overlay)
-  for (const k of ['r17', 'r25']) {
+  // labels on the same side are pushed apart so they never overlap (several lines sit within 2 cm)
+  for (const side of [-1, 1]) {
+    const L = tags.filter(t => t.side === side).sort((p, q) => q.y - p.y);
+    for (let i = 1; i < L.length; i++) if (L[i - 1].y - L[i].y < 17) L[i].y = L[i - 1].y - 17;
+    L.forEach(t => {
+      t.el.hidden = !t.ok;
+      // keep each label inside the stage: it slides in over the end of its line rather than off the edge
+      const w = t.el.offsetWidth, W = stage.clientWidth;
+      const x = side < 0 ? Math.max(t.x, w + 4) : Math.min(t.x, W - w - 4);
+      t.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(t.y)}px) translate(${side < 0 ? '-100%' : '0'}, -50%)`;
+    });
+  }
+  // a label over each solid figure; in an overlay it also names the ghosts
+  const overlay = layout === 'overlay' && shown.length > 1;
+  for (const k of ROUNDS) {
     const r = rootOf(figKey(k)), l = LABELS[k];
-    const show = r && r.visible && !(version === 'overlay' && k === 'r17') && !(version === k && k === 'r17');
-    if (show) { place(l, new THREE.Vector3(r.position.x, 1.86, 0), false); l.style.transform += ' translateX(-50%)'; }
-    else l.hidden = true;
+    if (!(r && r.visible && !ghostOf(k))) { l.hidden = true; continue; }
+    const base = k === 'r25' && armsUp ? 'Round 25 \u00b7 arms raised' : NAMES[k];
+    l.textContent = overlay ? base + ' \u00b7 ghosts: ' + shown.filter(ghostOf).map(g => g.slice(1)).join(', ') : base;
+    place(l, new THREE.Vector3(r.position.x, 1.86, 0), false); l.style.transform += ' translateX(-50%)';
   }
 }
 
@@ -663,8 +736,8 @@ function applyMaterials() {
   const pick = m => clayOn ? (flat ? clayFlat : clayMat) : (flat ? m.userData.flat : m.userData.mat);
   meshes.forEach(m => { m.material = pick(m); });
   for (const k of ALLK) {
-    const ghost = MODES[version].ghost === k;
-    meshesOf(k).forEach(m => { m.material = ghost ? ghostMat : pick(m); });
+    const mk = modeKey(k), ghost = ghostOf(mk);
+    meshesOf(k).forEach(m => { m.material = ghost ? ghostMats[mk] : pick(m); });
   }
 }
 function aim(light, az, el, d = 3.2) {
@@ -733,7 +806,7 @@ renderer.setAnimationLoop(() => {
     phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
   for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = action.time; F.f.mixer.update(0); }
-  phaseNow.hidden = !('r17' in MODES[version].show);   // round 25 has no animation yet
+  phaseNow.hidden = !(shown.includes('r18') || shown.includes('r17'));   // round 25 has no animation yet
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);

@@ -12,7 +12,7 @@ The tools used to build and check rounds 19–24, the static Tripo-based body th
 | `profile_cmp.py` | Prints the silhouette extents per height for the model and for Gemini. |
 | `sdf_vs_gemini.py` | Draws the outlines of the design's SDF parts on the Gemini views without meshing, for fast shape checks. |
 | `gemini_measure.py` | Measures the approved views in model metres: floor at 0, crotch at 0.747 m, horn tip at 1.696 m. |
-| `test_viewer.js` | Runs a headless Chromium (SwiftShader) test of the viewer. It covers opening on the newest round with Idle selected, round 17 and the Chicken Dance's own controls, Arms raised, every lighting rig, the backdrops, and the side-by-side and ghost comparisons. |
+| `test_viewer.js` | Runs a headless Chromium (SwiftShader) test of the viewer. It covers opening on the newest round with Idle selected, picking rounds 17, 18 and 25 together, side by side and overlaid, the Chicken Dance's own controls, Arms raised, every lighting rig and the backdrops. |
 
 Example:
 

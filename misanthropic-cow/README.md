@@ -346,9 +346,9 @@ Where things live:
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
-The viewer carries two rounds: round 17, the animated model (`cow-r17-meshopt.glb`, round 17's web copy, unchanged), and round 25, the static preview of the new body (`cow-r25-meshopt.glb`, and `cow-r25-up-meshopt.glb` for Arms raised). Round 18 was removed from the viewer; its full models stay in `models/`. The page opens on round 25 with the Idle animation selected. Its *Compare* row shows either round on its own, the two side by side, or round 25 with round 17 as a translucent ghost, with height lines for each round's crotch and belly bottom.
+The viewer's *Rounds* row shows any combination of round 17, round 18 and round 25 (the static preview of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 25 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 copies the first time they are shown.
 
-The round 18 web copies (`cow-meshopt.glb` and `cow-plain.glb`, now removed from `viewer/`) were made with gltfpack 0.22, and `cow-r17-meshopt.glb` the same way as the first:
+The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).
 - `cow-plain.glb` uses `-kn -km -ke -si 0.3` (a simplified fallback). It is made from a copy with every texture capped at 1024 px (`python web_textures.py <in> <out> 1024`).
 

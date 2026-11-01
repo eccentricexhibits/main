@@ -9,7 +9,7 @@ There are two models, and they come from two different builds.
 - **Round 25 (the newest, a static preview).** The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r25.glb` and `..._r25_arms_raised.glb`.
 - **Round 18 (animated).** This is the last rigged model: 58 joints, 18 clips and baked physics, built by `pipeline/build_v10.py`. It uses the older body, made from SDF primitives.
 
-The viewer opens on round 25. It carries only round 17 (animated) and round 25 (static), and the animation starts on Idle. Round 18 is no longer in the viewer; its models stay in `Cow_v10/models/`.
+The viewer opens on round 25, with the Idle animation selected. Its Rounds row shows any combination of rounds 17, 18 and 25, side by side or overlaid.
 
 **The next step the owner asked for is the rig and the animations on the round 25 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
 
@@ -220,7 +220,7 @@ Rounds 19–24 added these modules and functions (everything else is as in round
   - `tripo_gloves.py`, `repair_gloves.py`, `rebuild_gloves.py`, `tripo_slippers.py`: earlier one-off conversions of the owner's Tripo models (gloves rounds 11–16, Shy Cow slippers). No longer used; their outputs are only in git history.
   - `cow_mule_slippers.py`: the one-off conversion of the owner's slipper model into `assets/slippers_cow_mule.glb` (scaled to metres, ankle axis at the origin, right slipper mirrored).
   - `render_shag.py`: before/after close-ups of the shag (`reviews/shag/`).
-- `Cow_v10/viewer/index.html`: the three.js viewer, with Light (Studio, Soft, Spotlight, No lighting) and Clay controls. Its models are `cow-r17-meshopt.glb` (round 17's animated web copy, the main model, whose clips drive the page) and `cow-r25-meshopt.glb` / `cow-r25-up-meshopt.glb` (round 25, arms down and raised). The round 18 web copies (`cow-meshopt.glb`, `cow-plain.glb`) and its comparison image (`compare.jpg`) were removed, so there is no simplified fallback any more. The page opens on round 25, with Idle selected. The claude.ai copy of the viewer loads base64 versions of the models, because that host serves only text and limits each file to 16 MB. A base64 copy over that limit is published in numbered parts (`cow-r17-meshopt.b64.1.txt`, `.2.txt`); the page joins them.
+- `Cow_v10/viewer/index.html`: the three.js viewer, with Light (Studio, Soft, Spotlight, No lighting) and Clay controls. Its Rounds row picks any of rounds 17, 18 and 25 and its Compare row shows them side by side (oldest on the left) or overlaid (the newest solid, the others as ghosts in each round's colour: 17 amber, 18 blue, 25 red), with height lines. Round 18 is the main model (`mainRoot`), whose clips drive the page; round 17 (`cow-r17-meshopt.glb`) copies its clip and time every frame, and round 25 (`cow-r25-meshopt.glb`, `cow-r25-up-meshopt.glb`) is static. The page opens on round 25 with Idle selected. `cow-meshopt.glb` and `cow-plain.glb` are gltfpack copies of the round 18 animated GLB. The claude.ai copy of the viewer loads base64 versions of them, because that host serves only text and limits each file to 16 MB. Each base64 copy is now over that limit, so it is published in numbered parts (`cow-meshopt.b64.1.txt`, `.2.txt`); the page joins them.
 
 ## How to rebuild and check
 
@@ -277,6 +277,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 - **File size:** the animated GLB is 95.5 MB, near GitHub's 100 MB per-file limit, mostly the gloves' 4K maps. Dropping those to 2K is the easy way to make room.
 - **Mask side view:** the side-jaw photo projection on the mask is stretched in pure side views (inherited from v09).
 - **Shag:** strands don't collide with the arms. A few strays on the small elbow patches splay out a little.
+- **Briefs' fallback copy:** the simplified web fallback (`cow-plain.glb`, gltfpack `-si 0.3`) thins the shag strands; the full-detail copy keeps them all.
 - **Photographed textures** (mask scan, fabric swatches) keep whatever light was in their photos.
 - **Slipper colour map** has the slipper project's ambient occlusion baked in (at 0.6). Remove it with that project's `ao_4096` map (its Part 3) when the owner supplies it.
 - **Tail:** the cord collides with the seat, legs, slippers and floor, but not with the arms or itself.
@@ -294,7 +295,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 - **Lifted arms:** keep the stuffed body rigid. Trim only outside the body's side wall: a half-space trim cut into the chest side and made a pinch, and a plain cylinder trim cut through the chest and left pockets and slivers (holes, round 25b). Check cross-sections of `torso_sdf` at 1.10–1.22 m, and count enclosed pockets with `binary_fill_holes`.
 - **Approved views:** their side outlines include the hanging arms, so smooth fits over about 4 cm. Their white backdrop shows between the legs; it is excluded from the spots by removing pure-background pixels. Paint in shade is mid-grey (luminance about 95–140).
 - **Build times:** quick builds take about 2 minutes and full builds about 12 minutes per pose. The CPU renderer (`render.py`) gives comparison sheets in seconds.
-- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r25-meshopt.b64.1.txt` and so on. Each viewer round renames its files (r19 → r25): rename the keys in `index.html` (`FIGS`, `MODES`, `GUIDES`, labels) with them. Round 17 is the main model (`mainRoot`, key `r17`); when a rigged round 25 replaces it, move that role to the new key.
+- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r25-meshopt.b64.1.txt` and so on. Each viewer round renames its files (r19 → r25): rename the keys in `index.html` (`ROUNDS`, `COLORS`, `NAMES`, `FIGS`, `GUIDES`, labels and the round buttons) with them.
 
 **From earlier rounds**
 
