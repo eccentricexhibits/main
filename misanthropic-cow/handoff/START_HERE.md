@@ -12,7 +12,7 @@ This is the v10 handoff as of feedback round 25 (1 November 2026). The folder ho
 
 | You want to… | Open |
 |---|---|
-| See the cow | Double-click `Start_Viewer.bat` (Windows), or run `python start_viewer.py`. The viewer opens your browser on **Round 25**; it needs internet only to load three.js. **Arms raised** shows the fur under the arms. **Light** and **Adjust** change the lighting. **18 \| 25 side by side** compares her with the animated round 18. |
+| See the cow | Double-click `Start_Viewer.bat` (Windows), or run `python start_viewer.py`. The viewer opens your browser on **Round 25**; it needs internet only to load three.js. **Arms raised** shows the fur under the arms. **Light** and **Adjust** change the lighting. **Round 17** is the animated model, and its animation starts on **Idle**. **17 \| 25 side by side** and **25 over 17** compare the two. |
 | Use the newest model in Blender, Unity, Unreal or a glTF viewer | `Cow_v10/models/Misanthropic_Cow_v10_r25.glb` (static, A-pose), or `Misanthropic_Cow_v10_r25_arms_raised.glb`. They have no rig yet. |
 | Use the last animated model | `Cow_v10/models/Misanthropic_Cow_v10_Animated.glb` (round 18 body: skinned, 58 joints, 18 animations) |
 | See what changed in rounds 19–25 | `Cow_v10/reviews/rounds_19_24/` (it holds round 25 too): before/after sheets, and comparisons with your Gemini views and the original shoot. `Round25_turnaround.jpg` shows where she is now. |
@@ -34,7 +34,7 @@ Misanthropic_Cow_v10_Handoff/
   Cow_v10/                 the project (the misanthropic-cow/ folder of the git branch), plus the round 25 GLBs
     README.md
     models/                round 25 static GLBs (arms down, arms raised) and the round 18 GLBs
-    viewer/                three.js viewer page and its web-sized model copies
+    viewer/                three.js viewer page and its web-sized model copies (round 17 animated, round 25 static)
     reviews/               renders and comparison sheets (rounds_19_24/ for the new body)
     references/            your four approved Gemini views
     assets/                your gloves, your slippers, and the cleaned Tripo body volume (tripo_body.npz)
@@ -56,4 +56,4 @@ See `AI_HANDOFF.md`, section "How to rebuild and check", and `Cow_v10/pipeline/r
 
 ## Versions
 
-Every reviewed round is a git commit in the `misanthropic-cow/` folder of the `eccentricexhibits/main` repository; `PROJECT_STATUS.json` lists them. Rounds 18–25 are on branch `claude/quirky-darwin-pij3xe`.
+Every reviewed round is a git commit in the `misanthropic-cow/` folder of the `eccentricexhibits/main` repository; `PROJECT_STATUS.json` lists them. Rounds 18–25 are on branch `claude/quirky-darwin-pij3xe`. The viewer cleanup (round 17 and round 25 only, opening on Idle) is on branch `claude/amazing-davinci-sc9bc8`.

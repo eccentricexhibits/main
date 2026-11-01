@@ -37,6 +37,7 @@
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
+  "viewer_models": "round 17 animated (cow-r17-meshopt.glb, the main model) and round 25 static (cow-r25-meshopt.glb, cow-r25-up-meshopt.glb); opens on round 25 with Idle selected; round 18 removed from the viewer",
   "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 25, version 33)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/"
@@ -599,7 +600,6 @@
   "Round 18 animated model: Mask side-jaw photo projection stretched in pure side views (from v09)",
   "Round 18 animated model: Tail cord does not collide with the arms or itself",
   "Round 18 animated model: Shag strands do not collide with the arms; a few strays on the elbow patches splay out",
-  "Round 18 animated model: Simplified web fallback (cow-plain.glb, -si 0.3) thins the shag strands",
   "Round 18 animated model: Locomotion is in place (no root motion)",
   "Round 18 animated model: Run and Sneak: belly meets the tops of the thighs at the highest knee lift (visible 11 and 21 mm; alt 7 and 16 mm)",
   "Round 18 animated model: Teats dip into the belly: 2.1 mm Sit Cross-Legged, 2.5 mm Chicken Dance, 3.6 mm Run (alt), 2.0 mm Sneak (alt), 5.6 mm Chicken Dance (alt)",
