@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 28 complete; rounds 19-28 are a static preview of the new body, round 18 is the last animated model)",
+ "version": "v10 (feedback round 29 complete; rounds 19-29 are a static preview of the new body, round 18 is the last animated model)",
  "date": "2026-11-01",
  "git_branch": "claude/amazing-davinci-sc9bc8",
- "git_commit": "round 28 is the latest commit on the branch (round 25: 551cc25)",
+ "git_commit": "round 29 is the latest commit on the branch (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_29_change": "a 1.2 cm strip of white fur between the udders (GLOBE_GAP; globes 8 mm further out, 4 mm narrower); the pear shape a little more pronounced (tripo_body.SIDE_DIP 0.115, SACK widths): half-width 18.4 cm at 1.10 m, 22.5 cm at 0.98 m",
  "round_28_change": "udders are full pink globes: stuffed ellipsoids on the chest (design.GLOBE), pink wherever they stand outside the body, round the sides and under to the seam; round 23's fur over the tops dropped (GLOBE_CAP None); no shag patch within 2 cm of them; round 27's seam plane and flank fillet removed",
  "round_27_change": "head over the shoulders as in rounds 17/18 (design.HEAD_DZ 0, was 0.05); no suit-top padding; udders: clean outer seam (cup_apex, CUP_SEAM_DEG 58) and the fur rounds each cup's flank (CUP_FLANK); no shag patch fitted where the pink used to be; otherwise round 25",
  "round_25_model": {
@@ -35,6 +36,8 @@
   "static_glb_bytes": 83115800
  },
  "files": {
+  "round_29_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r29.glb",
+  "round_29_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r29_arms_raised.glb",
   "round_28_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r28.glb",
   "round_28_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r28_arms_raised.glb",
   "round_25_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb",
@@ -42,13 +45,14 @@
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
-  "viewer_rounds": "rounds 17 and 18 (animated) and 25 and 28 (static), in any combination, side by side or overlaid; opens on round 28 with Idle selected",
-  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 28)",
+  "viewer_rounds": "rounds 17 and 18 (animated) and 25, 28 and 29 (static), in any combination, side by side or overlaid; opens on round 29 with Idle selected",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 29)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/",
   "review_sheets_round_26": "Cow_v10/reviews/round_26/",
   "review_sheets_round_27": "Cow_v10/reviews/round_27/",
-  "review_sheets_round_28": "Cow_v10/reviews/round_28/"
+  "review_sheets_round_28": "Cow_v10/reviews/round_28/",
+  "review_sheets_round_29": "Cow_v10/reviews/round_29/"
  },
  "animations_round_18": {
   "standard": [
@@ -593,7 +597,7 @@
   }
  },
  "next_steps": [
-  "Rig the round 28 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Rig the round 29 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
   "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
   "Lace side panels on the briefs (offered, not yet done)"
  ],

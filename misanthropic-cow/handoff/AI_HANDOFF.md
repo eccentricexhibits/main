@@ -1,4 +1,4 @@
-# AI handoff: The Misanthropic Cow, v10 at round 28
+# AI handoff: The Misanthropic Cow, v10 at round 29
 
 Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything needed to continue is in this folder. Nothing depends on a network service except three.js, which the viewer loads from jsDelivr.
 
@@ -6,12 +6,12 @@ Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything need
 
 There are two models, and they come from two different builds.
 
-- **Round 28 (the newest, a static preview).** Round 25 with the head and hood as in rounds 17/18 (feedback 26–27: the hood is a hood, and the head sits over the shoulders) and the udders as full pink globes (28). The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r28.glb` and `..._r28_arms_raised.glb`; round 25's are kept beside them for comparison.
+- **Round 29 (the newest, a static preview).** Round 25 with the head and hood as in rounds 17/18 (feedback 26–27: the hood is a hood, and the head sits over the shoulders), the udders as full pink globes with a strip of fur between them (28–29), and a slightly more pronounced pear shape at the sides (29). Round 28 is kept for comparison. The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r29.glb` and `..._r29_arms_raised.glb` (round 28's beside them); round 25's are kept beside them for comparison.
 - **Round 18 (animated).** This is the last rigged model: 58 joints, 18 clips and baked physics, built by `pipeline/build_v10.py`. It uses the older body, made from SDF primitives.
 
-The viewer opens on round 28, with the Idle animation selected. Its Rounds row shows any combination of rounds 17, 18, 25 and 28, side by side or overlaid.
+The viewer opens on round 29, with the Idle animation selected. Its Rounds row shows any combination of rounds 17, 18, 25, 28 and 29, side by side or overlaid.
 
-**The next step the owner asked for is the rig and the animations on the round 28 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
+**The next step the owner asked for is the rig and the animations on the round 29 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
 
 ## The project
 
@@ -38,13 +38,13 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
 
 **Body**
 - The body is the Tripo model (`assets/tripo_body.npz`), cleaned and fitted height by height to the Gemini outlines. Its legs follow the original photos: crotch at 0.747 m.
-- **Midsection:** a stuffed sack below the cups (`tripo_body.SACK`), full and round down to the hem, with no corset and no bustle. The sides dip in gently under the udders, by about 2.8 cm at 1.10 m (round 25), before the belly swells out. The back runs straight down, and there is **no back-fat roll** any more (removed in round 19b). The hem is at 0.785 m at the front, 0.82 m at the sides and 0.835 m at the back.
+- **Midsection:** a stuffed sack below the cups (`tripo_body.SACK`), full and round down to the hem, with no corset and no bustle. The sides dip in under the udders before the belly swells out, a pear shape: 18.4 cm half-width at 1.10 m, 22.5 cm at 0.98 m (rounds 25 and 29). The back runs straight down, and there is **no back-fat roll** any more (removed in round 19b). The hem is at 0.785 m at the front, 0.82 m at the sides and 0.835 m at the back.
 - **Head:** the snug hood is kept (the owner chose it over Gemini's loose hood). The mask, horns, tube and hood are carried 4° chin-up and lifted 1 cm (`design.head_pose`). The head sits over the shoulders, as in rounds 17/18 (`HEAD_DZ` = 0, round 27): rounds 19–26 carried it 5 cm forward onto Tripo's deeper chest, and the upper back then stood behind the hood as a hump. The hood is a hood (round 26): the round back of the head over a snug neck tucked into the suit's neckline. Do not fill the hood's back down to the shoulders (rounds 19c–25 did: "a smoothed back"), and do not pad the suit's top behind the neck (round 26 did: "a weird artificial hunchback"). Do not change the size of the tube and horns relative to the mask.
 - **Shoulders** slope away from the neck. The body is stuffed and rigid: when the arms lift, the body does not deform. The sleeves turn out of rounded, padded shoulders like a ball in a socket (`design._lifted_shoulders`; "v18 was more faithful"). Folds there should be very minor, if any.
 - **The person underneath:** from mid-thigh up, the leggings follow a real pelvis and thighs (`design._person_hips`), meeting in a soft groin crease. There is a round seat with a cleft under the briefs. The lower legs taper cleanly to a slim ankle, and the heels stand on the slipper footbeds.
 
 **Udders and teats**
-- Each cup is a stuffed pink globe sewn onto the fur (round 28): about 22 cm wide and 24 cm tall, standing out about 15 cm. The two press together with a crease between them.
+- Each cup is a stuffed pink globe sewn onto the fur (round 28): about 21 cm wide and 24 cm tall, standing out about 15 cm. The two nearly touch, with a narrow strip of white fur down between them (round 29, from the owner's photo).
 - **Each cup is pink all over: a full pink globe from the front and the side** (round 28, the owner's request). It replaces round 23's white fur over the tops; the cloth still runs **all the way under**, down to the seam with the suit (round 24).
 - Teats sit on the cloth, not at the rim, as in shots 4 and 5 of 15. Each is about 6 cm long and droops slightly:
   - a lower teat, low and a little inside of centre, pointing down;
@@ -160,6 +160,10 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
     - **Udders:** the pink's front outline was a shape pushed straight back, so on the cup's steep outer side it ran along the surface: the cloth went down the flank and ended in a saw-tooth edge, and from the side the cup read as a flat pink wall. On the outer side the pink now ends at a plane through a point 3 cm inside the cup (`cup_apex`), tilted `CUP_SEAM_DEG` (58°) out from straight ahead, so the seam crosses the side steeply and cleanly; below it the fur covers the flank, with a wider fillet into the body there (`CUP_FLANK`). No shag patch is fitted where the pink used to cover the cups (rounds 24–26) any more (`textures.fit_projected_patches`): a fragment fitted under the old pink showed on the flank as a bare black streak. Fronts, teats and undersides are unchanged.
     - Before/after: `reviews/round_27/`. The arms-raised hole check finds no pockets now (rounds 25–26 had one 5 mm² speck at 1.12 m).
 28. The owner asked for each udder to be a full pink globe from the side. Each cup is now a stuffed ellipsoid globe sitting on the chest, sunk part-way in (`design.GLOBE`, fitted to rounds 21–27's cup fronts, rms 1.2 cm), instead of a raised panel grown out of the chest. The pink covers each globe wherever it stands outside the suit's body (`pink_sdf`), so it runs round the sides and underneath to the crease where the globe meets the suit: a clean seam. Round 23's fur over the top of each cup is dropped (`GLOBE_CAP` = None; set it to bring a fur cap back, though its edge reads as a straight line from the front). The fur follows each globe just inside the cloth (`with_cups`), the teats sit on the globes, and no shag patch is fitted within 2 cm of them (`textures.fit_projected_patches`). Round 27's seam plane and flank fillet (`cup_apex`, `CUP_SEAM_DEG`, `CUP_FLANK`) are gone. Before/after: `reviews/round_28/`.
+29. From two photos of the costume: the udders have a narrow strip of white fur between them, and the "pear" curve on the sides (in under the udders, out over the belly) should be a little more pronounced.
+    - **Fur strip:** the globes press together less (each 8 mm further out and 4 mm narrower), and no pink is drawn within `GLOBE_GAP`/2 (6 mm) of the middle, so a 1.2 cm strip of fur runs down the seam between them. (Pulling the globes fully apart instead opened a wide V at the top; the photo shows them almost touching.)
+    - **Pear:** `tripo_body.SIDE_DIP` 0.075 → 0.115 and the `SACK` half-widths at 1.06–1.14 m narrower and at 0.90–1.02 m wider. From the front the half-width is now 18.4 cm at 1.10 m (19.2 before) and 22.5 cm at 0.98 m (21.9 before): a 4.1 cm step per side instead of 2.7.
+    Round 28 is kept beside it (the viewer has both). Before/after: `reviews/round_29/`.
 
 ## Where things are
 
@@ -182,7 +186,7 @@ Rounds 19–24 added these modules and functions (everything else is as in round
     - `chest_base` is a smoothed chest heightfield, and `cloth_sdf` is the cloth surface built on it.
     - `cup_solid` is the cup solid, limited to the chest. `pink_sdf` is the visible pink outline. `with_cups` sinks the fur under the cloth.
     - `udder_sdf` is the cloth shell plus the teats.
-    - `GLOBE`, `globe_sdf` and `globes` (round 28): the cups as stuffed globes; `cup_solid` returns them, and `pink_sdf` is pink wherever a globe stands outside the body (`_pink_panel` keeps rounds 24–26's outline, used only to keep shag patches off where the pink was). `GLOBE_CAP` would add a fur cap. The panel functions (`PANEL`, `pillow_h`, `chest_base`, `cloth_sdf`) now only place the teats' positions.
+    - `GLOBE`, `globe_sdf` and `globes` (round 28): the cups as stuffed globes; `cup_solid` returns them, and `pink_sdf` is pink wherever a globe stands outside the body (`_pink_panel` keeps rounds 24–26's outline, used only to keep shag patches off where the pink was). `GLOBE_CAP` would add a fur cap; `GLOBE_GAP` is the fur strip between the cups (round 29). The panel functions (`PANEL`, `pillow_h`, `chest_base`, `cloth_sdf`) now only place the teats' positions.
     - `TEAT_SPECS` holds the teat positions (panel coordinates), directions, lengths and droop; `_tripo_teats` seats them on the cloth.
   - **Lifted arms:** `_lifted_shoulders` trims the arm stub to a rounded shoulder ball.
 - `pipeline/approved_views.py`: the Gemini views in model coordinates.
@@ -230,18 +234,18 @@ Rounds 19–24 added these modules and functions (everything else is as in round
   - `tripo_gloves.py`, `repair_gloves.py`, `rebuild_gloves.py`, `tripo_slippers.py`: earlier one-off conversions of the owner's Tripo models (gloves rounds 11–16, Shy Cow slippers). No longer used; their outputs are only in git history.
   - `cow_mule_slippers.py`: the one-off conversion of the owner's slipper model into `assets/slippers_cow_mule.glb` (scaled to metres, ankle axis at the origin, right slipper mirrored).
   - `render_shag.py`: before/after close-ups of the shag (`reviews/shag/`).
-- `Cow_v10/viewer/index.html`: the three.js viewer, with Light (Studio, Soft, Spotlight, No lighting) and Clay controls. Its Rounds row picks any of rounds 17, 18, 25 and 28 and its Compare row shows them side by side (oldest on the left) or overlaid (the newest solid, the others as ghosts in each round's colour: 17 amber, 18 blue, 25 red, 28 green), with height lines. Round 18 is the main model (`mainRoot`), whose clips drive the page; round 17 (`cow-r17-meshopt.glb`) copies its clip and time every frame, and rounds 25 and 28 (`cow-r25-meshopt.glb`, `cow-r25-up-meshopt.glb`, `cow-r28-meshopt.glb`, `cow-r28-up-meshopt.glb`) are static. The page opens on round 28 with Idle selected. `cow-meshopt.glb` and `cow-plain.glb` are gltfpack copies of the round 18 animated GLB. The claude.ai copy of the viewer loads base64 versions of them, because that host serves only text and limits each file to 16 MB. Each base64 copy is now over that limit, so it is published in numbered parts (`cow-meshopt.b64.1.txt`, `.2.txt`); the page joins them.
+- `Cow_v10/viewer/index.html`: the three.js viewer, with Light (Studio, Soft, Spotlight, No lighting) and Clay controls. Its Rounds row picks any of rounds 17, 18, 25, 28 and 29 and its Compare row shows them side by side (oldest on the left) or overlaid (the newest solid, the others as ghosts in each round's colour: 17 amber, 18 blue, 25 red, 28 green, 29 purple), with height lines. Round 18 is the main model (`mainRoot`), whose clips drive the page; round 17 (`cow-r17-meshopt.glb`) copies its clip and time every frame, and rounds 25, 28 and 29 (`cow-r25-meshopt.glb`, `cow-r25-up-meshopt.glb`, `cow-r28-meshopt.glb`, `cow-r28-up-meshopt.glb`, `cow-r29-meshopt.glb`, `cow-r29-up-meshopt.glb`) are static. The page opens on round 29 with Idle selected. `cow-meshopt.glb` and `cow-plain.glb` are gltfpack copies of the round 18 animated GLB. The claude.ai copy of the viewer loads base64 versions of them, because that host serves only text and limits each file to 16 MB. Each base64 copy is now over that limit, so it is published in numbered parts (`cow-meshopt.b64.1.txt`, `.2.txt`); the page joins them.
 
 ## How to rebuild and check
 
-**Round 28 static models** (about 12 minutes each at full resolution; `--quick` takes about 2 minutes):
+**Round 29 static models** (about 12 minutes each at full resolution; `--quick` takes about 2 minutes):
 
 ```bash
 pip install numpy scipy pillow scikit-image vtk xatlas     # plus g++ on PATH
 cd Cow_v10/pipeline
 export REBUILD=../../Rebuild_Inputs/project COW_MARKINGS_CACHE=../build/markings.pkl
-python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r28.glb
-COW_ARM_RAISE=70 python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r28_arms_raised.glb
+python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r29.glb
+COW_ARM_RAISE=70 python review_tools/build_static.py . ../build/Misanthropic_Cow_v10_r29_arms_raised.glb
 ```
 
 Build the arms-down model first, because it writes the markings cache that the arms-raised build reads. Then:
@@ -257,7 +261,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 
 ## Next steps (the owner's plan)
 
-1. **Rig the round 28 body.** `rig.py`, `anim.py` and `build_v10.py` were written for the round 18 SDF body. Expect to re-check:
+1. **Rig the round 29 body.** `rig.py`, `anim.py` and `build_v10.py` were written for the round 18 SDF body. Expect to re-check:
    - joint positions: `design.J` already follows the Tripo legs and arms, and `J['Head']` follows the head pose;
    - skin-weight bands: the torso is now the stuffed sack plus the Tripo chest;
    - the udders, which are now part of the suit surface. They should move with the chest and have only a little give. The teat bones should come from `TEAT_SPECS` and `TEAT_MID`.
@@ -268,7 +272,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 
 ## Known open items
 
-**Round 28 static model**
+**Round 29 static model**
 - The udders are full pink globes (round 28); the approved Gemini views and the empty suit show white fur over their tops.
 - The head and hood no longer match the approved Gemini side views: they draw the head further forward and the hood's back falling straight to the shoulders. The owner preferred rounds 17/18's (rounds 26–27).
 - The Gemini views disagree with each other about the 3D positions of some leggings spots. Front and back match closely; the side views are close but not exact. The view facing a spot most squarely wins.
@@ -307,7 +311,7 @@ Build the arms-down model first, because it writes the markings cache that the a
 - **Lifted arms:** keep the stuffed body rigid. Trim only outside the body's side wall: a half-space trim cut into the chest side and made a pinch, and a plain cylinder trim cut through the chest and left pockets and slivers (holes, round 25b). Check cross-sections of `torso_sdf` at 1.10–1.22 m, and count enclosed pockets with `binary_fill_holes`.
 - **Approved views:** their side outlines include the hanging arms, so smooth fits over about 4 cm. Their white backdrop shows between the legs; it is excluded from the spots by removing pure-background pixels. Paint in shade is mid-grey (luminance about 95–140).
 - **Build times:** quick builds take about 2 minutes and full builds about 12 minutes per pose. The CPU renderer (`render.py`) gives comparison sheets in seconds.
-- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r28-meshopt.b64.1.txt` and so on. Each viewer round adds or renames its files (r19 → r25, then r26, r27 and now r28 beside r25): rename the keys in `index.html` (`ROUNDS`, `COLORS`, `NAMES`, `FIGS`, `GUIDES`, labels and the round buttons) with them.
+- **The claude.ai viewer** is published from a copy of `viewer/index.html`, with base64 model parts named `cow-r29-meshopt.b64.1.txt` and so on. Each viewer round adds or renames its files (r19 → r25, then r26, r27, r28 beside r25, and now r29 beside r28): rename the keys in `index.html` (`ROUNDS`, `COLORS`, `NAMES`, `FIGS`, `GUIDES`, labels and the round buttons) with them.
 
 **From earlier rounds**
 

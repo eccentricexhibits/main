@@ -140,7 +140,7 @@ def _fit():
 
 
 _FIT = None
-SIDE_DIP, SIDE_DIP_Y = .075, 1.085     # round 25: the costume's sides come in a little between the udders and the belly
+SIDE_DIP, SIDE_DIP_Y = .115, 1.085     # round 25 (.075), round 29 (.115): the costume's sides come in between the udders and the belly
 
 
 def fitted_torso_sdf(p):
@@ -171,13 +171,13 @@ SACK = np.array([
     [.82,  .229,  .151,  .194],
     [.84,  .249,  .155,  .199],
     [.86,  .266,  .157,  .205],
-    [.90,  .296,  .159,  .213],
-    [.94,  .309,  .160,  .218],
-    [.98,  .313,  .163,  .220],
-    [1.02, .306,  .168,  .211],
-    [1.06, .282,  .172,  .192],            # round 25: the sides dip in under the udders (original shoot 4 of 15)
-    [1.10, .228,  .174,  .184],
-    [1.14, .150,  .172,  .184],
+    [.90,  .296,  .159,  .217],            # round 29: the belly a little fuller at the sides...
+    [.94,  .309,  .160,  .223],
+    [.98,  .313,  .163,  .226],
+    [1.02, .306,  .168,  .215],
+    [1.06, .282,  .172,  .185],            # round 25: the sides dip in under the udders (original shoot 4 of 15);
+    [1.10, .228,  .174,  .174],            # round 29: ...and in a little more under the udders, a more pronounced pear
+    [1.14, .150,  .172,  .178],
     [1.18, .095,  .150,  .160],
     [1.22, .075,  .090,  .100]])
 SACK_Z0 = .06

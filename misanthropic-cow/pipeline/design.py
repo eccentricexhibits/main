@@ -661,9 +661,11 @@ TEAT_MID = {}
 
 # Round 28: each cup is a stuffed globe sitting on the chest, sunk part-way in (rounds 19-27 grew it as a raised
 # panel from the chest, whose outer side was a steep wall).  Centre and radii are fitted to rounds 21-27's cup
-# fronts (rms 1.2 cm); the two differ a little, as hand-made ones do.
-GLOBE = {1: (np.array([.089, 1.174, .094]), np.array([.114, .120, .152])),
-         -1: (np.array([-.086, 1.172, .100]), np.array([.107, .120, .154]))}
+# fronts (rms 1.2 cm); the two differ a little, as hand-made ones do.  Round 29: a narrow strip of white fur runs
+# down between them (owner's photo), where they press together.
+GLOBE = {1: (np.array([.097, 1.174, .094]), np.array([.110, .120, .152])),      # round 29: 8 mm further out and
+         -1: (np.array([-.094, 1.172, .100]), np.array([.103, .120, .154]))}     # 4 mm narrower: they press together less
+GLOBE_GAP = .012    # round 29: the strip of white fur between the two cups (owner's photo), full width
 GLOBE_CAP = None    # a fur cap over each cup's top (its edge this far above the globe's centre), as in round 23; None: all pink
 
 
@@ -760,6 +762,7 @@ def pink_sdf(p, s=None, seam=True, body=None):
         e = np.maximum(e, globe_sdf(p, side) - .01)                    # only on this globe
         out = np.minimum(out, e)
     out = np.maximum(out, -body)                                       # only outside the suit's body
+    out = np.maximum(out, GLOBE_GAP / 2 - np.abs(p[..., 0]))           # round 29: fur between the cups
     return np.maximum(out, -(p[..., 2] - .02))
 
 
