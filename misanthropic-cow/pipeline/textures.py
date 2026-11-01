@@ -258,6 +258,10 @@ def fit_projected_patches(sv, sf, labels, quick=False):
     piece = np.where(labels == 2, 1, np.where(labels == 3, 2, np.where(labels == 0, 0, 3)))
     sel = piece < 3
     m = np.zeros(len(sf)); m[sel] = patch_mask(cen[sel], fn[sel])
+    # round 27: no patch is fitted from where the pink cloth used to cover the cups (rounds 24-26).  The cloth hid
+    # whatever was there; now that the fur covers each cup's outer flank, a patch fitted there showed as a bare
+    # black streak.  (The patches above the cups were always outside it.)
+    m[(piece == 0) & (_D.pink_sdf(cen, seam=False) < .004)] = 0
     blobs = []
     for k, name in [(0, 'torso'), (1, 'sleeve_L'), (2, 'sleeve_R')]:
         sel = piece == k

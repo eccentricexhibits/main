@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 26 complete; rounds 19-26 are a static preview of the new body, round 18 is the last animated model)",
+ "version": "v10 (feedback round 27 complete; rounds 19-27 are a static preview of the new body, round 18 is the last animated model)",
  "date": "2026-11-01",
  "git_branch": "claude/amazing-davinci-sc9bc8",
- "git_commit": "round 26 is the latest commit on the branch (round 25: 551cc25)",
+ "git_commit": "round 27 is the latest commit on the branch (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
- "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke, YOKE_BACK_SLOPE 0.35); otherwise round 25",
+ "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_27_change": "head over the shoulders as in rounds 17/18 (design.HEAD_DZ 0, was 0.05); no suit-top padding; udders: clean outer seam (cup_apex, CUP_SEAM_DEG 58) and the fur rounds each cup's flank (CUP_FLANK); no shag patch fitted where the pink used to be; otherwise round 25",
  "round_25_model": {
   "body": "owner's Tripo model (assets/tripo_body.npz) fitted to the four approved Gemini views; stuffed sack midsection; person's hips and thighs under the leggings; sides dip in under the udders (round 25)",
   "udders": "stuffed pink cups sewn into the fur, 22 x 24 cm, about 15 cm proud, sized from the original shoot (shots 4-7 of 15); fur over the tops, pink all the way under; briefs pass under the crotch with a gusset (round 25); no holes under the raised arms (round 25b)",
@@ -33,18 +34,19 @@
   "static_glb_bytes": 83115800
  },
  "files": {
-  "round_26_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r26.glb",
-  "round_26_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r26_arms_raised.glb",
+  "round_27_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r27.glb",
+  "round_27_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r27_arms_raised.glb",
   "round_25_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb",
   "round_25_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r25_arms_raised.glb",
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
-  "viewer_rounds": "rounds 17 and 18 (animated) and 25 and 26 (static), in any combination, side by side or overlaid; opens on round 26 with Idle selected",
-  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 26)",
+  "viewer_rounds": "rounds 17 and 18 (animated) and 25 and 27 (static), in any combination, side by side or overlaid; opens on round 27 with Idle selected",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 27)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/",
-  "review_sheets_round_26": "Cow_v10/reviews/round_26/"
+  "review_sheets_round_26": "Cow_v10/reviews/round_26/",
+  "review_sheets_round_27": "Cow_v10/reviews/round_27/"
  },
  "animations_round_18": {
   "standard": [
@@ -589,7 +591,7 @@
   }
  },
  "next_steps": [
-  "Rig the round 26 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Rig the round 27 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
   "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
   "Lace side panels on the briefs (offered, not yet done)"
  ],

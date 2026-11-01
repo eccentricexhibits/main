@@ -22,9 +22,12 @@ import sdf as S
 BODY_SOURCE = 'tripo'
 if BODY_SOURCE == 'tripo':
     import tripo_body as TB
-# Round 19: Tripo's chest is deeper than the round-18 body's, so the head (mask, horns, tube and hood as one
-# piece; their sizes unchanged) moves forward onto its neck, as in the approved generated side view
-HEAD_DZ = .05 if BODY_SOURCE == 'tripo' else 0.
+# How far forward the head (mask, horns, tube and hood as one piece; their sizes unchanged) sits.  Rounds 19-26
+# carried it 5 cm forward (.05) onto Tripo's deeper chest, as in the approved generated side view; that put the
+# neck 5 cm in front of Tripo's shoulder joints (z -.03), and with the hood's back no longer filled down to the
+# shoulders (round 26) the upper back stood behind it as a hump.  Round 27: the head sits over the shoulders, as
+# in rounds 17/18 (their neck at z -.035).
+HEAD_DZ = 0.
 
 SIDES = (1, -1)          # +1 = character's left (+X), -1 = character's right (-X)
 
@@ -290,25 +293,6 @@ def _lifted_shoulders(p, torso):
     return torso
 
 
-# Round 26: the suit's top is padded like rounds 17/18's, so the hood reads as a hood sitting on a bigger costume
-# rather than one smoothed back.  Tripo's upper back is a person's: it sloped 8.5 cm in towards the neck between
-# 1.30 and 1.38 m (round 18: 2.7 cm), and its shoulders by the neck were 3 cm lower.  The yoke is round 18's
-# padded shoulders (a capsule across them) over a full upper back, moved forward with the head (HEAD_DZ); the
-# neckline and the shoulder slope cut below still shape its top, so the shoulders still fall away from the neck.
-YOKE_BACK = ((0, 1.285, -.075), (.165, .125, .115))     # centre (x, y, z before HEAD_DZ) and radii (m)
-YOKE_SHOULDER = (.145, 1.318, -.036, .062)               # round 18's shoulder capsule: half-width, y, z, radius
-YOKE_K = .05
-YOKE_BACK_SLOPE = .35                                    # 1 = rounds 19-25's cut behind the neck
-
-
-def padded_yoke(p):
-    (cx, cy, cz), r = YOKE_BACK
-    back = S.ellipsoid(p, (cx, cy, cz + HEAD_DZ), r)
-    hx, sy, sz, sr = YOKE_SHOULDER
-    shoulders = S.capsule(p, (-hx, sy, sz + HEAD_DZ), (hx, sy, sz + HEAD_DZ), sr)
-    return S.smin(back, shoulders, .07)
-
-
 def tripo_suit_parts(p, torso_only=False):
     """Round 19: the torso is Tripo's (with its shoulder caps), finished as the costume is worn: the neck
     tucks into the neckline, the back-fat roll carries the bow, the hem is round 18's bowl.  The sleeves
@@ -318,14 +302,11 @@ def tripo_suit_parts(p, torso_only=False):
     torso = TB.stuffed_torso_sdf(p)
     if TB.ARM_RAISE:
         torso = _lifted_shoulders(p, torso)
-    torso = S.smin(torso, padded_yoke(p), YOKE_K)
     # the shoulders slope away from the neck (the approved views): Tripo's hood drape is cut off, so the neck
     # stands clear of the shoulders and the head sits up on it instead of sinking into a raised collar
     zn = -.030 + HEAD_DZ
     dx = np.maximum(np.abs(x) - .075, 0)
-    # round 26: behind the neck the cut falls away less steeply (YOKE_BACK_SLOPE), so the padded upper back
-    # stays full up to the neckline as on rounds 17/18 instead of sloping into the hood
-    dzb = YOKE_BACK_SLOPE * np.maximum((zn - .055) - z, 0)
+    dzb = np.maximum((zn - .055) - z, 0)
     torso = S.smax(torso, p[..., 1] - (1.405 - .55 * np.sqrt(dx * dx + dzb * dzb + 1e-8)), .03)
     neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
     torso = S.smin(torso, neck, .04)
@@ -721,7 +702,7 @@ TEATS = {s: teats(s) for s in SIDES}
 PINK_SCALE, PINK_DROP = (.86, .80), .18
 
 
-def pink_sdf(p, s=None):
+def pink_sdf(p, s=None, seam=True):
     """Signed distance (x-y, front only) to the outline of the visible pink cloth of each cup.  Round 24: the
     fur covers the top of the swelling as in round 23, but under the cup the pink runs right down to the seam
     with the belly, at the cup's full width (the owner: too much fur under the udders)."""
@@ -737,8 +718,37 @@ def pink_sdf(p, s=None):
         e = np.maximum(full, (q[..., 1] - top) * r[1] * .8)             # round 23's top edge
         e = np.maximum(e, (.012 - pillow_h(p, side)) * .6)              # and only where the cup really bulges
         e = np.maximum(e, -(p[..., 2] - .02))
+        # round 27: on the cup's outer side the pink ends at a plane through a point inside the cup, tilted
+        # CUP_SEAM_DEG out from straight ahead, so the seam crosses the cup's side at a steep angle.  The front
+        # outline above is a shape pushed straight back, which ran along the steep outer side and left a
+        # saw-tooth edge (and a flat pink wall seen from the side); below the seam the fur covers the flank.
+        if seam:                    # seam=False: the pink's extent before round 27
+            a = cup_apex(side)
+            lat, fwd = side * (p[..., 0] - a[0]), p[..., 2] - a[2]
+            th = np.deg2rad(CUP_SEAM_DEG)
+            e = np.maximum(e, lat * np.cos(th) - fwd * np.sin(th))
         out = np.minimum(out, e)
     return out
+
+
+CUP_SEAM_DEG = 58.          # the pink's outer edge, in degrees out from straight ahead, seen from the cup's centre
+CUP_FLANK = .035            # extra fillet where the fur meets the cup's outer flank, so it rounds into the body
+_APEX = {}
+
+
+def cup_apex(s):
+    """A point inside each cup, 3 cm behind the chest at the panel's centre: the outer seam pivots about it."""
+    if s not in _APEX:
+        c, _ = PANEL[s]
+        _APEX[s] = np.array([c[0], c[1], float(chest_base(np.array(c[0]), np.array(c[1]))) - .03])
+    return _APEX[s]
+
+
+def _outer(p, s):
+    """0 on the cup's inner half, rising to 1 towards its outer edge."""
+    c, r = PANEL[s]
+    t = np.clip((s * (p[..., 0] - c[0]) / r[0] - .35) / .45, 0, 1)
+    return t * t * (3 - 2 * t)
 
 
 def panel_sdf(p, s=None):
@@ -773,7 +783,8 @@ def with_cups(p, torso):
         return S.smin(torso, np.minimum(cup_sdf_one(p, 1), cup_sdf_one(p, -1)), .055)
     # the stuffed cups, as a solid behind the cloth's surface within the panels, join the suit: the fur covers
     # the swelling round each cup with exactly the surface the cloth has, so the two meet flush at the seam
-    t = S.smin(torso, cup_solid(p, torso), .012)
+    k = .012 + CUP_FLANK * np.maximum(_outer(p, 1), _outer(p, -1))   # round 27: the outer flank rounds into the body
+    t = S.smin(torso, cup_solid(p, torso), k)
     e = pink_sdf(p)
     w = np.clip(-e / .008, 0, 1)
     return t + PANEL_SINK * w * w * (3 - 2 * w)
