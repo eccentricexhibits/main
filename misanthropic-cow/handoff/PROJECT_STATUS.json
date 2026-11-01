@@ -1,0 +1,590 @@
+{
+ "project": "The Misanthropic Cow",
+ "version": "v10 (feedback round 24 complete; rounds 19-24 are a static preview of the new body, round 18 is the last animated model)",
+ "date": "2026-11-01",
+ "git_branch": "claude/quirky-darwin-pij3xe",
+ "git_commit": "8d0ccb1 (round 24)",
+ "units": "metres, +Y up, +Z forward, +X = character left",
+ "round_24_model": {
+  "body": "owner's Tripo model (assets/tripo_body.npz) fitted to the four approved Gemini views; stuffed sack midsection; person's hips and thighs under the leggings",
+  "udders": "stuffed pink cups sewn into the fur, 22 x 24 cm, about 15 cm proud, sized from the original shoot (shots 4-7 of 15); fur over the tops, pink all the way under",
+  "poses": [
+   "arms down (A-pose)",
+   "arms raised 70 degrees (COW_ARM_RAISE=70)"
+  ],
+  "rig": "none yet (next step)",
+  "triangles_arms_down": 1426108,
+  "vertices_arms_down": 908598,
+  "shag_strands_arms_down": 16018,
+  "gltf_validator": "0 errors (web copies); 19 warnings are generated-tangent notices",
+  "build": "pipeline/review_tools/build_static.py (about 12 min per pose at full resolution, 2 min --quick)"
+ },
+ "round_18_animated_model": {
+  "triangles": 1403731,
+  "vertices": 906585,
+  "joints": 58,
+  "shag_strands": 15000,
+  "shag_clumps": 1923,
+  "animations": 18,
+  "gltf_validator": "0 errors, 0 warnings (both GLBs)",
+  "baked_lighting": "none (colour only), except the slipper project's AO still in the slipper colour map",
+  "animated_glb_bytes": 95360076,
+  "static_glb_bytes": 83115800
+ },
+ "files": {
+  "round_24_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r24.glb",
+  "round_24_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r24_arms_raised.glb",
+  "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
+  "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
+  "viewer": "Cow_v10/viewer/index.html",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 24, version 31)",
+  "approved_views": "Cow_v10/references/approved_views/",
+  "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/"
+ },
+ "animations_round_18": {
+  "standard": [
+   "Idle",
+   "Walk",
+   "Run",
+   "Sneak",
+   "Jumping Jacks",
+   "Look Around",
+   "Chicken Dance",
+   "Depressed Walk",
+   "Sit Cross-Legged",
+   "Crying",
+   "Exasperated"
+  ],
+  "alt": [
+   "Idle (alt)",
+   "Walk (alt)",
+   "Run (alt)",
+   "Sneak (alt)",
+   "Jumping Jacks (alt)",
+   "Look Around (alt)",
+   "Chicken Dance (alt)"
+  ]
+ },
+ "reviewed_rounds_in_git": [
+  {
+   "commit": "549651b81dd0231fe3438998b9b6eaa7c16d1c29",
+   "date": "2026-10-25",
+   "summary": "Cow v10: rebuilt models, renders, showcase video and viewer for the animation library"
+  },
+  {
+   "commit": "0c93aa961ed312dd13789b9964c8f3a0221d0902",
+   "date": "2026-10-25",
+   "summary": "Seat mask on hood, natural shoulders, lock tufts, alt and mood animations"
+  },
+  {
+   "commit": "04cf69d448f535dd1ea6058beb590b151caac524",
+   "date": "2026-10-25",
+   "summary": "Tube on mask, natural shoulders, new hoof gloves, crotch fix, alt gaze"
+  },
+  {
+   "commit": "2f7b6692f22413e77729ec4fddb5790395d22511",
+   "date": "2026-10-26",
+   "summary": "v10 Tripo round: Blue Shirt udders, belly and hips; Shy Cow hooves, sleeves and slippers"
+  },
+  {
+   "commit": "f4e47a244fff1220b85b170b7792bef754515729",
+   "date": "2026-10-26",
+   "summary": "v10: cord tail with gold bow, full-coverage panties, smoother arms"
+  },
+  {
+   "commit": "dce4a047c801058d14bd3ed674e48fabe33bfd71",
+   "date": "2026-10-26",
+   "summary": "v10: Tripo gloves, stretched briefs, back-fat roll, bowtie, shorter cord"
+  },
+  {
+   "commit": "cc1b5e3621fbe57a154c2953f346866270f3cca1",
+   "date": "2026-10-26",
+   "summary": "v10: briefs cover the crotch, real thumb joint, cuff inside sleeve, smooth zoom"
+  },
+  {
+   "commit": "256831f54627bc56af49c9600ee59d652c7abaf2",
+   "date": "2026-10-26",
+   "summary": "v10: separated legs, contour-following briefs, wrist fills sleeve, moving hooves"
+  },
+  {
+   "commit": "0d4d5d23ad8eeea198746113ffa5a1a9d5146d0a",
+   "date": "2026-10-27",
+   "summary": "v10 rebuild: full-briefs front, rounder lower belly, closed teat tips"
+  },
+  {
+   "commit": "07d8be7906a2a2f0b2f2d350952059efbcd7fe84",
+   "date": "2026-10-27",
+   "summary": "v10: grow the black shag as clumped strands instead of flat lock cards"
+  },
+  {
+   "commit": "bda9bddbd8f518ca28d7a0df0fa82bf85db7c113",
+   "date": "2026-10-27",
+   "summary": "v10: fix the crease down the sides, drop baked shading, add viewer lighting"
+  },
+  {
+   "commit": "43287ff1cd0334d7c91939df4d30ac2eb76d8fff",
+   "date": "2026-10-27",
+   "summary": "v10: briefs grown from the leggings, smooth leg lines, closed gloves"
+  },
+  {
+   "commit": "c0cb6b309a940dcaf9e81f032ccbbd5951652aa5",
+   "date": "2026-10-27",
+   "summary": "v10: briefs join in the middle, gloves rebuilt as smooth solids"
+  },
+  {
+   "commit": "aab9e56b95627cd9f08d91887bcfe227f1c9ea42",
+   "date": "2026-10-28",
+   "summary": "v10: the owner's cow mule slippers, with socked feet"
+  },
+  {
+   "commit": "f5a7d54bdf5c028e935fad0f41afbf49ba4edee4",
+   "date": "2026-10-28",
+   "summary": "v10: cross-legged sit replaces Crouch and Sit, with hem helper bones"
+  },
+  {
+   "commit": "261f2a9680252b23f641f5109921d5ae12cecb11",
+   "date": "2026-10-29",
+   "summary": "v10: the owner's own glove model replaces the rebuilt Tripo gloves"
+  },
+  {
+   "commit": "bc37b1eeb404af2cefa24802f4e948db0035a2d0",
+   "date": "2026-10-31",
+   "summary": "Cow v10 round 18: proportions from the original photo session"
+  },
+  {
+   "commit": "1ee5d24baf28f1b198d5abec56cb57cf91322064",
+   "date": "2026-10-31",
+   "summary": "Cow v10 round 18: re-render the animation showcase and standard-vs-alt videos"
+  },
+  {
+   "commit": "dc8f7274d37103d0e5cce05c371b6925b911abca",
+   "date": "2026-10-31",
+   "summary": "Cow v10 round 18: README clipping table with visible-only readings beside round 17's"
+  },
+  {
+   "commit": "1c1c57f28c9a81dd712e3628119e5dcd7a62f512",
+   "date": "2026-10-31",
+   "summary": "Cow v10 round 18: viewer page text, per-animation table and comparison images"
+  },
+  {
+   "commit": "82f9a7025a7113f0e30eaae5d9b15fea51a0a03c",
+   "date": "2026-10-31",
+   "summary": "Cow v10 viewer: before/after comparison with round 17"
+  },
+  {
+   "commit": "74cd92780c6aac8bbb4ced289cf8a38b4ddfdc0d",
+   "date": "2026-10-31",
+   "summary": "Cow round 19 (in progress): body shape from the owner's Tripo model"
+  },
+  {
+   "commit": "2d4dc9fa947d4edd97a8280e9f20e91b5ce0c228",
+   "date": "2026-10-31",
+   "summary": "Cow round 19: fit to the approved views (outline, belly, cups, briefs, markings)"
+  },
+  {
+   "commit": "a48f9097b96b627ca6331a28371db755b6884b30",
+   "date": "2026-10-31",
+   "summary": "Cow viewer: round 19 static preview beside the animated round 18"
+  },
+  {
+   "commit": "58d56e8324ba31358dcb2484f1b08e5351f73ce2",
+   "date": "2026-10-31",
+   "summary": "Cow round 19b: upright head, stuffed midsection, clean legs and markings"
+  },
+  {
+   "commit": "358644414ce2637388bbc67487865e87abaa701d",
+   "date": "2026-10-31",
+   "summary": "Cow round 19c: head looking ahead, hood down the back, round seat, heels on slippers"
+  },
+  {
+   "commit": "0e26a6cc698731c19dc75ad3d3fa030837992e5b",
+   "date": "2026-10-31",
+   "summary": "Cow round 19d: the wearer's hips and thighs, udders sewn into the fur"
+  },
+  {
+   "commit": "02c092c4baae5572e3594020ae44ddfe0ccf1763",
+   "date": "2026-10-31",
+   "summary": "Cow round 20: arms-raised pose, leggings spots as decals, more lighting"
+  },
+  {
+   "commit": "495d834ff5813572e193afaa141cea191beb11b1",
+   "date": "2026-10-31",
+   "summary": "Cow round 20: lifted arms turn in rounded shoulders; the stuffed body keeps its shape"
+  },
+  {
+   "commit": "be7dd2a78d474661be7c20f82ddce66e2b622206",
+   "date": "2026-10-31",
+   "summary": "Cow round 20: smooth stuffed back, cleaner shoulders when the arms lift"
+  },
+  {
+   "commit": "f9042fc83b5d7f7dd0860a20cc01579adb02fee5",
+   "date": "2026-10-31",
+   "summary": "Cow round 21: udders sized and stuffed as in the original photo shoot"
+  },
+  {
+   "commit": "70754447a7f8306d9731ad580e105ecc09f81aae",
+   "date": "2026-10-31",
+   "summary": "Cow round 22: teats placed as sewn on in the original photo shoot"
+  },
+  {
+   "commit": "37ea105fda9993be88d4284c3147a24c0e8d836d",
+   "date": "2026-10-31",
+   "summary": "Cow round 23: white fur up to the stuffed cups; level outer teats"
+  },
+  {
+   "commit": "8d0ccb1fbf7f2fbdea48af7cc2df107cae95309b",
+   "date": "2026-10-31",
+   "summary": "Cow round 24: udder cups pink all the way under; fur only over their tops"
+  }
+ ],
+ "validation_per_clip_round_18": {
+  "Idle": {
+   "duration_s": 4.0,
+   "frames": 121,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.03,
+   "sleeve_edge_stretch_p999": 1.13,
+   "leggings_edge_stretch_p999": 1.17,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 475.8,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.942890293094024e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 0.0,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 0.0
+  },
+  "Walk": {
+   "duration_s": 1.12,
+   "frames": 35,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.13,
+   "sleeve_edge_stretch_p999": 1.35,
+   "leggings_edge_stretch_p999": 2.41,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 426.6,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 38.6,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 35.5
+  },
+  "Run": {
+   "duration_s": 0.72,
+   "frames": 23,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.26,
+   "sleeve_edge_stretch_p999": 2.14,
+   "leggings_edge_stretch_p999": 3.35,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 439.9,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 16.5,
+   "legs_into_body_p995_mm": 65.6,
+   "visible_body_into_legs_p995_mm": 10.9,
+   "visible_legs_into_body_p995_mm": 65.2
+  },
+  "Sneak": {
+   "duration_s": 2.6,
+   "frames": 79,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.46,
+   "sleeve_edge_stretch_p999": 2.46,
+   "leggings_edge_stretch_p999": 3.42,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 440.3,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 5.551115123125783e-17,
+   "body_into_legs_p995_mm": 21.2,
+   "legs_into_body_p995_mm": 65.6,
+   "visible_body_into_legs_p995_mm": 21.2,
+   "visible_legs_into_body_p995_mm": 65.3
+  },
+  "Jumping Jacks": {
+   "duration_s": 4.0,
+   "frames": 121,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 2.24,
+   "sleeve_edge_stretch_p999": 1.83,
+   "leggings_edge_stretch_p999": 2.13,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 399.8,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 37.8,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 26.5
+  },
+  "Look Around": {
+   "duration_s": 6.0,
+   "frames": 181,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.76,
+   "sleeve_edge_stretch_p999": 2.42,
+   "leggings_edge_stretch_p999": 1.27,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 471.3,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 61.1,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 0.0
+  },
+  "Chicken Dance": {
+   "duration_s": 12.0,
+   "frames": 361,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 2.5,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 2.0,
+   "sleeve_edge_stretch_p999": 2.56,
+   "leggings_edge_stretch_p999": 2.14,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 385.5,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 3.0357660829594124e-16,
+   "body_into_legs_p995_mm": 6.5,
+   "legs_into_body_p995_mm": 19.9,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 15.4
+  },
+  "Depressed Walk": {
+   "duration_s": 1.6,
+   "frames": 49,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.4,
+   "sleeve_edge_stretch_p999": 1.14,
+   "leggings_edge_stretch_p999": 2.23,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 429.7,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 5.551115123125783e-17,
+   "body_into_legs_p995_mm": 9.5,
+   "legs_into_body_p995_mm": 32.1,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 29.5
+  },
+  "Sit Cross-Legged": {
+   "duration_s": 11.0,
+   "frames": 331,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 2.1,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.57,
+   "sleeve_edge_stretch_p999": 2.11,
+   "leggings_edge_stretch_p999": 4.57,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": -0.4,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 3.885780586188048e-16,
+   "body_into_legs_p995_mm": 8.8,
+   "legs_into_body_p995_mm": 65.7,
+   "visible_body_into_legs_p995_mm": 3.1,
+   "visible_legs_into_body_p995_mm": 15.6
+  },
+  "Crying": {
+   "duration_s": 7.0,
+   "frames": 211,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.62,
+   "sleeve_edge_stretch_p999": 2.59,
+   "leggings_edge_stretch_p999": 1.67,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 445.9,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 6.245004513516506e-17,
+   "body_into_legs_p995_mm": 6.3,
+   "legs_into_body_p995_mm": 15.1,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 11.5
+  },
+  "Exasperated": {
+   "duration_s": 6.5,
+   "frames": 196,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.66,
+   "sleeve_edge_stretch_p999": 2.36,
+   "leggings_edge_stretch_p999": 1.3,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 470.2,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 52.8,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 0.0
+  },
+  "Idle (alt)": {
+   "duration_s": 5.0,
+   "frames": 151,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.15,
+   "sleeve_edge_stretch_p999": 1.13,
+   "leggings_edge_stretch_p999": 1.49,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 459.9,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 0.0,
+   "legs_into_body_p995_mm": 6.3,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 3.6
+  },
+  "Walk (alt)": {
+   "duration_s": 1.4000000000000001,
+   "frames": 43,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.23,
+   "sleeve_edge_stretch_p999": 1.33,
+   "leggings_edge_stretch_p999": 2.27,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 422.4,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 3.4,
+   "legs_into_body_p995_mm": 32.5,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 29.4
+  },
+  "Run (alt)": {
+   "duration_s": 0.8999999999999999,
+   "frames": 28,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 3.6,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.42,
+   "sleeve_edge_stretch_p999": 2.0,
+   "leggings_edge_stretch_p999": 3.05,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 420.4,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 19.2,
+   "legs_into_body_p995_mm": 55.5,
+   "visible_body_into_legs_p995_mm": 6.7,
+   "visible_legs_into_body_p995_mm": 55.1
+  },
+  "Sneak (alt)": {
+   "duration_s": 3.25,
+   "frames": 99,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 2.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.39,
+   "sleeve_edge_stretch_p999": 2.45,
+   "leggings_edge_stretch_p999": 3.13,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 439.1,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.1102230246251565e-16,
+   "body_into_legs_p995_mm": 20.0,
+   "legs_into_body_p995_mm": 56.8,
+   "visible_body_into_legs_p995_mm": 15.5,
+   "visible_legs_into_body_p995_mm": 56.4
+  },
+  "Jumping Jacks (alt)": {
+   "duration_s": 5.0,
+   "frames": 151,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.94,
+   "sleeve_edge_stretch_p999": 1.79,
+   "leggings_edge_stretch_p999": 2.01,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 407.8,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 2.220446049250313e-16,
+   "body_into_legs_p995_mm": 0.3,
+   "legs_into_body_p995_mm": 27.3,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 23.6
+  },
+  "Look Around (alt)": {
+   "duration_s": 7.5,
+   "frames": 226,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 0.0,
+   "glove_into_body_p995_mm": 0.0,
+   "torso_edge_stretch_p999": 1.72,
+   "sleeve_edge_stretch_p999": 2.41,
+   "leggings_edge_stretch_p999": 1.48,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 460.0,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 1.3183898417423734e-16,
+   "body_into_legs_p995_mm": 1.6,
+   "legs_into_body_p995_mm": 56.4,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 3.5
+  },
+  "Chicken Dance (alt)": {
+   "duration_s": 15.0,
+   "frames": 451,
+   "arm_into_cups_or_torso_p995_mm": 0.0,
+   "teats_into_belly_p995_mm": 5.6,
+   "glove_into_body_p995_mm": 1.4,
+   "torso_edge_stretch_p999": 1.81,
+   "sleeve_edge_stretch_p999": 2.55,
+   "leggings_edge_stretch_p999": 2.11,
+   "lowest_slipper_point_mm": 3.0,
+   "lowest_tail_point_mm": 390.4,
+   "tail_cord_into_legs_mm": 0.0,
+   "loop_seam_error": 2.220446049250313e-16,
+   "body_into_legs_p995_mm": 11.1,
+   "legs_into_body_p995_mm": 24.3,
+   "visible_body_into_legs_p995_mm": 0.0,
+   "visible_legs_into_body_p995_mm": 14.9
+  }
+ },
+ "next_steps": [
+  "Rig the round 24 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
+  "Lace side panels on the briefs (offered, not yet done)"
+ ],
+ "open_items": [
+  "Leggings spots: the Gemini views disagree on some spots' 3D positions; front and back match closely, the sides approximately",
+  "Arms raised is a separate static build, not a rig pose; its armpit patches are moved onto the body side by a heuristic",
+  "Viewer: the Default pose caption is hard to read on dark backdrops",
+  "Round 18 animated model: Sit Cross-Legged: leggings stretch up to 4.6x at the seat; the tail plug lies on the floor (0.4 mm into it)",
+  "Round 18 animated model: Claps: palms stop 2.1 mm apart with the round-17 gloves; alt claps brush the other sleeve end by 1.4 mm",
+  "Round 18 animated model: Slipper colour map still has the slipper project's baked AO (needs its Part 3 ao_4096)",
+  "Round 18 animated model: Animated GLB is 95.5 MB, near GitHub's 100 MB file limit (glove maps are 4K)",
+  "Round 18 animated model: Mask side-jaw photo projection stretched in pure side views (from v09)",
+  "Round 18 animated model: Tail cord does not collide with the arms or itself",
+  "Round 18 animated model: Shag strands do not collide with the arms; a few strays on the elbow patches splay out",
+  "Round 18 animated model: Simplified web fallback (cow-plain.glb, -si 0.3) thins the shag strands",
+  "Round 18 animated model: Locomotion is in place (no root motion)",
+  "Round 18 animated model: Run and Sneak: belly meets the tops of the thighs at the highest knee lift (visible 11 and 21 mm; alt 7 and 16 mm)",
+  "Round 18 animated model: Teats dip into the belly: 2.1 mm Sit Cross-Legged, 2.5 mm Chicken Dance, 3.6 mm Run (alt), 2.0 mm Sneak (alt), 5.6 mm Chicken Dance (alt)",
+  "Round 18 animated model: Sit Cross-Legged (round 18): hem side touches the thighs 3.1 mm visible (2.6 mm before); sleeve stretch 2.11x (2.00x before)",
+  "Round 18 animated model: Proportions: the bottom of the belly may sit 2-3 cm higher in the photos than measured (camera height)"
+ ],
+ "repository": "eccentricexhibits/main (project folder: misanthropic-cow/)"
+}

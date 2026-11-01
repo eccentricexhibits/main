@@ -1,5 +1,13 @@
 # The Misanthropic Cow, v10
 
+> **Rounds 19–24 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
+>
+> - **Build:** the models come from `pipeline/review_tools/build_static.py`, in two poses: arms down, and arms raised (`COW_ARM_RAISE=70`).
+> - **Review sheets:** see `reviews/rounds_19_24/`.
+> - **Handoff:** `handoff/AI_HANDOFF.md` has the full story and what to do next (rig the new body, then the animations).
+>
+> The rest of this README describes the round 18 animated model and its rig, which still use the earlier body.
+
 v10 rebuilds the body and the rig of the 3D Misanthropic Cow. The body follows the proportions from the original 2012 Hasselblad shoot. The rig fixes the Chicken Dance problems in v09: the "wings" that grew under the armpits, and the hands that came loose from the sleeves.
 
 Later v10 passes added:
