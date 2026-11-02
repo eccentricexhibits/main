@@ -373,8 +373,9 @@ def _round_chest_top(p, torso):
     ez = np.maximum(z - cz, 0) / r[2]
     dome = (np.sqrt(ey * ey + ez * ez) - 1) * min(r[1], r[2])
     fx = np.clip((np.abs(x) - .07) / .08, 0, 1)
-    fy = np.clip((c[1] - y) / CHEST_DOME_FADE, 0, 1)
-    cut = dome - .3 * fx * fx * (3 - 2 * fx) - .03 * fy * fy * (3 - 2 * fy)
+    fy = np.maximum(c[1] - y, 0) / CHEST_DOME_FADE
+    cut = dome - .3 * fx * fx * (3 - 2 * fx) - .6 * fy ** 3          # gone by about 5 cm below the base
+    cut = np.where(z > cz, cut, -1.)                                # nothing behind the front of the neck
     return S.smax(torso, cut, .02)
 
 
