@@ -99,6 +99,9 @@ def make_chart(v, f, labels, lab, uvfn, name):
 
 
 # ---------------------------------------------------------------- suit
+HOOD_FUR_AMP = .0018     # round 35: the snug hood's fur is smoother than the padded suit's (was .0045: it read as lumps)
+
+
 def fur_displace(v, n, amp=.0045):
     """Low-frequency clumping so the plush silhouette is not perfectly smooth."""
     k = N.fbm(v * 38, 3, seed=5) * .7 + N.fbm(v * 90, 2, seed=9) * .3
@@ -157,7 +160,7 @@ def build_suit(step=.0042, target=170000):
     for lab, fn, lo, hi, stepk, frac, uvfn, name in pieces:
         v, f = mesh_from(fn, lo, hi, step * stepk, int(target * frac))
         n = S.vertex_normals(v, f)
-        v = fur_displace(v, n, .0045 if lab != 4 else .002)
+        v = fur_displace(v, n, {4: .002, 1: HOOD_FUR_AMP}.get(lab, .0045))
         if lab == 0:
             v = belly_fold(v, S.vertex_normals(v, f))
         if lab in (2, 3):
