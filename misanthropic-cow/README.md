@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10
 
-> **Rounds 19–30 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
+> **Rounds 19–31 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
 >
 > - **Build:** the models come from `pipeline/review_tools/build_static.py`, in two poses: arms down, and arms raised (`COW_ARM_RAISE=70`).
 > - **Review sheets:** see `reviews/rounds_19_24/`.
@@ -8,6 +8,7 @@
 > - **Round 28:** each udder is a full pink globe (`design.GLOBE`), as in rounds 17/18; see `reviews/round_28/`.
 > - **Round 29:** a strip of white fur between the udders (`design.GLOBE_GAP`) and a slightly more pronounced pear shape at the sides (`tripo_body.SIDE_DIP`, `SACK`); see `reviews/round_29/`.
 > - **Round 30:** the armpit lumps trimmed (`design._trim_armpit_nubs`), two stray spots removed and the neck patch moved to the cow's right upper chest (`textures.PATCH_REMOVE`, `PATCH_ADD`); see `reviews/round_30/`.
+> - **Round 31:** no flaps under the raised arms (`RAISED_WALL`), front-view leg spots painted straight from the approved front view (`approved_views.front_direct_decals`), and the black spots under the cow's left arm removed; see `reviews/round_31/`.
 > - **Handoff:** `handoff/AI_HANDOFF.md` has the full story and what to do next (rig the new body, then the animations).
 >
 > The rest of this README describes the round 18 animated model and its rig, which still use the earlier body.
@@ -350,7 +351,7 @@ Where things live:
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
-The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25, 28, 29 and 30 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 30 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25, 28, 29 and 30 copies the first time they are shown.
+The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–31 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 31 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–31 copies the first time they are shown.
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).

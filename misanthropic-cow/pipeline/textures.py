@@ -250,12 +250,13 @@ def _raise_sleeve_blobs(blobs):
 # views drew there in five pieces, a small one high on the cow's left shoulder, and a small one on the right side of
 # the belly.  The neck patch is really on the cow's right upper chest, just above the right udder, a round shag
 # patch about 12 cm across (PATCH_ADD: x, y, half-width, half-height).
-PATCH_REMOVE = [((-.03, 1.35, .05), .07), ((.14, 1.353, .014), .03), ((-.145, .975, .264), .03)]
+PATCH_REMOVE = [((-.03, 1.35, .05), .07), ((.14, 1.353, .014), .03), ((-.145, .975, .264), .03),
+                ((.195, 1.17, -.104), .045), ((.212, 1.154, -.054), .02)]   # round 31: the cow's left armpit (body, sleeve)
 PATCH_ADD = [(-.105, 1.340, .064, .060)]
 
 
 def _edit_patches(blobs, cen, fn):
-    out = [b for b in blobs if not (b[3] == 'torso' and any(np.linalg.norm(b[0] - np.array(c)) < r for c, r in PATCH_REMOVE))]
+    out = [b for b in blobs if not any(np.linalg.norm(b[0] - np.array(c)) < r for c, r in PATCH_REMOVE)]
     for x, y, rx, ry in PATCH_ADD:
         near = (np.abs(cen[:, 0] - x) < .01) & (np.abs(cen[:, 1] - y) < .01) & (fn[:, 2] > 0)
         i = np.flatnonzero(near)[np.argmax(cen[near, 2])]            # the suit's front surface there
@@ -390,8 +391,9 @@ def legging_spots(charts_leg, seed=12):
         decals = _markings_cache('decals', None, None) if _TB.ARM_RAISE else None
         if decals is None:
             decals = AV.spot_decals(np.vstack(pts), np.vstack(nrm), _OCC, _LEG_EXTENT)
+            decals = AV.front_direct_decals(decals, np.vstack(pts), _LEG_EXTENT)     # round 31
             _markings_cache('decals', decals, None)
-        return lambda p, n: AV.paint_decals(p.reshape(-1, 3), n.reshape(-1, 3), decals).reshape(p.shape[:-1])
+        return lambda p, n: AV.paint_decals(p.reshape(-1, 3), n.reshape(-1, 3), decals, _LEG_EXTENT).reshape(p.shape[:-1])
     rng = np.random.default_rng(seed)
     spots = []
     for ch in charts_leg:

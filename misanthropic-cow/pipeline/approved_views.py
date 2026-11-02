@@ -281,13 +281,30 @@ def project_spots(p, n, occ, leg_extent):
 MIN_SPOT_PX = 40
 
 
-def _leg_pixel(name, q, leg_extent):
+def _leg_rows_smooth(name):
+    """Round 31: the drawn legs' outer edges straightened: a white spot on a leg's edge reads as backdrop, so the
+    edge found row by row jumps inward across it; the outermost edge over 9 cm of height is used instead."""
+    key = ('legrows_smooth', name)
+    if key not in _cache:
+        segs = _leg_rows(name).copy()
+        win = int(round(.09 / view(name).k)) | 1
+        okl = np.isfinite(segs[:, 0, 0]) & (segs[:, 0, 1] - segs[:, 0, 0] < 170)    # not merged with a glove
+        okr = np.isfinite(segs[:, 1, 1]) & (segs[:, 1, 1] - segs[:, 1, 0] < 170)
+        lo = ndimage.minimum_filter1d(np.where(okl, segs[:, 0, 0], 1e9), win)
+        hi = ndimage.maximum_filter1d(np.where(okr, segs[:, 1, 1], -1e9), win)
+        segs[:, 0, 0] = np.where(np.isfinite(segs[:, 0, 0]) & (lo < 1e8), lo, segs[:, 0, 0])
+        segs[:, 1, 1] = np.where(np.isfinite(segs[:, 1, 1]) & (hi > -1e8), hi, segs[:, 1, 1])
+        _cache[key] = segs
+    return _cache[key]
+
+
+def _leg_pixel(name, q, leg_extent, smooth=False):
     """Image (row, col) of leggings points q in view name, matching the model's leg to the drawing's leg row by
     row; ok marks points with a match."""
     v = view(name)
     rf = v.row(q[:, 1])
     rows = np.clip(np.rint(rf).astype(int), 0, v.h - 1)
-    segs = _leg_rows(name)[rows]
+    segs = (_leg_rows_smooth(name) if smooth else _leg_rows(name))[rows]
     side = np.where(q[:, 0] > 0, 1, -1)
     if name in ('front', 'back'):
         first = (side < 0) == (v.sign > 0)
@@ -431,7 +448,88 @@ def spot_decals(pts, nrm, occ, leg_extent):
     return keep
 
 
-def paint_decals(p, n, decals):
+# Round 31 (the owner compared the legs with the approved front view): spots that come from the front view are
+# painted straight from it (the leg matched to the drawing's leg row by row, as _leg_pixel does), so seen from the
+# front they are the drawing's spots; the unwrap above stretched the inner-thigh and outer-knee ones into streaks.
+# Two small spots just under the briefs at the outer hips (FRONT_TOP_SPOTS, image row/column boxes) are taken by
+# lightness, since the lace beside them hides them from _spot_labels, and moved down FRONT_TOP_DY: the model's
+# briefs come lower on the outer thigh than the drawing's.  Fragments seen only at grazing angles (DROP_SPOTS:
+# centre, radius) are dropped.
+FRONT_TOP_SPOTS = [(722, 778, 500, 556), (724, 748, 286, 318)]
+FRONT_TOP_DY = .05
+DROP_SPOTS = [((-.136, .362, .039), .03), ((-.161, .217, .010), .03), ((.138, .345, -.087), .03),
+              ((.166, .318, .000), .03)]     # the outer-knee spot as the left view placed it (the front's is kept)
+
+
+def _front_paint():
+    """The front view's paint on the drawn legs, with their outer edges straightened (_leg_rows_smooth)."""
+    key = ('frontpaint',)
+    if key not in _cache:
+        v = view('front')
+        segs = _leg_rows_smooth('front')
+        legs = np.zeros((v.h, v.w), bool)
+        for r in range(v.h):
+            for k in range(2):
+                a, b = segs[r, k]
+                if np.isfinite(a) and np.isfinite(b) and b - a < 170:
+                    legs[r, int(a):int(b) + 1] = True
+        legs = ndimage.binary_dilation(legs, iterations=2)
+        _cache[key] = (_spot_image('front') * legs).astype(np.float32)
+    return _cache[key]
+
+
+def front_direct_decals(decals, pts, leg_extent):
+    """Round 31: front-view decals become direct front projections; adds the two hip spots; drops DROP_SPOTS."""
+    keep = [d for d in decals if not any(np.linalg.norm(d['c'] - np.array(c)) < r for c, r in DROP_SPOTS)]
+    v = view('front')
+    out = []
+    for d in keep:
+        if d['view'] == 'front':
+            # the drawing's spot again, cut out against the straightened leg outline (_spot_labels cut it along the
+            # row-by-row edge, which jumps inward across a white spot on the edge and left the spot banded)
+            img, lab, _ = _spot_labels('front')
+            region = ndimage.binary_dilation(lab == d['label'], iterations=8)
+            d = dict(d, direct=True, dy=0., smooth=True, img=(_front_paint() * region).astype(np.float32))
+        out.append(d)
+    L, sat = v.L, v.sat
+    for r0, r1, c0, c1 in FRONT_TOP_SPOTS:
+        m = np.zeros((v.h, v.w), np.float32)
+        box = (slice(r0, r1), slice(c0, c1))
+        paint = np.maximum(_spot_image('front')[box], np.clip((L[box] - 150) / 60, 0, 1))
+        m[box] = paint * (sat[box] < 40)
+        segs = _leg_rows_smooth('front')
+        k = 0 if (c0 + c1) / 2 < v.w / 2 else 1
+        for r in range(r0, r1):                                            # only on the drawn leg, not the backdrop
+            a, b = segs[min(max(r, 0), v.h - 1), k]
+            if np.isfinite(a) and np.isfinite(b):
+                m[r, :int(a) + 2] = 0; m[r, int(b) - 1:] = 0
+        m = ndimage.binary_opening(m > .5, iterations=1).astype(np.float32)
+        m = np.roll(m, int(round(FRONT_TOP_DY / v.k)), axis=0)             # moved down below the model's briefs
+        rc, cc = (r0 + r1) / 2, (c0 + c1) / 2
+        hz = v.hz(cc)
+        sd = 1 if hz > 0 else -1
+        y = v.y(rc) - FRONT_TOP_DY
+        near = pts[(pts[:, 0] * sd > 0) & (np.abs(pts[:, 1] - y) < .01)]
+        c = near[np.argmin(np.abs(near[:, 0] - hz) + 5 * np.maximum(0, -near[:, 2]))]
+        out.append(dict(view='front', direct=True, dy=0., top=True, smooth=True, c=c, n=np.array([sd * .6, 0, .8]), side=sd,
+                        reach=.06, img=m, face=1.))
+    for d in out:
+        if d.get('direct') and not d.get('top') and FRONT_TOP_SPOTS:
+            d['img'] = d['img'].copy()
+            for r0, r1, c0, c1 in FRONT_TOP_SPOTS:          # the hip spots come only from their moved copies
+                d['img'][r0:r1, c0:c1] = 0
+    return out
+
+
+def _paint_direct(p, n, d, leg_extent):
+    q = p + np.array([0, d['dy'], 0])
+    rf, col, ok = _leg_pixel('front', q, leg_extent, smooth=d.get('smooth', False))
+    val = np.where(ok, _bilinear(d['img'], rf, np.where(ok, col, 0.)), 0.)
+    face = np.clip((n @ view('front').cam - .05) / .25, 0, 1)
+    return val * face
+
+
+def paint_decals(p, n, decals, leg_extent=None):
     """How white (0..1) the paint is at points p from the spot decals."""
     out = np.zeros(len(p))
     for d in decals:
@@ -439,6 +537,11 @@ def paint_decals(p, n, decals):
         near = side & (np.linalg.norm(p - d['c'], axis=1) < d['reach']) & (n @ d['n'] > -.2)
         near &= (p[:, 1] > .20) & (p[:, 1] < .745)
         if not near.any():
+            continue
+        if d.get('direct'):
+            val = _paint_direct(p[near], n[near], d, leg_extent)
+            fade = np.clip((.735 - p[near, 1]) / .02, 0, 1)
+            out[near] = np.maximum(out[near], val * fade)
             continue
         u, w = _unwrap(p[near], d['c'], d['axis'])
         r = d['row'] + d['J'][0, 0] * u + d['J'][0, 1] * w

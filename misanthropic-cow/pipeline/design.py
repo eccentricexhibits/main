@@ -267,12 +267,19 @@ def head_parts(p):
 
 
 SHOULDER_BALL = .072      # lifted arms: the stuffed body's shoulder is rounded to a ball the sleeve turns in
+RAISED_WALL = np.array([[1.10, .182], [1.16, .196], [1.20, .203], [1.24, .212], [1.28, .225]])   # round 31
 
 
 def _lifted_shoulders(p, torso):
     """With the arms lifted, the stuffed body keeps its shape: only the short arm stub it carries in the A-pose
     is trimmed back to a rounded shoulder (a ball about the shoulder pivot, as round 18's padded shoulders),
     and the unstuffed sleeve turns in it like a ball in a socket, so nothing bunches or creases."""
+    # round 31: with the arms lifted, Tripo's armpit (the top of its arm root, 1.16-1.26 m, up to 5 cm proud of the
+    # side wall) hung below each sleeve as a flap; the side wall is capped there all the way round (RAISED_WALL)
+    w = np.interp(p[..., 1], RAISED_WALL[:, 0], RAISED_WALL[:, 1])
+    lo_ = np.clip((p[..., 1] - 1.10) / .03, 0, 1); hi_ = np.clip((1.29 - p[..., 1]) / .07, 0, 1)
+    band = lo_ * lo_ * (3 - 2 * lo_) * hi_ * hi_ * (3 - 2 * hi_)            # smooth fades, so no step at either end
+    torso = S.smax(torso, np.abs(p[..., 0]) - w - (1 - band) * .08, .03)
     for s in (1, -1):
         sh, el = (np.asarray(v, float) for v in TB.ARM[s][:2])
         d0 = (el - sh) / np.linalg.norm(el - sh)                       # the A-pose arm's direction
