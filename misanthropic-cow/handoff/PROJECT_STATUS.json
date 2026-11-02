@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 36 complete; rounds 19-36 are a static preview of the new body, round 18 is the last animated model)",
+ "version": "v10 (feedback round 37 complete; rounds 19-37 are a static preview of the new body, round 18 is the last animated model)",
  "date": "2026-11-01",
  "git_branch": "claude/amazing-davinci-sc9bc8",
- "git_commit": "round 36 is the latest commit on branch claude/peaceful-ride-pz9yub; rounds 26-32 are on claude/amazing-davinci-sc9bc8 (round 25: 551cc25)",
+ "git_commit": "round 37 is the latest commit on branch claude/peaceful-ride-pz9yub; rounds 26-32 are on claude/amazing-davinci-sc9bc8 (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_37_change": "round 33's neck shape back (HOOD_NECK_R, HOOD_NECK_BLEND, the flare on with HOOD_FLARE_R .063) under round 36's neckline, now 9.4 cm in radius and following the torso's top all round (NECK_COLLAR, _collar_heights)",
  "round_36_change": "a person's head in a snug hood going down into the costume: the hood's neck slim again (HOOD_NECK_R, HOOD_NECK_BLEND, HOOD_NECK_BOTTOM), no flare (HOOD_FLARE_ON False), the suit's neck tube removed, a rolled neckline round the neck (NECK_COLLAR)",
  "round_35_change": "the hood cleaned up: its edge round the mask rounded over (HOOD_EDGE_R), the head into the neck with no crease (HOOD_NECK_BLEND, HOOD_FLARE_BLEND), smoother fleece (garments.HOOD_FUR_AMP)",
  "round_34_change": "the hood fuller round the mask and at the neck (HOOD_HEAD_R, HOOD_NECK_R, HOOD_FLARE_R, HOOD_ROLL), and the top of the chest rounded where the flat neckline cut left a ledge under the chin (CHEST_DOME, _round_chest_top)",
@@ -43,7 +44,9 @@
   "static_glb_bytes": 83115800
  },
  "files": {
-  "all_static_rounds": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb to _r36.glb, each with an _arms_raised.glb",
+  "all_static_rounds": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb to _r37.glb, each with an _arms_raised.glb",
+  "round_37_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r37.glb",
+  "round_37_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r37_arms_raised.glb",
   "round_36_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r36.glb",
   "round_36_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r36_arms_raised.glb",
   "round_35_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r35.glb",
@@ -67,8 +70,8 @@
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
-  "viewer_rounds": "rounds 17 and 18 (animated) and 25, 28-36 (static), in any combination, side by side or overlaid; opens on round 36 with Idle selected",
-  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 36; the published copy has rounds 17, 18, 25, 28 and 33-36: rounds 29-32 were dropped for the size limit)",
+  "viewer_rounds": "rounds 17 and 18 (animated) and 25, 28-37 (static), in any combination, side by side or overlaid; opens on round 37 with Idle selected",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 37; the published copy has rounds 17, 18, 25, 28, 33 and 35-37: rounds 29-32 and 34 were dropped for the size limit)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/",
   "review_sheets_round_26": "Cow_v10/reviews/round_26/",
@@ -81,7 +84,8 @@
   "review_sheets_round_33": "Cow_v10/reviews/round_33/",
   "review_sheets_round_34": "Cow_v10/reviews/round_34/",
   "review_sheets_round_35": "Cow_v10/reviews/round_35/",
-  "review_sheets_round_36": "Cow_v10/reviews/round_36/"
+  "review_sheets_round_36": "Cow_v10/reviews/round_36/",
+  "review_sheets_round_37": "Cow_v10/reviews/round_37/"
  },
  "animations_round_18": {
   "standard": [
@@ -626,7 +630,7 @@
   }
  },
  "next_steps": [
-  "Rig the round 36 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Rig the round 37 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
   "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
   "Lace side panels on the briefs (offered, not yet done)"
  ],

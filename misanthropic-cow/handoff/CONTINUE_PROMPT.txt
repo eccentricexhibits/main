@@ -1,9 +1,9 @@
-I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 36.
+I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 37.
 
 Before doing anything:
 1. Run validate_handoff.py to confirm every file arrived intact.
 2. Read AI_HANDOFF.md, then Cow_v10/README.md, then PROJECT_STATUS.json.
-3. Look at Cow_v10/reviews/rounds_19_24/Round25_turnaround.jpg and Round25_pairs.jpg, then Cow_v10/reviews/round_27/ to round_36/ (head, hood, udders, belly, armpits and spots), to see where the model is.
+3. Look at Cow_v10/reviews/rounds_19_24/Round25_turnaround.jpg and Round25_pairs.jpg, then Cow_v10/reviews/round_27/ to round_37/ (head, hood, udders, belly, armpits and spots), to see where the model is.
 4. Respect the fixed constraints in AI_HANDOFF.md, especially:
    - proportions from the original photo session only;
    - my four approved Gemini views are correct for the patches, spots, belly shape and underwear;
@@ -19,6 +19,6 @@ When you make changes:
 - compare against my approved views and the original shoot with the review tools, so nothing gets worse;
 - show me before/after renders of what changed.
 
-The next big step is rigging the round 36 body and then making the animations less robotic.
+The next big step is rigging the round 37 body and then making the animations less robotic.
 
 My next requests are:

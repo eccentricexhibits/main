@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10
 
-> **Rounds 19–36 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
+> **Rounds 19–37 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
 >
 > - **Build:** the models come from `pipeline/review_tools/build_static.py`, in two poses: arms down, and arms raised (`COW_ARM_RAISE=70`).
 > - **Review sheets:** see `reviews/rounds_19_24/`.
@@ -9,6 +9,7 @@
 > - **Round 29:** a strip of white fur between the udders (`design.GLOBE_GAP`) and a slightly more pronounced pear shape at the sides (`tripo_body.SIDE_DIP`, `SACK`); see `reviews/round_29/`.
 > - **Round 30:** the armpit lumps trimmed (`design._trim_armpit_nubs`), two stray spots removed and the neck patch moved to the cow's right upper chest (`textures.PATCH_REMOVE`, `PATCH_ADD`); see `reviews/round_30/`.
 > - **Round 31:** no flaps under the raised arms (`RAISED_WALL`), front-view leg spots painted straight from the approved front view (`approved_views.front_direct_decals`), and the black spots under the cow's left arm removed; see `reviews/round_31/`.
+> - **Round 37:** round 33's neck shape (its flare and neck radii back) with round 36's neckline, now widened and following the costume's top all round (`NECK_COLLAR`, `_collar_heights`); see `reviews/round_37/`.
 > - **Round 36:** a person's head in a snug hood going down into the costume: a slim hooded neck (`HOOD_NECK_R`, `HOOD_NECK_BLEND`, no flare: `HOOD_FLARE_ON`) through a rolled neckline (`NECK_COLLAR`), the suit's neck tube removed; see `reviews/round_36/`.
 > - **Round 35:** the hood cleaned up: its edge round the mask rounded over (`HOOD_EDGE_R`), the head running into the neck with no crease (`HOOD_NECK_BLEND`, `HOOD_FLARE_BLEND`), and smoother fleece (`garments.HOOD_FUR_AMP`); see `reviews/round_35/`.
 > - **Round 34:** the hood fuller round the mask and at the neck, as in the 2012 shoot (`HOOD_HEAD_R`, `HOOD_NECK_R`, `HOOD_FLARE_R`, `HOOD_ROLL`); the top of the chest rounded where the flat neckline cut left a ledge under the chin (`CHEST_DOME`); see `reviews/round_34/`.
@@ -356,7 +357,7 @@ Where things live:
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
-The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–36 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange, 34 brown, 35 teal, 36 crimson). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 36 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–36 copies the first time they are shown.
+The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–37 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange, 34 brown, 35 teal, 36 crimson, 37 indigo). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 37 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–37 copies the first time they are shown.
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).
