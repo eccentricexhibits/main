@@ -353,19 +353,28 @@ def _trim_armpit_nubs(p, torso):
 # Round 34: the flat neckline cut (1.345 m at the front) left a shelf over Tripo's chest, which stands 10-11 cm
 # forward there: from the side the top of the chest was a flat ledge ending in a hard corner above the udders.
 # In front of the neck the chest's top is now a dome, a quarter ellipse from the neck (1.38 m) down to the chest's
-# front (1.26 m): it fills the ledge and trims the corner, and fades out towards the shoulders.
-CHEST_DOME = (np.array([0, 1.26, -.02]), np.array([.13, .12, .135]))
+# front (1.26 m): it fills the ledge and trims the corner, and fades out towards the shoulders and below its base.
+CHEST_DOME = (np.array([0, 1.26, -.02]), np.array([.13, .12, .125]))
+CHEST_DOME_FADE = .08      # below the dome's base its trim fades out over this height, so it leaves no step there
 
 
 def _round_chest_top(p, torso):
     c, r = CHEST_DOME
     x, y, z = p[..., 0], p[..., 1], p[..., 2]
-    quad = np.maximum(c[1] - y, (c[2] + HEAD_DZ) - z)                  # outside the front-top quadrant: > 0
-    fill = np.maximum(S.ellipsoid(p, c + [0, 0, HEAD_DZ], r), quad)
+    cz = c[2] + HEAD_DZ
+    # the fill: the dome's upper half, its base rounded off and inside the chest (its front there, 10.5 cm, is
+    # behind the chest's 11 cm), so it adds no lip where it ends
+    fill = S.smax(S.ellipsoid(p, c + [0, 0, HEAD_DZ], r), c[1] - y, .02)
+    fill = np.maximum(fill, cz - z)
     torso = S.smin(torso, fill, .02)
-    dome = (np.sqrt(((y - c[1]) / r[1]) ** 2 + ((z - c[2] - HEAD_DZ) / r[2]) ** 2) - 1) * min(r[1], r[2])
-    fade = np.clip((np.abs(x) - .07) / .08, 0, 1)
-    cut = np.where(quad < 0, dome - .3 * fade * fade * (3 - 2 * fade), -1.)
+    # the trim: the same quarter ellipse in front of the neck, continued straight down below its base and faded
+    # out there and towards the shoulders
+    ey = np.maximum(y - c[1], 0) / r[1]
+    ez = np.maximum(z - cz, 0) / r[2]
+    dome = (np.sqrt(ey * ey + ez * ez) - 1) * min(r[1], r[2])
+    fx = np.clip((np.abs(x) - .07) / .08, 0, 1)
+    fy = np.clip((c[1] - y) / CHEST_DOME_FADE, 0, 1)
+    cut = dome - .3 * fx * fx * (3 - 2 * fx) - .03 * fy * fy * (3 - 2 * fy)
     return S.smax(torso, cut, .02)
 
 
