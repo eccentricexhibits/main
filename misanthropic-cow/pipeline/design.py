@@ -185,15 +185,21 @@ if BODY_SOURCE == 'tripo':
 TORSO_BOX = ((-.30, .70, -.24), (.30, 1.45, .32)) if BODY_SOURCE != 'tripo' else ((-.37, .74, -.27), (.37, 1.45, .42))
 
 
+HEM_BASE, HEM_TILT, HEM_SIDES = .83, .02, .015      # round 33 (round 32: .81, .025, .01)
+
+
 def hem_height(x, z):
     """The suit's hem: a shallow bowl, lowest under the front of the belly (round 18 heights).  Round 19: as in
     the approved views, 0.815 m under the front of the belly, 0.845 m at the sides, 0.86 m at the back."""
     if BODY_SOURCE == 'tripo':
         # round 19b: the stuffed belly hangs lower (approved side views): 0.785 m at the front, 0.82 m at the
         # sides, 0.835 m at the back
+        # round 33 (the 2012 shoot, shots 2, 4 and 5: 10-12 cm of the briefs shows under the front of the belly,
+        # round 32 showed 8 cm): 0.81 m at the front, 0.845 m at the sides, 0.85 m at the back (the bow stays
+        # above it)
         # (soft direction around the centre line, so the cap under the hem has no pinch point)
         rr2 = x * x + (z - .07) ** 2 + .06 ** 2
-        return .81 - .025 * (z - .07) / np.sqrt(rr2) + .01 * x * x / rr2
+        return HEM_BASE - HEM_TILT * (z - .07) / np.sqrt(rr2) + HEM_SIDES * x * x / rr2
     return .768 + hem_lift(x, z) + 1.3 * x * x + 1.15 * (z - .12) ** 2 - .016 * np.clip((-.06 - z) / .08, 0, 1)
 
 def torso_sdf(p):
@@ -693,11 +699,11 @@ def surface_point(fn, origin, direction, tmax=.3):
 # hand).  Per teat: position in the panel (out from the middle line, up; in panel radii), pointing direction
 # (out, up, forward), length, droop.
 TEAT_SPECS = {
-    1: [((-.12, -.70), (.05, -.80, .60), .062, .35),
-        ((.55, -.35), (.75, .10, .64), .064, .45)],     # round 23: level with the other side's outer teat
-    -1: [((-.10, -.68), (.00, -.78, .62), .060, .35),
-         ((.55, -.35), (.75, .05, .64), .064, .45)],
-}
+    1: [((-.12, -.80), (.05, -.80, .60), .062, .35),
+        ((.50, -.41), (.75, .10, .64), .064, .45)],     # round 23: level with the other side's outer teat
+    -1: [((-.10, -.78), (.00, -.78, .62), .060, .35),
+         ((.50, -.41), (.75, .05, .64), .064, .45)],
+}   # round 33: the teats follow the cups, the lower ones 1.2 cm lower, the outer ones 7 mm lower and 6 mm further in
 TEAT_MID = {}
 
 
@@ -705,9 +711,12 @@ TEAT_MID = {}
 # panel from the chest, whose outer side was a steep wall).  Centre and radii are fitted to rounds 21-27's cup
 # fronts (rms 1.2 cm); the two differ a little, as hand-made ones do.  Round 29: a narrow strip of white fur runs
 # down between them (owner's photo), where they press together.
-GLOBE = {1: (np.array([.097, 1.174, .094]), np.array([.106, .116, .142])),      # round 29: 8 mm further out and
-         -1: (np.array([-.094, 1.172, .100]), np.array([.099, .116, .144]))}     # 4 mm narrower: they press together less;
+GLOBE = {1: (np.array([.0935, 1.1665, .094]), np.array([.0995, .1235, .142])),  # round 29: 8 mm further out and
+         -1: (np.array([-.0905, 1.1645, .100]), np.array([.0955, .1235, .144]))}  # 4 mm narrower: they press together less;
 # round 32: a little smaller, mostly in front (1 cm less forward, 4 mm less wide and tall)
+# round 33 (the 2012 shoot: shots 2, 4, 5, 7 and 0071): rounder, as in the photos, where the pair is about 1.9-2.0
+# times as wide as it is tall from the front (round 32: 2.2).  Each cup's outer side 7 mm further in (the inner
+# sides stay pressed together) and its bottom 1.5 cm lower; the tops stay where they were (1.29 m)
 GLOBE_GAP = .012    # round 29: the strip of white fur between the two cups (owner's photo), full width
 GLOBE_CAP = None    # a fur cap over each cup's top (its edge this far above the globe's centre), as in round 23; None: all pink
 
