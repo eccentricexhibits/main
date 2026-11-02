@@ -39,6 +39,7 @@
   "static_glb_bytes": 83115800
  },
  "files": {
+  "all_static_rounds": "Cow_v10/models/Misanthropic_Cow_v10_r25.glb to _r32.glb, each with an _arms_raised.glb",
   "round_32_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r32.glb",
   "round_32_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r32_arms_raised.glb",
   "round_31_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r31.glb",
