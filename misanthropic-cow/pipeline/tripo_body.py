@@ -168,14 +168,14 @@ SACK = np.array([
     [.76,  .125,  .122,  .175],
     [.78,  .158,  .136,  .183],
     [.80,  .198,  .145,  .189],
-    [.82,  .229,  .151,  .194],
-    [.84,  .249,  .155,  .199],
-    [.86,  .266,  .157,  .205],
-    [.90,  .296,  .159,  .217],            # round 29: the belly a little fuller at the sides...
-    [.94,  .309,  .160,  .223],
-    [.98,  .313,  .163,  .226],
-    [1.02, .306,  .168,  .215],
-    [1.06, .282,  .172,  .185],            # round 25: the sides dip in under the udders (original shoot 4 of 15);
+    [.82,  .224,  .151,  .194],            # round 32: the front of the belly ~1 cm less forward
+    [.84,  .242,  .155,  .199],
+    [.86,  .257,  .157,  .205],
+    [.90,  .286,  .159,  .217],            # round 29: the belly a little fuller at the sides...
+    [.94,  .298,  .160,  .223],
+    [.98,  .302,  .163,  .226],
+    [1.02, .296,  .168,  .215],
+    [1.06, .274,  .172,  .185],            # round 25: the sides dip in under the udders (original shoot 4 of 15);
     [1.10, .228,  .174,  .174],            # round 29: ...and in a little more under the udders, a more pronounced pear
     [1.14, .150,  .172,  .178],
     [1.18, .095,  .150,  .160],

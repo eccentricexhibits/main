@@ -248,6 +248,9 @@ def suit_parts(p, torso_only=False):
     return out
 
 
+HOOD_FLARE = (1.383, 1.46, .022)   # round 32: base and top of the flare (m), and how far it spreads at the sides
+
+
 def head_parts(p):
     """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
     p = head_unpose(p)
@@ -257,6 +260,20 @@ def head_parts(p):
     hood_neck = S.round_cone(p, (0, 1.355, -.030 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), .060, .064)
     hood = S.smin(head, hood_neck, .04)
     hood = S.smin(hood, hood_face(p), .03)
+    # round 32: the hood's neck fans out a little at its base and lies over the suit's neckline, like a balaclava's
+    # neck spreading onto the shoulders, instead of a plain tube into the suit (widest at the sides, a little at
+    # the back, hardly at the front under the mask's chin)
+    zc = -.026 + HEAD_DZ
+    yy = p[..., 1]
+    t = np.clip((HOOD_FLARE[1] - yy) / (HOOD_FLARE[1] - HOOD_FLARE[0]), 0, 1); t = t * t * (3 - 2 * t)
+    dx, dz = p[..., 0], p[..., 2] - zc
+    ang_side = dx * dx / np.maximum(dx * dx + dz * dz, 1e-9)                     # 1 at the sides, 0 front/back
+    grow = t * HOOD_FLARE[2] * (ang_side + .45 * (1 - ang_side) * (dz < 0))
+    r = np.sqrt(dx * dx + dz * dz)
+    flare = r - (.063 + grow)
+    flare = S.smax(flare, yy - HOOD_FLARE[1], .02)
+    flare = S.smax(flare, (HOOD_FLARE[0] - .012) - yy, .01)
+    hood = S.smin(hood, flare, .015)
     # Round 26: no cowl.  Rounds 19c-25 filled the back of the hood down to the shoulders (a round cone from
     # the crown to 1.36 m), following the approved side views; it read as one smoothed back rather than a hood
     # on a bigger costume, so the hood is again rounds 17/18's: the round back of the head over a snug neck
@@ -688,8 +705,9 @@ TEAT_MID = {}
 # panel from the chest, whose outer side was a steep wall).  Centre and radii are fitted to rounds 21-27's cup
 # fronts (rms 1.2 cm); the two differ a little, as hand-made ones do.  Round 29: a narrow strip of white fur runs
 # down between them (owner's photo), where they press together.
-GLOBE = {1: (np.array([.097, 1.174, .094]), np.array([.110, .120, .152])),      # round 29: 8 mm further out and
-         -1: (np.array([-.094, 1.172, .100]), np.array([.103, .120, .154]))}     # 4 mm narrower: they press together less
+GLOBE = {1: (np.array([.097, 1.174, .094]), np.array([.106, .116, .142])),      # round 29: 8 mm further out and
+         -1: (np.array([-.094, 1.172, .100]), np.array([.099, .116, .144]))}     # 4 mm narrower: they press together less;
+# round 32: a little smaller, mostly in front (1 cm less forward, 4 mm less wide and tall)
 GLOBE_GAP = .012    # round 29: the strip of white fur between the two cups (owner's photo), full width
 GLOBE_CAP = None    # a fur cap over each cup's top (its edge this far above the globe's centre), as in round 23; None: all pink
 

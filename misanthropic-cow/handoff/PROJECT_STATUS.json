@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 31 complete; rounds 19-31 are a static preview of the new body, round 18 is the last animated model)",
+ "version": "v10 (feedback round 32 complete; rounds 19-32 are a static preview of the new body, round 18 is the last animated model)",
  "date": "2026-11-01",
  "git_branch": "claude/amazing-davinci-sc9bc8",
- "git_commit": "round 31 is the latest commit on the branch (round 25: 551cc25)",
+ "git_commit": "round 32 is the latest commit on the branch (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_32_change": "the hood's neck fans out a little over the suit's neckline (design.HOOD_FLARE); udders 1 cm less deep and 4 mm smaller across, belly front 1 cm less forward (GLOBE, tripo_body.SACK)",
  "round_31_change": "no flaps under the raised arms (design._lifted_shoulders caps the side wall, RAISED_WALL); front-view leg spots painted straight from the front view against a straightened leg outline (approved_views.front_direct_decals), two hip spots added under the briefs, fragments dropped; the patch and sleeve strands under the cow's left arm removed",
  "round_30_change": "armpit nubs trimmed (design._trim_armpit_nubs, ARMPIT_WALL); spots removed on the left shoulder and right belly (textures.PATCH_REMOVE); the neck patch moved to the cow's right upper chest from the owner's photos (PATCH_ADD)",
  "round_29_change": "a 1.2 cm strip of white fur between the udders (GLOBE_GAP; globes 8 mm further out, 4 mm narrower); the pear shape a little more pronounced (tripo_body.SIDE_DIP 0.115, SACK widths): half-width 18.4 cm at 1.10 m, 22.5 cm at 0.98 m",
@@ -38,6 +39,8 @@
   "static_glb_bytes": 83115800
  },
  "files": {
+  "round_32_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r32.glb",
+  "round_32_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r32_arms_raised.glb",
   "round_31_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r31.glb",
   "round_31_arms_raised_glb": "Cow_v10/models/Misanthropic_Cow_v10_r31_arms_raised.glb",
   "round_30_static_glb": "Cow_v10/models/Misanthropic_Cow_v10_r30.glb",
@@ -51,8 +54,8 @@
   "round_18_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_Animated.glb",
   "round_18_static_glb": "Cow_v10/models/Misanthropic_Cow_v10.glb",
   "viewer": "Cow_v10/viewer/index.html",
-  "viewer_rounds": "rounds 17 and 18 (animated) and 25, 28-31 (static), in any combination, side by side or overlaid; opens on round 31 with Idle selected",
-  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 31)",
+  "viewer_rounds": "rounds 17 and 18 (animated) and 25, 28-32 (static), in any combination, side by side or overlaid; opens on round 32 with Idle selected",
+  "web_viewer_url": "https://claude.ai/artifact/G4eLsvqqgHRpLhsiFEqSzW (private to the owner; round 32)",
   "approved_views": "Cow_v10/references/approved_views/",
   "review_sheets_rounds_19_24": "Cow_v10/reviews/rounds_19_24/",
   "review_sheets_round_26": "Cow_v10/reviews/round_26/",
@@ -60,7 +63,8 @@
   "review_sheets_round_28": "Cow_v10/reviews/round_28/",
   "review_sheets_round_29": "Cow_v10/reviews/round_29/",
   "review_sheets_round_30": "Cow_v10/reviews/round_30/",
-  "review_sheets_round_31": "Cow_v10/reviews/round_31/"
+  "review_sheets_round_31": "Cow_v10/reviews/round_31/",
+  "review_sheets_round_32": "Cow_v10/reviews/round_32/"
  },
  "animations_round_18": {
   "standard": [
@@ -605,7 +609,7 @@
   }
  },
  "next_steps": [
-  "Rig the round 31 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
+  "Rig the round 32 body (rig.py / anim.py / build_v10.py were written for the round 18 body): udders move with the chest with a little give, teat bones from design.TEAT_SPECS, sleeves turn in the rounded shoulders, the stuffed body never folds",
   "Make the animations less robotic (procedural sine clips today); motion capture from the owner's video is one option",
   "Lace side panels on the briefs (offered, not yet done)"
  ],
