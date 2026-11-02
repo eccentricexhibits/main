@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10
 
-> **Rounds 19–33 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
+> **Rounds 19–34 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
 >
 > - **Build:** the models come from `pipeline/review_tools/build_static.py`, in two poses: arms down, and arms raised (`COW_ARM_RAISE=70`).
 > - **Review sheets:** see `reviews/rounds_19_24/`.
@@ -9,6 +9,7 @@
 > - **Round 29:** a strip of white fur between the udders (`design.GLOBE_GAP`) and a slightly more pronounced pear shape at the sides (`tripo_body.SIDE_DIP`, `SACK`); see `reviews/round_29/`.
 > - **Round 30:** the armpit lumps trimmed (`design._trim_armpit_nubs`), two stray spots removed and the neck patch moved to the cow's right upper chest (`textures.PATCH_REMOVE`, `PATCH_ADD`); see `reviews/round_30/`.
 > - **Round 31:** no flaps under the raised arms (`RAISED_WALL`), front-view leg spots painted straight from the approved front view (`approved_views.front_direct_decals`), and the black spots under the cow's left arm removed; see `reviews/round_31/`.
+> - **Round 34:** the hood fuller round the mask and at the neck, as in the 2012 shoot (`HOOD_HEAD_R`, `HOOD_NECK_R`, `HOOD_FLARE_R`, `HOOD_ROLL`); the top of the chest rounded where the flat neckline cut left a ledge under the chin (`CHEST_DOME`); see `reviews/round_34/`.
 > - **Round 33:** checked against the original 2012 shoot: rounder udders (the pair about 2 cm narrower, each reaching a little lower) and the hem 2.5 cm higher at the front and sides, so about 10 cm of the briefs shows; see `reviews/round_33/`.
 > - **Round 32:** the hood fans out a little at the neck (`design.HOOD_FLARE`); the udders and the front of the belly slightly smaller; see `reviews/round_32/`.
 > - **Handoff:** `handoff/AI_HANDOFF.md` has the full story and what to do next (rig the new body, then the animations).
@@ -353,7 +354,7 @@ Where things live:
 - `rig.py`: skin weights;
 - `anim.py` and `clips.py`: the choreography.
 
-The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–33 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 33 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–33 copies the first time they are shown.
+The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–34 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange, 34 brown). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 34 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–34 copies the first time they are shown.
 
 The web copies in `viewer/` were made with gltfpack 0.22:
 - `cow-meshopt.glb` uses `-cc -kn -km -ke` (full detail). It is made from a copy of the animated master whose glove and slipper textures are capped at 1024 px (`python web_textures.py <in> <out> 1024 Glove_ Slipper_`).
