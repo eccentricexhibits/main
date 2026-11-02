@@ -146,7 +146,7 @@ def build_suit(step=.0042, target=170000):
     tube_axis = [tc - [.12, 0, 0], tc + [.12, 0, 0]]
     pieces = [(0, D.suit_sdf, *D.TORSO_BOX, 1.0, .62,
                lambda q: cyl_uv(q, [(0, .60, .0), (0, 1.60, .0)], (0, 0, -1), (0, 0, 1), .21, (.13, .93)), 'Suit_torso_white_faux_fur'),
-              (1, D.hood_sdf, (-.13, 1.31, -.20), (.13, 1.70, .13), .7, .10,
+              (1, D.hood_sdf, (-.13, 1.26, -.20), (.13, 1.70, .13), .7, .10,
                lambda q: sphere_uv(q, np.array([0, 1.52, -.02]), (0, 0, -1), .10), 'Hood_white_faux_fur'),
               (4, D.tube_sdf, tc - [.09, .06, .06], tc + [.09, .06, .06], .6, .02,
                lambda q: cyl_uv(q, tube_axis, (0, -1, -1), (0, 1, 0), .037, (0, .24)), 'Mask_horn_tube_white_faux_fur')]

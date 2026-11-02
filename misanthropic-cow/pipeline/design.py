@@ -258,31 +258,24 @@ HOOD_FLARE = (1.383, 1.46, .022)   # round 32: base and top of the flare (m), an
 # round 34 (the 2012 shoot, shots 0071 and 7): the hood is fuller round the mask: 1.5-3 cm of fur shows beside it
 # from the front, and the neck under the snout is about 20 cm across (round 33: 15-17 cm)
 HOOD_HEAD_R = np.array([.112, .122, .104])       # round 33: (.090, .118, .099)
-HOOD_NECK_R = (.084, .076)                       # bottom, top (round 33: .060, .064)
+HOOD_NECK_R = (.066, .064)                       # bottom, top (round 33: .060, .064; rounds 34-35: .084, .076)
 HOOD_FLARE_R = .082                              # the flare's base radius before it spreads (round 33: .063)
 HOOD_ROLL = (30., .030)                          # beside the mask the fur's front rolls back (1/m, and at most 3 cm)
 # round 35 (the owner: the hood looked unpolished): its edge round the mask is rounded over like a fabric opening
 # instead of a square cut (HOOD_EDGE_R where the hood shows beside the mask, tight behind it so no gap opens at the
 # rim); the head runs into the neck in one smooth sweep, and the flare blends in softly, with no ring crease
 HOOD_EDGE_R = (.006, .024)                       # the front edge's rounding: inside the mask's outline, beside it
-HOOD_NECK_BLEND = .07                            # head into neck (round 34: .04)
+HOOD_NECK_BLEND = .035                           # head into neck (round 34: .04; round 35: .07)
+# round 36 (the owner: the neck looked like a mound of snow, not a head in a fabric hood inside a big costume): the
+# hood's neck is a person's neck in a snug hood (about 13 cm across), going straight down into a neck opening in
+# the padded torso (NECK_HOLE), with no flare over the shoulders and the head's underside defined above it
+HOOD_FLARE_ON = False
+HOOD_NECK_BOTTOM = 1.29                          # the hood ends inside the torso (round 35: 1.355, then the flare)
 HOOD_FLARE_BLEND = (.04, .05, .016)              # flare into hood, its top, its hem (round 34: .015, .02, .01)
 
 
-def head_parts(p):
-    """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
-    p = head_unpose(p)
-    # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
-    # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
-    head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), HOOD_HEAD_R)     # back of the head 2 cm flatter
-    hood_neck = S.round_cone(p, (0, 1.355, -.030 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), *HOOD_NECK_R)
-    hood = S.smin(head, hood_neck, HOOD_NECK_BLEND)
-    hood = S.smin(hood, hood_face(p), .03)
-    # round 32: the hood's neck fans out a little at its base and lies over the suit's neckline, like a balaclava's
-    # neck spreading onto the shoulders, instead of a plain tube into the suit (widest at the sides, a little at
-    # the back, hardly at the front under the mask's chin)
-    zc = -.026 + HEAD_DZ
-    yy = p[..., 1]
+def _hood_flare(p, hood, zc, yy):
+    """Rounds 32-35: the hood's neck fanned out over the suit's neckline (off since round 36)."""
     t = np.clip((HOOD_FLARE[1] - yy) / (HOOD_FLARE[1] - HOOD_FLARE[0]), 0, 1); t = t * t * (3 - 2 * t)
     dx, dz = p[..., 0], p[..., 2] - zc
     ang_side = dx * dx / np.maximum(dx * dx + dz * dz, 1e-9)                     # 1 at the sides, 0 front/back
@@ -292,6 +285,26 @@ def head_parts(p):
     flare = S.smax(flare, yy - HOOD_FLARE[1], HOOD_FLARE_BLEND[1])
     flare = S.smax(flare, (HOOD_FLARE[0] - .012) - yy, HOOD_FLARE_BLEND[2])
     hood = S.smin(hood, flare, HOOD_FLARE_BLEND[0])
+    return hood
+
+
+def head_parts(p):
+    """The snug fur hood worn under the mask, and the fur-covered tube that carries the horns."""
+    p = head_unpose(p)
+    # hood: a separate snug fur balaclava worn on the head (photos 0006/0013), ~2 cm of fur over a
+    # 1.6 m wearer's head, with a neck that tucks into the torso's neckline.  The mask covers its front.
+    head = S.ellipsoid(p, (0, 1.519, -.012 + HEAD_DZ), HOOD_HEAD_R)     # back of the head 2 cm flatter
+    hood_neck = S.round_cone(p, (0, HOOD_NECK_BOTTOM + .02, -.031 + HEAD_DZ), (0, 1.47, -.022 + HEAD_DZ), *HOOD_NECK_R)
+    hood = S.smin(head, hood_neck, HOOD_NECK_BLEND)
+    hood = S.smin(hood, hood_face(p), .03)
+    # round 32: the hood's neck fans out a little at its base and lies over the suit's neckline, like a balaclava's
+    # neck spreading onto the shoulders, instead of a plain tube into the suit (widest at the sides, a little at
+    # the back, hardly at the front under the mask's chin)
+    zc = -.026 + HEAD_DZ
+    yy = p[..., 1]
+    if HOOD_FLARE_ON:
+        hood = _hood_flare(p, hood, zc, yy)
+    hood = S.smax(hood, HOOD_NECK_BOTTOM - yy, .01)           # its hem, hidden inside the torso
     # Round 26: no cowl.  Rounds 19c-25 filled the back of the hood down to the shoulders (a round cone from
     # the crown to 1.36 m), following the approved side views; it read as one smoothed back rather than a hood
     # on a bigger costume, so the hood is again rounds 17/18's: the round back of the head over a snug neck
@@ -366,6 +379,24 @@ CHEST_DOME = (np.array([0, 1.26, -.02]), np.array([.13, .12, .125]))
 CHEST_DOME_FADE = .08      # below the dome's base its trim fades out over this height, so it leaves no step there
 
 
+# Round 36: the hooded neck goes down into the padded torso through a neckline with a rolled edge: a ring of the
+# suit's fur round the neck (a torus, tilted so it sits lower at the front, under the mask's chin), its inner edge
+# against the hood's neck.  Rounds 19-35 raised the suit into a neck tube instead, and with the hood's flare
+# (rounds 32-35) the neck read as one soft mound.  (A real hole in the torso was tried first: its inner walls
+# shared the torso's cylindrical texture space with the back, which broke the back patch.)
+NECK_COLLAR = (np.array([0, 1.392, -.032]), 15., .080, .013)    # centre, tilt (degrees, front down), radii
+
+
+def _neck_collar(p):
+    c, tilt, R, r = NECK_COLLAR
+    a = np.deg2rad(tilt)
+    n = np.array([0, np.cos(a), np.sin(a)])
+    q = p - (c + [0, 0, HEAD_DZ])
+    h = q @ n
+    rho = np.linalg.norm(q - h[..., None] * n, axis=-1)
+    return np.sqrt((rho - R) ** 2 + h * h) - r
+
+
 def _round_chest_top(p, torso):
     c, r = CHEST_DOME
     x, y, z = p[..., 0], p[..., 1], p[..., 2]
@@ -403,12 +434,11 @@ def tripo_suit_parts(p, torso_only=False):
     dx = np.maximum(np.abs(x) - .075, 0)
     dzb = np.maximum((zn - .055) - z, 0)
     torso = S.smax(torso, p[..., 1] - (1.405 - .55 * np.sqrt(dx * dx + dzb * dzb + 1e-8)), .03)
-    neck = S.round_cone(p, (0, 1.30, -.034 + HEAD_DZ), (0, 1.43, -.030 + HEAD_DZ), .080, .070)
-    torso = S.smin(torso, neck, .04)
     # the neckline dips at the front to just under the mask's chin (1.358 m); the chest fills forward under it
     w = np.clip((z - (HEAD_DZ - .04)) / .10, 0, 1)
     torso = S.smax(torso, p[..., 1] - (1.405 - .060 * w * w * (3 - 2 * w)), .02)
     torso = _round_chest_top(p, torso)
+    torso = S.smin(torso, _neck_collar(p), .012)
     # the udder cups are sewn into holes in the fur (round 19c): the suit swells into each cup, and inside the
     # panel's outline the fur lies just under the pink cloth (udder_sdf), which covers it flush to the seam
     torso = with_cups(p, torso)
