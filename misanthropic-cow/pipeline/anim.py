@@ -103,6 +103,10 @@ def teat_body_sdf(q, g, B):
     return d
 
 
+def _unit(v):
+    return v / max(np.linalg.norm(v), 1e-9)
+
+
 def smooth(a, b, x):
     u = np.clip((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u)
 
@@ -618,7 +622,7 @@ class Dance:
             k = np.nonzero(last)[0][idx[i]]
             # cross-fade the third loop into the second over the clip, so the rope's end state meets its start
             u = smooth(0, 1, (times[i] % D_) / D_)
-            out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: teat_hist[j][k] for j in teat_hist},
+            out.append({'trans': {j: trans_hist[j][k] for j in trans_hist}, 'teat': {j: _unit(teat_hist[j][k] * (1 - u) + teat_hist[j][max(k - per, 0)] * u) for j in teat_hist},
                         'tail': TL.relength(rope[k] * (1 - u) + rope[max(k - per, 0)] * u),
                         'fing': {sd: hand_hist['fing'][sd][k] for sd in 'LR'}, 'thmb': {sd: hand_hist['thmb'][sd][k] for sd in 'LR'}})
         return out

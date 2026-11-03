@@ -156,6 +156,21 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
         doc['accessors'].append(a)
         return i
 
+    def sparse_acc(x, idx, minmax=False):
+        x = np.ascontiguousarray(x, '<f4')
+        a = {'componentType': 5126, 'count': int(len(x)), 'type': 'VEC3'}
+        if minmax:
+            sel = x[idx] if len(idx) else np.zeros((1, 3), '<f4')
+            a['min'] = np.minimum(sel.min(0), 0).astype(float).tolist()
+            a['max'] = np.maximum(sel.max(0), 0).astype(float).tolist()
+        if len(idx):
+            it = '<u2' if len(x) < 65536 else '<u4'
+            a['sparse'] = {'count': int(len(idx)),
+                           'indices': {'bufferView': view(np.asarray(idx, it).tobytes()), 'componentType': 5123 if it == '<u2' else 5125},
+                           'values': {'bufferView': view(x[idx].tobytes())}}
+        doc['accessors'].append(a)
+        return len(doc['accessors']) - 1
+
     img_tex = {}
 
     def texref(info):
@@ -212,9 +227,12 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
             # round 40: morph targets (corrective shapes), position and normal offsets in the bind pose
             prim['targets'] = []
             for k in range(len(p['morph'])):
-                t = {'POSITION': acc(np.asarray(p['morph'][k], '<f4'), 'VEC3', 5126, minmax=True, target=34962)}
+                # sparse accessors: only the vertices a target moves are stored (a few thousand of the suit's)
+                d = np.asarray(p['morph'][k], '<f4')
+                nz = np.nonzero(np.abs(d).max(1) > 0)[0]
+                t = {'POSITION': sparse_acc(d, nz, minmax=True)}
                 if p.get('morph_n') is not None:
-                    t['NORMAL'] = acc(np.asarray(p['morph_n'][k], '<f4'), 'VEC3', 5126, target=34962)
+                    t['NORMAL'] = sparse_acc(np.asarray(p['morph_n'][k], '<f4'), nz)
                 prim['targets'].append(t)
             mesh['weights'] = [0.0] * len(p['morph'])
             if model.extras and model.extras.get('morph_names'):
