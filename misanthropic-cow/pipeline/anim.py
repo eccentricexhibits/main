@@ -11,7 +11,8 @@ import motion as MO
 
 FPS = 30
 SOFT_REACH = .02        # soft-IK band at full arm reach (m)
-DURATION = 12.0
+DURATION = 12.0         # the choreography's length in its own beats: 4 figures x 3
+DANCE_SPEED = 1.25      # round 42: the dance plays this much faster (9.6 s; the lumbering alt, 25 % slower again, takes the old 12 s)
 PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps']
 
 
@@ -62,6 +63,7 @@ HEM_GAIN, HEM_FREE, HEM_SOFT = 1.2, .2, .08
 # cup buried its first 2-3 cm (up to 16 mm deep) while the two outer checks were still clear
 TEAT_CHECKS = (.35, .55, 1.0)
 HANG_MAX = np.deg2rad(55.)          # round 41: how far a relaxed hand turns from the forearm's line at most
+HANG_FADE = (.25, -.35)             # round 42: the hang fades in as the forearm's direction goes from this far up to this far down
 
 _SOLE = None
 
@@ -114,8 +116,8 @@ def smooth(a, b, x):
 
 class Dance:
     name = 'Chicken Dance'
-    duration = DURATION
-    phases = [(n, 3 * i, 3 * i + 3) for i, n in enumerate(PHASES)]
+    duration = DURATION / DANCE_SPEED
+    phases = [(n, 3 * i / DANCE_SPEED, (3 * i + 3) / DANCE_SPEED) for i, n in enumerate(PHASES)]
     use_swivel = True
     # round 39 (motion.py): the hands meet in the claps and snap the beaks in front of the face, so they keep their exact
     # paths; the elbows (poles) and the body trail and settle
@@ -217,12 +219,39 @@ class Dance:
             out[k] = a[k] * (1 - t) + b[k] * t
         for k in ['hand', 'pole', 'clav']:
             out[k] = {s: a[k][s] * (1 - t) + b[k][s] * t for s in 'LR'}
-        out['hrot'] = {s: ('blend', a['hrot'][s], b['hrot'][s], t) for s in 'LR'}
+        out['hrot'] = {}
+        for s in 'LR':
+            ha, hb = a['hrot'][s], b['hrot'][s]
+            # round 42: from a forearm-relative hand (Wings' fists) to one set in the chest's frame (Wiggle's) the turn
+            # is taken relative to the forearm (local_hand), so it can't flip half a turn as the arm moves (it did,
+            # 120 degrees in a frame, at the Wings-to-Wiggle change); the set pose takes over at the very end
+            if isinstance(ha, np.ndarray) != isinstance(hb, np.ndarray):
+                if isinstance(hb, np.ndarray):
+                    hb = ('blend', self.local_hand(s, hb, b['hand'][s], b['pole'][s], b['clav'][s]), hb, smooth(.8, 1., t))
+                else:
+                    ha = ('blend', ha, self.local_hand(s, ha, a['hand'][s], a['pole'][s], a['clav'][s]), 1 - smooth(0., .2, t))
+            out['hrot'][s] = ('blend', ha, hb, t)
         return out
 
+    def local_hand(self, side, Rhand, hand, pole, clav=0.):
+        """Round 42: a hand pose given in the chest's frame (Rhand, as hand_rot makes it) as one relative to the
+        forearm, for the arm reaching `hand` with its elbow towards `pole` (chest's bind frame): ('local', R).
+        Blended with another forearm-relative hand (the relaxed one, a 'follow'), the turn between the two stays the
+        same however the arm moves on the way, so the hand can't change its mind about which way round to go; a
+        chest-frame pose seen from a forearm that is still elsewhere can come near half a turn away, and the shortest
+        turn then flips from one frame to the next."""
+        s = 1 if side == 'L' else -1
+        a = RG.ARM[side]; B = self.B
+        sh = B[a['shoulder']] + rot([0, 0, 1], s * clav) @ (B[a['upper']] - B[a['shoulder']])
+        l1 = np.linalg.norm(B[a['fore']] - B[a['upper']]); l2 = np.linalg.norm(B[a['hand']] - B[a['fore']])
+        elbow, wrist = ik(sh, np.asarray(hand, float), l1, l2, np.asarray(pole, float))
+        bu = B[a['fore']] - B[a['upper']]; bf = B[a['hand']] - B[a['fore']]
+        Rf = frame(wrist - elbow, np.cross(elbow - sh, wrist - elbow)) @ frame(bf, np.cross(bu, bf)).T
+        return ('local', Rf.T @ Rhand)
+
     def sample(self, t):
-        t = t % self.duration
-        stage = int(t // 3); u = (t - stage * 3) / 3
+        t = (t % self.duration) * DURATION / self.duration         # into the choreography's 12 beats
+        stage = min(int(t // 3), 3); u = (t - stage * 3) / 3
         bl = .35 / 3
         if u < bl:
             return self.blend(self.params((stage - 1) % 4, 1), self.params(stage, u), smooth(-bl, bl, u))
@@ -383,6 +412,13 @@ class Dance:
                     off = Rc @ Rl @ np.cross(hinge0, bu0)
                 target = wr_fk
                 pole = el_fk + .3 * off / np.linalg.norm(off)
+                ib = p.get('ik_blend', {}).get(side)
+                if ib is not None and ib[2] > 0:
+                    # round 42: an FK arm handed over to an IK target (chest's bind frame) by this weight (the Idle's hoof
+                    # check), so variants that re-pose the FK arm (the lumbering set) keep it at rest
+                    tc, pc, w = ib
+                    target = target * (1 - w) + (Rc @ (np.asarray(tc) - B[RG.CHEST]) + G[RG.CHEST, :3, 3]) * w
+                    pole = pole * (1 - w) + (Rc @ (np.asarray(pc) - B[RG.CHEST]) + G[RG.CHEST, :3, 3]) * w
             else:
                 target = Rc @ (p['hand'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
                 pole = Rc @ (p['pole'][side] - B[RG.CHEST]) + G[RG.CHEST, :3, 3]
@@ -412,18 +448,22 @@ class Dance:
             def resolve(h):
                 if isinstance(h, tuple) and h[0] == 'follow':
                     return Rf @ rot(hinge_b, h[1])
+                if isinstance(h, tuple) and h[0] == 'local':
+                    # round 42: a fixed wrist pose relative to the forearm (bind space), e.g. clips.relaxed_hand
+                    return Rf @ h[1]
                 if isinstance(h, tuple) and h[0] == 'hang':
                     # round 41: a relaxed hand: the forearm's line turned this share of the way towards straight down
-                    # (at most HANG_MAX), by the smallest rotation, so the palm keeps facing the way it did
+                    # (at most HANG_MAX), about the axis across the two, so the palm keeps facing the way it did.
+                    # Round 42: only while the forearm points down; it fades out as the forearm comes up to level, so
+                    # a raised forearm never asks for a half turn, whose axis is undefined
                     fdir = Rf @ (bf / np.linalg.norm(bf))
-                    want = (1 - h[1]) * fdir + h[1] * np.array([0., -1., 0.])
-                    if np.linalg.norm(want) < 1e-6:
+                    down = np.array([0., -1., 0.])
+                    ax = np.cross(fdir, down); sn = np.linalg.norm(ax)
+                    w = h[1] * smooth(HANG_FADE[0], HANG_FADE[1], fdir[1])
+                    if sn < 1e-6 or w <= 0:
                         return Rf
-                    Ra = align(fdir, want / np.linalg.norm(want))
-                    ang = np.arccos(np.clip((np.trace(Ra) - 1) / 2, -1, 1))
-                    if ang > HANG_MAX:
-                        Ra = Slerp([0, 1], Rotation.from_matrix([np.eye(3), Ra]))([HANG_MAX / ang]).as_matrix()[0]
-                    return Ra @ Rf
+                    ang = min(w * np.arctan2(sn, fdir @ down), HANG_MAX)
+                    return rot(ax / sn, ang) @ Rf
                 if isinstance(h, tuple) and h[0] == 'blend':
                     A, Bm = resolve(h[1]), resolve(h[2])
                     return Slerp([0, 1], Rotation.from_matrix([A, Bm]))([h[3]]).as_matrix()[0]

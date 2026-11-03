@@ -1,6 +1,6 @@
 // usage: node test_viewer.js <three.js node_modules dir> <screenshot dir>   (serve the viewer folder on :8765 first)
-// Round 41: the viewer holds rounds 40 and 41.  Checks that it opens on round 41 with Idle, plays clips, shows round 40
-// beside it, and that Idle runs past 4 s (it is 8 s long; until round 41 the viewer cut it at round 18's 4 s).
+// Round 42: the viewer holds rounds 41 and 42.  Checks that it opens on round 42 with Idle (20 s), plays clips, shows
+// round 41 beside it, that Idle runs past round 41's 8 s and that the label names the Idle's beat.
 const { chromium } = require('playwright');
 const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
 (async () => {
@@ -13,21 +13,21 @@ const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
   const ready = () => p.waitForFunction(() => document.getElementById('status').hidden && !document.querySelector('#versions button').disabled, null, { timeout: 600000 });
   const rounds = () => p.$$eval('#versions button[data-round][aria-pressed="true"]', bs => bs.map(x => x.dataset.round).join(' '));
   await p.goto('http://localhost:8765/index.html');
-  await p.waitForFunction(() => document.querySelector('button[data-round="r41"]').getAttribute('aria-pressed') === 'true' && document.getElementById('status').hidden, null, { timeout: 600000 });
+  await p.waitForFunction(() => document.querySelector('button[data-round="r42"]').getAttribute('aria-pressed') === 'true' && document.getElementById('status').hidden, null, { timeout: 600000 });
   console.log('opened on:', await rounds(), '| clip:', await p.$eval('#clips button[aria-pressed="true"]', e => e.dataset.clip),
               '| Idle length:', await p.$eval('#scrub', e => e.max));
-  await shot('r41_idle');
-  await p.click('button[data-round="r40"]'); await ready();
-  console.log('with 40:', await rounds(), '|', await p.$eval('#verNote', e => e.textContent));
-  // Idle past 4 s: seek to 6 s and read the time back
+  await shot('r42_idle');
+  await p.click('button[data-round="r41"]'); await ready();
+  console.log('with 41:', await rounds(), '|', await p.$eval('#verNote', e => e.textContent));
+  // Idle past 8 s: seek to 11 s (the hoof check) and read the time and the beat back
   await p.click('#play');
-  await p.$eval('#scrub', e => { e.value = '6.0'; e.dispatchEvent(new Event('input')); });
-  await p.waitForTimeout(800);
-  console.log('Idle time after seeking to 6 s:', await p.$eval('#time', e => e.textContent));
-  await shot('r40_r41_idle_6s');
-  for (const c of ['Jumping Jacks', 'Sneak']) {
+  await p.$eval('#scrub', e => { e.value = '11.0'; e.dispatchEvent(new Event('input')); });
+  await p.waitForTimeout(3000);           // software WebGL draws slowly; the readout updates on the next frame
+  console.log('Idle time after seeking to 11 s:', await p.$eval('#time', e => e.textContent), '|', await p.$eval('#phaseNow', e => e.textContent));
+  await shot('r41_r42_idle_11s');
+  for (const c of ['Exasperated', 'Chicken Dance']) {
     await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(1500);
-    await shot('r40_r41_' + c.replace(/ /g, '_'));
+    await shot('r41_r42_' + c.replace(/ /g, '_'));
   }
   console.log('errors:', errs.length ? errs : 'none');
   await b.close();

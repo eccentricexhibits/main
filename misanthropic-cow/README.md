@@ -1,6 +1,8 @@
 # The Misanthropic Cow, v10
 
-> **Round 41 (newest, animated).** `models/Misanthropic_Cow_v10_r41_Animated.glb`: round 40 with relaxed hands (a resting hand hangs straight down from the wrist, `anim` 'hang', `clips.RELAXED_HAND`), three stray black spots removed (`textures.PATCH_REMOVE`, `drop_islands`), the left horn's second ring (`textures.add_horn_ring`), and the viewer looping each round's clip at its own length. Only rounds 40 and 41 are kept as models; the earlier rounds' models and viewer copies were removed in round 41 and stay in the git history. See `reviews/round_41/`.
+> **Round 42 (newest, animated).** `models/Misanthropic_Cow_v10_r42_Animated.glb`: round 41 with a new 20 s Idle (a bored sigh, a side-eye down her nose, a hoof inspected, picked at and flicked, a foot tap and an eye roll; much less wiggle), resting hooves hanging straight down (`clips.relaxed_hand`), the Exasperated arm glitch fixed along with the Chicken Dance's Wings-to-Wiggle flip (forearm-relative hand blends, `anim.Dance.local_hand`), the face-palm's hand falling away under its own weight (`clips.drop_curve`), a faster Chicken Dance (9.6 s; the lumbering alt now takes the old 12 s, `anim.DANCE_SPEED`), Run's arms closer in, and the left horn's new ring moved between the other two. Models kept: rounds 40, 41 and 42. See `reviews/round_42/`.
+>
+> **Round 41 (animated).** `models/Misanthropic_Cow_v10_r41_Animated.glb`: round 40 with relaxed hands (a resting hand hangs straight down from the wrist, `anim` 'hang', `clips.RELAXED_HAND`), three stray black spots removed (`textures.PATCH_REMOVE`, `drop_islands`), the left horn's second ring (`textures.add_horn_ring`), and the viewer looping each round's clip at its own length. Only rounds 40 and 41 are kept as models; the earlier rounds' models and viewer copies were removed in round 41 and stay in the git history. See `reviews/round_41/`.
 >
 > **Round 40 (animated): steady teats and clean armpits.** `models/Misanthropic_Cow_v10_r40_Animated.glb` is round 39 with the lower teats no longer flickering (their contact with the belly rests instead of bouncing) and no bunching at the armpits when the arms are raised: the stuffed body stays put at the shoulder, the sleeve turns in it like a ball in a socket, and corrective shapes (glTF morph targets `ArmUp_L`/`ArmUp_R`, `pipeline/correctives.py`) run the body's side smoothly up into the shoulder as each arm lifts. Before/after videos and checks: `reviews/round_40/`.
 >
@@ -44,10 +46,11 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10_r41_Animated.glb` | Round 41, the current model: relaxed hands, three stray black spots removed, the left horn's second ring. 58 joints, 18 animations, two morph targets (`ArmUp_L`, `ArmUp_R`). |
+| `models/Misanthropic_Cow_v10_r42_Animated.glb` | Round 42, the current model: the 20 s Idle, hooves hanging down, the arm glitches fixed, the natural hand-drop, the faster dance, Run's arms in, the horn ring between the others. 58 joints, 18 animations, two morph targets (`ArmUp_L`, `ArmUp_R`). |
+| `models/Misanthropic_Cow_v10_r41_Animated.glb` | Round 41: relaxed hands, three stray black spots removed, the left horn's second ring. |
 | `models/Misanthropic_Cow_v10_r40_Animated.glb` | Round 40: round 39 with steady teats and clean armpits (two morph targets, driven per frame by the arms' lift). 96.0 MB. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
-| `viewer/` | A three.js web viewer (rounds 40 and 41) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
+| `viewer/` | A three.js web viewer (rounds 41 and 42) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
 | `assets/` | `slippers_cow_mule.glb`: the owner's own model of the costume slippers, open-back cow mules (made by `pipeline/cow_mule_slippers.py`). `gloves_hoof.glb` and `gloves_hoof.json`: the owner's own model of the costume gloves, a terry mitten with a thumb and two painted hoof toes (made by `pipeline/hoof_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
@@ -199,17 +202,17 @@ All 18 animations loop seamlessly and play in place, with no root travel.
 
 | Animation | Length | What it does |
 |---|---|---|
-| Idle | 4.0 s | Breathing, a small weight shift, and the arms relaxed at the sides. |
+| Idle | 20.0 s | Standing about with attitude (round 42): settles onto one leg, heaves a bored sigh, gives a slow side-eye down her nose with a little head shake, lifts a hoof to inspect it, picks at it, flicks it and lets the arm drop, taps a foot while she waits, and rolls her eyes. |
 | Walk | 1.12 s cycle | 36 cm stride; heel strike and toe-off; hips sway and roll; the arms swing opposite the legs, clear of the belly. |
-| Run | 0.72 s cycle | Flight phase, high knee lift, forward lean, bent pumping arms. |
+| Run | 0.72 s cycle | Flight phase, high knee lift, forward lean, bent pumping arms kept close to the sides. |
 | Sneak | 2.6 s cycle | Cartoon tiptoe: crouched, high knees, pointed toes, hooves dangling in front of the chest, head scanning side to side. |
 | Jumping Jacks | 4.0 s (4 jacks) | Airborne between the open and closed positions; arms overhead; knees bend on landing. |
 | Look Around | 6.0 s | Looks left and then right with the near-side hoof shading the eyes, leans in to peer, looks up, then settles. |
-| Chicken Dance | 12.0 s | Beaks, Wings, Wiggle, Claps (3 s each, four moves each). |
+| Chicken Dance | 9.6 s | Beaks, Wings, Wiggle, Claps (2.4 s each, four moves each; round 42 sped it up from 12 s, which the alt version now takes). |
 | Depressed Walk | 1.6 s cycle | Head hung low, shoulders dropped, a 24 cm shuffle with the feet barely lifting, the arms hanging plumb and the head nodding with each heavy step. |
 | Sit Cross-Legged | 11.0 s | Steps the right foot across in front of the left, sinks down with the knees falling open, reaches back for the floor and lands heavily, cross-legged, about 30 cm behind where she stood. Leans back with the belly resting on her legs, then slumps with the forearms over the knees and sighs. Finally reaches back again, pushes up onto her crossed feet and steps out of it. Replaces Crouch and Sit (round 16). |
 | Crying | 7.0 s | Hunches over and brings both hooves up to the mask's eyes. Sobs with shaking shoulders and catches its breath, then lowers the hooves. |
-| Exasperated | 6.5 s | Flings both arms out palms-up with the head thrown back, then drops them heavily onto the hips and shakes its head. Finishes with a face-palm and a slow head shake inside the hoof. |
+| Exasperated | 6.5 s | Flings both arms out palms-up with the head thrown back, then drops them heavily onto the hips and shakes its head. Finishes with a face-palm and a slow head shake inside the hoof; the head comes up and the arm drops away under its own weight, bumps off her side and settles. |
 
 **Alt set.** Each of the first seven has an alt version, named `<Animation> (alt)`. The alt versions play the character as it is: heavy, awkward, lumbering and a bit depressed, without going overboard. One function (`lumbering` in `clips.py`) re-voices the original choreography:
 - It plays 25 % slower.
@@ -367,7 +370,7 @@ Where things live:
 
 The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–37 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange, 34 brown, 35 teal, 36 crimson, 37 indigo). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 37 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–37 copies the first time they are shown.
 
-The web copies in `viewer/` (`cow-r40-meshopt.glb`, `cow-r41-meshopt.glb`) are made from the animated GLB with `python web_textures.py <in> <out> 1024` (images capped at 1024 px; skin, animations and morph targets kept byte for byte) and then gltfpack 0.22 with `-cc -kn -km -ke`. Never write them with a generic GLB reader/writer: an earlier one dropped the rig.
+The web copies in `viewer/` (`cow-r41-meshopt.glb`, `cow-r42-meshopt.glb`) are made from the animated GLB with `python web_textures.py <in> <out> 1024` (images capped at 1024 px; skin, animations and morph targets kept byte for byte) and then gltfpack 0.22 with `-cc -kn -km -ke`. Never write them with a generic GLB reader/writer: an earlier one dropped the rig.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 

@@ -29,7 +29,7 @@ def storyboard(data, times, out, views=((-12, 4),), **kw):
     for j, (a, e) in enumerate(views):
         for i, t in enumerate(times):
             k = int(round(t * AN.FPS)) % (len(T) - 1)
-            ph = AN.PHASES[int((t % AN.DURATION) // 3)]
+            ph = AN.PHASES[min(int((t % data['duration'] if 'duration' in data else t % (AN.DURATION / AN.DANCE_SPEED)) / (AN.DURATION / AN.DANCE_SPEED) * 4), 3)]
             sheet.paste(frame_image(model, mats[k], a, e, title='Chicken Dance' if j == 0 else None, sub=f'{ph.upper()}  t={t:.2f}s', **kw), (w * i, h * j))
     sheet.save(out, quality=92)
 
@@ -43,8 +43,8 @@ def video(data, out, size=(720, 960), angle=-14):
     t0 = time.time()
     for k in range(len(T) - 1):
         t = T[k]
-        ph = AN.PHASES[int((t % AN.DURATION) // 3)]
-        im = frame_image(model, mats[k], angle, 4, size, title='Chicken Dance', sub=f'{int(t // 3) + 1:02d} / {ph.upper()}')
+        ph = AN.PHASES[min(int((t % data['duration'] if 'duration' in data else t % (AN.DURATION / AN.DANCE_SPEED)) / (AN.DURATION / AN.DANCE_SPEED) * 4), 3)]
+        im = frame_image(model, mats[k], angle, 4, size, title='Chicken Dance', sub=f'{ph.upper()}')
         p.stdin.write(im.tobytes())
         if k % 60 == 0:
             print(f'frame {k}/{len(T)-1} {time.time()-t0:.0f}s', flush=True)

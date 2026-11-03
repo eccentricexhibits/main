@@ -345,28 +345,29 @@ def patches_for(chart_name):
     return TORSO_PATCHES
 
 
-HORN_RING = .45      # round 41: the new ring's place, as a share of the way from the middle ring to the horn's tip
+HORN_RING = .5       # round 42: the new ring's place, as a share of the way from the middle ring to the base ring
 
 
 def add_horn_ring(arr, at=HORN_RING):
-    """Round 41: the cow's left horn (Horn_left_complete) was missing the second ring of the real horn, just above
-    the middle one towards the tip.  The texture runs from the tip (row 0) to the base; it has a ring at the base and
-    one in the middle.  The middle ring, with its wavy edges, is copied (as a mask) to `at` of the way from the middle
-    ring towards the tip."""
+    """Round 41: the cow's left horn (Horn_left_complete) was missing the second ring of the real horn.  The texture
+    runs from the tip (row 0) to the base; it has a ring in the middle and one at the base.  The middle ring, with
+    its wavy edges, is copied (as a mask) to `at` of the way from the middle ring to the base ring (round 41 put it
+    above the middle ring, towards the tip; the owner: "it should be between the two existing rings")."""
     a = np.asarray(arr).astype(np.float32)
     dark = a.mean(2) < 90
     rows = np.nonzero(dark.mean(1) > .02)[0]
     groups = np.split(rows, np.nonzero(np.diff(rows) > 1)[0] + 1)
-    mid = groups[0]                                       # the ring nearer the tip
+    groups = [g for g in groups if len(g) > 8]
+    mid, base = groups[0], groups[1]                      # the middle ring and the ring at the base
     lo, hi = int(mid[0]) - 6, int(mid[-1]) + 6
-    shift = int(round(at * lo))
+    c_mid, c_base = .5 * (mid[0] + mid[-1]), .5 * (base[0] + base[-1])
+    t0 = int(round(c_mid + at * (c_base - c_mid) - .5 * (hi - lo)))
     src = a[lo:hi]
     # how dark each texel of the ring is (0 yellow .. 1 black), so its soft, wavy edge comes along
     yellow = np.median(a[dark.mean(1) == 0].reshape(-1, 3), axis=0)
     black = np.median(a[dark], axis=0)
     w = np.clip(((src - yellow) @ (black - yellow)) / ((black - yellow) @ (black - yellow)), 0, 1)[..., None]
     out = a.copy()
-    t0 = lo - shift
     out[t0:t0 + (hi - lo)] = out[t0:t0 + (hi - lo)] * (1 - w) + src * w
     return np.clip(out, 0, 255).astype(np.uint8)
 
