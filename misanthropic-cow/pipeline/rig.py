@@ -159,9 +159,16 @@ def suit_weights(v, f, face_labels):
     W = np.zeros((len(v), NB))
     y = v[:, 1]
     lo, hi = .90 + D.LEG_LIFT, 1.02 + D.LEG_LIFT              # Hips to Spine, same band round the back-fat roll as before
+    clo, chi = np.full(len(v), 1.10), np.full(len(v), 1.22)
+    if D.BODY_SOURCE == 'tripo':
+        # round 38: at the front the stuffed sack under the cups goes with the chest, so the cups (which ride on the
+        # chest) and the top of the belly they rest on move together; the bend between them happens lower, in the
+        # belly below the teats.  With the round 18 band the lower teats' roots sank up to 18 mm into the belly.
+        fr = ss(*CHEST_FRONT_Z, v[:, 2])
+        clo, chi = clo - CHEST_FRONT_DROP[0] * fr, chi - CHEST_FRONT_DROP[1] * fr
     W[:, HIPS] = 1 - ss(lo, hi, y)
-    W[:, SPINE] = ss(lo, hi, y) * (1 - ss(1.10, 1.22, y))
-    W[:, CHEST] = ss(1.10, 1.22, y)
+    W[:, SPINE] = ss(lo, hi, y) * (1 - ss(clo, chi, y))
+    W[:, CHEST] = ss(clo, chi, y)
     e = np.linalg.norm((v - [0, .915 + D.LEG_LIFT, .20]) / [.25, .21, .19], axis=1)
     bw = .65 * ss(1.05, .45, e)
     if D.BODY_SOURCE == 'tripo':
@@ -291,6 +298,8 @@ def glove_weights(p, side):
     return W
 
 
+CHEST_FRONT_Z = (0., .12)            # round 38: from where (z) the chest band starts dropping, to where it is lowest
+CHEST_FRONT_DROP = (.20, .14)        # how much lower the chest band's start and end are at the front
 UDDER_GIVE = .85         # share of the Udder bone at the front of each cup (round 18's value)
 
 

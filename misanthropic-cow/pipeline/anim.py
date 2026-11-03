@@ -56,6 +56,10 @@ def ik(a, target, l1, l2, pole, swivel=0.0, soft=0.0):
 
 
 HEM_GAIN, HEM_FREE, HEM_SOFT = 1.2, .2, .08
+# where along each teat (share of its length) the spring checks it stays clear of the body.  Round 38: also near
+# the root, because the round 37 cups are globes that the torso includes, and a teat swinging back into its own
+# cup buried its first 2-3 cm (up to 16 mm deep) while the two outer checks were still clear
+TEAT_CHECKS = (.35, .55, 1.0)
 
 _SOLE = None
 
@@ -75,6 +79,21 @@ def sole_points():
     return _SOLE
 
 
+def teat_body_sdf(q, g, B):
+    """Distance from posed points q (world) to what the teats must stay clear of, for the pose's global matrices g.
+    Round 18: the torso in the spine's frame.  Round 38 (Tripo body): the cups are globes riding on their Udder
+    bones (chest plus spring), so each globe is taken in its own bone's frame, and the body without the cups in the
+    spine's; in the spine's frame alone a teat moving with its bouncing cup read as sinking into the cup."""
+    q = np.atleast_2d(q)
+    local = lambda j: (q - g[j, :3, 3]) @ g[j, :3, :3] + B[j]
+    if D.BODY_SOURCE != 'tripo':
+        return D.torso_sdf(local(RG.SPINE))
+    d = D.TB.stuffed_torso_sdf(local(RG.SPINE))
+    for side, s in [('L', 1), ('R', -1)]:
+        d = np.minimum(d, D.globe_sdf(local(RG.UDDER[side]), s))
+    return d
+
+
 def smooth(a, b, x):
     u = np.clip((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u)
 
@@ -84,6 +103,8 @@ class Dance:
     duration = DURATION
     phases = [(n, 3 * i, 3 * i + 3) for i, n in enumerate(PHASES)]
     use_swivel = True
+    CLAPS_POLE = (.75, 1.25, -.05)       # where the elbows point in the claps (round 38: higher, so the upper arms clear the cup tops)
+    WINGS_HAND = (.300, 1.300, .170)     # the fists tucked at the armpits (Wings); round 38: 1.5 cm out and 4 cm forward of round 18, clear of the deeper chest
 
     def __init__(self, B):
         self.B = np.asarray(B, float)
@@ -139,7 +160,7 @@ class Dance:
                 p['head'] = np.array([.06 * snap, 0, 0])
             elif stage == 1:    # Wings: fists tucked at the armpits, elbows flap up and down
                 flap = .5 - .5 * np.cos(beat)
-                p['hand'][side] = np.array([s * .285, 1.300 + .02 * flap, .130])
+                p['hand'][side] = np.array(self.WINGS_HAND) * [s, 1, 1] + [0, .02 * flap, 0]
                 p['pole'][side] = np.array([s * .75, 1.00 + .62 * flap, -.30 + .05 * flap])
                 p['hrot'][side] = ('follow', -.55)      # fists ride in line with the forearm, slight bend
                 p['clav'][side] = .04 + .22 * flap
@@ -165,7 +186,7 @@ class Dance:
                 open_ = .5 + .5 * np.cos(beat)
                 half = self.palm_half[side]
                 p['hand'][side] = np.array([s * (half + .0015 + .24 * open_), 1.395 + .02 * open_, .405 - .03 * open_])
-                p['pole'][side] = np.array([s * .75, 1.12, .02])
+                p['pole'][side] = np.array(self.CLAPS_POLE) * [s, 1, 1]
                 p['hrot'][side] = self.hand_rot(side, [s * .05 * open_, .55, .84], [-s, 0, 0])
                 p['clav'][side] = .05
                 p['shift'] = np.array([0, -.012 * (1 - open_), 0])
@@ -540,15 +561,14 @@ class Dance:
                 tip = rest[i] + o
                 for _ in range(3):
                     dvec = tip - b0; dvec /= np.linalg.norm(dvec); tip = b0 + dvec * L
-                    for frac in (.55, 1.0):
+                    for frac in TEAT_CHECKS:
                         q = b0 + dvec * L * frac
-                        qb = (q - g[RG.SPINE, :3, 3]) @ g[RG.SPINE, :3, :3] + self.B[RG.SPINE]
-                        dist = D.torso_sdf(qb[None])[0]
+                        dist = teat_body_sdf(q, g, self.B)[0]
                         need = .017          # teat radius (~1.5 cm) plus a little
                         if dist < need:
                             e = 1e-3
-                            grad = np.array([D.torso_sdf((qb + dd)[None])[0] - D.torso_sdf((qb - dd)[None])[0] for dd in np.eye(3) * e]) / (2 * e)
-                            grad = g[RG.SPINE, :3, :3] @ (grad / max(np.linalg.norm(grad), 1e-9))
+                            grad = (teat_body_sdf(q + np.eye(3) * e, g, self.B) - teat_body_sdf(q - np.eye(3) * e, g, self.B)) / (2 * e)
+                            grad = grad / max(np.linalg.norm(grad), 1e-9)
                             tip = tip + grad * (need - dist) / frac
                 dvec = tip - b0
                 dirs.append(dvec / np.linalg.norm(dvec))

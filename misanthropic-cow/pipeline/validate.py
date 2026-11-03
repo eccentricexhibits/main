@@ -109,8 +109,7 @@ def validate(model, groups, B, Gs, mats, times, dance):
         pts = np.vstack([P[sleeves[s]]['v'][arm_pts[s]] for s in 'LR'] + [P[i]['v'] for s in 'LR' for i in glove_idx[s]])
         arm_clip[phase].append(float(np.percentile(np.maximum(0, -dance.clearance(G, pts)), 99.5)))
         tv = np.vstack([P[i]['v'][teat_v[i]] for i in udder_idx])
-        qb = (tv - G[RG.SPINE, :3, 3]) @ G[RG.SPINE, :3, :3] + B[RG.SPINE]
-        teat_clip[phase].append(float(np.percentile(np.maximum(0, -D.torso_sdf(qb)), 99.5)))
+        teat_clip[phase].append(float(np.percentile(np.maximum(0, -AN.teat_body_sdf(tv, G, B)), 99.5)))
     m['arm_into_cups_or_torso_p995_m'] = {k: max(v) for k, v in arm_clip.items()}
     m['teats_into_belly_p995_m'] = {k: max(v) for k, v in teat_clip.items()}
     m['suit_torso_edge_stretch_p999_max'] = max(stretch_torso)
