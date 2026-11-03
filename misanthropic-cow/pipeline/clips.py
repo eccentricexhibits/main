@@ -26,6 +26,9 @@ def neutral(clip):
                 hrot={'L': ('follow', .12), 'R': ('follow', .12)}, feet=None)
 
 
+REST_ARM = (-.06, .06, .14)     # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose
+
+
 def mix(a, b, w):
     """Blend two parameter dicts (vectors linearly, hand rotations by slerp)."""
     out = {}
@@ -61,21 +64,43 @@ def gait(clip, phase, side_x, stride, stance, lift, heel=-.22, toeoff=.38, tipto
 
 
 class Idle(AN.Dance):
+    """Standing about (round 39): the weight settles onto one leg and later the other, the hips and shoulders
+    tilting against each other, a glance aside and back, a hoof that fidgets; the performance layer adds the
+    breathing and the slow sway.  Round 18's was one 4 s cycle of sines."""
     name = 'Idle'
-    duration = 4.0
-    phases = [('Idle', 0, 4)]
+    duration = 8.0
+    phases = [('Idle', 0, 8.0)]
     use_swivel = False
+    # (time, settings): weight > 0 on the left leg (the character's), glance > 0 to her left
+    KEYS = [(0.0, dict(weight=-.15)), (1.3, dict(weight=.85)), (3.6, dict(weight=.75, fidget=1.)), (4.4, dict(weight=.7)),
+            (5.0, dict(weight=.55, glance=-.9, tilt=.6)), (5.9, dict(weight=-.2, glance=-.85, tilt=.4)),
+            (6.6, dict(weight=-.45, glance=.0)), (8.0, dict(weight=-.15))]
+    FIELDS = ['weight', 'glance', 'tilt', 'fidget']
+    ARM_REST = REST_ARM             # the arms' (abduction, forward flexion, elbow bend) from the bind pose: round 39, they hang
+    #                                 against the belly's sides (round 38: .10, .03, .06 held them 40 degrees out, like a mannequin's)
+
+    def key(self, t, weight=0., glance=0., tilt=0., fidget=0.):
+        p = neutral(self)
+        w = weight
+        # the hips move over the standing leg and drop on the free side, so its knee eases; the chest tilts back
+        # against them, and the whole body sits a little lower so the standing leg is never at full stretch
+        p['shift'] = np.array([.024 * w, -.006 - .008 * abs(w), -.004 * abs(w)])
+        p['hips'] = np.array([.01, -.06 * w, .055 * w])
+        p['spine'] = np.array([.015, .03 * w, -.035 * w])
+        p['chest'] = np.array([.0, .02 * w + .10 * glance, -.025 * w])
+        p['neck'] = np.array([.02 - .03 * tilt, .25 * glance, .0])
+        p['head'] = np.array([-.01 + .03 * tilt, .45 * glance, -.05 * w + .07 * tilt * np.sign(glance or 1)])
+        for side, s in [('L', 1), ('R', -1)]:
+            load = max(0., s * w)                 # the arm on the standing side hangs a little further out
+            a, f, b = self.ARM_REST
+            p['fk'][side] = np.array([a + .03 * load, f + .03 * (1 - load), b + .05 * (1 - load)])
+            p['clav'][side] = -.02 * load
+        p['fingers'] = -.12 - .22 * fidget * (.5 + .5 * np.sin(2 * np.pi * 2.2 * t))
+        p['thumb'] = .10 + .18 * fidget
+        return p
 
     def sample(self, t):
-        p = neutral(self)
-        b = np.sin(2 * np.pi * t / self.duration)
-        b2 = np.sin(4 * np.pi * t / self.duration)
-        p['shift'] = np.array([.006 * b, -.004 * (1 - np.cos(2 * np.pi * t / self.duration)) * .5, 0])
-        p['chest'] = np.array([-.012 * b2, 0, .01 * b])
-        p['head'] = np.array([.02 * b2, .06 * np.sin(2 * np.pi * t / self.duration + .7), 0])
-        for side, s in [('L', 1), ('R', -1)]:
-            p['fk'][side] = np.array([.10 + .01 * b * s, .03 * b2, .06])
-        return p
+        return self.key(t % self.duration, **keyed(self.KEYS, t, self.duration, self.FIELDS))
 
 
 class Walk(AN.Dance):
@@ -83,6 +108,8 @@ class Walk(AN.Dance):
     duration = 1.12
     phases = [('Walk', 0, 1.12)]
     use_swivel = False
+    STABILIZE = .6         # round 39: the head floats over the step instead of nodding with it
+    ARM_ABD = -.02         # how far out the arms swing, from the bind pose's 34 degrees (round 39; round 38: .17, 44 degrees)
     stride, stance, lift = .36, .60, .055
 
     def sample(self, t):
@@ -91,14 +118,17 @@ class Walk(AN.Dance):
         w = 2 * np.pi * ph
         p['feet'] = {'L': gait(self, ph, self.B[RG.LEG['L']['foot']][0], self.stride, self.stance, self.lift),
                      'R': gait(self, ph + .5, self.B[RG.LEG['R']['foot']][0], self.stride, self.stance, self.lift)}
-        p['shift'] = np.array([.022 * np.sin(w), -.045 + .012 * np.cos(2 * w), .0])
+        # round 39: lowest just after each heel strike (both feet down, the weight landing), highest passing over the
+        # standing leg; round 18 had it the other way round.  The landing dips a little sharper than the rise.
+        land = 2 * np.pi * ((2 * ph + .94) % 1.0)
+        p['shift'] = np.array([.022 * np.sin(w), -.045 - .010 * np.cos(land) - .004 * np.cos(2 * land), .0])
         p['hips'] = np.array([.0, -.10 * np.sin(w), -.035 * np.sin(w)])
         p['spine'] = np.array([.03, .05 * np.sin(w), .02 * np.sin(w)])
         p['chest'] = np.array([.02, .08 * np.sin(w), 0])
         p['head'] = np.array([-.02, -.03 * np.sin(w), .015 * np.sin(w)])
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)               # arm swings opposite its own leg
-            p['fk'][side] = np.array([.17, .30 * swing + .05, .22 + .12 * max(0, swing)])
+            p['fk'][side] = np.array([self.ARM_ABD, .30 * swing + .05, .22 + .12 * max(0, swing)])
         return p
 
 
@@ -107,6 +137,7 @@ class Run(AN.Dance):
     duration = .72
     phases = [('Run', 0, .72)]
     use_swivel = False
+    STABILIZE = .5
     stride, stance, lift = .52, .42, .16
 
     def sample(self, t):
@@ -170,11 +201,17 @@ class JumpingJacks(AN.Dance):
     duration = 4.0
     phases = [('Jumping Jacks', 0, 4.0)]
     use_swivel = False
+    ARM_ABD = -.04         # the arms at the bottom of each jack, from the bind pose; they reach 2.5 rad up (round 38: .10)
 
     def sample(self, t):
         p = neutral(self)
-        ph = (t / 1.0) % 1.0
-        open_ = .5 - .5 * np.cos(2 * np.pi * ph)
+        # round 39: no two jacks alike: the timing drifts a little within the 4 s loop (a smooth, always-forward warp
+        # of time) and each jack reaches a little higher or lower with the arms and feet, tiring towards the third
+        u = 2 * np.pi * t / self.duration
+        tw = t + .045 * np.sin(u + .4) + .02 * np.sin(2 * u + 1.9)
+        ph = tw % 1.0
+        reach = 1 - .05 * (.5 - .5 * np.cos(u - 3.4)) + .015 * np.sin(3 * u + .7)
+        open_ = (.5 - .5 * np.cos(2 * np.pi * ph))
         air = abs(np.sin(2 * np.pi * ph)) ** 1.3          # airborne mid-transition, landing at open/closed
         land = (1 - abs(np.sin(2 * np.pi * ph))) ** 6
         p['shift'] = np.array([0, -.035 + .075 * air - .045 * land, 0])
@@ -183,9 +220,9 @@ class JumpingJacks(AN.Dance):
         p['feet'] = {}
         for side, s in [('L', 1), ('R', -1)]:
             pitch = .30 * air
-            x = self.B[RG.LEG[side]['foot']][0] + s * .17 * open_
+            x = self.B[RG.LEG[side]['foot']][0] + s * .17 * open_ * (.97 + .03 * reach + .02 * s * np.sin(u + 2.2))
             p['feet'][side] = {'pos': np.array([x, self.ankle_height(pitch) + .075 * air, -.022]), 'pitch': pitch, 'yaw': s * .12 * open_}
-            p['fk'][side] = np.array([.10 + 2.40 * open_, .26 * open_, .10 + .15 * (1 - open_)])
+            p['fk'][side] = np.array([self.ARM_ABD + (2.50 * reach - .04 * s * np.sin(u) - self.ARM_ABD) * open_, .26 * open_, .10 + .15 * (1 - open_)])
             p['clav'][side] = .22 * open_
             p['hrot'][side] = ('follow', .1)
         return p
@@ -197,6 +234,8 @@ class LookAround(AN.Dance):
     duration = 6.0
     phases = [('Look Around', 0, 6.0)]
     use_swivel = True
+    # round 39: the eyes and head lead each look and the body follows, slower (the brow-shading hooves keep their paths)
+    MOTION = {'spine': (1.8, .70), 'chest': (2.2, .65), 'neck': None, 'head': None, 'hand': None}
 
     def key(self, look_yaw=0., look_pitch=0., lean=0., shade_L=0., shade_R=0., squat=0.):
         """The hoof on the side being looked toward shades the eyes, so no arm crosses the face."""
@@ -212,7 +251,7 @@ class LookAround(AN.Dance):
         neck = np.array([0, 1.40, -.03])
         for side, s in [('L', 1), ('R', -1)]:
             shade = shade_L if side == 'L' else shade_R
-            rest = self.B[RG.ARM[side]['hand']] + np.array([s * .04, .0, .015])      # relaxed, clear of the belly
+            rest = rest_hand(self, side, s)                    # relaxed, against the belly's side (round 39)
             pole_rest = self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])
             brow = neck + rot([0, 1, 0], yaw) @ (np.array([s * .035, 1.585, .25]) - neck)
             # out and up at the side first (clear of the cup), then in over the brow (clear of the muzzle)
@@ -279,8 +318,20 @@ def keyed(keys, t, duration, fields):
     return {f: 0. for f in fields}
 
 
+def fk_wrist(clip, side, abd, flex, bend):
+    """Where the wrist is (chest's bind frame) with the arm at these FK angles, as anim.Dance.pose places it."""
+    s = 1 if side == 'L' else -1
+    a = RG.ARM[side]; B = clip.B
+    bu0 = B[a['fore']] - B[a['upper']]; bf0 = B[a['hand']] - B[a['fore']]
+    hinge0 = np.cross(bu0, bf0); hinge0 /= np.linalg.norm(hinge0)
+    Rl = rot([0, 0, 1], s * abd) @ rot([1, 0, 0], -flex)
+    return B[a['upper']] + Rl @ bu0 + Rl @ rot(hinge0, clip.flex_sign[side] * bend) @ bf0
+
+
 def rest_hand(clip, side, s):
-    return clip.B[RG.ARM[side]['hand']] + np.array([s * .04, .0, .015])      # relaxed, clear of the belly
+    # round 39: the arm hanging against the belly's side (REST_ARM); round 38 held the hand 4 cm further out than the
+    # model's own A-pose, about 40 degrees from the body
+    return fk_wrist(clip, side, *REST_ARM)
 
 
 # ---------------------------------------------------------------- the four mood clips
@@ -290,6 +341,8 @@ class DepressedWalk(AN.Dance):
     duration = 1.6
     phases = [('Depressed Walk', 0, 1.6)]
     use_swivel = False
+    STABILIZE = .35
+    ARM_ABD = -.02         # round 39 (round 38: .11)
     stride, stance, lift = .24, .64, .022
     spring_k, spring_gain = .8, 1.1
 
@@ -308,7 +361,7 @@ class DepressedWalk(AN.Dance):
         lean = .04 + .20 + .04          # the chest's forward pitch; arms hang plumb from it
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)
-            p['fk'][side] = np.array([.11, .07 * swing + .02 - lean, .10])
+            p['fk'][side] = np.array([self.ARM_ABD, .07 * swing + .02 - lean, .10])
             p['clav'][side] = -.06
             p['hrot'][side] = ('follow', .05)
         p['fingers'] = -.10
@@ -415,6 +468,7 @@ class Crying(AN.Dance):
     duration = 7.0
     phases = [('Crying', 0, 7.0)]
     use_swivel = True
+    MOTION = {'neck': None, 'head': None, 'hand': None}      # round 39: the hooves stay on the eyes
     spring_k, spring_gain = .8, 1.1
     KEYS = [(0.0, {}), (1.0, dict(face=1, hunch=1, sob=.3)), (1.4, dict(face=1, hunch=1, sob=1)),
             (5.0, dict(face=1, hunch=1, sob=.8)), (5.9, dict(hunch=.8, sob=.3)), (7.0, {})]
@@ -460,6 +514,7 @@ class Exasperated(AN.Dance):
     duration = 6.5
     phases = [('Exasperated', 0, 6.5)]
     use_swivel = True
+    MOTION = {'neck': None, 'head': None, 'hand': None}      # round 39: the face-palm stays on the brow
     spring_k, spring_gain = .8, 1.1
     KEYS = [(0.0, {}), (.55, dict(fling=1, back=1)), (1.3, dict(fling=1, back=.8)),
             (1.7, dict(slap=1, slump=.6)), (2.0, dict(slap=1, slump=.8, shake=1)), (2.9, dict(slap=.6, slump=.7, shake=1)),

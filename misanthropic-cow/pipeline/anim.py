@@ -7,6 +7,7 @@ from scipy.spatial.transform import Rotation, Slerp
 import design as D
 import rig as RG
 import tail as TL
+import motion as MO
 
 FPS = 30
 SOFT_REACH = .02        # soft-IK band at full arm reach (m)
@@ -103,6 +104,9 @@ class Dance:
     duration = DURATION
     phases = [(n, 3 * i, 3 * i + 3) for i, n in enumerate(PHASES)]
     use_swivel = True
+    # round 39 (motion.py): the hands meet in the claps and snap the beaks in front of the face, so they keep their exact
+    # paths; the elbows (poles) and the body trail and settle
+    MOTION = {'hand': None}
     CLAPS_POLE = (.75, 1.25, -.05)       # where the elbows point in the claps (round 38: higher, so the upper arms clear the cup tops)
     WINGS_HAND = (.320, 1.300, .170)     # the fists tucked at the armpits (Wings); round 38: 3.5 cm out and 4 cm forward of round 18, clear of the deeper chest and cups
 
@@ -291,7 +295,7 @@ class Dance:
     # ---------------------------------------------------------------- pose solve
     def pose(self, t, dyn=None, solve=False):
         B = self.B
-        p = self.sample(t)
+        p = MO.perform(self, t)          # round 39: the clip's sample with the performance layer (motion.py)
         G = np.tile(np.eye(4), (RG.NB, 1, 1))
         dyn = dyn or {}
         trans = dyn.get('trans', {})
