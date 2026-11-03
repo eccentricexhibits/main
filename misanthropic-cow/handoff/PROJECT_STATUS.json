@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 38 complete: the round 37 body rigged and animated; rounds 19-37 are static previews of the new body, round 18 the last animated model on the old body)",
+ "version": "v10 (feedback round 39 complete: the round 37 body rigged and animated, with less robotic animations)",
  "date": "2026-11-03",
  "git_branch": "claude/upbeat-gates-7dtea4",
  "git_commit": "round 38 is the latest commit on branch claude/upbeat-gates-7dtea4; rounds 33-37 are on claude/peaceful-ride-pz9yub, rounds 26-32 on claude/amazing-davinci-sc9bc8 (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_39_change": "animations less robotic: performance layer for every clip (motion.py: per-joint springs for overlap and follow-through, loopable drift with left/right asymmetry, breathing, head stabilization in the gaits; per-clip MOTION exclusions where hands must meet something); new 8 s Idle (weight shifts, glance, fidget); relaxed arms (REST_ARM, ARM_ABD); walk bob lowest after heel strike; varied jumping jacks; Wings fists 1.5 cm further out",
  "round_38_change": "the round 37 body rigged and animated with round 18's rig (58 joints, 18 clips, baked physics): udder cloth and fur share one Udder-bone weighting (rig.udder_share); the sack under the cups follows the chest (CHEST_FRONT_DROP) so the teats stay out of the belly; teat springs check near the root (anim.TEAT_CHECKS, teat_body_sdf); hem helpers sized for the round 37 hem (HEM_C/HEM_R/HEM_MID) and used in Run and Sneak; crotch split .07; arm moves clear of the bigger udders (Crying WRIST_DIR/FACE_POLE, Exasperated PALM_POLE, Dance WINGS_HAND/CLAPS_POLE); built by review_tools/rig_bench.py",
  "round_37_change": "round 33's neck shape back (HOOD_NECK_R, HOOD_NECK_BLEND, the flare on with HOOD_FLARE_R .063) under round 36's neckline, now 9.4 cm in radius and following the torso's top all round (NECK_COLLAR, _collar_heights)",
  "round_36_change": "a person's head in a snug hood going down into the costume: the hood's neck slim again (HOOD_NECK_R, HOOD_NECK_BLEND, HOOD_NECK_BOTTOM), no flare (HOOD_FLARE_ON False), the suit's neck tube removed, a rolled neckline round the neck (NECK_COLLAR)",
@@ -45,6 +46,9 @@
   "static_glb_bytes": 83115800
  },
  "files": {
+  "round_39_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r39_Animated.glb",
+  "round_39_viewer_copy": "Cow_v10/viewer/cow-r39-meshopt.glb",
+  "round_39_reviews": "Cow_v10/reviews/round_39/",
   "round_38_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r38_Animated.glb",
   "round_38_viewer_copy": "Cow_v10/viewer/cow-r38-meshopt.glb",
   "round_38_reviews": "Cow_v10/reviews/round_38/",
@@ -634,8 +638,9 @@
   }
  },
  "validation_per_clip_round_38": "Cow_v10/reviews/round_38/validation_round38.json (and .md: every clip against round 18; quick-resolution build)",
+ "validation_per_clip_round_39": "Cow_v10/reviews/round_39/validation_round39.json (and .md: every clip against round 38; quick-resolution build)",
  "next_steps": [
-  "Make the animations less robotic (procedural sine clips today, kept from round 18 on the round 38 rig); motion capture from the owner's video is one option",
+  "Animations beyond procedural: motion capture from the owner's own video, or hand-keyed clips on the round 39 GLB (motion.perform can run on top of either)",
   "Lace side panels on the briefs (offered, not yet done)"
  ],
  "open_items": [

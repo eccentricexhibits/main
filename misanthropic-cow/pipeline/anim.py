@@ -108,7 +108,8 @@ class Dance:
     # paths; the elbows (poles) and the body trail and settle
     MOTION = {'hand': None}
     CLAPS_POLE = (.75, 1.25, -.05)       # where the elbows point in the claps (round 38: higher, so the upper arms clear the cup tops)
-    WINGS_HAND = (.320, 1.300, .170)     # the fists tucked at the armpits (Wings); round 38: 3.5 cm out and 4 cm forward of round 18, clear of the deeper chest and cups
+    WINGS_HAND = (.335, 1.300, .175)     # the fists tucked at the armpits (Wings); round 38: 3.5 cm out and 4 cm forward of round 18, clear of the deeper chest and cups;
+    #                                    round 39: 1.5 cm further out, as the chest now trails the hips
 
     def __init__(self, B):
         self.B = np.asarray(B, float)
