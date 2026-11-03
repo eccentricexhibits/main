@@ -1,17 +1,18 @@
-# AI handoff: The Misanthropic Cow, v10 at round 37
+# AI handoff: The Misanthropic Cow, v10 at round 38
 
 Read this, then `Cow_v10/README.md`, then `PROJECT_STATUS.json`. Everything needed to continue is in this folder. Nothing depends on a network service except three.js, which the viewer loads from jsDelivr.
 
 ## Where the project stands
 
-There are two models, and they come from two different builds.
+There are three models. Round 38 is the newest: the round 37 body, rigged and animated.
 
-- **Round 37 (the newest, a static preview).** Round 36 with round 33's neck shape back (its flare widening into the shoulders) under round 36's neckline (37). Round 36: round 35 with the neck rebuilt as a person's head in a snug hood going down into the costume through a rolled neckline (36). Round 35: round 34 with the hood cleaned up: its edge round the mask rounded over, no crease under the jaw, smoother fleece (35). Round 34: round 33 with the hood fuller round the mask and at the neck, as in the 2012 shoot, and the top of the chest rounded where the flat neckline cut left a ledge under the chin (34). Round 33: round 32 checked against the original 2012 shoot only: the udders rounder (the pair about 2 cm narrower, each reaching a little lower) and the hem 2.5 cm higher at the front and sides (33). Round 32: round 31 with the hood fanning out a little at the neck and the udders and belly front slightly smaller (32). Round 31: round 30 with no flaps under the raised arms, the leg spots matched to the approved front view, and two black spots under the left arm removed (31). Round 30: round 29 with the armpit lumps removed, two stray spots removed and the neck patch moved to the cow's right upper chest (30). Round 29: Round 25 with the head and hood as in rounds 17/18 (feedback 26–27: the hood is a hood, and the head sits over the shoulders), the udders as full pink globes with a strip of fur between them (28–29), and a slightly more pronounced pear shape at the sides (29). Rounds 28 to 36 are kept for comparison. The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r37.glb` and `..._r37_arms_raised.glb` (every round from 25 to 36 beside them, in both poses); round 25's are kept beside them for comparison.
+- **Round 38 (the newest, animated).** The round 37 body with round 18's rig: the same 58 joints, all 18 clips (11 and 7 alt versions) and the baked physics (belly, cups, teats, shag, hooves, thumbs, tail cord). It is built by `pipeline/review_tools/rig_bench.py` (build_v10.py in restartable steps) and written as `models/Misanthropic_Cow_v10_r38_Animated.glb`. What had to change for the new body is in the feedback history under 38; the checks per clip, against round 18, are in `reviews/round_38/validation_round38.md`.
+- **Round 37 (static).** Round 36 with round 33's neck shape back (its flare widening into the shoulders) under round 36's neckline (37). Round 36: round 35 with the neck rebuilt as a person's head in a snug hood going down into the costume through a rolled neckline (36). Round 35: round 34 with the hood cleaned up: its edge round the mask rounded over, no crease under the jaw, smoother fleece (35). Round 34: round 33 with the hood fuller round the mask and at the neck, as in the 2012 shoot, and the top of the chest rounded where the flat neckline cut left a ledge under the chin (34). Round 33: round 32 checked against the original 2012 shoot only: the udders rounder (the pair about 2 cm narrower, each reaching a little lower) and the hem 2.5 cm higher at the front and sides (33). Round 32: round 31 with the hood fanning out a little at the neck and the udders and belly front slightly smaller (32). Round 31: round 30 with no flaps under the raised arms, the leg spots matched to the approved front view, and two black spots under the left arm removed (31). Round 30: round 29 with the armpit lumps removed, two stray spots removed and the neck patch moved to the cow's right upper chest (30). Round 29: Round 25 with the head and hood as in rounds 17/18 (feedback 26–27: the hood is a hood, and the head sits over the shoulders), the udders as full pink globes with a strip of fur between them (28–29), and a slightly more pronounced pear shape at the sides (29). Rounds 28 to 36 are kept for comparison. The owner has approved the new body, built in rounds 19–24. It starts from the owner's Tripo model, is fitted to four approved Gemini views, and was corrected against the original 2012 photo shoot and the owner's notes. It has **no rig or animations yet**. It comes in two poses: arms down (A-pose), and arms raised (to show the armpit fur). Build it with `pipeline/review_tools/build_static.py`. In the handoff package the built GLBs are `Cow_v10/models/Misanthropic_Cow_v10_r37.glb` and `..._r37_arms_raised.glb` (every round from 25 to 36 beside them, in both poses); round 25's are kept beside them for comparison.
 - **Round 18 (animated).** This is the last rigged model: 58 joints, 18 clips and baked physics, built by `pipeline/build_v10.py`. It uses the older body, made from SDF primitives.
 
-The viewer opens on round 37, with the Idle animation selected. Its Rounds row shows any combination of rounds 17, 18, 25 and 28–37, side by side or overlaid.
+The viewer opens on round 38, with the Idle animation selected. Its Rounds row shows any combination of rounds 17, 18, 25 and 28–38, side by side or overlaid; rounds 17, 18 and 38 play the selected clip.
 
-**The next step the owner asked for is the rig and the animations on the round 37 body.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. `build_v10.py` has not been run on the round 19+ body; see "Next steps" below.
+**The rig is done (round 38). The next step the owner asked for is making the animations less robotic.** Earlier they said: "let's get the rig working first, then do the animations", and the old animations felt robotic. Round 38 keeps round 18's choreography, apart from the arm and hem adjustments the new body needed; see "Next steps" below.
 
 ## The project
 
@@ -203,6 +204,14 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
     - **Neckline:** `NECK_COLLAR` is now 9.4 cm in radius (round 36: 8 cm), so the flared neck goes down inside it, and instead of a flat tilted circle (which at the back stood up to 2.5 cm above the sloping shoulders) it follows the torso's own top: `_collar_heights` samples it once on the collar's circle at 32 angles (1.346 m at the front, 1.39 at the sides, 1.365 at the back), with the collar left out (`_NO_COLLAR`), and the ring sits 35 % sunk into it.
     The fuller hood round the mask (round 34) and its clean edge (round 35) are kept. Rounds 33 and 36 are kept beside it. Before/after: `reviews/round_37/`.
 
+38. The owner: rig the round 37 body for 3D animation. Round 18's rig (`rig.py`, `anim.py`, `clips.py`) was run on the round 37 body and checked clip by clip against round 18 (`validate.py`, plus close-up renders). The joints already followed the Tripo arms, legs and head (`design.J`), the tail knot and teat bones the round 37 design, and the shoulder cap is still a ball round the arm pivot, so the sleeves turn in the rounded shoulder and the stuffed body does not fold. What had to change:
+    - **Udder seam** (`rig.udder_share`, `udder_weights(..., base)`): the pink cloth followed its Udder bone by 75–80 % right down to its seam, while the fur round it followed none of it, so whenever the cups bounced (the spring moves them up to 1.6 cm) the seam would open or the fur would show through. Now the fur round each globe takes a share of its Udder bone (none at the seam, rising with how far the globe stands out of the body, to round 18's 0.85 at the front), and the cloth copies the weights of the fur under it, so the two move as one. The cups also no longer take the belly's spring.
+    - **Teats** (`rig.CHEST_FRONT_Z`, `CHEST_FRONT_DROP`; `anim.TEAT_CHECKS`, `teat_body_sdf`): the round 37 cups sit almost on the belly (the lower teats' roots about 5 mm above it), and the cups ride on the chest while the top of the belly followed the spine, so as the chest bent the lower teats' roots sank up to 18 mm into the belly. At the front, the chest's share of the torso now starts 20 cm lower (1.10 → 0.90 m at the start of the blend, 1.22 → 1.08 m at its end), so the stuffed sack under the cups moves with them and the bend happens in the belly below the teats; the torso stretch did not change. The teat springs also check a point near the root, against each cup in its own (bouncing) Udder frame and the body in the spine's. `validate.py` now measures the teats against the posed belly fur itself (round 18's reading used the torso SDF in the spine's frame, which no longer holds the belly under the cups).
+    - **Hem** (`rig.HEM_C`, `HEM_R`, `HEM_MID`; `clips.py`): the round 37 hem hangs lower and further forward than round 18's, so the belly met a raised knee (22 mm in Run, 27 mm in Sneak; 11 and 21 mm in round 18) and the front of the hem pressed into the crossed legs in Sit Cross-Legged (13 mm; 3 mm in round 18). The hem helpers' band is now centred on the round 37 hem and reaches round to the middle; Run and Sneak use them too (`p['hem']`, as the round 18 notes suggested); seated, the belly rides up 3 cm onto the legs (`SitCrossLegged.BELLY_SEAT_LIFT`).
+    - **Crotch** (`rig.CROTCH_SPLIT` .045 → .07): the leggings' left/right share across the crotch is wider, so the seat stretched 6.1× in Sit Cross-Legged; now 4.55× (round 18: 4.57×).
+    - **Arms against the bigger udders:** Crying's hooves come up to the eyes from further in front (`Crying.WRIST_DIR`) with the elbows a little higher (`FACE_POLE`): the forearms lay 29 mm into the cups. The face-palm's elbow points higher (`Exasperated.PALM_POLE`; the upper arm was 7 mm into the cup). The Chicken Dance's Wings fists sit 3.5 cm further out and 4 cm further forward (`Dance.WINGS_HAND`; the hooves went 21–31 mm into the chest), and the claps' elbows point higher (`Dance.CLAPS_POLE`; the upper arms touched the cup tops).
+    - **Tools:** `review_tools/rig_bench.py` runs build_v10.py's work in steps that each save their result (this session's container restarted several times during long builds). Before/after: `reviews/round_38/Round38_rig_before_after.jpg` (top: round 18's rig carried over unchanged; bottom: round 38). Clip sheets: `Round38_Animation_Clips.jpg`, `_Mood_Clips.jpg`, `_Alt_Clips.jpg`; the showcase video `Misanthropic_Cow_v10_r38_Animations.mp4`.
+
 ## Where things are
 
 Rounds 19–24 added these modules and functions (everything else is as in round 18, listed further down).
@@ -273,6 +282,7 @@ Rounds 19–24 added these modules and functions (everything else is as in round
   - `tripo_gloves.py`, `repair_gloves.py`, `rebuild_gloves.py`, `tripo_slippers.py`: earlier one-off conversions of the owner's Tripo models (gloves rounds 11–16, Shy Cow slippers). No longer used; their outputs are only in git history.
   - `cow_mule_slippers.py`: the one-off conversion of the owner's slipper model into `assets/slippers_cow_mule.glb` (scaled to metres, ankle axis at the origin, right slipper mirrored).
   - `render_shag.py`: before/after close-ups of the shag (`reviews/shag/`).
+- `Cow_v10/viewer/index.html` (round 38): round 38 is one more figure (`FIGS.r38`, `cow-r38-meshopt.glb`, 15.1 MB, green), animated: like round 17 it plays the clip picked on round 18 (`syncFigClips`), and the page opens on it. It has no arms-raised copy; the Arms raised button still swaps rounds 25–37.
 - `Cow_v10/viewer/index.html`: the three.js viewer, with Light (Studio, Soft, Spotlight, No lighting) and Clay controls. Its Rounds row picks any of rounds 17, 18, 25 and 28–37 and its Compare row shows them side by side (oldest on the left) or overlaid (the newest solid, the others as ghosts in each round's colour: 17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry), with height lines. Round 18 is the main model (`mainRoot`), whose clips drive the page; round 17 (`cow-r17-meshopt.glb`) copies its clip and time every frame, and rounds 25 and 28–32 (`cow-r25-meshopt.glb`, `cow-r25-up-meshopt.glb`, `cow-r28-meshopt.glb`, `cow-r28-up-meshopt.glb`, `cow-r29-meshopt.glb`, `cow-r29-up-meshopt.glb`, `cow-r30-meshopt.glb`, `cow-r30-up-meshopt.glb`, `cow-r31-meshopt.glb`, `cow-r31-up-meshopt.glb`, `cow-r32-meshopt.glb`, `cow-r32-up-meshopt.glb`) are static. The page opens on round 32 with Idle selected. `cow-meshopt.glb` and `cow-plain.glb` are gltfpack copies of the round 18 animated GLB. The claude.ai copy of the viewer loads base64 versions of them, because that host serves only text and limits each file to 16 MB. Each base64 copy is now over that limit, so it is published in numbered parts (`cow-meshopt.b64.1.txt`, `.2.txt`); the page joins them.
 
 ## How to rebuild and check
@@ -296,20 +306,35 @@ Build the arms-down model first, because it writes the markings cache that the a
    - for the claude.ai viewer, base64-encode the result and split it into two parts under 16 MB.
 4. Test the viewer headless with `review_tools/test_viewer.js`.
 
-**Round 18 animated model:** see "How to rebuild" in `Cow_v10/README.md` (`build_v10.py`, about 40 minutes). It still builds the round 18 body.
+**Round 38 animated model** (the round 37 body rigged; about 4 minutes to assemble at full resolution, 10 to bake, 30–40 to validate):
+
+```bash
+cd Cow_v10/pipeline
+export REBUILD=../../Rebuild_Inputs/project COW_MARKINGS_CACHE=../build/markings.pkl
+python review_tools/rig_bench.py assemble ../build/r38              # add --quick for half resolution
+python review_tools/rig_bench.py bake ../build/r38                  # all 18 clips, or a list: "Run,Sneak"
+python review_tools/rig_bench.py validate ../build/r38
+python review_tools/rig_bench.py glb ../build/r38 ../build/Misanthropic_Cow_v10_r38_Animated.glb
+python review_tools/rig_bench.py rigged ../build/r38 && python render_dance.py ../build/r38/rigged.pkl showcase ../build/r38.mp4
+```
+
+Each step skips what it has already saved (delete a clip's file under `clips/` or `validation/` to redo it). After a change to `rig.py` or `assemble.py`, assemble again; after a change to `anim.py` or `clips.py`, delete and bake the clips it touches. `pose` renders frames straight from the pose solver (no springs) for quick checks. The web copy is made as for the static models; round 38's is `viewer/cow-r38-meshopt.glb` (15.1 MB).
+
+**Round 18 animated model:** see "How to rebuild" in `Cow_v10/README.md` (`build_v10.py`, about 40 minutes). It builds the current body (`design.BODY_SOURCE = 'tripo'`); set it to `'analytic'` for round 18's.
 
 ## Next steps (the owner's plan)
 
-1. **Rig the round 37 body.** `rig.py`, `anim.py` and `build_v10.py` were written for the round 18 SDF body. Expect to re-check:
-   - joint positions: `design.J` already follows the Tripo legs and arms, and `J['Head']` follows the head pose;
-   - skin-weight bands: the torso is now the stuffed sack plus the Tripo chest;
-   - the udders, which are now part of the suit surface. They should move with the chest and have only a little give. The teat bones should come from `TEAT_SPECS` and `TEAT_MID`.
-   - the shoulder: the sleeves should turn in the rounded shoulder (the ball-and-socket idea of round 18). The stuffed body should never fold.
-   - the tail knot, which is now at 0.895 m on the sack's back.
+1. **Done in round 38: the round 37 body is rigged** (see 38 in the feedback history).
 2. **Make the animations less robotic.** The round 18 clips are sine-based, procedural motion. One option is motion capture from the owner's own video.
 3. Offered earlier and not yet done: lace side panels on the briefs, as in the Gemini views and the shoot.
 
 ## Known open items
+
+**Round 38 animated model**
+- See `reviews/round_38/validation_round38.md` for every clip's checks against round 18. The torso stretches a little more than round 18's in most clips (the hem helpers now carry more of the front, and the Tripo chest is deeper), up to 2.5× in Jumping Jacks (round 18: 2.2×).
+- The "legs into body" readings count the tops of the briefs that the lowered hem covers as the body bends; they are higher than round 18's in the walking and standing clips and much lower in Run and Sneak. Judge clipping by eye and by the body-into-legs readings.
+- The arms-raised pose is still a separate static model (round 37's); in round 38 the arms lift in the clips.
+- Everything in round 18's list below still applies, except where round 38 changed it (Run and Sneak now use the hem helpers).
 
 **Round 37 static model**
 - Front-view leg spots are painted as seen from the front; on the sides of the legs they fade out where the leg turns away from the front (round 31). The mid-thigh spot on the cow's left keeps a short straight edge at its lower right, from the drawing's leg outline there.

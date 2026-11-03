@@ -1,4 +1,4 @@
-I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 37.
+I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 38 (the round 37 body rigged and animated).
 
 Before doing anything:
 1. Run validate_handoff.py to confirm every file arrived intact.
@@ -19,6 +19,6 @@ When you make changes:
 - compare against my approved views and the original shoot with the review tools, so nothing gets worse;
 - show me before/after renders of what changed.
 
-The next big step is rigging the round 37 body and then making the animations less robotic.
+Round 38 rigged the round 37 body (models/Misanthropic_Cow_v10_r38_Animated.glb, built with pipeline/review_tools/rig_bench.py). The next big step is making the animations less robotic.
 
 My next requests are:

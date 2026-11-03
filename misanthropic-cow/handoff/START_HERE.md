@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10: start here
 
-This is the v10 handoff as of feedback round 37 (2 November 2026). The folder holds:
+This is the v10 handoff as of feedback round 38 (3 November 2026): the round 37 body rigged and animated. The folder holds:
 - the models (round 37 static, every earlier new-body round from 25 to 36 static for comparison, and round 18 animated);
 - the web viewer;
 - review renders;
@@ -12,8 +12,9 @@ This is the v10 handoff as of feedback round 37 (2 November 2026). The folder ho
 
 | You want to… | Open |
 |---|---|
-| See the cow | Double-click `Start_Viewer.bat` (Windows), or run `python start_viewer.py`. The viewer opens your browser on **Round 37**; it needs internet only to load three.js. **Arms raised** shows the fur under the arms. **Light** and **Adjust** change the lighting. Under **Rounds**, pick any of 17, 18, 25 and 28–37 (17 and 18 are animated; the animation starts on **Idle**), and under **Compare**, show them **Side by side** or as an **Overlay**. |
-| Use the newest model in Blender, Unity, Unreal or a glTF viewer | `Cow_v10/models/Misanthropic_Cow_v10_r37.glb` (static, A-pose), or `Misanthropic_Cow_v10_r37_arms_raised.glb`. Every round from 25 to 36 is beside them, in both poses. They have no rig yet. |
+| See the cow | Double-click `Start_Viewer.bat` (Windows), or run `python start_viewer.py`. The viewer opens your browser on **Round 38** (animated); it needs internet only to load three.js. **Arms raised** shows the fur under the arms. **Light** and **Adjust** change the lighting. Under **Rounds**, pick any of 17, 18, 25 and 28–37 (17 and 18 are animated; the animation starts on **Idle**), and under **Compare**, show them **Side by side** or as an **Overlay**. |
+| Use the newest, animated model in Blender, Unity, Unreal or a glTF viewer | `Cow_v10/models/Misanthropic_Cow_v10_r38_Animated.glb`: the round 37 body with a 58-joint skeleton and 18 animations (Idle, Walk, Run, Sneak, Jumping Jacks, Look Around, Chicken Dance, Depressed Walk, Sit Cross-Legged, Crying, Exasperated, and alt versions of the first seven), baked physics included. Before/after and clip sheets: `Cow_v10/reviews/round_38/`. |
+| Use the newest static model | `Cow_v10/models/Misanthropic_Cow_v10_r37.glb` (static, A-pose), or `Misanthropic_Cow_v10_r37_arms_raised.glb`. Every round from 25 to 36 is beside them, in both poses. They have no rig yet. |
 | Use the last animated model | `Cow_v10/models/Misanthropic_Cow_v10_Animated.glb` (round 18 body: skinned, 58 joints, 18 animations) |
 | See the latest fixes | `Cow_v10/reviews/round_37/`: round 33's neck shape with the round 36 neckline (rounds 33, 36 and 37); `round_36/`: the hooded neck going down into the costume (rounds 35 and 36); `round_35/`: the hood cleaned up (rounds 34 and 35); `round_34/`: the fuller hood and the rounded top of the chest (rounds 33 and 34); `round_33/`: the udders and hem checked against the original 2012 shoot, and the head comparison (rounds 32 and 33); `round_32/`: the hood's flare at the neck and the smaller udders and belly front (rounds 31 and 32); `round_31/`: raised-arm flaps, leg spots and the black spots under the left arm (rounds 30 and 31); `round_30/`: armpits, spots and the neck patch (rounds 29 and 30); `round_29/`: the fur strip between the udders and the pear shape (rounds 28 and 29); `round_28/`: the udders as full pink globes. `reviews/round_27/` and `round_26/` have the head and hood. |
 | See what changed in rounds 19–25 | `Cow_v10/reviews/rounds_19_24/` (it holds round 25 too): before/after sheets, and comparisons with your Gemini views and the original shoot. `Round25_turnaround.jpg` shows where she is now. |
