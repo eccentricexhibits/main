@@ -169,7 +169,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': n.astype(np.float32),
                             'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
                             'ao': None, 'f': ch['f'].astype(np.int32), 'material': umat, 'group': 'udder',
-                            'W': RG.udder_weights(ch['v'], 'L' if '_L_' in ch['name'] else 'R')})
+                            'W': RG.udder_weights(ch['v'], 'L' if '_L_' in ch['name'] else 'R',
+                                                  (sv, W_suit) if D.BODY_SOURCE == 'tripo' else None)})
 
     # --- kept assets (mask, horns, wire, gloves, slippers)
     remap = {}

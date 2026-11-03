@@ -413,6 +413,8 @@ class Crying(AN.Dance):
     KEYS = [(0.0, {}), (1.0, dict(face=1, hunch=1, sob=.3)), (1.4, dict(face=1, hunch=1, sob=1)),
             (5.0, dict(face=1, hunch=1, sob=.8)), (5.9, dict(hunch=.8, sob=.3)), (7.0, {})]
     FIELDS = ['face', 'hunch', 'sob']
+    FACE_POLE = (.62, 1.15, .05)         # where the elbows point with the hooves at the eyes
+    WRIST_DIR = (.15, -.5, .85)          # from the eye to the wrist (head frame)
 
     def key(self, t, face=0., hunch=0., sob=0.):
         p = neutral(self)
@@ -428,12 +430,13 @@ class Crying(AN.Dance):
         for side, s in [('L', 1), ('R', -1)]:
             eye, Rh = head_point(self, p, [s * .050, 1.522, .135])
             # the hoof toes reach 19 cm past the wrist: hold the wrist that far out (and 1.5 cm more), below the eye
-            wrist, _ = head_point(self, p, np.array([s * .050, 1.522, .135]) + .206 * np.array([s * .05, -.79, .61]))
+            wd = np.array(self.WRIST_DIR) * [s, 1, 1]; wd = wd / np.linalg.norm(wd)
+            wrist, _ = head_point(self, p, np.array([s * .050, 1.522, .135]) + .206 * wd)
             rest = rest_hand(self, side, s)
             tgt = bezier_reach(rest, np.array([s * .44, 1.12, .06]), np.array([s * .34, 1.36, .30]),
                                np.array([s * .20, 1.38, .36]), wrist, face)
             p['hand'][side] = tgt
-            p['pole'][side] = (self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])) * (1 - face) + np.array([s * .62, 1.0, .05]) * face
+            p['pole'][side] = (self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])) * (1 - face) + np.array(self.FACE_POLE) * [s, 1, 1] * face
             on_face = self.hand_rot(side, eye - wrist, Rh @ np.array([0, 0, -1.]))
             p['hrot'][side] = ('blend', ('follow', .12), on_face, smooth(.6, 1, face))
             p['clav'][side] = .04 * hunch + .05 * shudder + .04 * gulp
@@ -456,6 +459,7 @@ class Exasperated(AN.Dance):
             (1.7, dict(slap=1, slump=.6)), (2.0, dict(slap=1, slump=.8, shake=1)), (2.9, dict(slap=.6, slump=.7, shake=1)),
             (3.6, dict(palm=1, slump=.5)), (4.9, dict(palm=1, slump=.6, shake=.6)), (5.6, dict(slump=.3)), (6.5, {})]
     FIELDS = ['fling', 'back', 'slap', 'palm', 'shake', 'slump']
+    PALM_POLE = (.60, 1.30, -.05)        # where the right elbow points in the face-palm (round 38: 1.15 pressed the upper arm into the cup)
 
     def key(self, t, fling=0., back=0., slap=0., palm=0., shake=0., slump=0.):
         p = neutral(self)
@@ -480,7 +484,7 @@ class Exasperated(AN.Dance):
                 wrist, _ = head_point(self, p, np.array([-.015, 1.575, .115]) + .222 * np.array([-.15, -.62, .77]))
                 tgt = bezier_reach(tgt, np.array([s * .44, 1.12, .04]), np.array([s * .36, 1.42, .20]),
                                    np.array([s * .16, 1.52, .36]), wrist, palm)
-                pole = pole * (1 - palm) + np.array([s * .60, 1.15, -.05]) * palm
+                pole = pole * (1 - palm) + np.array(self.PALM_POLE) * [s, 1, 1] * palm
                 hr = ('blend', hr, self.hand_rot(side, brow - wrist, Rh @ np.array([0, 0, -1.])), smooth(.6, 1, palm))
             p['hand'][side], p['pole'][side], p['hrot'][side] = tgt, pole, hr
             p['clav'][side] = .10 * fling - .05 * slump

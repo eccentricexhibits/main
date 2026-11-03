@@ -164,6 +164,8 @@ def suit_weights(v, f, face_labels):
     W[:, CHEST] = ss(1.10, 1.22, y)
     e = np.linalg.norm((v - [0, .915 + D.LEG_LIFT, .20]) / [.25, .21, .19], axis=1)
     bw = .65 * ss(1.05, .45, e)
+    if D.BODY_SOURCE == 'tripo':
+        bw *= 1 - ss(.03, 0., D.globes(v))          # round 38: the cups ride on the chest, not on the belly's spring
     W *= (1 - bw)[:, None]; W[:, BELLY] += bw
     for side, s in [('L', 1), ('R', -1)]:
         a = ARM[side]
@@ -192,6 +194,12 @@ def suit_weights(v, f, face_labels):
     H = smooth_weights(H, ft, HEM_SMOOTH)
     for k, side in enumerate('LR'):
         W *= (1 - H[:, k])[:, None]; W[:, HEM[side]] += H[:, k]
+    if D.BODY_SOURCE == 'tripo':
+        # round 38: the fur round each globe takes the same share of its Udder bone as the cloth over it
+        # (udder_weights copies these weights), so the seam stays closed when the cups bounce
+        for side in 'LR':
+            k = udder_share(v, side) * torso_mask
+            W *= (1 - k)[:, None]; W[:, UDDER[side]] += k
     for side, s in [('L', 1), ('R', -1)]:
         a = ARM[side]
         m = sleeve[side]
@@ -283,14 +291,31 @@ def glove_weights(p, side):
     return W
 
 
-def udder_weights(v, side):
+UDDER_GIVE = .85         # share of the Udder bone at the front of each cup (round 18's value)
+
+
+def udder_share(v, side):
+    """Round 38: how much of the cup's Udder bone a point on the cup (fur or cloth) follows: none where the
+    globe meets the suit (the seam), rising with the height the globe stands out of the body, to UDDER_GIVE."""
+    s = 1 if side == 'L' else -1
+    h = D.TB.stuffed_torso_sdf(v)
+    return UDDER_GIVE * ss(0., .06, h) * ss(.03, 0., D.globe_sdf(v, s)) * ss(-.02, .02, s * v[:, 0])
+
+
+def udder_weights(v, side, base=None):
+    """The pink cloth.  base=(suit vertices, suit weights): round 38, the cloth copies the weights of the fur
+    under it (which carry udder_share), so the two move as one; the teats are added on top."""
     W = np.zeros((len(v), NB))
     s = 1 if side == 'L' else -1
-    e = np.linalg.norm((v - D.CUP_C[s]) / D.CUP_R[s], axis=1)
-    front = ss(-.02, .09, v[:, 2] - .02)
-    k = .25 + .6 * front
-    W[:, UDDER[side]] = k
-    W[:, CHEST] = 1 - k
+    if base is not None:
+        from scipy.spatial import cKDTree
+        bv, bW = base
+        W[:] = bW[cKDTree(bv).query(v)[1]]
+    else:
+        front = ss(-.02, .09, v[:, 2] - .02)
+        k = .25 + .6 * front
+        W[:, UDDER[side]] = k
+        W[:, CHEST] = 1 - k
     for kk, (a, b) in enumerate(D.TEATS[s]):
         d = b - a; L = np.linalg.norm(d); d /= L
         t = (v - a) @ d
