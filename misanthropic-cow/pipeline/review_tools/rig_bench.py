@@ -130,12 +130,15 @@ def write_glb(d, out):
     if missing:
         sys.exit(f'not baked yet: {missing}')
     model.skin = {'name': 'Misanthropic_Cow_v10_rig', 'names': RG.NAMES, 'parents': RG.PARENTS, 'bind': M['B']}
+    import correctives as CO
+    has_morph = any(p.get('morph') is not None for p in model.parts)
     model.animations = [{'name': n, 'times': cl[n]['times'], 'tracks': AN.tracks(cl[n]['Gs'], RG.PARENTS),
+                         'morph_weights': CO.track([AN.skin_matrices(g, M['B']) for g in cl[n]['Gs']]) if has_morph else None,
                          'extras': {'duration_seconds': cl[n]['duration'],
                                     'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in cl[n]['phases']]}}
                         for n in CL.ORDER]
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
-                    'left': '+X (character left)'}
+                    'left': '+X (character left)', **({'morph_names': CO.NAMES} if has_morph else {})}
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     print('wrote', out, G.write(model, out))
 

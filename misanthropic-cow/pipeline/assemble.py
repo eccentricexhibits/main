@@ -47,6 +47,20 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     suit = Gm.build_suit(step=.006 if quick else .0042, target=60000 if quick else 170000)
     sv, sf, sn = suit['v'], suit['f'], suit['n']
     W_suit = RG.suit_weights(sv, sf, suit['labels'])
+    # round 40: corrective shapes for the raised arms (correctives.py), one morph target per side
+    morph_suit = morph_n_suit = None
+    if D.BODY_SOURCE == 'tripo':
+        import correctives as CO
+        tf = sf[suit['labels'] == 0]
+        is_t = np.zeros(len(sv), bool); is_t[tf.ravel()] = True
+        morph_suit = CO.smooth_deltas(CO.torso_deltas(sv, is_t), tf)
+        morph_n_suit = np.zeros_like(morph_suit)
+        for k in range(len(morph_suit)):
+            moved = np.linalg.norm(morph_suit[k], axis=1) > 0
+            if moved.any():
+                n2 = S.vertex_normals(sv + morph_suit[k], sf)
+                morph_n_suit[k][moved] = (n2 - sn)[moved]
+        report['morph_vertices'] = [int((np.linalg.norm(m, axis=1) > 0).sum()) for m in morph_suit]
     leg = udder = None
     if T.PROJECTED:
         # the markings are projected from the approved views, so the whole figure's depth is needed first
@@ -67,10 +81,14 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         mat = model.add_material({'name': ch['name'], 'pbrMetallicRoughness': {
             'baseColorTexture': {'image': img, 'texCoord': 0}, 'metallicFactor': 0, 'roughnessFactor': .95},
             'normalTexture': {'image': img_fur_n, 'texCoord': 1, 'scale': .6}, 'extensions': SHEEN(.75, .55)})
-        model.parts.append({'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': sn[ch['src']].astype(np.float32),
-                            'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
-                            'ao': None, 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'suit',
-                            'W': W_suit[ch['src']]})
+        part = {'name': ch['name'], 'v': ch['v'].astype(np.float32), 'n': sn[ch['src']].astype(np.float32),
+                'uv': ch['uv'].astype(np.float32), 'uv1': ch['uv1'].astype(np.float32),
+                'ao': None, 'f': ch['f'].astype(np.int32), 'material': mat, 'group': 'suit',
+                'W': W_suit[ch['src']]}
+        if morph_suit is not None and np.abs(morph_suit[:, ch['src']]).max() > 0:
+            part['morph'] = morph_suit[:, ch['src']].astype(np.float32)
+            part['morph_n'] = morph_n_suit[:, ch['src']].astype(np.float32)
+        model.parts.append(part)
     # shag strands on the black patches
     fl = suit['labels']
     cen = sv[sf].mean(1)
@@ -103,6 +121,10 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             pm[np.ix_(rows, np.nonzero(mask)[0])] = -1
         bone = np.asarray(T.PATCH_BONE)[pm.argmax(1)]
     W_strand = W_root[sid].copy()
+    # round 40: each strand moves with the corrective shape at its root
+    morph_strand = None
+    if morph_suit is not None:
+        morph_strand = np.einsum('ij,kijl->kil', rbc, morph_suit[:, sf[rface]])[:, sid]
     k = (.85 * tco ** 1.2)[:, None]
     tipw = np.zeros_like(W_strand); tipw[np.arange(len(sid)), np.asarray(RG.SHAG)[bone[sid]]] = 1
     W_strand = W_strand * (1 - k) + tipw * k
@@ -121,10 +143,13 @@ def build(v09_path, tex_dir, out_dir, quick=False):
     for k, (s0, s1) in enumerate(zip(cuts[:-1], cuts[1:])):
         v0, v1 = starts[s0], starts[s1]
         fsel = (hair['f'][:, 0] >= v0) & (hair['f'][:, 0] < v1)
-        model.parts.append({'name': f'Suit_black_shag_strands_{k + 1}', 'v': hair['v'][v0:v1].astype(np.float32),
-                            'n': hair['n'][v0:v1].astype(np.float32), 'uv': None, 'uv1': None,
-                            'ao': hair['tone'][v0:v1].astype(np.float32), 'f': (hair['f'][fsel] - v0).astype(np.int32),
-                            'material': shag_mat, 'group': 'suit', 'W': W_strand[v0:v1]})
+        part = {'name': f'Suit_black_shag_strands_{k + 1}', 'v': hair['v'][v0:v1].astype(np.float32),
+                'n': hair['n'][v0:v1].astype(np.float32), 'uv': None, 'uv1': None,
+                'ao': hair['tone'][v0:v1].astype(np.float32), 'f': (hair['f'][fsel] - v0).astype(np.int32),
+                'material': shag_mat, 'group': 'suit', 'W': W_strand[v0:v1]}
+        if morph_strand is not None and np.abs(morph_strand[:, v0:v1]).max() > 0:
+            part['morph'] = morph_strand[:, v0:v1].astype(np.float32)
+        model.parts.append(part)
     report['shag_clumps'] = int(len(roots))
     report['shag_strands'] = int(hair['strands'])
 

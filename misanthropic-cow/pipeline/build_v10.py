@@ -51,11 +51,13 @@ def main():
     model.animations = []
     for nm in order:
         clip, times, Gs = clips[nm]
-        model.animations.append({'name': nm, 'times': times, 'tracks': AN.tracks(Gs, RG.PARENTS),
+        import correctives as CO
+        mw = CO.track([AN.skin_matrices(g, B) for g in Gs]) if any(p.get('morph') is not None for p in model.parts) else None
+        model.animations.append({'name': nm, 'times': times, 'tracks': AN.tracks(Gs, RG.PARENTS), 'morph_weights': mw,
                                  'extras': {'duration_seconds': clip.duration,
                                             'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in clip.phases]}})
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
-                    'left': '+X (character left)'}
+                    'left': '+X (character left)', 'morph_names': ['ArmUp_L', 'ArmUp_R']}
     clean_parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
     groups = [p.get('group') for p in model.parts]
     model.parts = clean_parts

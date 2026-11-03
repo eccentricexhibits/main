@@ -207,7 +207,19 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
         idx = p['f'].astype('<u2' if nv < 65536 else '<u4').reshape(-1)
         prim = {'attributes': attrs, 'indices': acc(idx, 'SCALAR', 5123 if nv < 65536 else 5125, target=34963),
                 'material': int(p['material'])}
-        doc['meshes'].append({'name': p['name'], 'primitives': [prim]})
+        mesh = {'name': p['name'], 'primitives': [prim]}
+        if p.get('morph') is not None:
+            # round 40: morph targets (corrective shapes), position and normal offsets in the bind pose
+            prim['targets'] = []
+            for k in range(len(p['morph'])):
+                t = {'POSITION': acc(np.asarray(p['morph'][k], '<f4'), 'VEC3', 5126, minmax=True, target=34962)}
+                if p.get('morph_n') is not None:
+                    t['NORMAL'] = acc(np.asarray(p['morph_n'][k], '<f4'), 'VEC3', 5126, target=34962)
+                prim['targets'].append(t)
+            mesh['weights'] = [0.0] * len(p['morph'])
+            if model.extras and model.extras.get('morph_names'):
+                mesh['extras'] = {'targetNames': model.extras['morph_names']}
+        doc['meshes'].append(mesh)
         node = {'name': p['name'], 'mesh': len(doc['meshes']) - 1}
         doc['nodes'].append(node)
         mesh_nodes.append(len(doc['nodes']) - 1)
@@ -247,6 +259,15 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
             A = {'name': an['name'], 'samplers': [], 'channels': []}
             if an.get('extras'):
                 A['extras'] = an['extras']
+            if an.get('morph_weights') is not None:
+                # round 40: every mesh with morph targets plays the same per-frame weights
+                mw = np.asarray(an['morph_weights'], '<f4').reshape(-1)
+                out_w = acc(mw[:, None], 'SCALAR', 5126)
+                for ni, p in zip(mesh_nodes, model.parts):
+                    if p.get('morph') is not None:
+                        s = len(A['samplers'])
+                        A['samplers'].append({'input': tin, 'output': out_w, 'interpolation': 'LINEAR'})
+                        A['channels'].append({'sampler': s, 'target': {'node': ni, 'path': 'weights'}})
             for ji, (T, Q) in an['tracks'].items():
                 for channel, vals, kind in [('translation', T, 'VEC3'), ('rotation', Q, 'VEC4')]:
                     if vals is None:

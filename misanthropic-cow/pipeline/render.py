@@ -103,10 +103,21 @@ def skin_parts(model, mats):
     L = lib()
     m = np.ascontiguousarray(mats, np.float32)
     out = []
+    mw = None
     for p in model.parts:
         v = np.empty_like(p['v'], dtype=np.float32)
         n = np.empty_like(p['n'], dtype=np.float32)
-        L.skin(len(v), np.ascontiguousarray(p['v'], np.float32), np.ascontiguousarray(p['n'], np.float32),
+        v0, n0 = p['v'], p['n']
+        if p.get('morph') is not None:
+            # round 40: the corrective shapes, weighted by the pose (correctives.weights_from_mats)
+            if mw is None:
+                import correctives as CO
+                mw = CO.weights_from_mats(m)
+            if mw.max() > 0:
+                v0 = v0 + np.einsum('k,kij->ij', mw, p['morph'])
+                if p.get('morph_n') is not None:
+                    n0 = n0 + np.einsum('k,kij->ij', mw, p['morph_n'])
+        L.skin(len(v), np.ascontiguousarray(v0, np.float32), np.ascontiguousarray(n0, np.float32),
                np.ascontiguousarray(p['j'], np.uint8), np.ascontiguousarray(p['w'], np.uint8), m, v, n)
         q = dict(p)
         q['v'] = v

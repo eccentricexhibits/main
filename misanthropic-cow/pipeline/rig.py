@@ -183,7 +183,7 @@ def suit_weights(v, f, face_labels):
         a = ARM[side]
         sh = D.arm_points(s)[0]
         dsh = np.linalg.norm(v - sh, axis=1)
-        cl = .55 * ss(.17, .07, dsh) * ss(1.20, 1.30, y)
+        cl = CLAV_W * ss(.17, .07, dsh) * ss(1.20, 1.30, y)
         W *= (1 - cl)[:, None]; W[:, a['shoulder']] += cl
     # the torso's neckline follows the neck a little
     nk = .3 * ss(1.36, 1.405, y)
@@ -197,7 +197,7 @@ def suit_weights(v, f, face_labels):
         # the shoulder cap is a ball round the arm's pivot, so it can follow the half-rotation helper
         # (a turn about its own centre) and keep the sleeve head inside it as the arm rises
         sh = D.arm_points(s)[0]
-        k = .55 * ss(.12, .06, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.20, 1.27, y)
+        k = CAP_W * ss(.12, .06, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.20, 1.27, y)
         W *= (1 - k)[:, None]; W[:, ROOT_HALF[side]] += k
     torso_mask = ~(sleeve['L'] | sleeve['R'] | (vl == 4))
     ft = f[np.all(torso_mask[f], axis=1)]
@@ -219,7 +219,7 @@ def suit_weights(v, f, face_labels):
         up, fo, ha = arm_chain(v[m], side)
         du = (el - sh) / np.linalg.norm(el - sh)
         tu = (v[m] - sh) @ du
-        root = ss(.075, .0, tu)                    # sleeve head shares the half-rotation helper
+        root = ss(.075, .0, tu) * SLEEVE_ROOT_W / .65    # sleeve head shares the half-rotation helper
         aw = np.zeros((m.sum(), NB))
         aw[:, a['upper']] = up * (1 - .65 * root); aw[:, ROOT_HALF[side]] = up * .65 * root
         aw[:, a['fore']] = fo; aw[:, a['hand']] = ha
@@ -306,6 +306,16 @@ def glove_weights(p, side):
     return W
 
 
+import os as _os
+# Round 40: a ball and socket for the round 37 body.  The torso's share of the clavicle (Shoulder) bone, of the arm's
+# half-rotation helper on the shoulder cap, and the sleeve head's share of that helper (round 18: .55, .55, .65).
+# Round 18's shoulder was a ball round the arm's pivot, so turning the cap with the arm left it in place; the Tripo
+# shoulder is not, and the cap folded into a flap under a raised arm.  Now the stuffed body stays put at the shoulder
+# (it is reshaped for a lifted arm by the corrective shapes, correctives.py), only the clavicle carries it, and the
+# sleeve's rounded root turns wholly with the arm inside it.
+_SW = _os.environ.get('COW_SHOULDER_W')
+CLAV_W, CAP_W = [float(x) for x in (_SW or '.8,0').split(',')]
+SLEEVE_ROOT_W = float(_os.environ.get('COW_SLEEVE_ROOT_W', '0'))
 CHEST_FRONT_Z = (0., .12)            # round 38: from where (z) the chest band starts dropping, to where it is lowest
 CHEST_FRONT_DROP = (.20, .14)        # how much lower the chest band's start and end are at the front
 UDDER_GIVE = .85         # share of the Udder bone at the front of each cup (round 18's value)

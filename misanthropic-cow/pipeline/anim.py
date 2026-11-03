@@ -89,7 +89,15 @@ def teat_body_sdf(q, g, B):
     local = lambda j: (q - g[j, :3, 3]) @ g[j, :3, :3] + B[j]
     if D.BODY_SOURCE != 'tripo':
         return D.torso_sdf(local(RG.SPINE))
-    d = D.TB.stuffed_torso_sdf(local(RG.SPINE))
+    # round 40: the belly under the cups follows the chest as much as the skin weights have it (rig.CHEST_FRONT_*), so
+    # the body is taken in that blend of the spine's and the chest's frames, as the skinned surface is
+    # (and the belly's own spring bone, with its share of the weights: rig.suit_weights)
+    qs, qc, qb = local(RG.SPINE), local(RG.CHEST), local(RG.BELLY)
+    fr = RG.ss(*RG.CHEST_FRONT_Z, qs[:, 2])
+    w = RG.ss(1.10 - RG.CHEST_FRONT_DROP[0] * fr, 1.22 - RG.CHEST_FRONT_DROP[1] * fr, qs[:, 1])[:, None]
+    e = np.linalg.norm((qs - [0, .915 + D.LEG_LIFT, .20]) / [.25, .21, .19], axis=1)
+    bw = (.65 * RG.ss(1.05, .45, e) * (1 - RG.ss(.03, 0., D.globes(qs))))[:, None]
+    d = D.TB.stuffed_torso_sdf((qs * (1 - w) + qc * w) * (1 - bw) + qb * bw)
     for side, s in [('L', 1), ('R', -1)]:
         d = np.minimum(d, D.globe_sdf(local(RG.UDDER[side]), s))
     return d
@@ -557,6 +565,12 @@ class Dance:
             L = self._teat_len[j]
             rest = np.array([g[j, :3, 3] + g[j, :3, :3] @ (self.teat_dir[j] * L) for g in posed])
             acc = np.gradient(np.gradient(rest, tt, axis=0), tt, axis=0)
+            # round 40: never ask a point of the teat for more clearance than it has at rest (the lower teats hang a few
+            # millimetres over the belly, so the contact was pushing them out on every frame and their spring pushed them
+            # straight back: they flickered from frame to frame)
+            Gb = np.tile(np.eye(4), (RG.NB, 1, 1)); Gb[:, :3, 3] = self.B
+            d0 = self.teat_dir[j]; b_rest = self.B[j]
+            needs = [float(np.clip(min(.017, teat_body_sdf(b_rest + d0 * L * f, Gb, self.B)[0] - .002), .004, .017)) for f in TEAT_CHECKS]
             o = np.zeros(3); v = np.zeros(3); dirs = []
             for i in range(len(tt)):
                 for _ in range(sub):
@@ -564,12 +578,12 @@ class Dance:
                 o = np.clip(o, -.02, .02)
                 g = posed[i]; b0 = g[j, :3, 3]
                 tip = rest[i] + o
+                tip0 = tip.copy()
                 for _ in range(3):
                     dvec = tip - b0; dvec /= np.linalg.norm(dvec); tip = b0 + dvec * L
-                    for frac in TEAT_CHECKS:
+                    for frac, need in zip(TEAT_CHECKS, needs):
                         q = b0 + dvec * L * frac
                         dist = teat_body_sdf(q, g, self.B)[0]
-                        need = .017          # teat radius (~1.5 cm) plus a little
                         if dist < need:
                             e = 1e-3
                             grad = (teat_body_sdf(q + np.eye(3) * e, g, self.B) - teat_body_sdf(q - np.eye(3) * e, g, self.B)) / (2 * e)
@@ -578,7 +592,21 @@ class Dance:
                 dvec = tip - b0
                 dirs.append(dvec / np.linalg.norm(dvec))
                 o = tip - rest[i]
-            teat_hist[j] = np.array(dirs)
+                # round 40: a contact also stops the spring's motion into the body (an inelastic touch), so the teat
+                # rests against the belly instead of bouncing off it again next frame
+                push = tip - tip0
+                if np.linalg.norm(push) > 1e-6:
+                    n = push / np.linalg.norm(push)
+                    vn = v @ n
+                    if vn < 0:
+                        v = v - vn * n
+            # round 40: a light smoothing over neighbouring frames (gaussian, sigma one frame) takes out what is left of
+            # the contact's frame-to-frame kinks
+            dirs = np.array(dirs)
+            kk = np.exp(-np.arange(-3, 4) ** 2 / 2.); kk /= kk.sum()
+            ext = np.r_[dirs[:3], dirs, dirs[-3:]]
+            dirs = np.stack([np.convolve(ext[:, a], kk, 'valid') for a in range(3)], 1)
+            teat_hist[j] = dirs / np.linalg.norm(dirs, axis=1, keepdims=True)
         # the tail cord: a rope pinned to the bow, colliding with the seat, legs, slippers and floor
         anchors = np.array([g[RG.TAIL_BOW, :3, :3] @ (TL.ANCHOR - self.B[RG.TAIL_BOW]) + g[RG.TAIL_BOW, :3, 3] for g in posed])
         rope = TL.simulate(anchors, posed, self.B, RG, fps)
