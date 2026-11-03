@@ -211,6 +211,11 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                         if mat['name'] in ('Mask_Photo_Projection', 'Lower_Jaw_Side_Photo_Projection') and k == 'baseColorTexture':
                             arr = np.asarray(Image.open(io.BytesIO(data)).convert('RGB'))
                             data = T.to_jpeg(T.mild_lift(arr), 93)
+                        if mat['name'] == 'Right_Horn_Yellow_Bands' and k == 'baseColorTexture':
+                            # round 41: the complete horn (the cow's left; v09 named it from the viewer's side) gets
+                            # the real horn's second ring above the middle one
+                            arr = np.asarray(Image.open(io.BytesIO(data)).convert('RGB'))
+                            data, mime = T.to_jpeg(T.add_horn_ring(arr) / 255., 93), 'image/jpeg'
                         holder[k]['image'] = model.add_image(data, mime)
             ext = mat.get('extensions', {})
             for e in ext.values():

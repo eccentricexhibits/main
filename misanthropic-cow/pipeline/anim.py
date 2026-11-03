@@ -61,6 +61,7 @@ HEM_GAIN, HEM_FREE, HEM_SOFT = 1.2, .2, .08
 # the root, because the round 37 cups are globes that the torso includes, and a teat swinging back into its own
 # cup buried its first 2-3 cm (up to 16 mm deep) while the two outer checks were still clear
 TEAT_CHECKS = (.35, .55, 1.0)
+HANG_MAX = np.deg2rad(55.)          # round 41: how far a relaxed hand turns from the forearm's line at most
 
 _SOLE = None
 
@@ -411,6 +412,18 @@ class Dance:
             def resolve(h):
                 if isinstance(h, tuple) and h[0] == 'follow':
                     return Rf @ rot(hinge_b, h[1])
+                if isinstance(h, tuple) and h[0] == 'hang':
+                    # round 41: a relaxed hand: the forearm's line turned this share of the way towards straight down
+                    # (at most HANG_MAX), by the smallest rotation, so the palm keeps facing the way it did
+                    fdir = Rf @ (bf / np.linalg.norm(bf))
+                    want = (1 - h[1]) * fdir + h[1] * np.array([0., -1., 0.])
+                    if np.linalg.norm(want) < 1e-6:
+                        return Rf
+                    Ra = align(fdir, want / np.linalg.norm(want))
+                    ang = np.arccos(np.clip((np.trace(Ra) - 1) / 2, -1, 1))
+                    if ang > HANG_MAX:
+                        Ra = Slerp([0, 1], Rotation.from_matrix([np.eye(3), Ra]))([HANG_MAX / ang]).as_matrix()[0]
+                    return Ra @ Rf
                 if isinstance(h, tuple) and h[0] == 'blend':
                     A, Bm = resolve(h[1]), resolve(h[2])
                     return Slerp([0, 1], Rotation.from_matrix([A, Bm]))([h[3]]).as_matrix()[0]

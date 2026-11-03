@@ -251,7 +251,9 @@ def _raise_sleeve_blobs(blobs):
 # the belly.  The neck patch is really on the cow's right upper chest, just above the right udder, a round shag
 # patch about 12 cm across (PATCH_ADD: x, y, half-width, half-height).
 PATCH_REMOVE = [((-.03, 1.35, .05), .07), ((.14, 1.353, .014), .03), ((-.145, .975, .264), .03),
-                ((.195, 1.17, -.104), .045), ((.212, 1.154, -.054), .02)]   # round 31: the cow's left armpit (body, sleeve)
+                ((.195, 1.17, -.104), .045), ((.212, 1.154, -.054), .02),   # round 31: the cow's left armpit (body, sleeve)
+                ((-.207, 1.202, .037), .02)]   # round 41: the thin sliver on the cow's right side, beside the right udder
+ISLAND_MIN = 3.6e-4    # round 41: painted black islands smaller than this share of a texture chart are dropped
 PATCH_ADD = [(-.105, 1.340, .064, .060)]
 
 
@@ -342,6 +344,32 @@ def patches_for(chart_name):
     return TORSO_PATCHES
 
 
+HORN_RING = .45      # round 41: the new ring's place, as a share of the way from the middle ring to the horn's tip
+
+
+def add_horn_ring(arr, at=HORN_RING):
+    """Round 41: the cow's left horn (Horn_left_complete) was missing the second ring of the real horn, just above
+    the middle one towards the tip.  The texture runs from the tip (row 0) to the base; it has a ring at the base and
+    one in the middle.  The middle ring, with its wavy edges, is copied (as a mask) to `at` of the way from the middle
+    ring towards the tip."""
+    a = np.asarray(arr).astype(np.float32)
+    dark = a.mean(2) < 90
+    rows = np.nonzero(dark.mean(1) > .02)[0]
+    groups = np.split(rows, np.nonzero(np.diff(rows) > 1)[0] + 1)
+    mid = groups[0]                                       # the ring nearer the tip
+    lo, hi = int(mid[0]) - 6, int(mid[-1]) + 6
+    shift = int(round(at * lo))
+    src = a[lo:hi]
+    # how dark each texel of the ring is (0 yellow .. 1 black), so its soft, wavy edge comes along
+    yellow = np.median(a[dark.mean(1) == 0].reshape(-1, 3), axis=0)
+    black = np.median(a[dark], axis=0)
+    w = np.clip(((src - yellow) @ (black - yellow)) / ((black - yellow) @ (black - yellow)), 0, 1)[..., None]
+    out = a.copy()
+    t0 = lo - shift
+    out[t0:t0 + (hi - lo)] = out[t0:t0 + (hi - lo)] * (1 - w) + src * w
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
 def shag_mask(p, which=None):
     """Patch mask whose edges break into hanging tufts (noise stretched along gravity)."""
     m = np.zeros(p.shape[:-1], np.float32)
@@ -365,8 +393,30 @@ def shag_detail(p, black):
     return np.clip(black * shade[..., None] * 1.15, 0, 1)
 
 
+def drop_islands(m, min_share=None):
+    """Round 41: the patches' tufted edges shed small detached islands of black paint beside them (the owner circled one
+    on the back by the big patch); in a baked chart (2-D mask) every connected piece of black smaller than
+    ISLAND_MIN of the chart is taken out, soft edge included.  The smallest real patch covers about ten times that."""
+    if m.ndim != 2:
+        return m
+    # pieces are told apart by their solid paint (an island's soft fringe often touches the patch's), and every
+    # texel of fringe belongs to the solid piece nearest it
+    lab, n = ndimage.label(m > .5)
+    if not n:
+        return m
+    size = np.bincount(lab.ravel())
+    small = size < (ISLAND_MIN if min_share is None else min_share) * m.size
+    small[0] = False
+    if not small.any():
+        return m
+    idx = ndimage.distance_transform_edt(lab == 0, return_distances=False, return_indices=True)
+    owner = lab[idx[0], idx[1]]
+    return np.where(small[owner] & (m > 0), 0., m).astype(m.dtype)
+
+
 def suit_color(p, n, white, black, which=None):
     m = patch_mask(p, n) if (PROJECTED and not BLOBS) else shag_mask(p, which)
+    m = drop_islands(m)
     wc = triplanar(white, p, n, TILE)
     # under the strands only the black backing shows in the gaps; the swatch photo is too light for it
     bc = shag_detail(p, triplanar(black, p, n, .22)) * .5

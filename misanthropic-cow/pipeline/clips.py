@@ -23,9 +23,13 @@ def neutral(clip):
     return dict(shift=np.zeros(3), hips=np.zeros(3), spine=np.zeros(3), chest=np.zeros(3), neck=np.zeros(3),
                 head=np.zeros(3), fingers=-.12, thumb=.10, spread=0., clav={'L': 0., 'R': 0.},    # hooves and thumb relaxed, a little curled
                 fk={'L': np.array([0., 0., 0.]), 'R': np.array([0., 0., 0.])},
-                hrot={'L': ('follow', .12), 'R': ('follow', .12)}, feet=None)
+                hrot={'L': RELAXED_HAND, 'R': RELAXED_HAND}, feet=None)
 
 
+# round 41: a relaxed hand hangs: the fingers (and the hoof toes) turn from the forearm's line most of the way towards
+# straight down (anim.Dance.pose, 'hang'); round 18-40's ('follow', .12) tipped each hand forward at the wrist, so with
+# the A-pose's forearms the hooves pointed out and forward, and up as an arm swung forward (the owner's note)
+RELAXED_HAND = ('hang', .6)
 REST_ARM = (-.06, .06, .14)     # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose
 
 
@@ -261,7 +265,7 @@ class LookAround(AN.Dance):
             p['hand'][side] = tgt + np.array([0, 0, .02 * lean]) * (1 - shade)
             p['pole'][side] = pole_rest * (1 - shade) + np.array([s * .60, 1.40, -.12]) * shade
             flat = self.hand_rot(side, rot([0, 1, 0], yaw) @ np.array([-s, .12, .30]), [0, -1, 0])
-            p['hrot'][side] = ('blend', ('follow', .12), flat, smooth(.55, 1, shade))   # turn the hoof flat only near the brow
+            p['hrot'][side] = ('blend', RELAXED_HAND, flat, smooth(.55, 1, shade))   # turn the hoof flat only near the brow
         return p
 
     def sample(self, t):
@@ -363,7 +367,7 @@ class DepressedWalk(AN.Dance):
             swing = -s * np.sin(w)
             p['fk'][side] = np.array([self.ARM_ABD, .07 * swing + .02 - lean, .10])
             p['clav'][side] = -.06
-            p['hrot'][side] = ('follow', .05)
+            p['hrot'][side] = ('hang', .7)               # round 41: the dangling hands hang under gravity
         p['fingers'] = -.10
         return p
 
@@ -453,7 +457,7 @@ class SitCrossLegged(AN.Dance):
                 p['hand_world'][side] = np.array(self.SUPPORT) * [s, 1, 1] - [0, 0, self.BACK]
                 p['pole_world'][side] = np.array(self.SUPPORT_POLE) * [s, 1, 1] - [0, 0, self.BACK]
                 p['world_w'][side] = support
-            p['hrot'][side] = ('follow', .12)
+            p['hrot'][side] = RELAXED_HAND
             p['clav'][side] = .06 * bal - .04 * slump
         p['fingers'] = -.2
         return p
@@ -498,7 +502,7 @@ class Crying(AN.Dance):
             p['hand'][side] = tgt
             p['pole'][side] = (self.B[RG.ARM[side]['fore']] + np.array([s * .25, 0, -.15])) * (1 - face) + np.array(self.FACE_POLE) * [s, 1, 1] * face
             on_face = self.hand_rot(side, eye - wrist, Rh @ np.array([0, 0, -1.]))
-            p['hrot'][side] = ('blend', ('follow', .12), on_face, smooth(.6, 1, face))
+            p['hrot'][side] = ('blend', RELAXED_HAND, on_face, smooth(.6, 1, face))
             p['clav'][side] = .04 * hunch + .05 * shudder + .04 * gulp
         p['fingers'] = -.3 * face
         return p
@@ -539,7 +543,7 @@ class Exasperated(AN.Dance):
             hip = rest + np.array([s * .025, .02, -.01])            # dropped onto the hips
             tgt = rest * (1 - fling - slap) + out * fling + hip * slap
             pole = pole_rest * (1 - fling) + np.array([s * .55, .85, -.30]) * fling
-            hr = ('blend', ('follow', .12), self.hand_rot(side, [s * .55, .05, .55], [0, 1, 0]), fling)
+            hr = ('blend', RELAXED_HAND, self.hand_rot(side, [s * .55, .05, .55], [0, 1, 0]), fling)
             if side == 'R' and palm > 0:
                 brow, Rh = head_point(self, p, [-.015, 1.575, .115])
                 wrist, _ = head_point(self, p, np.array([-.015, 1.575, .115]) + .222 * np.array([-.15, -.62, .77]))

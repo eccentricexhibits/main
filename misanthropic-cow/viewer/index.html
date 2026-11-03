@@ -84,51 +84,23 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 37 preview &middot; rounds 17 and 18 animated &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 41 &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Idle</div>
-        <div class="figlabel" id="lab17" hidden>Round 17</div>
-        <div class="figlabel" id="lab18" hidden>Round 18</div>
-        <div class="figlabel" id="lab25" hidden>Round 25</div>
-        <div class="figlabel" id="lab28" hidden>Round 28</div>
-        <div class="figlabel" id="lab29" hidden>Round 29</div>
-        <div class="figlabel" id="lab30" hidden>Round 30</div>
-        <div class="figlabel" id="lab31" hidden>Round 31</div>
-        <div class="figlabel" id="lab32" hidden>Round 32</div>
-        <div class="figlabel" id="lab33" hidden>Round 33</div>
-        <div class="figlabel" id="lab34" hidden>Round 34</div>
-        <div class="figlabel" id="lab35" hidden>Round 35</div>
-        <div class="figlabel" id="lab36" hidden>Round 36</div>
-        <div class="figlabel" id="lab37" hidden>Round 37</div>
-        <div class="figlabel" id="lab38" hidden>Round 38</div>
-        <div class="figlabel" id="lab39" hidden>Round 39</div>
         <div class="figlabel" id="lab40" hidden>Round 40</div>
-        <div class="status" id="status">Loading the model (16.6 MB)&hellip;</div>
+        <div class="figlabel" id="lab41" hidden>Round 41</div>
+        <div class="status" id="status">Loading the model (15 MB)&hellip;</div>
       </div>
 
       <div class="row" id="versions">
         <span class="label">Rounds</span>
-        <button data-round="r17" aria-pressed="false" disabled><span class="swatch" style="background:#c27c0e"></span>Round 17</button>
-        <button data-round="r18" aria-pressed="true" disabled><span class="swatch" style="background:#3f73e0"></span>Round 18</button>
-        <button data-round="r25" aria-pressed="false" disabled><span class="swatch" style="background:#d23a4a"></span>Round 25</button>
-        <button data-round="r28" aria-pressed="false" disabled><span class="swatch" style="background:#1f8f5a"></span>Round 28</button>
-        <button data-round="r29" aria-pressed="false" disabled><span class="swatch" style="background:#8e44ad"></span>Round 29</button>
-        <button data-round="r30" aria-pressed="false" disabled><span class="swatch" style="background:#00838f"></span>Round 30</button>
-        <button data-round="r31" aria-pressed="false" disabled><span class="swatch" style="background:#b8860b"></span>Round 31</button>
-        <button data-round="r32" aria-pressed="false" disabled><span class="swatch" style="background:#c2185b"></span>Round 32</button>
-        <button data-round="r33" aria-pressed="false" disabled><span class="swatch" style="background:#e65100"></span>Round 33</button>
-        <button data-round="r34" aria-pressed="false" disabled><span class="swatch" style="background:#5d4037"></span>Round 34</button>
-        <button data-round="r35" aria-pressed="false" disabled><span class="swatch" style="background:#00897b"></span>Round 35</button>
-        <button data-round="r36" aria-pressed="false" disabled><span class="swatch" style="background:#ad1457"></span>Round 36</button>
-        <button data-round="r37" aria-pressed="false" disabled><span class="swatch" style="background:#283593"></span>Round 37</button>
-        <button data-round="r38" aria-pressed="false" disabled><span class="swatch" style="background:#2e7d32"></span>Round 38</button>
-        <button data-round="r39" aria-pressed="false" disabled><span class="swatch" style="background:#6a1b9a"></span>Round 39</button>
         <button data-round="r40" aria-pressed="false" disabled><span class="swatch" style="background:#00838f"></span>Round 40</button>
-        <span class="note" id="verNote">Round 18, animated.</span>
+        <button data-round="r41" aria-pressed="true" disabled><span class="swatch" style="background:#c2185b"></span>Round 41</button>
+        <span class="note" id="verNote">Round 41, animated.</span>
       </div>
 
       <div class="row" id="layout">
@@ -136,7 +108,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-layout="side" aria-pressed="true" disabled>Side by side</button>
         <button data-layout="overlay" aria-pressed="false" disabled>Overlay</button>
         <button id="guides" aria-pressed="false" disabled>Height lines</button>
-        <button id="arms" aria-pressed="false" disabled title="Rounds 25 and 28 to 37 with their arms lifted, to show the fur under them">Arms raised</button>
+        <button id="arms" aria-pressed="false" disabled hidden>Arms raised</button>
         <span class="note" id="layoutNote">Pick two or more rounds above to compare them.</span>
       </div>
 
@@ -233,44 +205,11 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Round 40 (animated):</strong> <em>Teats:</em> no more twitching. The two lower teats hang just above the belly, and they were being pushed off it and springing back on every frame, so they flickered, most of all in Sneak. They now rest against the belly and swing smoothly. <em>Armpits:</em> with the arms raised (Jumping jacks, Look around, the Chicken dance) the costume no longer bunches into a flap and a shelf at each armpit. The stuffed body now stays put at the shoulder, the sleeve turns in it like a ball in a socket, and the body&rsquo;s side runs smoothly up into the shoulder as each arm lifts. Pick <em>Round 39</em> and <em>Round 40</em> with <em>Jumping jacks</em> to compare.</li>
-          <li>Round 39 &middot; <strong>(animated):</strong> <em>Less robotic:</em> every clip now moves like a person inside the suit rather than a machine. The body no longer moves in lockstep: the chest follows the hips a moment later, the head follows the chest, and the arms trail and settle with a little overshoot after quick moves. Left and right are no longer mirror images, and a slow, gentle sway means she is never perfectly still. She breathes, and in the walks her head floats steadily over the step instead of nodding with it. The relaxed arms hang against the belly instead of being held out like a mannequin&rsquo;s. <em>Idle</em> is new: 8 seconds of standing about, settling her weight onto one leg and then the other, glancing aside and fidgeting with a hoof. <em>Walk:</em> the body is lowest just after each step lands and highest over the standing leg (it was the other way round). <em>Jumping Jacks:</em> no two jacks are alike, and she tires a little. Compare with round 38 side by side under <em>Rounds</em>.</li>
-          <li>Round 38 &middot; <strong>(animated):</strong> <em>The rig:</em> the round 37 body now has round 18&rsquo;s 58-joint skeleton and all 18 animations (11 clips and 7 alt versions), with the baked physics: the udders, belly, teats, black shag and tail cord swing as before. Changes for the new body: the pink cloth of each udder and the fur round it now move as one, so the seam never opens when the cups bounce; the stuffed sack under the udders moves with the chest, so the teats no longer dip into the belly; the hem helpers fit the lower round 37 hem, so the belly rides up over a raised knee in Run, Sneak and Sit Cross-Legged; and four arm moves were adjusted so the arms clear the bigger udders (Crying&rsquo;s hooves come up to the eyes from further in front, the face-palm and the claps lift the elbows higher, and the Wings fists sit 4&nbsp;cm further forward). Round 38 opens on Idle; pick any clip above. <em>Arms raised</em> still shows rounds 25 to 37; round 38 raises its arms in the clips.</li>
-          <li>Round 37 &middot; <em>Neck:</em> round 33&rsquo;s neck shape with round 36&rsquo;s neckline: the hood&rsquo;s neck widens gently into the shoulders again (about 17&nbsp;cm across just above the neckline), so the back of the neck slopes like a real nape instead of standing as a straight column, and it still goes down inside the costume, with no raised neck tube. The rolled neckline is a little wider, so the neck fits inside it, and now follows the top of the costume all the way round (in round 36 it stood above the sloping shoulders at the back). Pick <em>Round 33</em>, <em>Round 36</em> and <em>Round 37</em> with the <em>Back</em> or <em>Side</em> camera to compare.</li>
-          <li>Round 36 &middot; <em>Neck:</em> a person&rsquo;s head in a snug fabric hood, going down into the big padded costume, instead of one soft mound from the shoulders to the head. The hood&rsquo;s neck is a human neck again, about 13&nbsp;cm across, with the head&rsquo;s jaw and the back of the skull defined above it and no flare spreading over the shoulders; it goes down inside the costume through a rolled neckline, a soft ring of the suit&rsquo;s fur round the neck that sits a little lower at the front, under the mask&rsquo;s chin. The suit no longer rises into a neck tube round it. The hood round the mask is round 35&rsquo;s. Pick <em>Round 35</em> and <em>Round 36</em> and the <em>Head</em> or <em>Back</em> camera to compare.</li>
-          <li>Round 35 &middot; <em>Hood cleaned up:</em> its edge round the mask is rounded over like the edge of a fabric opening instead of a square cut, so from the side and three-quarter views it wraps round the mask rather than looking sliced off; the head runs into the neck in one smooth sweep, with no ring crease under the jaw; and the hood&rsquo;s fleece is smoother (its surface had the padded suit&rsquo;s lumpy texture). Its size and shape are round 34&rsquo;s. Pick <em>Round 34</em> and <em>Round 35</em> and the <em>Head</em> camera to compare.</li>
-          <li>Round 34 &middot; <em>Hood:</em> fuller round the mask, as in the original 2012 shoot: from the front about 1&ndash;2&nbsp;cm of fur now shows beside the mask on each side at eye level, rolling back round its edge instead of ending flat, and the neck under the snout is about 19&nbsp;cm across (15&ndash;16&nbsp;cm before). <em>Top of the chest:</em> the hard ledge and corner under the chin are gone: the neckline was cut flat across the front of the chest, which stands about 10&nbsp;cm forward there; the top of the chest now curves smoothly from the neck down to the udders. Pick <em>Round 33</em> and <em>Round 34</em> to compare.</li>
-          <li>Round 33 &middot; <em>Checked against the original 2012 shoot:</em> the udders are rounder, as in the photos: the pair is about 2&nbsp;cm narrower (each cup&rsquo;s outer side 7&nbsp;mm further in) and each cup reaches a little lower, with the teats following; the tops are where they were. <em>Hem:</em> the bottom of the suit is 2.5&nbsp;cm higher at the front and sides (0.81&nbsp;m at the front, about 0.845&nbsp;m at the sides), so about 10&nbsp;cm of the briefs shows under the belly, as in the photos. Pick <em>Round 32</em> and <em>Round 33</em> to compare.</li>
-          <li>Round 32 &middot; <em>Hood:</em> the hood&rsquo;s neck now fans out a little at its base and lies over the suit&rsquo;s neckline, like a balaclava spreading onto the shoulders, instead of a plain tube going into the suit: about 2&nbsp;cm at the sides, less at the back, hardly at the front under the mask. <em>Udders and belly:</em> a little smaller in front: each udder stands out about 1&nbsp;cm less and is 4&nbsp;mm narrower and shorter, and the front of the belly is about 1&nbsp;cm less forward. The pear shape at the sides is unchanged. Pick <em>Round 31</em> and <em>Round 32</em> to compare.</li>
-          <li>Round 31 &middot; <em>Arms raised:</em> no more flaps under the arms: the original model&rsquo;s armpit hung below each lifted sleeve; the side now curves smoothly up into the shoulder. <em>Leg spots:</em> the spots that come from the approved front view are painted straight from it, so from the front they match the drawing: the inner-thigh spot is round, the outer-knee spot is one compact spot, and the two small spots at the outer hips show just under the briefs. Stray fragments at the right knee and shin are gone. <em>Black spots:</em> the patch at the back of the cow&rsquo;s left armpit and the strands under that arm are removed.</li>
-          <li>Round 30 &middot; <em>Armpits:</em> the small lumps between each cup and arm are gone: the body kept a nub at the front of each armpit, where the arm had joined it in the Tripo model; the side now runs straight down there. <em>Spots:</em> the small patch high on the cow&rsquo;s left shoulder and the one on the right side of the belly are removed. <em>Neck patch:</em> the patch the generated views put under the chin (in five pieces) is gone; from your photos it is one round shag patch on the cow&rsquo;s right upper chest, just above the right udder, about 13&nbsp;cm across.</li>
-          <li>Round 29 &middot; <em>Udders:</em> a narrow strip of white fur now runs down between the two cups, as on the costume, where they press together; each cup sits 8&nbsp;mm further out to make room. <em>Belly:</em> the pear shape is a little more pronounced: under the udders the sides come in about 1&nbsp;cm more, and the belly below is about 0.6&nbsp;cm fuller at each side, so from the front the step from the waist out to the belly is 4.1&nbsp;cm a side instead of 2.7&nbsp;cm.</li>
-          <li>Round 28 &middot; <strong>Udders:</strong> each cup is now a full pink globe, as in rounds 17 and 18: a stuffed ball sitting on the chest, pink all over, right round its sides and under it down to the seam where it meets the suit. Until now each cup was a raised panel grown out of the chest, so seen from the side its outer edge was a steep wall, and round 23 had fur over the top. The globes keep the approved fronts&rsquo; size and fullness (fitted to within about 1&nbsp;cm), the teats are where they were, and the head, hood and everything else are round 27&rsquo;s.</li>
-          <li>Round 27 &middot; <em>Head:</em> the padded suit top of round 26 is gone; it stood behind the hood as a hump. The real cause was where the head sat: since round 19 it was carried 5&nbsp;cm forward onto the deeper chest, in front of the shoulders, so the upper back rose behind it. Now the head sits over the shoulders as in rounds 17 and 18, and the hood is still a hood (no fill down the back). <em>Udders:</em> the pink used to run down the cup&rsquo;s steep outer side and end there in a saw-tooth edge, so from the side it looked like a flat pink wall. The pink now ends partway round the side in one clean seam, and below it the fur rounds the cup&rsquo;s flank into the body. The cups&rsquo; fronts, teats and undersides are as before.</li>
-          <li>Round 26 &middot; <strong>Hood:</strong> the hood is a hood again, as in rounds 17 and 18: the round back of the head over a snug neck that tucks into the suit&rsquo;s neckline. Since round 19 its back had been filled down to the shoulders in one straight slope, so hood and back read as one smoothed shape. The suit&rsquo;s top is padded like round 18&rsquo;s: the upper back stays full up to the neckline (it used to slope 8.5&nbsp;cm in towards the neck over its last 8&nbsp;cm of height; now 5&nbsp;cm, round 18 2.7&nbsp;cm), and the shoulders beside the neck are 2&nbsp;cm fuller, so the hood sits on a bigger costume. The shoulders still fall away to the sides as in the approved views. Everything else is round 25&rsquo;s.</li>
-          <li>Round 25 &middot; <strong>Sides and briefs:</strong> the costume's sides come in a little under the udders and the belly swells out below, as in the original shoot (4 of 15), instead of one straight wall. The briefs pass under the crotch between the legs again: a gusset runs down the middle from front to back, and the seat's cleft is a soft crease that the fabric bridges. With the arms raised there are no more holes under the arms: the body stays solid where the arm is trimmed back to the rounded shoulder.</li>
-          <li>Round 24 &middot; <strong>Udders pink underneath:</strong> the udders are pink all the way under: each stuffed cup's underside is cloth right down to the seam where it meets the belly, with no more fur under them. The fur still covers the tops as in round 23. The cups' outer sides now round back onto the body instead of rising as a cliff, and the bulge fades where the chest turns to face sideways, so no pink edge stands out beside the body.</li>
-          <li>Round 23 &middot; <strong>Fur over the udders:</strong> the white fur now comes right up to each stuffed cup, as on the empty suit: pink shows only on the cup itself, a teardrop, and the fur covers the swelling round its top and outer edge, meeting the cloth flush at the seam. There is no more pink spreading over the upper chest towards the shoulders. The right-hand udder's outer teat (as you look at her) is lowered to the same height as the left-hand one's.</li>
-          <li>Round 22 &middot; <strong>Teats:</strong> the teats are placed as they were sewn on in the original shoot (close-ups in shots 4 and 5 of 15). They sit on the cloth itself rather than at the rim of each cup. The lower teat is low and a little inside of centre, hanging down and slightly forward; the outer one is on the cup's lower outer face, pointing out and forward (the cow's left one tilts up). They are shorter (about 6 cm), droop a little along their length, and differ slightly between the two sides, as hand-sewn ones do.</li>
-          <li>Round 21 &middot; <strong>Udders:</strong> the udders are sized and stuffed as in the original photo shoot (shots 4 to 7 of 15), where the approved views drew them too small and too flat. Each is now about 22 cm wide and 24 cm tall, the pair filling the chest and meeting in the middle, and they are stuffed into full, round globes that stand out about 15 cm from the chest, heaviest low down. They are still sewn into the fur, with their teats re-seated.</li>
-          <li>Round 20 &middot; <strong>Arms raised, spots and lighting:</strong> <em>Arms raised</em> (next to Compare) shows the same model with its arms lifted, so you can see the black fur under them. As on the real suit, the stuffed body keeps its shape: its shoulders are rounded, and the unstuffed sleeves turn out of them like a ball in a socket, with no folds. The white spots on the leggings are now each taken whole from the approved view that sees them most squarely, with the drawing's own brushed outline, and laid round the leg (spots seen side-on are no longer smeared or squashed). Lighting has five new rigs (Daylight, Golden hour, Moonlight, Stage, Backlit) and an <em>Adjust</em> row: brightness, turning the lights round the figure, raising or lowering them, cast shadows, and a choice of backdrop.</li>
-          <li>Round 19 &middot; <strong>The new body:</strong> a new body. Its shape comes from your Tripo model, cleaned of Tripo's lumpy surface and fitted height by height to the outline of your four approved generated views. The legs keep the original photos' length. The revisions answer your notes. The head sits up on a visible throat, looking ahead, the hood falls straight from the crown to the shoulders at the back, and the shoulders slope away from the neck. Below the cups the midsection is now a stuffed sack, built like the empty suit in your photo: full and round down to a lower hem, with no waist and no bustle, over a round seat in the briefs; the bow sits just above the hem. Under the suit there is a person: the hips and thighs are a wearer's own, meeting in a soft groin crease. The udders are pink cloth panels sewn into holes in the fur and stuffed from behind, so they swell out of the suit with flush, stitched edges. The lower legs taper cleanly to a slim ankle, the heels stand on the slippers' footbeds, and the black shag and the leggings' white spots are clean tufted and painted shapes, in the approved views' layout. Your mask, horns, hood, gloves and slippers are unchanged. It has no rig yet, so it stands in the default pose; the animations come next. Compare it with rounds 17 and 18 under the picture.</li>
-          <li>Round 18 &middot; <strong>Proportions from the original shoot:</strong> measured on the two full-length photos of the original session (0077 and &ldquo;5 of 15&rdquo;). The legs are 4&nbsp;cm longer, so the crotch sits at 46.7&nbsp;% of her height (45&ndash;48&nbsp;% in the photos, 43.7&nbsp;% before), and the bottom of the belly is 7.6&nbsp;cm higher at the front (52.5&nbsp;%; 52&ndash;53&nbsp;% in the photos, 47.9&nbsp;% before), so about 9&nbsp;cm of the briefs shows under it. Only the lower half of the belly changed: the cups, teats, arms and head are exactly as they were, she is still 1.60&nbsp;m tall, and the back keeps the shape you approved. The black belly patch now sits under the teats, as in the photos. The thighs meet the belly less in Walk, Run and Sneak; sitting down, the side of the belly brushes the thighs 0.5&nbsp;mm more than before. Pick <em>Round 17</em> and <em>Round 18</em> under the picture to see them side by side or overlaid, with height lines for each round&rsquo;s crotch and belly: <span class="swatch" style="background:#c27c0e"></span>round 17 and <span class="swatch" style="background:#3f73e0"></span>round 18.</li>
-          <li>Earlier &middot; <strong>Gloves:</strong> now your own glove model at its real size: the cream terry mitten with its thumb, and the two black painted toe caps with their brush strokes and beaded rim. Each toe moves on its own, pivoting at the finger web: they curl together as before, and now part in a V like a Vulcan salute (see the arm fling in <em>Exasperated</em>). The thumb still bends on its own. The top of the palm bends with the toes, so no gap opens at the knuckles. The ambient occlusion baked into the glove's colour map is divided back out, so the viewer does all the shading.</li>
-          <li>Earlier &middot; <strong>Sitting:</strong> <em>Crouch and sit</em> is replaced by <em>Sit cross-legged</em>. She steps one foot across the other, sinks down with her knees falling open, reaches back and lands heavily cross-legged, leans back with the belly resting on her legs, slumps with her forearms on her knees and sighs, then pushes up and steps out of it. In the old version the thighs went 5&ndash;6&nbsp;cm up through the belly and hem, the seat sank into the floor and the arms pressed into the cups. New helper bones let the front of the hem ride up over a lifted thigh, as the fabric would. Now the belly stays within about 3&nbsp;mm of the legs and the arms within 2&nbsp;mm of the cups, and she sits on the floor, not in it. The other animations are unchanged.</li>
-          <li>Earlier &middot; <strong>Slippers:</strong> now your own model of the real slippers: open-back cow mules with the white muzzle, smile and magenta nostrils, horns, ears with pearls, cream chenille head and black fringe. Because the heel is open, the tights now end in a black-socked foot standing on the footbed.</li>
-          <li>Earlier &middot; <strong>Underwear joins in the middle:</strong> the back panel now runs down the centre into the crotch in one piece, so no strip of tights shows between the cheeks.</li>
-          <li><strong>Gloves rebuilt:</strong> each glove is rebuilt as one smooth solid from your Tripo glove, with the same shape, thumb, hooves and texture but without the spiky edges, and with a clean round cuff that fits inside the sleeve instead of the ragged wrist.</li>
-          <li>Earlier &middot; <strong>Underwear:</strong> the briefs are now grown from the tights' own surface, so they wrap them closely and move with them instead of floating. The leg openings are one smooth curve round each thigh, with no sharp corners front or back, and the sides sit lower, so the side panel shows below the belly from the front and while walking. The rolled hems tuck down onto the tights. The back keeps the shape you approved.</li>
-          <li>Earlier &middot; <strong>Sides of the belly:</strong> the crease and bright spots down each side when the arms are raised are gone. The torso and inner sleeves were shaded as if the arm still hung against them.</li>
-          <li><strong>No baked shadows:</strong> the model no longer carries any shading of its own; the dark band under the arms and the grey under the cups were baked in. All light and shadow now come from the viewer. Try the four rigs under <em>Light</em>.</li>
-          <li><strong>Black shag:</strong> the patches are now grown as real strands instead of flat lock cards, which read as feathers. Each lock is a clump of about ten thin, tapered strands that leave the suit at an angle, droop and gather at the tip, over a short, tangled undercoat that gives the patch its volume. A few loose strays break up the outline. The strands are solid tubes, so they look the same from every side.</li>
-          <li>Round 11 &middot; <strong>Underwear:</strong> the front is now cut like full briefs, from your reference photos and videos: each leg line runs from high on the hip down to a narrow gusset, so the front panel narrows into the crotch and the tights show in a V on each thigh. The back is unchanged.</li>
-          <li><strong>Belly:</strong> the sides are rounded off, and the hem rises gently round the sides instead of cutting the belly off on a diagonal.</li>
-          <li><strong>Teats:</strong> the holes at the tips of the two forward teats are closed.</li>
-          <li>Round 10: separated legs, underwear that follows the hips and crotch, the wrist flare, and hoof and thumb motion.</li>
-          <li>Tripo round: Blue Shirt&rsquo;s udders, belly and hips; Shy Cow&rsquo;s hooves, sleeve folds and knitted slippers with black socks.</li>
-          <li>Earlier: the tube on the mask&rsquo;s top edge, lower and slimmer shoulders without a seam line, the crotch fix, the alt set with level eyes, and the mood animations.</li>
+          <li><strong>Round 41:</strong> <em>Hands:</em> a relaxed hand now hangs straight down from the wrist, so the hooves point down at rest and dangle as the arms swing; before, each hand tipped forward at the wrist, so the hooves pointed forward and up. Hands that are doing something (claps, the hooves at the eyes or the brow, the running pump, the arms overhead) keep their set angle. <em>Spots:</em> the thin black sliver on the cow&rsquo;s right side beside the udder, and the small black flecks next to the big patch on the back, are gone. <em>Horn:</em> the cow&rsquo;s left horn has the real horn&rsquo;s second black ring, just above the middle one. <em>Idle</em> now loops in full in this viewer (it is 8 seconds long; the viewer was cutting it at 4). Only rounds 40 and 41 remain; pick <em>Round 40</em> to compare.</li>
+          <li>Round 40 &middot; <strong>Teats and armpits:</strong> <em>Teats:</em> no more twitching. The two lower teats hang just above the belly, and they were being pushed off it and springing back on every frame, so they flickered, most of all in Sneak. They now rest against the belly and swing smoothly. <em>Armpits:</em> with the arms raised (Jumping jacks, Look around, the Chicken dance) the costume no longer bunches into a flap and a shelf at each armpit. The stuffed body now stays put at the shoulder, the sleeve turns in it like a ball in a socket, and the body&rsquo;s side runs smoothly up into the shoulder as each arm lifts.</li>
+          <li>Round 39 &middot; <strong>Less robotic:</strong> <em>Less robotic:</em> every clip now moves like a person inside the suit rather than a machine. The body no longer moves in lockstep: the chest follows the hips a moment later, the head follows the chest, and the arms trail and settle with a little overshoot after quick moves. Left and right are no longer mirror images, and a slow, gentle sway means she is never perfectly still. She breathes, and in the walks her head floats steadily over the step instead of nodding with it. The relaxed arms hang against the belly instead of being held out like a mannequin&rsquo;s. <em>Idle</em> is new: 8 seconds of standing about, settling her weight onto one leg and then the other, glancing aside and fidgeting with a hoof. <em>Walk:</em> the body is lowest just after each step lands and highest over the standing leg (it was the other way round). <em>Jumping Jacks:</em> no two jacks are alike, and she tires a little.</li>
+          <li>Round 38 &middot; <strong>Rigged:</strong> <em>The rig:</em> the round 37 body now has round 18&rsquo;s 58-joint skeleton and all 18 animations (11 clips and 7 alt versions), with the baked physics: the udders, belly, teats, black shag and tail cord swing as before. Changes for the new body: the pink cloth of each udder and the fur round it now move as one, so the seam never opens when the cups bounce; the stuffed sack under the udders moves with the chest, so the teats no longer dip into the belly; the hem helpers fit the lower round 37 hem, so the belly rides up over a raised knee in Run, Sneak and Sit Cross-Legged; and four arm moves were adjusted so the arms clear the bigger udders (Crying&rsquo;s hooves come up to the eyes from further in front, the face-palm and the claps lift the elbows higher, and the Wings fists sit 4&nbsp;cm further forward). <em>Arms raised</em> still shows rounds 25 to 37; round 38 raises its arms in the clips.</li>
+          <li>Earlier rounds (1 to 37) built the costume from the 2012 photo shoot, your Tripo model and the four approved views: the body, udders, hood, mask, gloves, slippers, shag and spots. Their models have been removed; they stay in the project&rsquo;s git history.</li>
         </ul>
       </section>
       <section>
@@ -302,14 +241,6 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         </div>
         <p class="note">Round 18; round 17&rsquo;s readings for the two leg columns are in brackets, measured the same way on a rebuild of round 17. Depths are 99.5th percentiles over every frame, counting only surface you can see (the tops of the tights and briefs tucked inside the suit are left out). In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is the tops of the thighs meeting the belly at the highest knee lifts; with the higher belly of round 18 it is 10&ndash;45&nbsp;% lower than before wherever they meet.</p>
       </section>
-      <figure>
-        <img src="head.jpg" alt="The real mask and hood photographed from the front, quarter and side, each beside the matching v10 render">
-        <figcaption>Mask and hood photos &middot; matching v10 views</figcaption>
-      </figure>
-      <figure>
-        <img src="compare.jpg" alt="Two original shoot photos beside the v09 render and the round-18 v10 front and quarter renders">
-        <figcaption>Original shoot (0077, 0120) &middot; v09 before &middot; v10 round 18</figcaption>
-      </figure>
     </aside>
   </div>
 </div>
@@ -334,14 +265,13 @@ const scrub = document.getElementById('scrub');
 const timeEl = document.getElementById('time');
 const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
-// Round 18 is the main, animated model; round 17 (animated) and rounds 25 and 28 to 37 (static) load on first use.
-// Any of the three can be shown alone, side by side (oldest on the left) or overlaid (newest solid, the others as ghosts).
-const ROUNDS = ['r17', 'r18', 'r25', 'r28', 'r29', 'r30', 'r31', 'r32', 'r33', 'r34', 'r35', 'r36', 'r37', 'r38', 'r39', 'r40'];
-const COLORS = { r17: '#c27c0e', r18: '#3f73e0', r25: '#d23a4a', r28: '#1f8f5a', r29: '#8e44ad', r30: '#00838f', r31: '#b8860b', r32: '#c2185b', r33: '#e65100', r34: '#5d4037', r35: '#00897b', r36: '#ad1457', r37: '#283593', r38: '#2e7d32', r39: '#6a1b9a', r40: '#00838f' };
-const NAMES = { r17: 'Round 17', r18: 'Round 18', r25: 'Round 25', r28: 'Round 28', r29: 'Round 29', r30: 'Round 30', r31: 'Round 31', r32: 'Round 32', r33: 'Round 33', r34: 'Round 34', r35: 'Round 35', r36: 'Round 36', r37: 'Round 37', r38: 'Round 38', r39: 'Round 39', r40: 'Round 40' };
-let mainRoot = null, shown = ['r18'], layout = 'side', guidesOn = false, currentView = 'front';
+// Round 41 is the main model; round 40 loads on first use, to compare (side by side or overlaid).
+const ROUNDS = ['r40', 'r41'];
+const COLORS = { r40: '#00838f', r41: '#c2185b' };
+const NAMES = { r40: 'Round 40', r41: 'Round 41' };
+let mainRoot = null, shown = ['r41'], layout = 'side', guidesOn = false, currentView = 'front';
 const SPACING = 0.94;                      // side by side: distance between neighbouring figures (m)
-const LABELS = { r17: document.getElementById('lab17'), r18: document.getElementById('lab18'), r25: document.getElementById('lab25'), r28: document.getElementById('lab28'), r29: document.getElementById('lab29'), r30: document.getElementById('lab30'), r31: document.getElementById('lab31'), r32: document.getElementById('lab32'), r33: document.getElementById('lab33'), r34: document.getElementById('lab34'), r35: document.getElementById('lab35'), r36: document.getElementById('lab36'), r37: document.getElementById('lab37'), r38: document.getElementById('lab38'), r39: document.getElementById('lab39'), r40: document.getElementById('lab40') };
+const LABELS = { r40: document.getElementById('lab40'), r41: document.getElementById('lab41') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -444,6 +374,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(stage); resize();
 
+let tAll = 0;          // round 41: the shared clock; each round loops at its own clip's length
 let mixer = null, action = null, playing = true, clipName = 'Idle', baseName = 'Idle', alt = false;
 const clipMap = {};
 const restPose = [];   // every bone's rest transform, recorded at load (the default pose)
@@ -492,13 +423,8 @@ async function load(base, useMeshopt) {
 
 async function start() {
   let gltf;
-  try {
-    await MeshoptDecoder.ready;
-    gltf = await load('cow-meshopt', true);
-  } catch (e) {
-    status.textContent = 'Loading the simplified copy (17.9 MB)...';
-    gltf = await load('cow-plain', false);
-  }
+  await MeshoptDecoder.ready;
+  gltf = await load('cow-r41-meshopt', true);
   const root = gltf.scene;
   prepare(root, meshes, restPose);
   mainRoot = root;
@@ -509,7 +435,7 @@ async function start() {
   selectClip('Idle');                // open on Idle, not the Chicken Dance
   status.hidden = true;
   enableCompare(true);
-  setRounds(['r40']);               // open on the newest round: round 40
+  setRounds(['r41']);               // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -528,39 +454,13 @@ function prepare(root, list, rest) {
   });
 }
 
-// Other rounds, loaded the first time they are shown.  Round 18 is the main, animated model; round 25 is a
-// static preview of the new body (no rig yet, so it stands in the default pose); round 17 is the one before 18.
-const FIGS = { r17: { file: 'cow-r17-meshopt', mb: 16.7, f: null, loading: null },
-               r25: { file: 'cow-r25-meshopt', mb: 12.6, f: null, loading: null, name: '25' },
-               r25up: { file: 'cow-r25-up-meshopt', mb: 12.6, f: null, loading: null, name: '25 (arms raised)' },
-               r28: { file: 'cow-r28-meshopt', mb: 12.6, f: null, loading: null, name: '28' },
-               r28up: { file: 'cow-r28-up-meshopt', mb: 12.7, f: null, loading: null, name: '28 (arms raised)' },
-               r29: { file: 'cow-r29-meshopt', mb: 12.6, f: null, loading: null, name: '29' },
-               r29up: { file: 'cow-r29-up-meshopt', mb: 12.6, f: null, loading: null, name: '29 (arms raised)' },
-               r30: { file: 'cow-r30-meshopt', mb: 12.5, f: null, loading: null, name: '30' },
-               r30up: { file: 'cow-r30-up-meshopt', mb: 12.5, f: null, loading: null, name: '30 (arms raised)' },
-               r31: { file: 'cow-r31-meshopt', mb: 12.5, f: null, loading: null, name: '31' },
-               r31up: { file: 'cow-r31-up-meshopt', mb: 12.5, f: null, loading: null, name: '31 (arms raised)' },
-               r32: { file: 'cow-r32-meshopt', mb: 12.4, f: null, loading: null, name: '32' },
-               r32up: { file: 'cow-r32-up-meshopt', mb: 12.4, f: null, loading: null, name: '32 (arms raised)' },
-               r33: { file: 'cow-r33-meshopt', mb: 12.5, f: null, loading: null, name: '33' },
-               r33up: { file: 'cow-r33-up-meshopt', mb: 12.5, f: null, loading: null, name: '33 (arms raised)' },
-               r34: { file: 'cow-r34-meshopt', mb: 12.5, f: null, loading: null, name: '34' },
-               r34up: { file: 'cow-r34-up-meshopt', mb: 12.5, f: null, loading: null, name: '34 (arms raised)' },
-               r35: { file: 'cow-r35-meshopt', mb: 12.5, f: null, loading: null, name: '35' },
-               r35up: { file: 'cow-r35-up-meshopt', mb: 12.5, f: null, loading: null, name: '35 (arms raised)' },
-               r36: { file: 'cow-r36-meshopt', mb: 12.5, f: null, loading: null, name: '36' },
-               r36up: { file: 'cow-r36-up-meshopt', mb: 12.5, f: null, loading: null, name: '36 (arms raised)' },
-               r37: { file: 'cow-r37-meshopt', mb: 12.5, f: null, loading: null, name: '37' },
-               r37up: { file: 'cow-r37-up-meshopt', mb: 12.5, f: null, loading: null, name: '37 (arms raised)' },
-               r38: { file: 'cow-r38-meshopt', mb: 15.1, f: null, loading: null, name: '38' },     // round 38: animated, plays round 18's clip
-               r39: { file: 'cow-r39-meshopt', mb: 15.1, f: null, loading: null, name: '39' },     // round 39: the same, less robotic
-               r40: { file: 'cow-r40-meshopt', mb: 15.3, f: null, loading: null, name: '40' } };   // round 40: steady teats, clean armpits
+// Round 40, loaded the first time it is shown; it plays the clip picked, each round on its own clock.
+const FIGS = { r40: { file: 'cow-r40-meshopt', mb: 15.3, f: null, loading: null, name: '40' } };
 // rounds 25 and 28 to 37 can stand with their arms lifted (a second static model each, swapped in its place)
 let armsUp = false;
-const STATIC = ['r25', 'r28', 'r29', 'r30', 'r31', 'r32', 'r33', 'r34', 'r35', 'r36', 'r37'];   // no rig yet: they stand in the default pose
+const STATIC = [];   // every round shown is animated
 const figKey = k => (STATIC.includes(k) && armsUp) ? k + 'up' : k;
-const ALLK = ['r17', 'r18', 'r25', 'r25up', 'r28', 'r28up', 'r29', 'r29up', 'r30', 'r30up', 'r31', 'r31up', 'r32', 'r32up', 'r33', 'r33up', 'r34', 'r34up', 'r35', 'r35up', 'r36', 'r36up', 'r37', 'r37up', 'r38', 'r39', 'r40'];
+const ALLK = ['r40', 'r41'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
@@ -608,33 +508,15 @@ function sideCount() { return layout === 'side' ? shown.length : 1; }   // figur
 // in an overlay the newest round shown is solid and the others are ghosts in their own colour
 const ghostOf = k => layout === 'overlay' && shown.length > 1 && shown.includes(k) && k !== shown[shown.length - 1];
 const xOf = k => sideCount() > 1 ? (shown.indexOf(k) - (shown.length - 1) / 2) * SPACING : 0;
-const rootOf = k => k === 'r18' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
-const meshesOf = k => k === 'r18' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
+const rootOf = k => k === 'r41' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
+const meshesOf = k => k === 'r41' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
 const modeKey = k => k.endsWith('up') ? k.slice(0, -2) : k;          // which round a figure belongs to
 const list = ks => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] : ks[0];
 function describe() {
-  const num = shown.map(k => k.slice(1));
-  const st = shown.filter(k => STATIC.includes(k)).map(k => k.slice(1));
-  const still = st.length ? ` Round${st.length > 1 ? 's' : ''} ${list(st)} ${st.length > 1 ? 'have' : 'has'} no rig yet, so ${st.length > 1 ? 'they stand' : 'it stands'} in the default pose.` : '';
-  if (shown.length === 1) return {
-    r25: 'Round 25: the sides dip in under the udders before the belly swells out, and the briefs pass under the crotch again. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.',
-    r40: 'Round 40: round 39 with steady teats (no more flickering in Sneak and the other clips) and clean armpits: with the arms raised the costume no longer bunches into a flap at each armpit.',
-    r39: 'Round 39: the same rig, with the animations made less robotic: the body moves in overlapping waves instead of in lockstep, the arms hang naturally and swing with a little drag, she breathes and sways, the head floats over the walk, and Idle is a new 8-second clip with weight shifts and a glance.',
-    r38: 'Round 38: the round 37 body rigged and animated, with every clip of round 18 (standard and alt) and its physics: the udders, belly, teats, black shag and tail swing, and the stuffed body stays rigid while the sleeves turn in the rounded shoulders.',
-    r37: 'Round 37: round 33’s neck shape, widening gently into the shoulders, going down into the costume through round 36’s neckline.',
-    r36: 'Round 36: a slim hooded neck going down into the costume through a rolled neckline, instead of one soft mound from the shoulders to the head.',
-    r35: 'Round 35: the hood cleaned up: its edge round the mask rounded over, no crease under the jaw, and smoother fleece.',
-    r34: 'Round 34: the hood fuller round the mask and at the neck, as in the 2012 shoot, and the top of the chest rounded where it had a hard ledge under the chin.',
-    r33: 'Round 33: rounder udders and a higher hem, as in the original 2012 shoot.',
-    r32: 'Round 32: the hood fans out a little over the suit at the neck, and the udders and the front of the belly are a little smaller.',
-    r31: 'Round 31: no flaps under the raised arms, the leg spots as in the approved front view, and the black spots under the left arm removed.',
-    r30: 'Round 30: no lumps in the armpits, two stray spots removed, and the neck patch moved to the right upper chest as on the costume.',
-    r29: 'Round 29: a strip of white fur between the udders, and a slightly more pronounced pear shape at the sides of the belly.',
-    r28: 'Round 28: the udders are full pink globes, and the head sits over the shoulders with a proper hood, as in rounds 17 and 18. Arms raised shows the fur under the arms. A static preview: it stands in the default pose until its rig is rebuilt.',
-    r18: 'Round 18, animated.', r17: 'Round 17, animated.' }[shown[0]];
-  if (layout === 'side') return `Rounds ${list(num)} side by side, oldest on the left.` + still;
-  const solid = num[num.length - 1], ghosts = num.slice(0, -1);
-  return `Round ${solid} solid, with round${ghosts.length > 1 ? 's' : ''} ${list(ghosts)} as ${ghosts.length > 1 ? 'coloured ghosts' : 'a ghost'}.` + still + ' Pick Default pose so they all stand the same way.';
+  if (shown.length === 1) return shown[0] === 'r41'
+    ? 'Round 41: relaxed hands, three black spots removed, the horn ring, and Idle looping in full.'
+    : 'Round 40: steady teats and clean armpits.';
+  return layout === 'side' ? 'Rounds 40 and 41 side by side, round 40 on the left.' : 'Round 41 solid, with round 40 as a ghost.';
 }
 function refreshButtons() {
   document.querySelectorAll('#versions button[data-round]').forEach(b => b.setAttribute('aria-pressed', String(shown.includes(b.dataset.round))));
@@ -647,7 +529,7 @@ function refreshButtons() {
 async function setRounds(next, nextLayout = layout) {
   next = ROUNDS.filter(k => next.includes(k));
   if (!next.length) return;
-  for (const k of next) if (k !== 'r18' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
+  for (const k of next) if (k !== 'r41' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
   const wasMulti = shown.length > 1;
   shown = next; layout = nextLayout;
   for (const k of ALLK) {
@@ -685,38 +567,10 @@ armsBtn.addEventListener('click', async () => {
 
 // Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
 const GUIDES = [
-  { y: 0.708, text: 'R17 crotch 0.71 m', round: 'r17' },
-  { y: 0.767, text: 'R17 belly 0.77 m', round: 'r17' },
-  { y: 0.747, text: 'R18 crotch 0.75 m', round: 'r18' },
-  { y: 0.840, text: 'R18 belly 0.84 m', round: 'r18' },
-  { y: 0.747, text: 'R25 crotch 0.75 m', round: 'r25' },
-  { y: 0.785, text: 'R25 belly 0.785 m', round: 'r25' },
-  { y: 0.747, text: 'R28 crotch 0.75 m', round: 'r28' },
-  { y: 0.785, text: 'R28 belly 0.785 m', round: 'r28' },
-  { y: 0.747, text: 'R29 crotch 0.75 m', round: 'r29' },
-  { y: 0.785, text: 'R29 belly 0.785 m', round: 'r29' },
-  { y: 0.747, text: 'R30 crotch 0.75 m', round: 'r30' },
-  { y: 0.785, text: 'R30 belly 0.785 m', round: 'r30' },
-  { y: 0.747, text: 'R31 crotch 0.75 m', round: 'r31' },
-  { y: 0.785, text: 'R31 belly 0.785 m', round: 'r31' },
-  { y: 0.747, text: 'R32 crotch 0.75 m', round: 'r32' },
-  { y: 0.785, text: 'R32 belly 0.785 m', round: 'r32' },
-  { y: 0.747, text: 'R33 crotch 0.75 m', round: 'r33' },
-  { y: 0.811, text: 'R33 belly 0.81 m', round: 'r33' },
-  { y: 0.747, text: 'R34 crotch 0.75 m', round: 'r34' },
-  { y: 0.811, text: 'R34 belly 0.81 m', round: 'r34' },
-  { y: 0.747, text: 'R35 crotch 0.75 m', round: 'r35' },
-  { y: 0.811, text: 'R35 belly 0.81 m', round: 'r35' },
-  { y: 0.747, text: 'R36 crotch 0.75 m', round: 'r36' },
-  { y: 0.811, text: 'R36 belly 0.81 m', round: 'r36' },
-  { y: 0.747, text: 'R37 crotch 0.75 m', round: 'r37' },
-  { y: 0.811, text: 'R37 belly 0.81 m', round: 'r37' },
-  { y: 0.747, text: 'R38 crotch 0.75 m', round: 'r38' },
-  { y: 0.811, text: 'R38 belly 0.81 m', round: 'r38' },
-  { y: 0.747, text: 'R39 crotch 0.75 m', round: 'r39' },
-  { y: 0.811, text: 'R39 belly 0.81 m', round: 'r39' },
   { y: 0.747, text: 'R40 crotch 0.75 m', round: 'r40' },
   { y: 0.811, text: 'R40 belly 0.81 m', round: 'r40' },
+  { y: 0.747, text: 'R41 crotch 0.75 m', round: 'r41' },
+  { y: 0.811, text: 'R41 belly 0.81 m', round: 'r41' },
 ];
 GUIDES.forEach(gd => { gd.color = COLORS[gd.round]; });
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
@@ -812,7 +666,7 @@ function selectClip(name) {
   scrub.disabled = false;
   clipName = name;
   action = mixer.clipAction(clipMap[name]);
-  action.reset().play();
+  action.reset().play(); tAll = 0;
   scrub.max = clipMap[name].duration.toFixed(2);
   syncFigClips();
 }
@@ -829,7 +683,7 @@ playBtn.addEventListener('click', () => {
   playBtn.textContent = playing ? 'Pause' : 'Play';
   playBtn.setAttribute('aria-pressed', String(playing));
 });
-function seek(t) { if (!mixer || !action) return; action.time = t; mixer.update(0); }
+function seek(t) { if (!mixer || !action) return; action.time = t; tAll = t; mixer.update(0); }
 scrub.addEventListener('input', () => { seek(parseFloat(scrub.value)); });
 document.querySelectorAll('#phases button').forEach(b => b.addEventListener('click', () => {
   const k = clipMap[clipName].duration / 12;          // the alt dance plays slower
@@ -903,15 +757,16 @@ const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
   if (mixer && action) {
-    if (playing) mixer.update(dt);
+    if (playing) { mixer.update(dt); tAll += dt; }
     const dur = clipMap[clipName].duration;
     const t = action.time % dur;
     scrub.value = t.toFixed(2);
     timeEl.textContent = t.toFixed(2) + ' s';
     phaseNow.textContent = clipName.startsWith('Chicken Dance') ? PHASES[Math.min(3, Math.floor(t / (dur / 4)))] : clipName;
   }
-  for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = action.time; F.f.mixer.update(0); }
-  phaseNow.hidden = !(shown.includes('r18') || shown.includes('r17'));   // rounds 25 and 28 to 37 have no animation yet
+  // round 41: each round runs on the same clock but loops at its own clip's length (round 18's 4 s Idle used to cut the
+  // newer 8 s Idle off half-way)
+  for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = tAll % F.f.action.getClip().duration; F.f.mixer.update(0); }
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);
