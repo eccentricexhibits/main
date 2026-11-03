@@ -63,6 +63,8 @@ HEM_GAIN, HEM_FREE, HEM_SOFT = 1.2, .2, .08
 # cup buried its first 2-3 cm (up to 16 mm deep) while the two outer checks were still clear
 TEAT_CHECKS = (.35, .55, 1.0)
 HANG_MAX = np.deg2rad(55.)          # round 41: how far a relaxed hand turns from the forearm's line at most
+SHOULDER_FOLLOW = tuple(float(x) for x in __import__('os').environ.get('COW_SHOULDER_FOLLOW', '.55,.5').split(','))
+SHOULDER_MAX = np.deg2rad(float(__import__('os').environ.get('COW_SHOULDER_MAX', '55')))
 HANG_FADE = (.25, -.35)             # round 42: the hang fades in as the forearm's direction goes from this far up to this far down
 
 _SOLE = None
@@ -486,11 +488,28 @@ class Dance:
             G[a['fore'], :3, :3] = Rf; G[a['fore'], :3, 3] = elbow
             G[a['hand'], :3, :3] = Rhand; G[a['hand'], :3, 3] = wrist
             half = lambda A, Bm: Slerp([0, 1], Rotation.from_matrix([A, Bm]))([.5]).as_matrix()[0]
-            G[RG.ROOT_HALF[side], :3, :3] = half(G[a['shoulder'], :3, :3], Ru); G[RG.ROOT_HALF[side], :3, 3] = sh
+            # round 43: the shoulder helper turns with part of the upper arm's swing away from its rest direction, in the
+            # shoulder's frame: SHOULDER_FOLLOW[0] of the forward/back part (about the body's side-to-side axis), [1] of the
+            # rest (out to the side and up), none of its twist, at most SHOULDER_MAX.  The body round the shoulder and the
+            # sleeve's root share it (rig.CAP_W, SLEEVE_ROOT_W).  Round 18-42: half the arm's whole turn (unused since 40).
+            Rs = G[a['shoulder'], :3, :3]
+            d0 = bu / np.linalg.norm(bu); dn = (Rs.T @ Ru) @ d0
+            ax = np.cross(d0, dn); sn = np.linalg.norm(ax)
+            om = ax / sn * np.arctan2(sn, d0 @ dn) if sn > 1e-9 else np.zeros(3)
+            hv = SHOULDER_FOLLOW[0] * om[0] * np.array([1., 0, 0]) + SHOULDER_FOLLOW[1] * (om - om[0] * np.array([1., 0, 0]))
+            hn = np.linalg.norm(hv)
+            if hn > 1e-9:
+                hv *= SHOULDER_MAX * np.tanh(hn / SHOULDER_MAX) / hn
+            G[RG.ROOT_HALF[side], :3, :3] = Rs @ (rot(hv, np.linalg.norm(hv)) if np.linalg.norm(hv) > 1e-9 else np.eye(3))
+            G[RG.ROOT_HALF[side], :3, 3] = sh
             G[RG.ELBOW_HALF[side], :3, :3] = half(Ru, Rf); G[RG.ELBOW_HALF[side], :3, 3] = elbow
             fd = bf / np.linalg.norm(bf)
             knuckle = np.cross(fd, [-s, 0, 0]); knuckle /= np.linalg.norm(knuckle)
-            sign = 1 if (rot(knuckle, .3) @ fd) @ np.array([-s, 0, 0]) > 0 else -1
+            # round 43: which way about the knuckle line curls the toes towards the palm.  Until round 42 this compared the
+            # turned finger line's dot with the palm normal against zero, but the two are not at right angles (the dot is
+            # about -.5 at rest), so it always chose the other way: every "curl" bent the hooves back, away from the palm
+            # (the resting hooves looked bent outwards, the Wings fists and the running pump were bent back)
+            sign = 1 if (rot(knuckle, .3) @ fd) @ np.array([-s, 0, 0]) > fd @ np.array([-s, 0, 0]) else -1
             fing, thmb = p['fingers'], p['thumb']
             fing += dyn.get('fing', {}).get(side, 0.) + self.drift(t, side, 0)
             thmb += dyn.get('thmb', {}).get(side, 0.) + self.drift(t, side, 1)
@@ -560,7 +579,7 @@ class Dance:
             fd = self.B[a['hand']] - self.B[a['fore']]; fd /= np.linalg.norm(fd)
             pn = np.array([-s, 0, 0.])
             knuckle = np.cross(fd, pn); knuckle /= np.linalg.norm(knuckle)
-            sign = 1 if (rot(knuckle, .3) @ fd) @ pn > 0 else -1
+            sign = 1 if (rot(knuckle, .3) @ fd) @ pn > fd @ pn else -1        # round 43: as in pose
             n_world = np.einsum('tij,j->ti', R, pn)
             a_n = np.einsum('ti,ti->t', acc, n_world)
             for key, axis, sgn, g1, g2 in [('fing', knuckle, sign, .9, .55),

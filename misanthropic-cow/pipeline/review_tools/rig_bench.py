@@ -121,6 +121,17 @@ def data_dict(d, names=None):
     return out
 
 
+def transition(name):
+    """Round 43: how to blend into this clip from another (glTF extras; the viewer does the same).  'phase': a gait
+    whose loop starts at the left heel strike, so from another gait (or the same clip's other style) start it at the
+    same share of its loop; 'start': start it from its beginning, a standing pose, as every other clip begins and ends."""
+    cls = {c.name: c for c in clip_classes()}[name]
+    sync = getattr(cls, 'SYNC', 'start')
+    return {'sync': sync, 'blend_seconds': .45 if sync == 'phase' else .8,
+            'note': 'gaits start at the left heel strike; blend between gaits at the same share of the loop' if sync == 'phase'
+            else 'starts and ends standing; blend in from its start, or out at the end of a loop'}
+
+
 def write_glb(d, out):
     import clips as CL
     M = load(d)
@@ -135,7 +146,8 @@ def write_glb(d, out):
     model.animations = [{'name': n, 'times': cl[n]['times'], 'tracks': AN.tracks(cl[n]['Gs'], RG.PARENTS),
                          'morph_weights': CO.track([AN.skin_matrices(g, M['B']) for g in cl[n]['Gs']]) if has_morph else None,
                          'extras': {'duration_seconds': cl[n]['duration'],
-                                    'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in cl[n]['phases']]}}
+                                    'phases': [{'name': a, 'start': b, 'end': c} for a, b, c in cl[n]['phases']],
+                                    'transition': transition(n)}}
                         for n in CL.ORDER]
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
                     'left': '+X (character left)', **({'morph_names': CO.NAMES} if has_morph else {})}

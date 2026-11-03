@@ -197,7 +197,10 @@ def suit_weights(v, f, face_labels):
         # the shoulder cap is a ball round the arm's pivot, so it can follow the half-rotation helper
         # (a turn about its own centre) and keep the sleeve head inside it as the arm rises
         sh = D.arm_points(s)[0]
-        k = CAP_W * ss(.12, .06, np.linalg.norm(v - sh, axis=1)) * ss(.09, .13, s * v[:, 0]) * ss(1.20, 1.27, y)
+        # round 43: a ball of the body round the arm's pivot (front, back, top and armpit) shares the shoulder helper,
+        # which follows part of the arm's swing (anim.Dance.pose, SHOULDER_FOLLOW), so the body round the sleeve's
+        # root moves with it instead of standing still while the sleeve turns inside it
+        k = CAP_W * ss(CAP_R[0], CAP_R[1], np.linalg.norm(v - sh, axis=1)) * ss(.05, .11, s * v[:, 0])
         W *= (1 - k)[:, None]; W[:, ROOT_HALF[side]] += k
     torso_mask = ~(sleeve['L'] | sleeve['R'] | (vl == 4))
     ft = f[np.all(torso_mask[f], axis=1)]
@@ -219,9 +222,9 @@ def suit_weights(v, f, face_labels):
         up, fo, ha = arm_chain(v[m], side)
         du = (el - sh) / np.linalg.norm(el - sh)
         tu = (v[m] - sh) @ du
-        root = ss(.075, .0, tu) * SLEEVE_ROOT_W / .65    # sleeve head shares the half-rotation helper
+        root = ss(SLEEVE_ROOT_T[0], SLEEVE_ROOT_T[1], tu) * SLEEVE_ROOT_W    # the sleeve's root shares the shoulder helper
         aw = np.zeros((m.sum(), NB))
-        aw[:, a['upper']] = up * (1 - .65 * root); aw[:, ROOT_HALF[side]] = up * .65 * root
+        aw[:, a['upper']] = up * (1 - root); aw[:, ROOT_HALF[side]] = up * root
         aw[:, a['fore']] = fo; aw[:, a['hand']] = ha
         ed = np.linalg.norm(v[m] - el, axis=1)
         ew = .55 * np.exp(-(ed / .055) ** 2)        # elbow helper keeps the bend from collapsing
@@ -313,9 +316,18 @@ import os as _os
 # shoulder is not, and the cap folded into a flap under a raised arm.  Now the stuffed body stays put at the shoulder
 # (it is reshaped for a lifted arm by the corrective shapes, correctives.py), only the clavicle carries it, and the
 # sleeve's rounded root turns wholly with the arm inside it.
+# Round 43: with the body standing still round the shoulder, the sleeve's root turned inside it and the join showed:
+# a ridge at the back of the shoulder as the arm swung (Walk, Run), a notch on top of it with the arm out level and a
+# tube pushed into the body with a crease under it with the arm overhead (Jumping Jacks; the owner: "weird
+# deformation around the armpits").  Now a ball of the body round the pivot (CAP_R) and the sleeve's root (SLEEVE_ROOT_T)
+# share the shoulder helper, which follows part of the arm's swing but not its twist (anim.SHOULDER_FOLLOW), so the two
+# move together where they meet.  (Tried: .6/.5, .8/.7, wider balls .19-.26 m, and a gentler .75/.7 with follow .5/.4:
+# the first two left the notch, the wider ones stretched as much, the gentle one raised a hump by the neck.)
 _SW = _os.environ.get('COW_SHOULDER_W')
-CLAV_W, CAP_W = [float(x) for x in (_SW or '.8,0').split(',')]
-SLEEVE_ROOT_W = float(_os.environ.get('COW_SLEEVE_ROOT_W', '0'))
+CLAV_W, CAP_W = [float(x) for x in (_SW or '.8,.9').split(',')]
+SLEEVE_ROOT_W = float(_os.environ.get('COW_SLEEVE_ROOT_W', '.85'))
+CAP_R = tuple(float(x) for x in _os.environ.get('COW_CAP_R', '.15,.05').split(','))          # the cap's ball: outer, inner radius (m)
+SLEEVE_ROOT_T = tuple(float(x) for x in _os.environ.get('COW_SLEEVE_ROOT_T', '.11,-.02').split(','))  # along the arm from the pivot
 CHEST_FRONT_Z = (0., .12)            # round 38: from where (z) the chest band starts dropping, to where it is lowest
 CHEST_FRONT_DROP = (.20, .14)        # how much lower the chest band's start and end are at the front
 UDDER_GIVE = .85         # share of the Udder bone at the front of each cup (round 18's value)

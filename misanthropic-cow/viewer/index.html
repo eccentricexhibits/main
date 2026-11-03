@@ -84,23 +84,23 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 42 &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; round 43 &middot; 11 animations + alt set</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Idle</div>
-        <div class="figlabel" id="lab41" hidden>Round 41</div>
         <div class="figlabel" id="lab42" hidden>Round 42</div>
+        <div class="figlabel" id="lab43" hidden>Round 43</div>
         <div class="status" id="status">Loading the model (15 MB)&hellip;</div>
       </div>
 
       <div class="row" id="versions">
         <span class="label">Rounds</span>
-        <button data-round="r41" aria-pressed="false" disabled><span class="swatch" style="background:#00838f"></span>Round 41</button>
-        <button data-round="r42" aria-pressed="true" disabled><span class="swatch" style="background:#c2185b"></span>Round 42</button>
-        <span class="note" id="verNote">Round 42, animated.</span>
+        <button data-round="r42" aria-pressed="false" disabled><span class="swatch" style="background:#00838f"></span>Round 42</button>
+        <button data-round="r43" aria-pressed="true" disabled><span class="swatch" style="background:#c2185b"></span>Round 43</button>
+        <span class="note" id="verNote">Round 43, animated.</span>
       </div>
 
       <div class="row" id="layout">
@@ -133,6 +133,14 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <button data-style="std" aria-pressed="true">Standard</button>
         <button data-style="alt" aria-pressed="false">Alt &middot; lumbering</button>
         <span class="note" id="styleNote">Heavier, slower, slumped versions of the first seven.</span>
+      </div>
+
+      <div class="row" id="blends">
+        <span class="label">Transition</span>
+        <button data-blend="0" aria-pressed="false">Cut</button>
+        <button data-blend="1" aria-pressed="true">Blend</button>
+        <button id="shuffle" aria-pressed="false">Shuffle</button>
+        <span class="note" id="blendNote">Switching animation blends from one into the next; walks and runs keep their step.</span>
       </div>
 
       <div class="row">
@@ -205,7 +213,8 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       <section>
         <h2>What changed</h2>
         <ul>
-          <li><strong>Round 42:</strong> <em>Idle</em> is now 20 seconds of standing about with some attitude, and much calmer (the constant wiggle is gone): she settles onto one leg, heaves a long bored sigh, gives the room a slow side-eye down her nose with a little shake of the head, lifts a hoof to inspect it, picks at it, flicks it and lets the arm drop, taps a foot while she waits, and rolls her eyes. The label on the view names each beat. <em>Hands:</em> a resting hoof now hangs straight down, a touch behind the wrist, instead of angling forward and up. <em>Exasperated:</em> the glitch on the arm (the hoof spun half a turn in a single frame as the arms flung out) is gone, and so are two similar ones: in the Chicken dance going from Wings into Wiggle, and in the face-palm. When she takes her hoof off her face, her head comes up first; then the arm drops away under its own weight, slow to leave and gathering speed, bumps off her side and settles, the hoof trailing behind and her shoulder sagging as it lands. <em>Chicken dance:</em> faster: the standard dance now takes 9.6 seconds, and the lumbering one plays at the old standard speed (12 seconds). <em>Run:</em> the arms pump closer to the sides. <em>Horn:</em> the new black ring now sits between the two existing ones. Rounds 41 and 42 are here; pick <em>Round 41</em> to compare.</li>
+          <li><strong>Round 43:</strong> <em>Armpits and shoulders:</em> the body round each shoulder now moves with the arm instead of standing still while the sleeve turned inside it, so the join no longer opens into a ridge at the back of the shoulder as the arms swing (Walk, Run and the rest), the notch on top of the shoulder with the arm out level is gone, and with the arms overhead in Jumping jacks the sleeve no longer looks like a tube pushed into the body. <em>Hooves:</em> every curl of the hoof toes was bending them the wrong way, back and outwards, since the rig was made; they now curl in towards the palm, so a resting hoof sits straight with a slight curl, the Wings fists are fists and the running hooves are curled. <em>Idle:</em> in the hoof check she now brings the hoof up in front of her, just above the udder, palm up, and looks down at it, instead of holding it out to the side like a wave. <em>Transitions:</em> picking another animation now blends into it (the <em>Transition</em> row: <em>Blend</em> or <em>Cut</em>); walks and runs carry on from the same point in the step, and the Default pose fades in and out. <em>Shuffle</em> plays the animations one after another, blending between them. Rounds 42 and 43 are here; pick <em>Round 42</em> to compare.</li>
+          <li>Round 42 &middot; <strong>Idle, hooves, glitch, dance:</strong> <em>Idle</em> is now 20 seconds of standing about with some attitude, and much calmer (the constant wiggle is gone): she settles onto one leg, heaves a long bored sigh, gives the room a slow side-eye down her nose with a little shake of the head, lifts a hoof to inspect it, picks at it, flicks it and lets the arm drop, taps a foot while she waits, and rolls her eyes. The label on the view names each beat. <em>Hands:</em> a resting hoof now hangs straight down, a touch behind the wrist, instead of angling forward and up. <em>Exasperated:</em> the glitch on the arm (the hoof spun half a turn in a single frame as the arms flung out) is gone, and so are two similar ones: in the Chicken dance going from Wings into Wiggle, and in the face-palm. When she takes her hoof off her face, her head comes up first; then the arm drops away under its own weight, slow to leave and gathering speed, bumps off her side and settles, the hoof trailing behind and her shoulder sagging as it lands. <em>Chicken dance:</em> faster: the standard dance now takes 9.6 seconds, and the lumbering one plays at the old standard speed (12 seconds). <em>Run:</em> the arms pump closer to the sides. <em>Horn:</em> the new black ring now sits between the two existing ones.</li>
           <li>Round 41 &middot; <strong>Hands, spots, horn:</strong> <em>Hands:</em> a relaxed hand now hangs straight down from the wrist, so the hooves point down at rest and dangle as the arms swing; before, each hand tipped forward at the wrist, so the hooves pointed forward and up. Hands that are doing something (claps, the hooves at the eyes or the brow, the running pump, the arms overhead) keep their set angle. <em>Spots:</em> the thin black sliver on the cow&rsquo;s right side beside the udder, and the small black flecks next to the big patch on the back, are gone. <em>Horn:</em> the cow&rsquo;s left horn has the real horn&rsquo;s second black ring, just above the middle one. <em>Idle</em> now loops in full in this viewer (it is 8 seconds long; the viewer was cutting it at 4).</li>
           <li>Round 40 &middot; <strong>Teats and armpits:</strong> <em>Teats:</em> no more twitching. The two lower teats hang just above the belly, and they were being pushed off it and springing back on every frame, so they flickered, most of all in Sneak. They now rest against the belly and swing smoothly. <em>Armpits:</em> with the arms raised (Jumping jacks, Look around, the Chicken dance) the costume no longer bunches into a flap and a shelf at each armpit. The stuffed body now stays put at the shoulder, the sleeve turns in it like a ball in a socket, and the body&rsquo;s side runs smoothly up into the shoulder as each arm lifts.</li>
           <li>Round 39 &middot; <strong>Less robotic:</strong> <em>Less robotic:</em> every clip now moves like a person inside the suit rather than a machine. The body no longer moves in lockstep: the chest follows the hips a moment later, the head follows the chest, and the arms trail and settle with a little overshoot after quick moves. Left and right are no longer mirror images, and a slow, gentle sway means she is never perfectly still. She breathes, and in the walks her head floats steadily over the step instead of nodding with it. The relaxed arms hang against the belly instead of being held out like a mannequin&rsquo;s. <em>Idle</em> is new: 8 seconds of standing about, settling her weight onto one leg and then the other, glancing aside and fidgeting with a hoof. <em>Walk:</em> the body is lowest just after each step lands and highest over the standing leg (it was the other way round). <em>Jumping Jacks:</em> no two jacks are alike, and she tires a little.</li>
@@ -240,7 +249,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
           </tbody>
         </table>
         </div>
-        <p class="note">Round 42. Depths are 99.5th percentiles over every frame, counting only surface you can see. In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is mostly the top of the briefs passing behind the belly&rsquo;s hem as she moves, which the hem hides. The teats rest against the belly fur, so at the deepest they sit a few millimetres into it.</p>
+        <p class="note">Round 43. Depths are 99.5th percentiles over every frame, counting only surface you can see. In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is mostly the top of the briefs passing behind the belly&rsquo;s hem as she moves, which the hem hides. The teats rest against the belly fur, so at the deepest they sit a few millimetres into it.</p>
       </section>
     </aside>
   </div>
@@ -268,13 +277,13 @@ const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
 // round 42: the 20 s Idle's beats (start in s; the alt plays them 25 % slower)
 const IDLE_BEATS = [[0, 'settle'], [3, 'sigh'], [6, 'side-eye'], [9.6, 'hoof check'], [14, 'foot tap'], [17.4, 'eye roll']];
-// Round 42 is the main model; round 41 loads on first use, to compare (side by side or overlaid).
-const ROUNDS = ['r41', 'r42'];
-const COLORS = { r41: '#00838f', r42: '#c2185b' };
-const NAMES = { r41: 'Round 41', r42: 'Round 42' };
-let mainRoot = null, shown = ['r42'], layout = 'side', guidesOn = false, currentView = 'front';
+// Round 43 is the main model; round 42 loads on first use, to compare (side by side or overlaid).
+const ROUNDS = ['r42', 'r43'];
+const COLORS = { r42: '#00838f', r43: '#c2185b' };
+const NAMES = { r42: 'Round 42', r43: 'Round 43' };
+let mainRoot = null, shown = ['r43'], layout = 'side', guidesOn = false, currentView = 'front';
 const SPACING = 0.94;                      // side by side: distance between neighbouring figures (m)
-const LABELS = { r41: document.getElementById('lab41'), r42: document.getElementById('lab42') };
+const LABELS = { r42: document.getElementById('lab42'), r43: document.getElementById('lab43') };
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -427,7 +436,7 @@ async function load(base, useMeshopt) {
 async function start() {
   let gltf;
   await MeshoptDecoder.ready;
-  gltf = await load('cow-r42-meshopt', true);
+  gltf = await load('cow-r43-meshopt', true);
   const root = gltf.scene;
   prepare(root, meshes, restPose);
   mainRoot = root;
@@ -438,7 +447,7 @@ async function start() {
   selectClip('Idle');                // open on Idle, not the Chicken Dance
   status.hidden = true;
   enableCompare(true);
-  setRounds(['r42']);               // open on the newest round
+  setRounds(['r43']);               // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -457,13 +466,13 @@ function prepare(root, list, rest) {
   });
 }
 
-// Round 41, loaded the first time it is shown; it plays the clip picked, each round on its own clock.
-const FIGS = { r41: { file: 'cow-r41-meshopt', mb: 15.2, f: null, loading: null, name: '41' } };
+// Round 42, loaded the first time it is shown; it plays the clip picked, each round on its own clock.
+const FIGS = { r42: { file: 'cow-r42-meshopt', mb: 15.3, f: null, loading: null, name: '42' } };
 // rounds 25 and 28 to 37 can stand with their arms lifted (a second static model each, swapped in its place)
 let armsUp = false;
 const STATIC = [];   // every round shown is animated
 const figKey = k => (STATIC.includes(k) && armsUp) ? k + 'up' : k;
-const ALLK = ['r41', 'r42'];
+const ALLK = ['r42', 'r43'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
@@ -489,17 +498,19 @@ function ensureFig(key) {
 }
 // the other rounds follow round 18's clip; their time is copied every frame, so scrubbing and pausing stay in step
 // (round 25 has no clips yet and keeps its default pose)
-function syncFigClips() {
+function syncFigClips(prevName) {
   for (const F of Object.values(FIGS)) {
     const f = F.f;
     if (!f) continue;
-    f.mixer.stopAllAction(); f.action = null;
     if (clipName === '__pose') {
-      f.rest.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+      if (!(blendOn && f.action)) f.rest.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+      switchAction(f.mixer, f.clips, prevName, f.action, '__pose'); f.action = null;
       continue;
     }
     const clip = f.clips[clipName];
-    if (clip) { f.action = f.mixer.clipAction(clip); f.action.reset().play(); }
+    if (!clip) { f.mixer.stopAllAction(); f.action = null; continue; }
+    if (!f.action) f.rest.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+    f.action = switchAction(f.mixer, f.clips, f.action ? prevName : null, f.action, clipName);
   }
 }
 // what is shown: which rounds (in ROUNDS order), and how (side by side or overlaid)
@@ -511,15 +522,15 @@ function sideCount() { return layout === 'side' ? shown.length : 1; }   // figur
 // in an overlay the newest round shown is solid and the others are ghosts in their own colour
 const ghostOf = k => layout === 'overlay' && shown.length > 1 && shown.includes(k) && k !== shown[shown.length - 1];
 const xOf = k => sideCount() > 1 ? (shown.indexOf(k) - (shown.length - 1) / 2) * SPACING : 0;
-const rootOf = k => k === 'r42' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
-const meshesOf = k => k === 'r42' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
+const rootOf = k => k === 'r43' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
+const meshesOf = k => k === 'r43' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
 const modeKey = k => k.endsWith('up') ? k.slice(0, -2) : k;          // which round a figure belongs to
 const list = ks => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] : ks[0];
 function describe() {
-  if (shown.length === 1) return shown[0] === 'r42'
-    ? 'Round 42: a 20-second Idle, the hooves hanging down, no arm glitch, a natural hand-drop, faster dance, the horn ring between the others.'
-    : 'Round 41: relaxed hands, three black spots removed, the first horn ring, and Idle looping in full.';
-  return layout === 'side' ? 'Rounds 41 and 42 side by side, round 41 on the left.' : 'Round 42 solid, with round 41 as a ghost.';
+  if (shown.length === 1) return shown[0] === 'r43'
+    ? 'Round 43: smoother shoulders and armpits, hooves curled the right way, a new hoof check in Idle, and blended transitions.'
+    : 'Round 42: a 20-second Idle, hooves hanging down, no arm glitch, a natural hand-drop, faster dance, the horn ring between the others.';
+  return layout === 'side' ? 'Rounds 42 and 43 side by side, round 42 on the left.' : 'Round 43 solid, with round 41 as a ghost.';
 }
 function refreshButtons() {
   document.querySelectorAll('#versions button[data-round]').forEach(b => b.setAttribute('aria-pressed', String(shown.includes(b.dataset.round))));
@@ -532,7 +543,7 @@ function refreshButtons() {
 async function setRounds(next, nextLayout = layout) {
   next = ROUNDS.filter(k => next.includes(k));
   if (!next.length) return;
-  for (const k of next) if (k !== 'r42' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
+  for (const k of next) if (k !== 'r43' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
   const wasMulti = shown.length > 1;
   shown = next; layout = nextLayout;
   for (const k of ALLK) {
@@ -570,10 +581,10 @@ armsBtn.addEventListener('click', async () => {
 
 // Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
 const GUIDES = [
-  { y: 0.747, text: 'R41 crotch 0.75 m', round: 'r41' },
-  { y: 0.811, text: 'R41 belly 0.81 m', round: 'r41' },
   { y: 0.747, text: 'R42 crotch 0.75 m', round: 'r42' },
   { y: 0.811, text: 'R42 belly 0.81 m', round: 'r42' },
+  { y: 0.747, text: 'R43 crotch 0.75 m', round: 'r43' },
+  { y: 0.811, text: 'R43 belly 0.81 m', round: 'r43' },
 ];
 GUIDES.forEach(gd => { gd.color = COLORS[gd.round]; });
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
@@ -645,11 +656,41 @@ const ticks = document.getElementById('ticks');
 const phaseRow = document.getElementById('phases');
 const styleNote = document.getElementById('styleNote');
 const hasAlt = name => (name + ' (alt)') in clipMap;
+// round 43: transitions.  A new clip blends in over a moment instead of cutting.  The gaits (and a clip and its own alt
+// version) carry on from the same point of the stride; everything else starts from its beginning, which is a standing
+// pose in every clip.  The Default pose fades the clip out to the rest pose (and back in).
+const GAITS = ['Walk', 'Run', 'Sneak', 'Depressed Walk'];
+const base = n => n.replace(' (alt)', '');
+const isGait = n => GAITS.includes(base(n));
+let blendOn = true;
+const blendTime = (from, to) => (isGait(from) && isGait(to)) || base(from) === base(to) ? 0.45 : 0.8;
+function startTime(from, to, fromAction) {
+  if (!fromAction || !((isGait(from) && isGait(to)) || base(from) === base(to))) return 0;
+  const u = (fromAction.time % fromAction.getClip().duration) / fromAction.getClip().duration;
+  return u * clipMap[to].duration;
+}
+function switchAction(mx, clips, prevName, prevAction, name, extra = null) {
+  // starts `name` on mixer mx, blending from prevAction; returns the new action
+  const blend = blendOn && prevName !== name;
+  mx._actions.forEach(a => { if (a !== prevAction) a.stop(); });
+  if (name === '__pose') {
+    if (blend && prevAction) prevAction.fadeOut(0.8); else mx.stopAllAction();
+    return null;
+  }
+  const next = mx.clipAction(clips[name]);
+  next.reset();
+  next.time = startTime(prevName, name, prevAction) * (extra ? extra.scale : 1);
+  next.setEffectiveWeight(1);
+  next.play();
+  if (blend && prevAction && prevAction !== next) prevAction.crossFadeTo(next, blendTime(prevName, name), false);
+  else if (blend && !prevAction) next.fadeIn(0.8);
+  else if (prevAction && prevAction !== next) prevAction.stop();
+  return next;
+}
 function selectClip(name) {
   baseName = name;
   document.querySelectorAll('#clips button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.clip === name)));
   if (!mixer) return;
-  mixer.stopAllAction();
   const dance = name === 'Chicken Dance';
   ticks.hidden = !dance; phaseRow.hidden = !dance;
   const altOk = name !== '__pose' && hasAlt(name);
@@ -657,21 +698,25 @@ function selectClip(name) {
     : altOk ? (alt ? 'Playing the heavy, lumbering version.' : 'Heavier, slower, slumped versions of the first seven.')
     : 'This one is already played heavy; it has no alt version.';
   if (name !== '__pose' && alt && altOk) name = name + ' (alt)';
+  const prevName = clipName, prevAction = action;
   if (name === '__pose') {
     // the relaxed rest pose: arms down at the sides, feet together
-    restPose.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+    if (!(blendOn && prevAction)) restPose.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+    switchAction(mixer, clipMap, prevName, prevAction, name);
     action = null; clipName = name;
     phaseNow.textContent = 'Default pose';
     scrub.disabled = true; timeEl.textContent = '';
-    syncFigClips();
+    syncFigClips(prevName);
     return;
   }
   scrub.disabled = false;
   clipName = name;
-  action = mixer.clipAction(clipMap[name]);
-  action.reset().play(); tAll = 0;
+  if (prevName === '__pose') restPose.forEach(([b, p, q, sc]) => { b.position.copy(p); b.quaternion.copy(q); b.scale.copy(sc); });
+  action = switchAction(mixer, clipMap, prevName === '__pose' ? null : prevName, prevName === '__pose' ? null : prevAction, name);
+  tAll = action.time;
   scrub.max = clipMap[name].duration.toFixed(2);
-  syncFigClips();
+  shuffleT = 0;
+  syncFigClips(prevName);
 }
 document.querySelectorAll('#clips button').forEach(b => b.addEventListener('click', () => selectClip(b.dataset.clip)));
 document.querySelectorAll('#styles button').forEach(b => b.addEventListener('click', () => {
@@ -679,6 +724,33 @@ document.querySelectorAll('#styles button').forEach(b => b.addEventListener('cli
   document.querySelectorAll('#styles button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   selectClip(baseName);
 }));
+document.querySelectorAll('#blends button[data-blend]').forEach(b => b.addEventListener('click', () => {
+  blendOn = b.dataset.blend === '1';
+  document.querySelectorAll('#blends button[data-blend]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  blendNote.textContent = blendOn ? 'Switching animation blends from one into the next; walks and runs keep their step.'
+                                  : 'Switching animation cuts straight to the next one.';
+}));
+// Shuffle: plays the animations one after another, blending between them.  A walk or run goes on for a few steps; any
+// other clip plays to the end of its loop (back to standing) before the next one blends in.
+let shuffleOn = false, shuffleT = 0, shuffleLast = 0;
+const shuffleBtn = document.getElementById('shuffle');
+const blendNote = document.getElementById('blendNote');
+const SHUFFLE = ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance', 'Depressed Walk', 'Sit Cross-Legged', 'Crying', 'Exasperated'];
+shuffleBtn.addEventListener('click', () => {
+  shuffleOn = !shuffleOn; shuffleT = 0;
+  shuffleBtn.setAttribute('aria-pressed', String(shuffleOn));
+  if (shuffleOn && !action) selectClip('Idle');
+});
+function shuffleStep(dt) {
+  shuffleT += dt;
+  const dur = action.getClip().duration, t = action.time % dur;
+  const gait = isGait(clipName);
+  const due = gait ? shuffleT > Math.max(3.5, 3 * dur) : (shuffleT > dur - 0.05 && (t < shuffleLast || dur - t < 0.06));
+  shuffleLast = t;
+  if (!due) return;
+  const pool = SHUFFLE.filter(n => n !== baseName);
+  selectClip(pool[Math.floor(Math.random() * pool.length)]);
+}
 start().catch(err => { status.textContent = 'The model could not be loaded: ' + err.message; });
 
 playBtn.addEventListener('click', () => {
@@ -761,6 +833,10 @@ renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
   if (mixer && action) {
     if (playing) { mixer.update(dt); tAll += dt; }
+  } else if (mixer && playing) {
+    mixer.update(dt);              // a clip fading out to the Default pose
+  }
+  if (mixer && action) {
     const dur = clipMap[clipName].duration;
     const t = action.time % dur;
     scrub.value = t.toFixed(2);
@@ -770,7 +846,12 @@ renderer.setAnimationLoop(() => {
   }
   // round 41: each round runs on the same clock but loops at its own clip's length (round 18's 4 s Idle used to cut the
   // newer 8 s Idle off half-way)
-  for (const F of Object.values(FIGS)) if (F.f && F.f.action && action) { F.f.action.time = tAll % F.f.action.getClip().duration; F.f.mixer.update(0); }
+  // (round 43: their mixers advance too, so their blends between clips run)
+  for (const F of Object.values(FIGS)) if (F.f && F.f.mixer) {
+    if (F.f.action && action) F.f.action.time = tAll % F.f.action.getClip().duration;
+    F.f.mixer.update(playing ? dt : 0);
+  }
+  if (shuffleOn && playing && action) shuffleStep(dt);
   controls.update();
   updateOverlays();
   renderer.render(scene, camera);

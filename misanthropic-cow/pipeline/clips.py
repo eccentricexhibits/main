@@ -156,8 +156,8 @@ class Idle(AN.Dance):
             (6.0, dict(weight=.6, slump=.5)),
             (6.9, dict(weight=.55, glance=-.85, nose=.7, slump=.2)), (7.9, dict(weight=.5, glance=-.9, nose=.75)),
             (8.6, dict(weight=-.1, glance=-.3, nose=.4, shake=1.)), (9.4, dict(weight=-.55, glance=0., nose=.1)),
-            (10.4, dict(weight=-.6, inspect=1., glance=-.30, look=-.55)), (12.4, dict(weight=-.6, inspect=1., glance=-.32, look=-.6)),
-            (12.85, dict(weight=-.6, inspect=1., glance=-.2, look=-.3)),
+            (10.4, dict(weight=-.6, inspect=1., glance=-.22, look=-.75)), (12.4, dict(weight=-.6, inspect=1., glance=-.25, look=-.8)),
+            (12.85, dict(weight=-.6, inspect=1., glance=-.1, look=-.3)),
             (13.6, dict(weight=-.6, nose=.1)),
             (14.4, dict(weight=-.85, nose=.25, glance=.15)), (14.6, dict(weight=-.85, nose=.25, glance=.15, tap=1.)),
             (16.6, dict(weight=-.85, nose=.3, glance=.2, tap=1.)), (17.0, dict(weight=-.7, nose=.2)),
@@ -167,8 +167,13 @@ class Idle(AN.Dance):
     #                                 against the belly's sides (round 38: .10, .03, .06 held them 40 degrees out, like a mannequin's)
     # the hoof check: the right hoof comes up round the side of the cup to in front of the shoulder (chest's bind frame),
     # turned to her face; it drops away under its own weight (DROP: start, length), as in Exasperated
-    INSPECT_AT = (-.40, 1.25, .27)
-    INSPECT_POLE = (-.78, .98, -.12)
+    # round 43: in front of her, just above and outside the cup, palm up and turned to her eyes, elbow down and out, as
+    # a person looks at their nails (round 42 held it out to the side at shoulder height, hand up, which read as a wave;
+    # the owner: "looks a bit off"; in front of the chin it covered her face)
+    INSPECT_AT = (-.30, 1.30, .37)
+    INSPECT_POLE = (-.64, .98, -.06)
+    INSPECT_PATH = ((.44, 1.10, .05), (.42, 1.24, .26))     # out round the side of the cup, then up and forward (x mirrored)
+    INSPECT_FINGERS = (-.25, .45, .85)                         # where the hoof points (x mirrored): forward, up and a little in
     DROP = (12.85, .55)
     BUMP = (.022, .016, 1.4, .30)
     TAPS = (14.75, 16.45, 4)        # the foot taps: from, to, how many
@@ -221,17 +226,20 @@ class Idle(AN.Dance):
             if u <= 0 and not dropping:
                 continue
             at = np.array(self.INSPECT_AT) + [0, .012 * np.sin(2 * np.pi * .7 * t), 0]
-            tgt = bspline_reach(rest, np.array([s * .44, 1.10, .05]), np.array([s * .46, 1.22, .19]), at, u)
+            c1, c2 = (np.array(c) * [s, 1, 1] for c in self.INSPECT_PATH)
+            tgt = bspline_reach(rest, c1, c2, at, u)
             pw = u if not dropping else smooth(0, 1, 1 - tau)
             # the bump after the drop rides on the FK rest as well, so the weight stays on while it settles
             p['ik_blend'] = {side: (tgt + np.array([s * bump[0], 0, bump[1]]), pole_rest * (1 - pw) + np.array(self.INSPECT_POLE) * pw,
                                     smooth(0, .3, u) if not dropping else (1. if tau < 1 else 1 - smooth(.6, .95, t - self.DROP[0] - self.DROP[1])))}
             # turned to her face, rolled a little this way and that as she looks it over, with a flick at the end
-            Rh = self.hand_rot(side, [s * .30, .80, .40], np.array([0, 1.52, .12]) - at)
+            fdir = np.array(self.INSPECT_FINGERS) * [s, 1, 1]
+            face = np.array([0, 1.55, .14])
+            Rh = self.hand_rot(side, fdir, face - at)
             look_over = .35 * smooth(10.8, 11.2, t) * (1 - smooth(12.2, 12.5, t)) * np.sin(2 * np.pi * .55 * (t - 10.8))
-            Rh = rot([s * .30, .80, .40], look_over) @ Rh
+            Rh = rot(fdir, look_over) @ Rh
             if self._inspect_local is None:
-                self._inspect_local = local_hand(self, side, self.hand_rot(side, [s * .30, .80, .40], np.array([0, 1.52, .12]) - np.array(self.INSPECT_AT)),
+                self._inspect_local = local_hand(self, side, self.hand_rot(side, fdir, face - np.array(self.INSPECT_AT)),
                                                  np.array(self.INSPECT_AT), np.array(self.INSPECT_POLE))
             hw = smooth(.5, 1., u) if not dropping else turn
             p['hrot'][side] = ('blend', ('blend', relaxed_hand(self, side), self._inspect_local, hw), Rh, smooth(.8, 1., hw))
@@ -250,6 +258,7 @@ class Idle(AN.Dance):
 
 class Walk(AN.Dance):
     name = 'Walk'
+    SYNC = 'phase'          # round 43: a gait, its loop starting at the left heel strike (blend at the same phase)
     duration = 1.12
     phases = [('Walk', 0, 1.12)]
     use_swivel = False
@@ -279,6 +288,7 @@ class Walk(AN.Dance):
 
 class Run(AN.Dance):
     name = 'Run'
+    SYNC = 'phase'          # round 43: a gait, its loop starting at the left heel strike (blend at the same phase)
     duration = .72
     phases = [('Run', 0, .72)]
     use_swivel = False
@@ -314,6 +324,7 @@ class Run(AN.Dance):
 class Sneak(AN.Dance):
     """Cartoon tiptoe: crouched, high knees, pointed toes, hooves dangling in front of the chest."""
     name = 'Sneak'
+    SYNC = 'phase'          # round 43: a gait, its loop starting at the left heel strike (blend at the same phase)
     duration = 2.6
     phases = [('Sneak', 0, 2.6)]
     use_swivel = True
@@ -486,6 +497,7 @@ def rest_hand(clip, side, s):
 class DepressedWalk(AN.Dance):
     """Head hung low, shoulders dropped, a slow shuffle with the arms dangling."""
     name = 'Depressed Walk'
+    SYNC = 'phase'          # round 43: a gait, its loop starting at the left heel strike (blend at the same phase)
     duration = 1.6
     phases = [('Depressed Walk', 0, 1.6)]
     use_swivel = False
