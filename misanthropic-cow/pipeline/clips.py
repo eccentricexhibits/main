@@ -344,7 +344,8 @@ class SitCrossLegged(AN.Dance):
     LAP_OFF, LAP_POLE = (.10, .14, -.06), (1.0, .3, -.4)
     # reaching back, the hooves land beside and behind the hips (relative to the seated hips)
     SUPPORT, SUPPORT_POLE = (.34, .21, -.26), (.7, .7, -.5)
-    BELLY_SEAT_LIFT = (0., .03, .02)             # how far the belly rides up on the legs once seated (round 38)
+    BELLY_SEAT_LIFT = (0., 0., 0.)               # how far the belly rides up on the legs once seated (round 38: 3 cm took 0.7 mm
+    #                                            off the hem on the legs but pushed the belly 15 mm up into the teats)
 
     def key(self, t, cross=0., down=0., support=0., lap=0., slump=0.):
         p = neutral(self)
