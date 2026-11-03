@@ -114,9 +114,10 @@ def skin_parts(model, mats):
                 import correctives as CO
                 mw = CO.weights_from_mats(m)
             if mw.max() > 0:
-                v0 = v0 + np.einsum('k,kij->ij', mw, p['morph'])
+                k = len(p['morph'])            # round 44: models built before the shoulder correctives have only the first two
+                v0 = v0 + np.einsum('k,kij->ij', mw[:k], p['morph'])
                 if p.get('morph_n') is not None:
-                    n0 = n0 + np.einsum('k,kij->ij', mw, p['morph_n'])
+                    n0 = n0 + np.einsum('k,kij->ij', mw[:k], p['morph_n'])
         L.skin(len(v), np.ascontiguousarray(v0, np.float32), np.ascontiguousarray(n0, np.float32),
                np.ascontiguousarray(p['j'], np.uint8), np.ascontiguousarray(p['w'], np.uint8), m, v, n)
         q = dict(p)

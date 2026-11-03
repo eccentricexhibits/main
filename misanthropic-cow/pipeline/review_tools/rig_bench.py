@@ -54,6 +54,9 @@ def assemble(d, quick):
         if nt is not None:
             uvn = p['uv1'] if nt.get('texCoord', 0) == 1 else p['uv']
             p['tangent'] = G.tangents(p['v'], p['n'], uvn, p['f'])
+    # round 44: the shoulder correctives (delta mush, socket fill and fillet at key arm poses), from the final weights
+    import correctives as CO
+    report.update(CO.relax_targets(model, B))
     groups = [p.get('group') for p in model.parts]
     model.parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
     _dump({'model': model, 'groups': groups, 'B': B, 'palm_half': palm, 'report': report}, d / 'model.pkl')

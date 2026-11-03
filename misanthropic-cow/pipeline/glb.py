@@ -11,6 +11,8 @@ from pathlib import Path
 import json, struct, io
 import numpy as np
 
+MORPH_N_MIN = .012        # round 44: smallest normal offset stored in a morph target (about 0.7 degrees)
+
 COMP = {5126: '<f4', 5125: '<u4', 5123: '<u2', 5121: 'u1', 5122: '<i2', 5120: 'i1'}
 WIDTH = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
 
@@ -232,7 +234,9 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
                 nz = np.nonzero(np.abs(d).max(1) > 0)[0]
                 t = {'POSITION': sparse_acc(d, nz, minmax=True)}
                 if p.get('morph_n') is not None:
-                    t['NORMAL'] = sparse_acc(np.asarray(p['morph_n'][k], '<f4'), nz)
+                    # round 44: the normals' offsets only where a normal turns noticeably (their own sparse list)
+                    dn = np.asarray(p['morph_n'][k], '<f4')
+                    t['NORMAL'] = sparse_acc(dn, np.nonzero(np.abs(dn).max(1) > MORPH_N_MIN)[0])
                 prim['targets'].append(t)
             mesh['weights'] = [0.0] * len(p['morph'])
             if model.extras and model.extras.get('morph_names'):
