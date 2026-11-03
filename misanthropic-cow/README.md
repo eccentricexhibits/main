@@ -1,6 +1,8 @@
 # The Misanthropic Cow, v10
 
-> **Rounds 19–37 (newest, a static preview).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
+> **Round 38 (newest, animated): the round 37 body rigged.** `models/Misanthropic_Cow_v10_r38_Animated.glb` is the round 37 body with round 18's 58-joint skeleton and all 18 animations (11 clips and 7 alt versions) with their baked physics. It is built in steps by `pipeline/review_tools/rig_bench.py` (assemble, bake, validate, glb), and the viewer opens on it. What changed for the new body: the udder cloth and the fur round it share one weighting, so the seam stays closed when the cups bounce; the stuffed sack under the udders moves with the chest, so the teats stay out of the belly; the hem helpers fit the round 37 hem and now also work in Run and Sneak; and four arm moves clear the bigger udders (Crying, the face-palm in Exasperated, the Chicken Dance's Wings and claps). Before/after sheets, clip sheets and the per-clip checks are in `reviews/round_38/`; the full story is in `handoff/AI_HANDOFF.md`.
+>
+> **Rounds 19–37 (static previews).** A new body for the cow, with no rig yet. It starts from the owner's Tripo model and is fitted to the four approved Gemini views (`references/approved_views`). Its udders, teats and proportions come from the original photo shoot.
 >
 > - **Build:** the models come from `pipeline/review_tools/build_static.py`, in two poses: arms down, and arms raised (`COW_ARM_RAISE=70`).
 > - **Review sheets:** see `reviews/rounds_19_24/`.
@@ -37,6 +39,7 @@ Later v10 passes added:
 | File | What it is |
 |---|---|
 | `models/Misanthropic_Cow_v10.glb` | Static master in the default (rest) pose. 1.40M triangles (310k of them the shag strands, 300k the slippers, 200k the gloves, 120k the briefs), real-world scale in metres, all textures embedded. |
+| `models/Misanthropic_Cow_v10_r38_Animated.glb` | Round 38: the round 37 body (the static `..._r37.glb`) with the same 58-joint skin and 18 animations, baked physics included. 1.38M triangles, 94.6 MB. |
 | `models/Misanthropic_Cow_v10_Animated.glb` | Same model with a 58-joint skin and 18 looping animations at 30 fps (11 animations plus 7 "alt" versions), all with baked physics. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
 | `viewer/` | A three.js web viewer with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets and a clay toggle. |

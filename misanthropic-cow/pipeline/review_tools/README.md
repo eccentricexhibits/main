@@ -12,6 +12,7 @@ The tools used to build and check rounds 19–24, the static Tripo-based body th
 | `profile_cmp.py` | Prints the silhouette extents per height for the model and for Gemini. |
 | `sdf_vs_gemini.py` | Draws the outlines of the design's SDF parts on the Gemini views without meshing, for fast shape checks. |
 | `gemini_measure.py` | Measures the approved views in model metres: floor at 0, crotch at 0.747 m, horn tip at 1.696 m. |
+| `rig_bench.py` | Round 38: `build_v10.py` in separate steps that each save their result, so a run that is stopped can carry on where it was: `assemble` (the model with skin weights), `bake` (any clips), `validate` (`validate.py` per clip), `glb` (the rigged GLB), `rigged` (the `rigged.pkl` that `render_dance.py` reads), `sheet` (clip sheets) and `pose` (frames straight from the pose solver, without the springs, for quick weight and pose checks). It builds the round 37 body, since `design.BODY_SOURCE` is `'tripo'`. |
 | `test_viewer.js` | Runs a headless Chromium (SwiftShader) test of the viewer. Under SwiftShader it takes 30–45 minutes. It covers opening on the newest round with Idle selected, picking rounds 17, 18 and 25 together, side by side and overlaid, the Chicken Dance's own controls, Arms raised, every lighting rig and the backdrops. |
 
 Example:
