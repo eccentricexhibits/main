@@ -252,7 +252,8 @@ def _raise_sleeve_blobs(blobs):
 # patch about 12 cm across (PATCH_ADD: x, y, half-width, half-height).
 PATCH_REMOVE = [((-.03, 1.35, .05), .07), ((.14, 1.353, .014), .03), ((-.145, .975, .264), .03),
                 ((.195, 1.17, -.104), .045), ((.212, 1.154, -.054), .02),   # round 31: the cow's left armpit (body, sleeve)
-                ((-.207, 1.202, .037), .02)]   # round 41: the thin sliver on the cow's right side, beside the right udder
+                ((-.207, 1.202, .037), .02),   # round 41: the thin sliver on the cow's right side, beside the right udder,
+                ((-.314, 1.159, .018), .02)]   # and the thin one on the right sleeve beside it (the owner's circles)
 ISLAND_MIN = 3.6e-4    # round 41: painted black islands smaller than this share of a texture chart are dropped
 PATCH_ADD = [(-.105, 1.340, .064, .060)]
 
@@ -401,7 +402,10 @@ def drop_islands(m, min_share=None):
         return m
     # pieces are told apart by their solid paint (an island's soft fringe often touches the patch's), and every
     # texel of fringe belongs to the solid piece nearest it
-    lab, n = ndimage.label(m > .5)
+    # thin threads of paint (at full resolution the tufted noise links some islands to their patch) are cut first: the
+    # solid paint is eroded by about 1.5 mm before the pieces are counted
+    k = max(1, int(round(m.shape[0] / 512)))
+    lab, n = ndimage.label(ndimage.binary_erosion(m > .5, iterations=k))
     if not n:
         return m
     size = np.bincount(lab.ravel())
