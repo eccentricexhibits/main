@@ -102,6 +102,15 @@ def validate(model, groups, B, Gs, mats, times, dance):
         isteat = np.isin(p['j'], list(tj)) & (p['w'] > 128)
         teat_v[i] = np.nonzero(isteat.any(1))[0]
     arm_clip, teat_clip = {k: [] for k in PH}, {k: [] for k in PH}
+    mesh_teats = D.BODY_SOURCE == 'tripo'
+    if mesh_teats:
+        # round 38: the teats against the posed belly fur itself (how far each teat vertex lies behind the nearest
+        # belly vertex, beyond what it does at rest), since the belly under the cups now follows the chest and no
+        # single bone frame holds the body the teats hang over
+        fv = model.parts[torso]['v']
+        belly_ix = np.nonzero((D.globes(fv) > .012) & (fv[:, 1] < 1.15) & (fv[:, 2] > 0))[0]
+        rest_tv = np.vstack([model.parts[i]['v'][teat_v[i]] for i in udder_idx])
+        rest_d = np.maximum(_depth_into(rest_tv, fv[belly_ix], model.parts[torso]['n'][belly_ix], lim=.03), 0)
     for k in range(0, len(times), 2):
         P = posed(model, mats[k])
         G = Gs[k]
@@ -109,7 +118,11 @@ def validate(model, groups, B, Gs, mats, times, dance):
         pts = np.vstack([P[sleeves[s]]['v'][arm_pts[s]] for s in 'LR'] + [P[i]['v'] for s in 'LR' for i in glove_idx[s]])
         arm_clip[phase].append(float(np.percentile(np.maximum(0, -dance.clearance(G, pts)), 99.5)))
         tv = np.vstack([P[i]['v'][teat_v[i]] for i in udder_idx])
-        teat_clip[phase].append(float(np.percentile(np.maximum(0, -AN.teat_body_sdf(tv, G, B)), 99.5)))
+        if mesh_teats:
+            dep = _depth_into(tv, P[torso]['v'][belly_ix], P[torso]['n'][belly_ix], lim=.03) - rest_d
+        else:
+            dep = -AN.teat_body_sdf(tv, G, B)
+        teat_clip[phase].append(float(np.percentile(np.maximum(0, dep), 99.5)))
     m['arm_into_cups_or_torso_p995_m'] = {k: max(v) for k, v in arm_clip.items()}
     m['teats_into_belly_p995_m'] = {k: max(v) for k, v in teat_clip.items()}
     m['suit_torso_edge_stretch_p999_max'] = max(stretch_torso)

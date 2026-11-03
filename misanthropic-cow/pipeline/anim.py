@@ -104,7 +104,7 @@ class Dance:
     phases = [(n, 3 * i, 3 * i + 3) for i, n in enumerate(PHASES)]
     use_swivel = True
     CLAPS_POLE = (.75, 1.25, -.05)       # where the elbows point in the claps (round 38: higher, so the upper arms clear the cup tops)
-    WINGS_HAND = (.300, 1.300, .170)     # the fists tucked at the armpits (Wings); round 38: 1.5 cm out and 4 cm forward of round 18, clear of the deeper chest
+    WINGS_HAND = (.320, 1.300, .170)     # the fists tucked at the armpits (Wings); round 38: 3.5 cm out and 4 cm forward of round 18, clear of the deeper chest and cups
 
     def __init__(self, B):
         self.B = np.asarray(B, float)

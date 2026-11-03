@@ -136,6 +136,7 @@ def write_glb(d, out):
                         for n in CL.ORDER]
     model.extras = {'title': 'The Misanthropic Cow v10', 'units': 'metres', 'up': '+Y', 'forward': '+Z',
                     'left': '+X (character left)'}
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     print('wrote', out, G.write(model, out))
 
 
