@@ -122,6 +122,7 @@ class Run(AN.Dance):
         p['chest'] = np.array([.06, .10 * np.sin(w), 0])
         p['neck'] = np.array([-.10, 0, 0])
         p['head'] = np.array([-.08, -.05 * np.sin(w), 0])
+        p['hem'] = 1.          # round 38: the round 37 belly hangs lower; its front rides up over the high knee
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)
             # abducted enough that the glove's palm clears the cup at the front of the pump
@@ -152,6 +153,7 @@ class Sneak(AN.Dance):
         look = np.sin(w + .8)
         p['neck'] = np.array([.10, .20 * look, 0])
         p['head'] = np.array([.05, .22 * look, -.04 * look])
+        p['hem'] = 1.          # round 38: as in Run
         bob = .012 * np.sin(2 * w)
         for side, s in [('L', 1), ('R', -1)]:
             p.pop('fk', None)
@@ -342,6 +344,7 @@ class SitCrossLegged(AN.Dance):
     LAP_OFF, LAP_POLE = (.10, .14, -.06), (1.0, .3, -.4)
     # reaching back, the hooves land beside and behind the hips (relative to the seated hips)
     SUPPORT, SUPPORT_POLE = (.34, .21, -.26), (.7, .7, -.5)
+    BELLY_SEAT_LIFT = (0., .03, .02)             # how far the belly rides up on the legs once seated (round 38)
 
     def key(self, t, cross=0., down=0., support=0., lap=0., slump=0.):
         p = neutral(self)
@@ -360,6 +363,8 @@ class SitCrossLegged(AN.Dance):
         p['neck'] = np.array([.05 * bal + .33 * fall + .10 * slump - .12 * bal * fall, 0, 0])
         p['head'] = np.array([.20 * fall + .20 * slump + .02 * sigh, .06 * slump * np.sin(2 * np.pi * u), .05 * slump])
         p['hem'] = 1.                                # the front hem rides up over the lifted thighs
+        # round 38: seated, the stuffed belly rides up onto the crossed legs (the Belly bone; spine frame)
+        p['belly_lift'] = np.array(self.BELLY_SEAT_LIFT) * fall
         p['feet'] = {}
         Rh = AN.euler(p['hips'])
         for side, s in [('L', 1), ('R', -1)]:

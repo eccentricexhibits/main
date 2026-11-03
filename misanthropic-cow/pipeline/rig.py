@@ -110,10 +110,15 @@ def hem_weights(v, side):
     from the side of the hip round to the front of the thigh, fading out up into the belly."""
     s = 1 if side == 'L' else -1
     e = np.linalg.norm((v - np.array(HEM_C) * [s, 1, 1]) / HEM_R, axis=1)
-    return HEM_W * ss(1.0, HEM_CORE, e) * ss(.0, .06, s * v[:, 0])
+    return HEM_W * ss(1.0, HEM_CORE, e) * ss(*HEM_MID, s * v[:, 0])
 
 
 HEM_C, HEM_R, HEM_W, HEM_CORE, HEM_SMOOTH = (.155, .815 + (D.LEG_LIFT + D.HEM_LIFT) / 2, .055), (.19, .15, .24), .8, 0., 0
+HEM_MID = (0., .06)      # across the middle, the share fades from the far side of the centre line to this far over
+if D.BODY_SOURCE == 'tripo':
+    # round 38: the round 37 sack's hem reaches 10-20 cm forward (0.81 m at the front, 0.845 m at the sides), so the
+    # band is centred on it and reaches round the front to the middle, where the two sides share it
+    HEM_C, HEM_R, HEM_MID = (.13, .845, .11), (.20, .14, .26), (-.06, .06)
 
 
 def arm_chain(p, side):
@@ -225,6 +230,9 @@ def suit_weights(v, f, face_labels):
     return W
 
 
+CROTCH_SPLIT = .07      # half-width of the left/right share across the crotch (round 38: .045 stretched the seat 6x in Sit)
+
+
 def leg_weights(v, f):
     """Hips on the seat, each leg's chain below.  The two legs share the crotch symmetrically: a
     smooth left/right split across the centre line (half each at the seam), so spreading the legs
@@ -235,7 +243,7 @@ def leg_weights(v, f):
     lw_all, m_all = [], []
     for side, s in [('L', 1), ('R', -1)]:
         L = LEG[side]
-        lateral = ss(-.045, .045, s * v[:, 0])                     # 0.5 on the centre line
+        lateral = ss(-CROTCH_SPLIT, CROTCH_SPLIT, s * v[:, 0])     # 0.5 on the centre line
         inleg = ss(-.03, .02, c['pelvis'] - c['leg_' + side]) * (1 - ss(.80 + D.LEG_LIFT, .88 + D.LEG_LIFT, y))
         below = 1 - ss(.66 + D.LEG_LIFT, .80 + D.LEG_LIFT, y)                                 # under the crotch it is all leg
         m = np.maximum(inleg, below) * lateral
