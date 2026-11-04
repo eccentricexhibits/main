@@ -17,7 +17,7 @@ import rig as RG
 # bind pose, as clips.fk_wrist) the body round the shoulder is posed, delta-mushed and stored as a morph target
 RELAX_KEYS = [(.35, 0.), (.70, 0.), (1.15, 0.), (1.70, .05), (2.30, .05), (0., .50), (0., .90), (0., -.55), (.35, 1.45)]
 RELAX_SIGMA = np.deg2rad(float(__import__('os').environ.get('COW_RELAX_SIGMA', 20.)))        # the keys' reach (a gaussian of the angle between arm directions)
-RELAX_MIN, STRAND_MIN = .0015, .003   # the smallest correction kept on the body and on the shag strands (m)
+RELAX_MIN, STRAND_MIN = .001, .003   # the smallest correction kept on the body and on the shag strands (m)
 RELAX_R = (.15, .27)                 # the corrected region round the shoulder pivot: full inside, none outside (m)
 SOCKET = (.07, .10)                  # the socket's radius round the arm's line: filled inside, not outside (m)
 FILLET = float(__import__("os").environ.get("COW_FILLET", .06))   # the radius of the fillet where the body meets the sleeve (m; round 44B: .06 again, round 44's; rounds 46-50: .045; round 44-45: .06, a little bulky at the armpits)
@@ -25,9 +25,9 @@ SOCKET_FILL = float(__import__("os").environ.get("COW_SOCKET_FILL", 1.))
 RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))                     # the delta mush's smoothing
 # round 44B: the sleeve heads (rounds 45-50) are off by default, as in round 44 (COW_SLEEVE_HEADS=1 turns them back on, as
 # round 50's corrective shapes)
-SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '0') == '1'
+SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '1') == '1'   # round 44D: on (round 44B: off)
 # round 52: the shoulder trim (shoulder_trim), on by default: the cap's lip drawn in to the sleeve as the arm swings
-SHOULDER_TRIM = __import__('os').environ.get('COW_SHOULDER_TRIM', '1') == '1'
+SHOULDER_TRIM = __import__('os').environ.get('COW_SHOULDER_TRIM', '0') == '1'   # 44C only (the owner: it didn't work)
 NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + (['SleeveHead_L', 'SleeveHead_R'] if SLEEVE_HEADS else []) + (['ShoulderTrim_L', 'ShoulderTrim_R'] if SHOULDER_TRIM else [])
 SLEEVE_HEAD_ANGLE = (np.deg2rad(8.), np.deg2rad(22.))   # round 50: the arm's swing from rest over which the sleeve heads blend in
 ANGLE = (np.deg2rad(18.), np.deg2rad(75.))      # the arm's lift (from its rest direction) over which the shape blends in
@@ -171,8 +171,8 @@ SLEEVE_HEAD_SPREAD = .049           # round 48: how far the growth is smoothed o
 #                                     spread it this far on the mesh's own edge length (round 45-47: 4 passes, about
 #                                     1 cm on the full build, which left it lumpy: the owner, "a bit of a lumpy bit on
 #                                     the shoulders")
-SLEEVE_HEAD_MAX = .014               # round 45-46: the most the sleeve head is widened (m; round 45: .025, which showed as a seam and bulk)
-SLEEVE_HEAD = (.010, .45, .16)   # round 45 (46: kept 1 cm inside the cap, not 4 mm, so it doesn't cut through as the arm moves): the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
+SLEEVE_HEAD_MAX = float(__import__('os').environ.get('COW_SLEEVE_HEAD_MAX', .020))   # 44D: .020 (as a pose-driven shape it need not hold back for the rest pose; rounds 46-50: .014)               # round 45-46: the most the sleeve head is widened (m; round 45: .025, which showed as a seam and bulk)
+SLEEVE_HEAD = (float(__import__('os').environ.get('COW_SLEEVE_HEAD_GAP', .006)), .45, .16)   # 44D: 6 mm inside the cap (rounds 46-50: 10)   # round 45 (46: kept 1 cm inside the cap, not 4 mm, so it doesn't cut through as the arm moves): the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
 
 
 def sleeve_head(model, gap=None, slope=None, reach=None, as_morph=True):
@@ -500,7 +500,7 @@ def shoulder_trim(model):
     return {'shoulder_trim': report}
 
 
-ARMUP_MIN = .0012   # round 44B (52: .0012; 44B: .0007): the smallest arm-raise offset kept (m; half dropped, from 1 mm kept in full)
+ARMUP_MIN = .0007   # round 44B (44C: .0012): the smallest arm-raise offset kept (m; half dropped, from 1 mm kept in full)
 
 
 def trim_armup(model):

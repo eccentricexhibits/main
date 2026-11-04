@@ -144,14 +144,14 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
 
 
 # round 46: armpit hair (the owner: "is it possible to add armpit hair?"): short, dense, curly, black, a few tufts
-# (each strand costs about 1.4 kB in the GLB, which must stay under 100 MiB; round 52: fewer, a little thicker)
+# (each strand costs about 1.4 kB in the GLB, which must stay under 100 MiB; 44C had fewer, a little thicker)
 # round 47 (the owner: "the armpit hair isn't quite functioning as armpit hair"): round 46's patch lay on the side
 # wall below the armpit, 13 cm front to back, and its strands hung down, so with the arm up it read as one more
 # black spot on her side.  Now it sits in the hollow itself, where the raised sleeve's underside meets the body (y
 # 1.18-1.24 m at rest: inside the sleeve's root while the arm is down), 10 cm front to back, and the strands point up into the hollow (`down` is the direction they
 # lean, +y here); at rest they lie inside the sleeve.
-ARMPIT = dict(density=1.0e5, length=(.028, .050), e0=(35, 70), e1=(-10, 25), noise=.6, per=(4, 7), down=(0, 1, 0),
-              rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00042, .00060), segs=3, stray=.25)
+ARMPIT = dict(density=1.45e5, length=(.028, .050), e0=(35, 70), e1=(-10, 25), noise=.6, per=(4, 7), down=(0, 1, 0),
+              rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00036, .00052), segs=3, stray=.25)
 ARMPIT_AT = ((.232, 1.205, -.025), (.030, .028, .040))    # each armpit (x mirrored) and its half-sizes (m)
 
 
@@ -159,7 +159,9 @@ ARMPIT_AT = ((.232, 1.205, -.025), (.030, .028, .040))    # each armpit (x mirro
 # walking / running animation"): two more tufts, at the armpit's front fold and its back fold, where the arm's
 # underside meets the body, the hair leaning down and out past the arm (forward at the front, back at the back:
 # `splay`), so at rest it peeks out in front of and behind the arm and shows more as the arms swing; the tuft in the
-# hollow (ARMPIT) stays for the raised arms
+# hollow (ARMPIT) stays for the raised arms.  44C only: off by default (the owner: "I don't think the extra armpit
+# hair works"); COW_ARMPIT_FOLDS=1 brings it back
+ARMPIT_FOLDS = __import__('os').environ.get('COW_ARMPIT_FOLDS', '0') == '1'
 ARMPIT_LOW = dict(density=4.0e4, length=(.026, .046), e0=(25, 55), e1=(-15, 10), noise=.55, per=(4, 7), down=(0, -1, 0),
                   splay=(-.025, 1.1), rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00042, .00060), segs=3,
                   stray=.25)
