@@ -35,8 +35,8 @@ def neutral(clip):
 # pose (the Exasperated fling's palms-up, a hoof at the face) the hand could take the other way round and flip half a
 # turn in a frame (the owner's "glitch on the left arm").
 RELAXED_HANG, RELAXED_MAX = .95, np.deg2rad(70.)
-RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', -.35))  # round 46: the forearm's turn, palms in and a little back (round 45's +.35 turned them forward)
-RELAXED_DIR = (0., -1., -.10)    # where the relaxed hand's line points: down, 6 degrees back (round 42-45: 15; the hoof itself curves forward)
+RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', 0.))   # the forearm's turn (round 49: 0, round 44's, square to the side, the owner preferring round 44's look; round 46-48: -.35, palms in and back; round 45: +.35)
+RELAXED_DIR = (0., -1., -.27)    # where the relaxed hand's line points: down, 15 degrees back (rounds 42-45 and 49; 46-48: 6; the hoof itself curves forward)
 RELAXED_HAND = ('hang', .6)      # round 41's (kept for reference; the clips use relaxed_hand)
 
 
@@ -66,10 +66,10 @@ def local_hand(clip, side, Rhand, hand, pole, clav=0.):
     """Round 42: see anim.Dance.local_hand (the Exasperated fling and face-palm, the Idle's hoof check)."""
     return clip.local_hand(side, Rhand, hand, pole, clav)
 
-REST_ARM = (-.07, -.15, .25)    # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose;
-#                                 round 45-46: the elbow softly bent (25 degrees in all, the bind's 11 included) and the
-#                                 upper arm 4 degrees behind, the forearm 22 degrees forward (round 45's .40 bend put it
-#                                 37 forward, and the hanging hand then bent back 50 degrees at the wrist)
+REST_ARM = (-.06, .06, .14)     # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose;
+#                                 round 49: round 44's again (the owner: round 44 "looks correct"); rounds 46-48: (-.07,
+#                                 -.15, .25), the upper arm swung back and the elbow bent 25 degrees, which moved the
+#                                 forearms out and changed how the shoulders read; round 45: (-.07, -.03, .40)
 
 
 def mix(a, b, w):
@@ -169,7 +169,7 @@ class Idle(AN.Dance):
             (13.0, dict(weight=-.6)), (14.5, dict(weight=-.45, roll=1.)), (15.6, dict(weight=-.15))]
     FIELDS = ['weight', 'glance', 'nose', 'inhale', 'slump', 'shake', 'tap', 'roll']
     ARM_REST = REST_ARM             # the arms' (abduction, forward flexion, elbow bend) from the bind pose
-    IDLE_ARMS = {'L': (0., -.02, .05), 'R': (.02, .03, -.03)}   # round 45: each arm's own offset from it (not mirror images)
+    IDLE_ARMS = {'L': (0., 0., 0.), 'R': (0., 0., 0.)}   # each arm's own offset from ARM_REST (round 49: none, as in round 44; rounds 45-48: L (0, -.02, .05), R (.02, .03, -.03))
     TAPS = (10.35, 12.05, 4)        # the foot taps: from, to, how many
 
     def key(self, t, weight=0., glance=0., nose=0., inhale=0., slump=0., shake=0., tap=0., roll=0.):
@@ -204,8 +204,9 @@ class Idle(AN.Dance):
             load = max(0., s * w)                 # the arm on the standing side hangs a little further out
             a, f, b = np.add(self.ARM_REST, self.IDLE_ARMS[side])
             # the arm on the free side swings a little forward with the hips; the elbows sag as she slumps
-            p['fk'][side] = np.array([a + .03 * load, f + .03 * (1 - load) - .04 * inhale + .03 * slump, b + .05 * (1 - load) + .08 * slump])
-            p['clav'][side] = -.03 - .02 * load + .05 * inhale - .05 * slump
+            # round 49: round 44's (rounds 45-48 dropped the shoulders .03 and let the elbows sag in the sigh)
+            p['fk'][side] = np.array([a + .03 * load, f + .03 * (1 - load) - .04 * inhale, b + .05 * (1 - load)])
+            p['clav'][side] = -.02 * load + .05 * inhale - .05 * slump
         return p
 
     def sample(self, t):
@@ -239,7 +240,7 @@ class Walk(AN.Dance):
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)               # arm swings opposite its own leg
             # round 45: the elbows a little softer (.32; round 39-44: .22)
-            p['fk'][side] = np.array([self.ARM_ABD, .30 * swing + .05, .32 + .12 * max(0, swing)])
+            p['fk'][side] = np.array([self.ARM_ABD, .30 * swing + .05, .22 + .12 * max(0, swing)])   # round 49: round 44's elbows (45-48: .32)
         return p
 
 
