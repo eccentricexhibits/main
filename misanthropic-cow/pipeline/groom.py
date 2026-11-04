@@ -140,6 +140,31 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
             'roots': root, 'face': fi, 'bc': bc, 'nper': np.full(S, nper)}
 
 
+# round 46: armpit hair (the owner: "is it possible to add armpit hair?"): short, dense, curly, black, a few tufts
+# (half the strands first tried, a little thicker: they cost 1.4 kB each in the GLB, which must stay under 100 MiB)
+ARMPIT = dict(density=6.0e4, length=(.024, .044), e0=(30, 70), e1=(-25, 25), noise=1.1, per=(4, 7),
+              rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00036, .00052), segs=3, stray=.25)
+ARMPIT_AT = ((.198, 1.178, -.010), (.032, .062, .052))    # each armpit (x mirrored) and its half-sizes (m)
+
+
+def armpit_mask(cen, s):
+    """Per face: 1 in the middle of the cow's armpit on side s (+1 left), fading out at its edge."""
+    c, r = np.array(ARMPIT_AT[0]) * [s, 1, 1], np.array(ARMPIT_AT[1])
+    d = np.linalg.norm((cen - c) / r, axis=1)
+    return np.clip(1.15 - .85 * d, 0, 1)
+
+
+def armpit_strands(v, f, n, m, sdf, scale=1.0, seed=31):
+    """Round 46: armpit hair on the faces of (v, f) where m is set (armpit_mask), one layer (ARMPIT).  `sdf` is the
+    body's alone, so the strands are kept out of the body but may lie inside the sleeve: with the arm down they are
+    mostly hidden under it, and they show as it lifts."""
+    rng = np.random.default_rng(seed)
+    h = _layer(rng, v, f, n, m, sdf, ARMPIT, scale)
+    h['starts'] = np.concatenate([[0], np.cumsum(h.pop('nper'))])
+    h['strands'] = len(h['starts']) - 1
+    return h
+
+
 def shag_strands(v, f, n, m, sdf, scale=1.0, seed=7):
     """Grow the undercoat and the locks on the faces of (v, f) where the patch mask m (per face) is set.
     scale multiplies both clump densities (the quick build uses fewer).

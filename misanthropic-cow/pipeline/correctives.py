@@ -20,7 +20,7 @@ RELAX_SIGMA = np.deg2rad(float(__import__('os').environ.get('COW_RELAX_SIGMA', 2
 RELAX_MIN, STRAND_MIN = .001, .003   # the smallest correction kept on the body and on the shag strands (m)
 RELAX_R = (.15, .27)                 # the corrected region round the shoulder pivot: full inside, none outside (m)
 SOCKET = (.07, .10)                  # the socket's radius round the arm's line: filled inside, not outside (m)
-FILLET = float(__import__("os").environ.get("COW_FILLET", .06))   # the radius of the fillet where the body meets the sleeve (m)
+FILLET = float(__import__("os").environ.get("COW_FILLET", .045))   # the radius of the fillet where the body meets the sleeve (m; round 44-45: .06, a little bulky at the armpits)
 SOCKET_FILL = float(__import__("os").environ.get("COW_SOCKET_FILL", 1.))
 RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))                     # the delta mush's smoothing
 NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))]
@@ -147,8 +147,8 @@ def _taper(mag, m):
     return u * u * (3 - 2 * u)
 
 
-SLEEVE_HEAD_MAX = .025               # round 45: the most the sleeve head is widened (m)
-SLEEVE_HEAD = (.004, .45, .16)   # round 45: the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
+SLEEVE_HEAD_MAX = .014               # round 45-46: the most the sleeve head is widened (m; round 45: .025, which showed as a seam and bulk)
+SLEEVE_HEAD = (.010, .45, .16)   # round 45 (46: kept 1 cm inside the cap, not 4 mm, so it doesn't cut through as the arm moves): the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
 
 
 def sleeve_head(model, gap=None, slope=None, reach=None):
@@ -347,7 +347,8 @@ def relax_targets(model, B, iters=RELAX_ITERS):
         if near.any():
             _, idx = tree.query(pv[near])
             ex[:, near] = out[:, idx]
-        ex *= _taper(np.linalg.norm(ex, axis=2), STRAND_MIN)[..., None]   # loose black strands: a few mm off the surface do not show
+        m = STRAND_MIN * (2 if p['name'].endswith('armpits') else 1)     # round 46: the armpit hair is mostly under the arm
+        ex *= _taper(np.linalg.norm(ex, axis=2), m)[..., None]   # loose black strands: a few mm off the surface do not show
         append(p, ex, np.zeros_like(ex))
     return {'relax_vertices': [int((np.linalg.norm(o, axis=1) > 0).sum()) for o in out]}
 

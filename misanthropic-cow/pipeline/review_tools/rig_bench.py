@@ -51,6 +51,7 @@ def assemble(d, quick):
     # round 45: the sleeve heads widened to fill the corner under the shoulder caps (before tangents and correctives)
     import correctives as CO
     report.update(CO.sleeve_head(model))
+    RG.hood_follow_mask(model, [p.get('group') for p in model.parts])     # round 46
     for p in model.parts:
         p['j'], p['w'] = RG.quantize(p.pop('W'))
         nt = model.materials[p['material']].get('normalTexture')

@@ -35,8 +35,8 @@ def neutral(clip):
 # pose (the Exasperated fling's palms-up, a hoof at the face) the hand could take the other way round and flip half a
 # turn in a frame (the owner's "glitch on the left arm").
 RELAXED_HANG, RELAXED_MAX = .95, np.deg2rad(70.)
-RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', .35))   # round 45: the forearm's inward turn (rad)
-RELAXED_DIR = (0., -1., -.27)    # where the relaxed hand's line points: down, 15 degrees back (the hoof itself curves forward)
+RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', -.35))  # round 46: the forearm's turn, palms in and a little back (round 45's +.35 turned them forward)
+RELAXED_DIR = (0., -1., -.10)    # where the relaxed hand's line points: down, 6 degrees back (round 42-45: 15; the hoof itself curves forward)
 RELAXED_HAND = ('hang', .6)      # round 41's (kept for reference; the clips use relaxed_hand)
 
 
@@ -54,8 +54,9 @@ def relaxed_hand(clip, side):
         down = np.asarray(RELAXED_DIR) / np.linalg.norm(RELAXED_DIR)
         ax = np.cross(fdir, down); sn = np.linalg.norm(ax)
         ang = min(RELAXED_HANG * np.arctan2(sn, fdir @ down), RELAXED_MAX)
-        # round 45: the forearm turned in a little (RELAXED_TWIST), so the backs of the hooves face out and forward and
-        # the palms in towards the thighs, as a relaxed hand hangs (round 41-44: square to the side)
+        # round 45-46: the forearm turned (RELAXED_TWIST) so the palms face the thighs and a little back, as a relaxed hand
+        # hangs (round 41-44: square to the side; round 45 turned them the wrong way, a little forward: the owner, "the
+        # hands are not rotated properly")
         bfn = bf0 / np.linalg.norm(bf0)
         cache[side] = ('local', rot(Rf.T @ (ax / sn), ang) @ rot(bfn, -s * RELAXED_TWIST))
     return cache[side]
@@ -65,9 +66,10 @@ def local_hand(clip, side, Rhand, hand, pole, clav=0.):
     """Round 42: see anim.Dance.local_hand (the Exasperated fling and face-palm, the Idle's hoof check)."""
     return clip.local_hand(side, Rhand, hand, pole, clav)
 
-REST_ARM = (-.07, -.03, .40)    # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose;
-#                                 round 45: the elbow softly bent (23 degrees; round 39-44: 8, which looked stiff, "like a
-#                                 mannequin" again to the owner: "very stiff and awkward"), the upper arm a touch behind
+REST_ARM = (-.07, -.15, .25)    # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose;
+#                                 round 45-46: the elbow softly bent (25 degrees in all, the bind's 11 included) and the
+#                                 upper arm 4 degrees behind, the forearm 22 degrees forward (round 45's .40 bend put it
+#                                 37 forward, and the hanging hand then bent back 50 degrees at the wrist)
 
 
 def mix(a, b, w):
@@ -167,7 +169,7 @@ class Idle(AN.Dance):
             (13.0, dict(weight=-.6)), (14.5, dict(weight=-.45, roll=1.)), (15.6, dict(weight=-.15))]
     FIELDS = ['weight', 'glance', 'nose', 'inhale', 'slump', 'shake', 'tap', 'roll']
     ARM_REST = REST_ARM             # the arms' (abduction, forward flexion, elbow bend) from the bind pose
-    IDLE_ARMS = {'L': (0., -.02, .07), 'R': (.02, .03, -.04)}   # round 45: each arm's own offset from it (not mirror images)
+    IDLE_ARMS = {'L': (0., -.02, .05), 'R': (.02, .03, -.03)}   # round 45: each arm's own offset from it (not mirror images)
     TAPS = (10.35, 12.05, 4)        # the foot taps: from, to, how many
 
     def key(self, t, weight=0., glance=0., nose=0., inhale=0., slump=0., shake=0., tap=0., roll=0.):

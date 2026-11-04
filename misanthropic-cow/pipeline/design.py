@@ -254,12 +254,12 @@ def suit_parts(p, torso_only=False):
     return out
 
 
-HOOD_FLARE = (1.383, 1.46, .022)   # round 32: base and top of the flare (m), and how far it spreads at the sides
+HOOD_FLARE = (1.383, 1.46, .019)   # round 32: base and top of the flare (m), and how far it spreads at the sides
 # round 34 (the 2012 shoot, shots 0071 and 7): the hood is fuller round the mask: 1.5-3 cm of fur shows beside it
 # from the front, and the neck under the snout is about 20 cm across (round 33: 15-17 cm)
 HOOD_HEAD_R = np.array([.112, .122, .104])       # round 33: (.090, .118, .099)
-HOOD_NECK_R = (.060, .064)                       # bottom, top (round 37: round 33's; rounds 34-35: .084, .076; 36: .066, .064)
-HOOD_FLARE_R = .063                              # the flare's base radius before it spreads (round 33's; rounds 34-35: .082)
+HOOD_NECK_R = (.057, .061)                       # bottom, top (round 46: 5 % slimmer, the owner: "slightly too chunky" under the chin; round 37: .060, .064; rounds 34-35: .084, .076; 36: .066, .064)
+HOOD_FLARE_R = .060                              # the flare's base radius before it spreads (round 46; round 33-45: .063; rounds 34-35: .082)
 HOOD_ROLL = (30., .030)                          # beside the mask the fur's front rolls back (1/m, and at most 3 cm)
 # round 35 (the owner: the hood looked unpolished): its edge round the mask is rounded over like a fabric opening
 # instead of a square cut (HOOD_EDGE_R where the hood shows beside the mask, tight behind it so no gap opens at the

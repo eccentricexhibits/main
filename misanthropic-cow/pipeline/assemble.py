@@ -152,6 +152,22 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         model.parts.append(part)
     report['shag_clumps'] = int(len(roots))
     report['shag_strands'] = int(hair['strands'])
+    # round 46: armpit hair, rooted on the body in each armpit; it follows the body (and its corrective shapes) as the
+    # shag's roots do, without a spring at the tips
+    if D.BODY_SOURCE == 'tripo':
+        m_ap = np.zeros(len(sf))
+        tsel = piece == 0
+        for s_ in (1, -1):
+            m_ap[tsel] = np.maximum(m_ap[tsel], GR.armpit_mask(cen[tsel], s_))
+        ap = GR.armpit_strands(sv, sf, sn, m_ap, lambda q: D.torso_sdf(q), scale=(.6 if quick else 1.0))
+        W_ap = np.einsum('ij,ijk->ik', ap['bc'], W_suit[sf[ap['face']]])[ap['cid']]
+        part = {'name': 'Suit_black_shag_armpits', 'v': ap['v'].astype(np.float32), 'n': ap['n'].astype(np.float32),
+                'uv': None, 'uv1': None, 'ao': ap['tone'].astype(np.float32), 'f': ap['f'].astype(np.int32),
+                'material': shag_mat, 'group': 'suit', 'W': W_ap}
+        if morph_suit is not None:
+            part['morph'] = np.einsum('ij,kijl->kil', ap['bc'], morph_suit[:, sf[ap['face']]])[:, ap['cid']].astype(np.float32)
+        model.parts.append(part)
+        report['armpit_strands'] = int(ap['strands'])
 
     # --- leggings
     if leg is None:

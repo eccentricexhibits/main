@@ -1,11 +1,12 @@
 {
  "project": "The Misanthropic Cow",
- "version": "v10 (feedback round 45 complete; models kept: rounds 40 to 45)",
- "date": "2026-11-03",
+ "version": "v10 (feedback round 46 complete; models kept: rounds 40 to 46)",
+ "date": "2026-11-04",
  "git_branch": "claude/upbeat-gates-7dtea4",
  "git_commit": "round 38 is the latest commit on branch claude/upbeat-gates-7dtea4; rounds 33-37 are on claude/peaceful-ride-pz9yub, rounds 26-32 on claude/amazing-davinci-sc9bc8 (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "round_46_change": "the owner's round 45 review: the hood follows the head within 2.5-8 cm of the mask (rig.hood_follow_mask), closing the gap under the jaw in Idle's side-eye; the neck under the chin 5 % slimmer (design.HOOD_NECK_R .057/.061, HOOD_FLARE_R .060); relaxed hands palms-in (clips.RELAXED_TWIST -.35, the sign was wrong in round 45), elbow 25 degrees in all with a straight wrist (REST_ARM -.07/-.15/.25, RELAXED_DIR 6 degrees back); sleeve heads smaller (SLEEVE_HEAD gap .010, max .014) and the correctives' fillet .045, for the shoulder seam and the bulk at the armpits; armpit hair (groom.armpit_strands, part Suit_black_shag_armpits); cord and plug worn off-white; owner-supplied tail textures (tail_textures.supplied; prompts in handoff/TEXTURE_PROMPTS.md)",
  "round_45_change": "the owner's round 44 review: the shoulder groove filled by widening the sleeve heads to just inside the shoulder cap (correctives.sleeve_head); looser relaxed arms (REST_ARM -.07/-.03/.40, RELAXED_TWIST .35, Idle.IDLE_ARMS asymmetric, Walk elbows .32); Idle without the hoof check (15.6 s); the broken horn's fifth wire joined to its junction (assets.close_wire_gaps); the tail textured (tail_textures.py: satin bow, ribbed and embossed lamp cord, moulded plug, brushed brass)",
  "round_44_change": "the owner's round 43 review (armpits in Jumping Jacks, the arm's join in Run): pose-space shoulder correctives (correctives.relax_targets): at nine key arm directions per side the body is delta-mushed, the sleeve's socket filled and the body lifted onto a smooth union with the sleeve (a 6 cm fillet); 18 sparse morph targets Relax0_L..Relax8_R weighted by arm direction (normalised gaussians); small offsets trimmed to keep the GLB under 100 MiB",
  "round_43_change": "the owner's round 42 review: shoulders and armpits move as one where the body and sleeve meet (the UpperArmRoot helper follows part of the arm's swing, anim.SHOULDER_FOLLOW; the body round the pivot and the sleeve's root share it, rig.CAP_W .9, SLEEVE_ROOT_W .85); the hoof toes' curl direction fixed (it was reversed since round 18); the Idle hoof check brought in front of her, palm up; transitions: the viewer crossfades between clips (gaits phase-matched), Shuffle mode, and transition hints in each animation's glTF extras",
@@ -52,11 +53,15 @@
   "static_glb_bytes": 83115800
  },
  "files": {
+  "round_46_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r46_Animated.glb",
+  "round_46_viewer_copy": "Cow_v10/viewer/cow-r46-meshopt.glb",
+  "round_46_reviews": "Cow_v10/reviews/round_46/",
+  "texture_prompts": "Cow_v10/handoff/TEXTURE_PROMPTS.md",
   "round_45_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r45_Animated.glb",
   "round_45_viewer_copy": "Cow_v10/viewer/cow-r45-meshopt.glb",
   "round_45_reviews": "Cow_v10/reviews/round_45/",
   "round_44_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r44_Animated.glb",
-  "round_44_viewer_copy": "Cow_v10/viewer/cow-r44-meshopt.glb",
+  "round_44_viewer_copy": "removed from viewer/ in round 46 (the viewer holds rounds 45 and 46)",
   "round_44_reviews": "Cow_v10/reviews/round_44/",
   "round_43_animated_glb": "Cow_v10/models/Misanthropic_Cow_v10_r43_Animated.glb",
   "round_43_viewer_copy": "removed from viewer/ in round 45 (the viewer holds rounds 44 and 45)",
@@ -618,6 +623,8 @@
  "validation_per_clip_round_39": "Cow_v10/reviews/round_39/validation_round39.json (and .md: every clip against round 38; quick-resolution build)",
  "validation_per_clip_round_40": "Cow_v10/reviews/round_40/validation_round40.json (and .md, against round 39) and teat_steadiness_round40.md",
  "next_steps": [
+  "Tail textures from the owner's images (handoff/TEXTURE_PROMPTS.md): save them as textures/tail_cord.png and textures/tail_bow.png and rebuild",
+  "Textures still procedural or missing: the horns' exposed wires (one flat grey), normal maps for the horns; optionally photo swatches for the udders, briefs and leggings",
   "Animations beyond procedural: motion capture from the owner's own video, or hand-keyed clips on the round 39 GLB (motion.perform can run on top of either)",
   "Lace side panels on the briefs (offered, not yet done)"
  ],

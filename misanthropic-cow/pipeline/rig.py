@@ -375,3 +375,23 @@ def quantize(W):
     q[:, 0] += 255 - q.sum(1)
     J = np.where(q > 0, J, 0)
     return J.astype(np.uint8), q.astype(np.uint8)
+
+
+HOOD_FOLLOW = (.080, .025)     # round 46: the hood takes the head's weight within this far of the mask (none, all; m)
+
+
+def hood_follow_mask(model, groups):
+    """Round 46: the hood next to the mask follows the head.  The hood only followed the head above 1.42-1.47 m, so
+    round the mask's jaw it stayed with the neck, and as the head turned (Idle's side-eye) the mask swung away from it
+    and a gap opened between face and hood (the owner: "moments where the face isn't connecting to the mask").  Each
+    hood point within HOOD_FOLLOW of the mask's surface now takes the head's weight, all of it within 2.5 cm."""
+    from scipy.spatial import cKDTree
+    mask = np.vstack([p['v'] for p, g in zip(model.parts, groups) if g == 'head' and p['name'].startswith('Mask_')])
+    tree = cKDTree(mask)
+    for p in model.parts:
+        if p['name'].startswith('Hood_'):
+            d, _ = tree.query(np.asarray(p['v'], float))
+            g = ss(HOOD_FOLLOW[0], HOOD_FOLLOW[1], d)
+            W = p['W'] * (1 - g)[:, None]; W[:, HEAD] += g
+            p['W'] = W
+
