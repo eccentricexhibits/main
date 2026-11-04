@@ -50,7 +50,8 @@ def assemble(d, quick):
         palm[side] = float(np.percentile((v - o) @ pn, 99.5))
     # round 45: the sleeve heads widened to fill the corner under the shoulder caps (before tangents and correctives)
     import correctives as CO
-    report.update(CO.sleeve_head(model))
+    if CO.SLEEVE_HEADS:                                  # round 44B: off by default, as in round 44
+        report.update(CO.sleeve_head(model))
     RG.hood_follow_mask(model, [p.get('group') for p in model.parts])     # round 46
     for p in model.parts:
         p['j'], p['w'] = RG.quantize(p.pop('W'))
@@ -60,7 +61,9 @@ def assemble(d, quick):
             p['tangent'] = G.tangents(p['v'], p['n'], uvn, p['f'])
     # round 44: the shoulder correctives (delta mush, socket fill and fillet at key arm poses), from the final weights
     report.update(CO.relax_targets(model, B))
-    report.update(CO.sleeve_head_targets(model))          # round 50: the sleeve heads as corrective shapes
+    if CO.SLEEVE_HEADS:
+        report.update(CO.sleeve_head_targets(model))      # round 50: the sleeve heads as corrective shapes
+    report.update(CO.trim_armup(model))                  # round 44B: tenths of a millimetre dropped from ArmUp
     groups = [p.get('group') for p in model.parts]
     model.parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
     _dump({'model': model, 'groups': groups, 'B': B, 'palm_half': palm, 'report': report}, d / 'model.pkl')

@@ -110,11 +110,13 @@ def skin_parts(model, mats):
         v0, n0 = p['v'], p['n']
         if p.get('morph') is not None:
             # round 40: the corrective shapes, weighted by the pose (correctives.weights_from_mats)
+            import correctives as CO
             if mw is None:
-                import correctives as CO
                 mw = CO.weights_from_mats(m)
             if mw.max() > 0:
                 k = len(p['morph'])            # round 44: models built before the shoulder correctives have only the first two
+                if k > len(mw):                # round 44B: a model with round 50's sleeve heads while they are off by default
+                    mw = CO.weights_from_mats(m, sleeve_heads=True)
                 v0 = v0 + np.einsum('k,kij->ij', mw[:k], p['morph'])
                 if p.get('morph_n') is not None:
                     n0 = n0 + np.einsum('k,kij->ij', mw[:k], p['morph_n'])

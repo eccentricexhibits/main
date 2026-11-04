@@ -20,10 +20,13 @@ RELAX_SIGMA = np.deg2rad(float(__import__('os').environ.get('COW_RELAX_SIGMA', 2
 RELAX_MIN, STRAND_MIN = .001, .003   # the smallest correction kept on the body and on the shag strands (m)
 RELAX_R = (.15, .27)                 # the corrected region round the shoulder pivot: full inside, none outside (m)
 SOCKET = (.07, .10)                  # the socket's radius round the arm's line: filled inside, not outside (m)
-FILLET = float(__import__("os").environ.get("COW_FILLET", .045))   # the radius of the fillet where the body meets the sleeve (m; round 44-45: .06, a little bulky at the armpits)
+FILLET = float(__import__("os").environ.get("COW_FILLET", .06))   # the radius of the fillet where the body meets the sleeve (m; round 44B: .06 again, round 44's; rounds 46-50: .045; round 44-45: .06, a little bulky at the armpits)
 SOCKET_FILL = float(__import__("os").environ.get("COW_SOCKET_FILL", 1.))
 RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))                     # the delta mush's smoothing
-NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + ['SleeveHead_L', 'SleeveHead_R']
+# round 44B: the sleeve heads (rounds 45-50) are off by default, as in round 44 (COW_SLEEVE_HEADS=1 turns them back on, as
+# round 50's corrective shapes)
+SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '0') == '1'
+NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + (['SleeveHead_L', 'SleeveHead_R'] if SLEEVE_HEADS else [])
 SLEEVE_HEAD_ANGLE = (np.deg2rad(8.), np.deg2rad(22.))   # round 50: the arm's swing from rest over which the sleeve heads blend in
 ANGLE = (np.deg2rad(18.), np.deg2rad(75.))      # the arm's lift (from its rest direction) over which the shape blends in
 REGION_Y = (1.02, 1.42)                          # only the shoulders and armpits change
@@ -120,7 +123,7 @@ def relax_weights(d, d0, keys):
     return phi / (np.exp(-(ang(d, d0) / RELAX_SIGMA) ** 2) + phi.sum() + 1e-9)
 
 
-def weights_from_mats(mats):
+def weights_from_mats(mats, sleeve_heads=None):
     """Each target's weight from a frame's skinning matrices (bind rotations are identity, so a joint's global
     rotation is its skinning matrix's): how far each upper arm has turned from its rest direction, relative to the
     chest."""
@@ -138,6 +141,8 @@ def weights_from_mats(mats):
     for side in 'LR':
         d0, keys = _key_dirs(side)
         out.append(relax_weights(_arm_dir(mats, side, Rc)[1], d0, keys))
+    if not (SLEEVE_HEADS if sleeve_heads is None else sleeve_heads):
+        return np.concatenate(out)
     sh = np.zeros(2)                                    # round 50: the sleeve heads, by the arm's swing from rest
     for k, side in enumerate('LR'):
         d0, d = _arm_dir(mats, side, Rc)
@@ -396,6 +401,32 @@ def relax_targets(model, B, iters=RELAX_ITERS):
         ex *= _taper(np.linalg.norm(ex, axis=2), m)[..., None]   # loose black strands: a few mm off the surface do not show
         append(p, ex, np.zeros_like(ex))
     return {'relax_vertices': [int((np.linalg.norm(o, axis=1) > 0).sum()) for o in out]}
+
+
+ARMUP_MIN = .0007   # round 44B: the smallest arm-raise offset kept (m; half dropped, from 1 mm kept in full)
+
+
+def trim_armup(model):
+    """Round 44B: the arm-raise shapes (ArmUp_L/R, round 40) on the body and the shag were stored wherever they moved a
+    vertex at all, mostly by tenths of a millimetre; those are dropped as the shoulder correctives' are (a smooth ramp,
+    _taper), which keeps the GLB under 100 MiB without a visible change."""
+    n = 0
+    for p in model.parts:
+        if p.get('morph') is None:
+            continue
+        m = np.asarray(p['morph'], np.float32)
+        for k in range(2):
+            mag = np.linalg.norm(m[k], axis=1)
+            before = int((mag > 0).sum())
+            m[k] = m[k] * _taper(mag, ARMUP_MIN)[:, None]
+            n += before - int((np.linalg.norm(m[k], axis=1) > 0).sum())
+        p['morph'] = m
+        if p.get('morph_n') is not None:
+            mn = np.asarray(p['morph_n'], np.float32)
+            for k in range(2):
+                mn[k][np.linalg.norm(m[k], axis=1) == 0] = 0
+            p['morph_n'] = mn
+    return {'armup_trimmed': n}
 
 
 def track(mats_frames):
