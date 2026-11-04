@@ -17,7 +17,7 @@ import rig as RG
 # bind pose, as clips.fk_wrist) the body round the shoulder is posed, delta-mushed and stored as a morph target
 RELAX_KEYS = [(.35, 0.), (.70, 0.), (1.15, 0.), (1.70, .05), (2.30, .05), (0., .50), (0., .90), (0., -.55), (.35, 1.45)]
 RELAX_SIGMA = np.deg2rad(float(__import__('os').environ.get('COW_RELAX_SIGMA', 20.)))        # the keys' reach (a gaussian of the angle between arm directions)
-RELAX_MIN, STRAND_MIN = .001, .003   # the smallest correction kept on the body and on the shag strands (m)
+RELAX_MIN, STRAND_MIN = .0015, .003   # the smallest correction kept on the body and on the shag strands (m)
 RELAX_R = (.15, .27)                 # the corrected region round the shoulder pivot: full inside, none outside (m)
 SOCKET = (.07, .10)                  # the socket's radius round the arm's line: filled inside, not outside (m)
 FILLET = float(__import__("os").environ.get("COW_FILLET", .06))   # the radius of the fillet where the body meets the sleeve (m; round 44B: .06 again, round 44's; rounds 46-50: .045; round 44-45: .06, a little bulky at the armpits)
@@ -26,7 +26,9 @@ RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))          
 # round 44B: the sleeve heads (rounds 45-50) are off by default, as in round 44 (COW_SLEEVE_HEADS=1 turns them back on, as
 # round 50's corrective shapes)
 SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '0') == '1'
-NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + (['SleeveHead_L', 'SleeveHead_R'] if SLEEVE_HEADS else [])
+# round 52: the shoulder trim (shoulder_trim), on by default: the cap's lip drawn in to the sleeve as the arm swings
+SHOULDER_TRIM = __import__('os').environ.get('COW_SHOULDER_TRIM', '1') == '1'
+NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + (['SleeveHead_L', 'SleeveHead_R'] if SLEEVE_HEADS else []) + (['ShoulderTrim_L', 'ShoulderTrim_R'] if SHOULDER_TRIM else [])
 SLEEVE_HEAD_ANGLE = (np.deg2rad(8.), np.deg2rad(22.))   # round 50: the arm's swing from rest over which the sleeve heads blend in
 ANGLE = (np.deg2rad(18.), np.deg2rad(75.))      # the arm's lift (from its rest direction) over which the shape blends in
 REGION_Y = (1.02, 1.42)                          # only the shoulders and armpits change
@@ -123,7 +125,17 @@ def relax_weights(d, d0, keys):
     return phi / (np.exp(-(ang(d, d0) / RELAX_SIGMA) ** 2) + phi.sum() + 1e-9)
 
 
-def weights_from_mats(mats, sleeve_heads=None):
+def _swing(mats, Rc):
+    """Per side, 0..1: how far the upper arm has swung from its rest direction (a smoothstep over SLEEVE_HEAD_ANGLE)."""
+    out = np.zeros(2)
+    for k, side in enumerate('LR'):
+        d0, d = _arm_dir(mats, side, Rc)
+        u = np.clip((np.arccos(np.clip(d @ d0, -1, 1)) - SLEEVE_HEAD_ANGLE[0]) / (SLEEVE_HEAD_ANGLE[1] - SLEEVE_HEAD_ANGLE[0]), 0, 1)
+        out[k] = u * u * (3 - 2 * u)
+    return out
+
+
+def weights_from_mats(mats, sleeve_heads=None, shoulder_trim=None):
     """Each target's weight from a frame's skinning matrices (bind rotations are identity, so a joint's global
     rotation is its skinning matrix's): how far each upper arm has turned from its rest direction, relative to the
     chest."""
@@ -141,14 +153,10 @@ def weights_from_mats(mats, sleeve_heads=None):
     for side in 'LR':
         d0, keys = _key_dirs(side)
         out.append(relax_weights(_arm_dir(mats, side, Rc)[1], d0, keys))
-    if not (SLEEVE_HEADS if sleeve_heads is None else sleeve_heads):
-        return np.concatenate(out)
-    sh = np.zeros(2)                                    # round 50: the sleeve heads, by the arm's swing from rest
-    for k, side in enumerate('LR'):
-        d0, d = _arm_dir(mats, side, Rc)
-        u = np.clip((np.arccos(np.clip(d @ d0, -1, 1)) - SLEEVE_HEAD_ANGLE[0]) / (SLEEVE_HEAD_ANGLE[1] - SLEEVE_HEAD_ANGLE[0]), 0, 1)
-        sh[k] = u * u * (3 - 2 * u)
-    out.append(sh)
+    if SLEEVE_HEADS if sleeve_heads is None else sleeve_heads:
+        out.append(_swing(mats, Rc))                    # round 50: the sleeve heads, by the arm's swing from rest
+    if SHOULDER_TRIM if shoulder_trim is None else shoulder_trim:
+        out.append(_swing(mats, Rc))                    # round 52: the shoulder trim, the same
     return np.concatenate(out)
 
 
@@ -239,7 +247,7 @@ def sleeve_head_targets(model):
     shoulders.  Now the widening blends in with the arm's swing from rest (SLEEVE_HEAD_ANGLE, weights_from_mats): none
     while she stands (Idle stays within 6 degrees), partly at the ends of Walk's swing, fully through most of Run's.
     Every part with corrective shapes gets the two (empty but on the sleeves), so all share one weight track."""
-    k0 = len(NAMES) - 2
+    k0 = len(NAMES) - 2 - (2 if SHOULDER_TRIM else 0)   # the trim's two come after these
     for p in model.parts:
         head = p.pop('sleeve_head', None)
         if p.get('morph') is None and head is None:
@@ -403,7 +411,96 @@ def relax_targets(model, B, iters=RELAX_ITERS):
     return {'relax_vertices': [int((np.linalg.norm(o, axis=1) > 0).sum()) for o in out]}
 
 
-ARMUP_MIN = .0007   # round 44B: the smallest arm-raise offset kept (m; half dropped, from 1 mm kept in full)
+SHOULDER_TRIM_F = .6                       # round 52: the share of the cap's overhang taken away
+SHOULDER_TRIM_SPREAD = .035                # round 52: how far the trim is smoothed over the body (m)
+SHOULDER_TRIM_P = (.004, .03, .035, .06)   # round 52: kept outside the sleeve by (m), the trim's reach up the cap from its
+#                                       band's end (m), the most overhang trimmed (m), the most overhang counted as the cap's (m;
+#                                       the cap overhangs the sleeve by 3-4 cm at the front and back; the back itself is further)
+
+
+def shoulder_trim(model):
+    """Round 52: the groove under the shoulder cap (Run; the owner's round 44 note, and again on round 44B, circled at the
+    back of the shoulder), filled by taking material away rather than adding it ("instead of adding material, what if
+    we removed material?").  The body's shoulder is a rounded cap wider than the sleeve, and the sleeve comes out from
+    under its lip; as the arm swings, the corner under the lip reads as a groove.  Rounds 45-50 widened the sleeve to
+    meet the cap.  Here the cap's lip is drawn in to just outside the sleeve (SHOULDER_TRIM_P), fully at the lip and
+    fading out up the cap, on the front and back of the shoulder (where the groove shows; not on top, and not on the
+    side wall under the arm), smoothed over the body; as two corrective shapes (ShoulderTrim_L/R) weighted by the arm's
+    swing from rest (_swing), so standing she keeps round 44's shoulders.  The shag strands near the shoulder follow
+    their nearest body vertex.  Computed in the bind pose, measured against the sleeve along rays from the arm's axis."""
+    import sdf as S
+    from scipy import sparse
+    from scipy.spatial import cKDTree
+    gap, reach, most, cap = SHOULDER_TRIM_P
+    ti = [i for i, p in enumerate(model.parts) if p['name'].startswith('Suit_torso')][0]
+    P0 = model.parts[ti]
+    V = np.asarray(P0['v'], float); F = np.asarray(P0['f'])
+    key = np.round(V / 2e-5).astype(np.int64)
+    _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True); inv = inv.ravel()
+    Vw = V[first]; Fw = inv[F]; nw = len(Vw)
+    i = np.concatenate([Fw[:, 0], Fw[:, 1], Fw[:, 2]]); j = np.concatenate([Fw[:, 1], Fw[:, 2], Fw[:, 0]])
+    A = sparse.coo_matrix((np.ones(len(i)), (i, j)), shape=(nw, nw)); A = ((A + A.T) > 0).astype(float)
+    Mavg = sparse.diags(1 / np.maximum(np.asarray(A.sum(1)).ravel(), 1)) @ A
+    edge = float(np.median(np.linalg.norm(Vw[i] - Vw[j], axis=1)))
+    passes = int(round((SHOULDER_TRIM_SPREAD / max(edge, 1e-4)) ** 2))
+    out = np.zeros((2, len(V), 3)); report = {}
+    for k, (side, s) in enumerate([('L', 1), ('R', -1)]):
+        Sv = np.asarray([q for q in model.parts if q['name'].startswith(f'Suit_sleeve_{side}')][0]['v'], float)
+        sh, el, _ = D.arm_points(s)
+        du = (el - sh) / np.linalg.norm(el - sh)
+        def polar(X):
+            t = (X - sh) @ du; rad = (X - sh) - np.outer(t, du); r = np.linalg.norm(rad, axis=1)
+            return t, r, rad / np.maximum(r, 1e-9)[:, None]
+        ts, rs, ds = polar(Sv)
+        tree = cKDTree(sh + np.outer(ts, du) + ds * .06)
+        tt, rt, dt = polar(Vw)
+        cand = (tt > -.03) & (tt < .11) & (rt < .17)
+        dist, nn = tree.query(sh + np.outer(tt, du) + dt * .06)
+        rsl = rs[nn]
+        over = rt - rsl - gap
+        near = cand & (dist < .02) & (over > 0) & (over < cap)
+        # the cap's band down the arm (its overhang, 3-4 cm, runs from the shoulder to about 8 cm down), fading at
+        # both ends; past it the body is the back and chest, further out
+        sm = lambda a, b_, x: (lambda q: q * q * (3 - 2 * q))(np.clip((x - a) / (b_ - a), 0, 1))
+        w = sm(-.01, .03, tt) * (1 - sm(.085, .085 + reach, tt)) * SHOULDER_TRIM_F
+        side_w = np.clip((np.abs(dt[:, 2]) - .3) / .4, 0, 1)        # front and back of the shoulder only
+        amt = np.where(near, np.minimum(over, most) * w * side_w, 0.)
+        for _ in range(passes):
+            amt = .5 * amt + .5 * (Mavg @ amt)
+        out[k] = (-dt * amt[:, None])[inv]
+        out[k] *= _taper(np.linalg.norm(out[k], axis=1), RELAX_MIN)[:, None]
+        report[side] = (int((np.linalg.norm(out[k], axis=1) > 0).sum()), round(float(np.linalg.norm(out[k], axis=1).max()) * 1000, 1))
+    # normals' offsets
+    n_base = S.vertex_normals(Vw, Fw[(Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])])
+    Fg = Fw[(Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])]
+    out_n = np.zeros_like(out)
+    for k in range(2):
+        dw = np.zeros((nw, 3)); np.add.at(dw, inv, out[k]); dw /= np.maximum(np.bincount(inv, minlength=nw), 1)[:, None]
+        moved = np.linalg.norm(out[k], axis=1) > 0
+        out_n[k][moved] = (S.vertex_normals(Vw + dw, Fg) - n_base)[inv][moved]
+    k0 = len(NAMES) - 2
+    tree = cKDTree(V)
+    for p in model.parts:
+        if p.get('morph') is None:
+            continue
+        nv = len(p['v'])
+        if p is P0:
+            ex, exn = out, out_n
+        else:
+            ex = np.zeros((2, nv, 3)); exn = np.zeros_like(ex)
+            if p['name'].startswith('Suit_black_shag'):
+                pv = np.asarray(p['v'], float)
+                d, idx = tree.query(pv)
+                ex = out[:, idx] * (d < .03)[None, :, None]
+                ex *= _taper(np.linalg.norm(ex, axis=2), STRAND_MIN)[..., None]
+        assert len(p['morph']) == k0, (p['name'], len(p['morph']), k0)
+        p['morph'] = np.concatenate([p['morph'], ex.astype(np.float32)], 0)
+        if p.get('morph_n') is not None:
+            p['morph_n'] = np.concatenate([p['morph_n'], exn.astype(np.float32)], 0)
+    return {'shoulder_trim': report}
+
+
+ARMUP_MIN = .0012   # round 44B (52: .0012; 44B: .0007): the smallest arm-raise offset kept (m; half dropped, from 1 mm kept in full)
 
 
 def trim_armup(model):

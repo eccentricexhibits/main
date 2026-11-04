@@ -160,7 +160,10 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         tsel = piece == 0
         for s_ in (1, -1):
             m_ap[tsel] = np.maximum(m_ap[tsel], GR.armpit_mask(cen[tsel], s_))
-        ap = GR.armpit_strands(sv, sf, sn, m_ap, lambda q: D.torso_sdf(q), scale=(.6 if quick else 1.0))
+        m_low = np.zeros(len(sf))                       # round 52: the lower tuft along the crease
+        for s_ in (1, -1):
+            m_low[tsel] = np.maximum(m_low[tsel], GR.armpit_mask(cen[tsel], s_, GR.ARMPIT_LOW_AT))
+        ap = GR.armpit_strands(sv, sf, sn, m_ap, lambda q: D.torso_sdf(q), scale=(.6 if quick else 1.0), m_low=m_low)
         W_ap = np.einsum('ij,ijk->ik', ap['bc'], W_suit[sf[ap['face']]])[ap['cid']]
         part = {'name': 'Suit_black_shag_armpits', 'v': ap['v'].astype(np.float32), 'n': ap['n'].astype(np.float32),
                 'uv': None, 'uv1': None, 'ao': ap['tone'].astype(np.float32), 'f': ap['f'].astype(np.int32),

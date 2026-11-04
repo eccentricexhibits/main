@@ -55,6 +55,9 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
     root = np.einsum('ij,ijk->ik', bc, v[f[fi]])
     nr = _unit(np.einsum('ij,ijk->ik', bc, n[f[fi]]))
     down = np.array(P.get('down', (0, -1, 0.))) + rng.normal(0, P['noise'], (nc, 3))
+    if 'splay' in P:                                    # round 52: lean forward in front of z0, back behind it
+        z0, amt = P['splay']
+        down[:, 2] += amt * np.sign(root[:, 2] - z0)
     hang = down - nr * np.einsum('ij,ij->i', down, nr)[:, None]
     bad = np.linalg.norm(hang, axis=1) < 1e-3
     hang[bad] = np.cross(nr[bad], [1, 0, 0])
@@ -141,30 +144,54 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
 
 
 # round 46: armpit hair (the owner: "is it possible to add armpit hair?"): short, dense, curly, black, a few tufts
-# (each strand costs about 1.4 kB in the GLB, which must stay under 100 MiB)
+# (each strand costs about 1.4 kB in the GLB, which must stay under 100 MiB; round 52: fewer, a little thicker)
 # round 47 (the owner: "the armpit hair isn't quite functioning as armpit hair"): round 46's patch lay on the side
 # wall below the armpit, 13 cm front to back, and its strands hung down, so with the arm up it read as one more
 # black spot on her side.  Now it sits in the hollow itself, where the raised sleeve's underside meets the body (y
 # 1.18-1.24 m at rest: inside the sleeve's root while the arm is down), 10 cm front to back, and the strands point up into the hollow (`down` is the direction they
 # lean, +y here); at rest they lie inside the sleeve.
-ARMPIT = dict(density=1.45e5, length=(.028, .050), e0=(35, 70), e1=(-10, 25), noise=.6, per=(4, 7), down=(0, 1, 0),
-              rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00036, .00052), segs=3, stray=.25)
+ARMPIT = dict(density=1.0e5, length=(.028, .050), e0=(35, 70), e1=(-10, 25), noise=.6, per=(4, 7), down=(0, 1, 0),
+              rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00042, .00060), segs=3, stray=.25)
 ARMPIT_AT = ((.232, 1.205, -.025), (.030, .028, .040))    # each armpit (x mirrored) and its half-sizes (m)
 
 
-def armpit_mask(cen, s):
+# round 52 (the owner: "can we add more armpit hair? It should be slightly visible when idle and visible during the
+# walking / running animation"): two more tufts, at the armpit's front fold and its back fold, where the arm's
+# underside meets the body, the hair leaning down and out past the arm (forward at the front, back at the back:
+# `splay`), so at rest it peeks out in front of and behind the arm and shows more as the arms swing; the tuft in the
+# hollow (ARMPIT) stays for the raised arms
+ARMPIT_LOW = dict(density=4.0e4, length=(.026, .046), e0=(25, 55), e1=(-15, 10), noise=.55, per=(4, 7), down=(0, -1, 0),
+                  splay=(-.025, 1.1), rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00042, .00060), segs=3,
+                  stray=.25)
+ARMPIT_LOW_AT = [((.203, 1.195, .030), (.026, .034, .024)), ((.214, 1.178, -.082), (.026, .030, .024))]   # front, back
+
+
+def armpit_mask(cen, s, at=None):
     """Per face: 1 in the middle of the cow's armpit on side s (+1 left), fading out at its edge."""
-    c, r = np.array(ARMPIT_AT[0]) * [s, 1, 1], np.array(ARMPIT_AT[1])
+    at = ARMPIT_AT if at is None else at
+    if isinstance(at, list):                            # several lobes (ARMPIT_LOW_AT)
+        return np.max([armpit_mask(cen, s, a) for a in at], 0)
+    c, r = np.array(at[0]) * [s, 1, 1], np.array(at[1])
     d = np.linalg.norm((cen - c) / r, axis=1)
     return np.clip(1.15 - .85 * d, 0, 1)
 
 
-def armpit_strands(v, f, n, m, sdf, scale=1.0, seed=31):
-    """Round 46: armpit hair on the faces of (v, f) where m is set (armpit_mask), one layer (ARMPIT).  `sdf` is the
-    body's alone, so the strands are kept out of the body but may lie inside the sleeve: with the arm down they are
-    mostly hidden under it, and they show as it lifts."""
+def armpit_strands(v, f, n, m, sdf, scale=1.0, seed=31, m_low=None):
+    """Round 46: armpit hair on the faces of (v, f) where m is set (armpit_mask), one layer (ARMPIT); round 52: and
+    where m_low is set, the lower tuft (ARMPIT_LOW).  `sdf` is the body's alone, so the strands are kept out of the
+    body but may lie inside the sleeve: with the arm down the hollow's tuft is hidden under it, and it shows as it
+    lifts; the lower tuft peeks out at the arm's front and back."""
     rng = np.random.default_rng(seed)
-    h = _layer(rng, v, f, n, m, sdf, ARMPIT, scale)
+    layers = [(m, ARMPIT)] + ([(m_low, ARMPIT_LOW)] if m_low is not None else [])
+    out = {k: [] for k in ('v', 'n', 'f', 't', 'tone', 'cid', 'roots', 'face', 'bc', 'nper')}
+    nv = nc = 0
+    for mm, P in layers:
+        h = _layer(rng, v, f, n, mm, sdf, P, scale)
+        h['f'] = h['f'] + nv; h['cid'] = h['cid'] + nc
+        nv += len(h['v']); nc += len(h['roots'])
+        for k in out:
+            out[k].append(h[k])
+    h = {k: np.concatenate(x) for k, x in out.items()}
     h['starts'] = np.concatenate([[0], np.cumsum(h.pop('nper'))])
     h['strands'] = len(h['starts']) - 1
     return h

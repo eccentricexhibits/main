@@ -63,6 +63,8 @@ def assemble(d, quick):
     report.update(CO.relax_targets(model, B))
     if CO.SLEEVE_HEADS:
         report.update(CO.sleeve_head_targets(model))      # round 50: the sleeve heads as corrective shapes
+    if CO.SHOULDER_TRIM:
+        report.update(CO.shoulder_trim(model))            # round 52: the cap's lip drawn in as the arm swings
     report.update(CO.trim_armup(model))                  # round 44B: tenths of a millimetre dropped from ArmUp
     groups = [p.get('group') for p in model.parts]
     model.parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
