@@ -23,7 +23,8 @@ SOCKET = (.07, .10)                  # the socket's radius round the arm's line:
 FILLET = float(__import__("os").environ.get("COW_FILLET", .045))   # the radius of the fillet where the body meets the sleeve (m; round 44-45: .06, a little bulky at the armpits)
 SOCKET_FILL = float(__import__("os").environ.get("COW_SOCKET_FILL", 1.))
 RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))                     # the delta mush's smoothing
-NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))]
+NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + ['SleeveHead_L', 'SleeveHead_R']
+SLEEVE_HEAD_ANGLE = (np.deg2rad(8.), np.deg2rad(22.))   # round 50: the arm's swing from rest over which the sleeve heads blend in
 ANGLE = (np.deg2rad(18.), np.deg2rad(75.))      # the arm's lift (from its rest direction) over which the shape blends in
 REGION_Y = (1.02, 1.42)                          # only the shoulders and armpits change
 
@@ -137,6 +138,12 @@ def weights_from_mats(mats):
     for side in 'LR':
         d0, keys = _key_dirs(side)
         out.append(relax_weights(_arm_dir(mats, side, Rc)[1], d0, keys))
+    sh = np.zeros(2)                                    # round 50: the sleeve heads, by the arm's swing from rest
+    for k, side in enumerate('LR'):
+        d0, d = _arm_dir(mats, side, Rc)
+        u = np.clip((np.arccos(np.clip(d @ d0, -1, 1)) - SLEEVE_HEAD_ANGLE[0]) / (SLEEVE_HEAD_ANGLE[1] - SLEEVE_HEAD_ANGLE[0]), 0, 1)
+        sh[k] = u * u * (3 - 2 * u)
+    out.append(sh)
     return np.concatenate(out)
 
 
@@ -155,7 +162,7 @@ SLEEVE_HEAD_MAX = .014               # round 45-46: the most the sleeve head is 
 SLEEVE_HEAD = (.010, .45, .16)   # round 45 (46: kept 1 cm inside the cap, not 4 mm, so it doesn't cut through as the arm moves): the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
 
 
-def sleeve_head(model, gap=None, slope=None, reach=None):
+def sleeve_head(model, gap=None, slope=None, reach=None, as_morph=True):
     """Round 45: the body's shoulder (the root of the Tripo arm) is a rounded cap wider than the sleeve, and the sleeve
     came out from under its lower edge: the corner under the overhang read as a groove down the front and back of the
     shoulder, standing and more so as the arm swings (the owner: "the run shoulder still has a visible groove").  The
@@ -206,13 +213,44 @@ def sleeve_head(model, gap=None, slope=None, reach=None):
         for _ in range(passes):
             gw = .5 * gw + .5 * (Mavg @ gw)
         d = dirs * gw[inv][:, None]
-        p['v'] = (V + d).astype(np.float32)
         Vw = (V + d)[first]
         nn = S.vertex_normals(Vw, Fw[(Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])])[inv]
         moved = gw[inv] > 1e-5
-        p['n'] = np.asarray(p['n'], np.float32).copy(); p['n'][moved] = nn[moved].astype(np.float32)
+        dn = np.zeros_like(d); dn[moved] = nn[moved] - np.asarray(p['n'], float)[moved]
+        if as_morph:
+            # round 50: kept as a corrective shape (sleeve_head_targets), so at rest the shoulder is round 44's
+            p['sleeve_head'] = (side, d.astype(np.float32), dn.astype(np.float32))
+        else:
+            p['v'] = (V + d).astype(np.float32)
+            p['n'] = np.asarray(p['n'], np.float32).copy(); p['n'][moved] = nn[moved].astype(np.float32)
         out[side] = (int(moved.sum()), round(float(gw.max()) * 1000, 1), passes)
     return {'sleeve_head': out}
+
+
+def sleeve_head_targets(model):
+    """Round 50: the sleeve heads (sleeve_head) as two corrective shapes, SleeveHead_L and SleeveHead_R, after the
+    others.  Rounds 45-49 widened the sleeves' tops in every pose; that filled the groove under the shoulder cap that
+    shows as the arm swings (Run), but it also softened the cap's edge at rest, and the owner preferred round 44's
+    shoulders.  Now the widening blends in with the arm's swing from rest (SLEEVE_HEAD_ANGLE, weights_from_mats): none
+    while she stands (Idle stays within 6 degrees), partly at the ends of Walk's swing, fully through most of Run's.
+    Every part with corrective shapes gets the two (empty but on the sleeves), so all share one weight track."""
+    k0 = len(NAMES) - 2
+    for p in model.parts:
+        head = p.pop('sleeve_head', None)
+        if p.get('morph') is None and head is None:
+            continue
+        nv = len(p['v'])
+        if p.get('morph') is None:
+            p['morph'] = np.zeros((k0, nv, 3), np.float32); p['morph_n'] = np.zeros_like(p['morph'])
+        ex = np.zeros((2, nv, 3), np.float32); exn = np.zeros_like(ex)
+        if head is not None:
+            side, d, dn = head
+            tp = _taper(np.linalg.norm(d, axis=1), RELAX_MIN)[:, None]   # the smoothing's sub-millimetre tail isn't seen
+            ex['LR'.index(side)] = d * tp; exn['LR'.index(side)] = dn * tp   # (and the GLB must stay < 100 MiB)
+        p['morph'] = np.concatenate([p['morph'], ex], 0)
+        if p.get('morph_n') is not None:
+            p['morph_n'] = np.concatenate([p['morph_n'], exn], 0)
+    return {}
 
 
 def relax_targets(model, B, iters=RELAX_ITERS):

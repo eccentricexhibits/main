@@ -1,4 +1,4 @@
-I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 49 (the round 37 body rigged and animated, less robotic, with steady teats, smooth shoulders and armpits, hooves that hang down, an Idle with attitude, a textured tail, armpit hair, a faster Chicken Dance and blended transitions; only the round 44, 47, 48 and 49 models are kept).
+I'm continuing work on my 3D character "The Misanthropic Cow". Attached is the v10 handoff folder (Misanthropic_Cow_v10_Handoff), as of feedback round 50 (the round 37 body rigged and animated, less robotic, with steady teats, smooth shoulders and armpits, hooves that hang down, an Idle with attitude, a textured tail, armpit hair, a faster Chicken Dance and blended transitions; only the round 44, 47, 48, 49 and 50 models are kept).
 
 Before doing anything:
 1. Run validate_handoff.py to confirm every file arrived intact.
