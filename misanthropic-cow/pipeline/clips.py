@@ -35,6 +35,7 @@ def neutral(clip):
 # pose (the Exasperated fling's palms-up, a hoof at the face) the hand could take the other way round and flip half a
 # turn in a frame (the owner's "glitch on the left arm").
 RELAXED_HANG, RELAXED_MAX = .95, np.deg2rad(70.)
+RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', .35))   # round 45: the forearm's inward turn (rad)
 RELAXED_DIR = (0., -1., -.27)    # where the relaxed hand's line points: down, 15 degrees back (the hoof itself curves forward)
 RELAXED_HAND = ('hang', .6)      # round 41's (kept for reference; the clips use relaxed_hand)
 
@@ -53,7 +54,10 @@ def relaxed_hand(clip, side):
         down = np.asarray(RELAXED_DIR) / np.linalg.norm(RELAXED_DIR)
         ax = np.cross(fdir, down); sn = np.linalg.norm(ax)
         ang = min(RELAXED_HANG * np.arctan2(sn, fdir @ down), RELAXED_MAX)
-        cache[side] = ('local', rot(Rf.T @ (ax / sn), ang))
+        # round 45: the forearm turned in a little (RELAXED_TWIST), so the backs of the hooves face out and forward and
+        # the palms in towards the thighs, as a relaxed hand hangs (round 41-44: square to the side)
+        bfn = bf0 / np.linalg.norm(bf0)
+        cache[side] = ('local', rot(Rf.T @ (ax / sn), ang) @ rot(bfn, -s * RELAXED_TWIST))
     return cache[side]
 
 
@@ -61,7 +65,9 @@ def local_hand(clip, side, Rhand, hand, pole, clav=0.):
     """Round 42: see anim.Dance.local_hand (the Exasperated fling and face-palm, the Idle's hoof check)."""
     return clip.local_hand(side, Rhand, hand, pole, clav)
 
-REST_ARM = (-.06, .06, .14)     # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose
+REST_ARM = (-.07, -.03, .40)    # round 39: the relaxed arm, as FK (abduction, flexion, elbow bend) from the bind pose;
+#                                 round 45: the elbow softly bent (23 degrees; round 39-44: 8, which looked stiff, "like a
+#                                 mannequin" again to the owner: "very stiff and awkward"), the upper arm a touch behind
 
 
 def mix(a, b, w):
@@ -137,52 +143,34 @@ def fk_pole(clip, side, abd, flex, bend):
 
 
 class Idle(AN.Dance):
-    """Standing about, 20 s (round 42; round 39's was 8 s).  She settles onto one leg; heaves a long, bored sigh; gives
-    the room a slow side-eye down her nose with a little shake of the head; lifts a hoof to inspect it, picks at it and
-    flicks it, and lets the arm drop; shifts her weight and taps a foot, waiting; and rolls her eyes (the head circles
-    up and round) before settling back.  The performance layer adds the breathing and a slow sway, gentler than the
-    other clips' (the owner: "too much wiggling")."""
+    """Standing about, 15.6 s (round 45; round 42-44: 20 s with a hoof check, round 39: 8 s).  She settles onto one leg;
+    heaves a long, bored sigh; gives the room a slow side-eye down her nose with a little shake of the head; shifts her
+    weight and taps a foot, waiting; and rolls her eyes (the head circles up and round) before settling back.  The
+    performance layer adds the breathing and a slow sway, gentler than the other clips' (the owner: "too much
+    wiggling").  Round 45: the hoof check is gone (the owner: "can we remove the hand checking animation"), and the
+    arms hang more loosely (REST_ARM, and IDLE_ARMS: the two arms not mirror images)."""
     name = 'Idle'
-    duration = 20.0
-    phases = [('Settle', 0, 3.0), ('Sigh', 3.0, 6.0), ('Side-eye', 6.0, 9.6), ('Hoof check', 9.6, 14.0),
-              ('Foot tap', 14.0, 17.4), ('Eye roll', 17.4, 20.0)]
+    duration = 15.6
+    phases = [('Settle', 0, 3.0), ('Sigh', 3.0, 6.0), ('Side-eye', 6.0, 9.6), ('Foot tap', 9.6, 13.0), ('Eye roll', 13.0, 15.6)]
     use_swivel = False
     NOISE_SCALE = .4                # round 42: the slow drift at 40 % (round 39: the same as the other clips)
     BREATH = .4
     # (time, settings): weight > 0 on the left leg (the character's), glance > 0 to her left, nose > 0 chin up,
-    # look < 0 looking down, inhale / slump the sigh, inspect the right hoof up in front, tap the left foot's taps
+    # inhale / slump the sigh, tap the left foot's taps
     KEYS = [(0.0, dict(weight=-.15)), (1.6, dict(weight=.8)), (3.0, dict(weight=.75)),
             (3.9, dict(weight=.7, inhale=1.)), (4.2, dict(weight=.7, inhale=1.)), (5.3, dict(weight=.65, slump=1.)),
             (6.0, dict(weight=.6, slump=.5)),
             (6.9, dict(weight=.55, glance=-.85, nose=.7, slump=.2)), (7.9, dict(weight=.5, glance=-.9, nose=.75)),
             (8.6, dict(weight=-.1, glance=-.3, nose=.4, shake=1.)), (9.4, dict(weight=-.55, glance=0., nose=.1)),
-            (10.4, dict(weight=-.6, inspect=1., glance=-.22, look=-.75)), (12.4, dict(weight=-.6, inspect=1., glance=-.25, look=-.8)),
-            (12.85, dict(weight=-.6, inspect=1., glance=-.1, look=-.3)),
-            (13.6, dict(weight=-.6, nose=.1)),
-            (14.4, dict(weight=-.85, nose=.25, glance=.15)), (14.6, dict(weight=-.85, nose=.25, glance=.15, tap=1.)),
-            (16.6, dict(weight=-.85, nose=.3, glance=.2, tap=1.)), (17.0, dict(weight=-.7, nose=.2)),
-            (17.4, dict(weight=-.6)), (18.9, dict(weight=-.45, roll=1.)), (20.0, dict(weight=-.15))]
-    FIELDS = ['weight', 'glance', 'nose', 'look', 'inhale', 'slump', 'shake', 'inspect', 'tap', 'roll']
-    ARM_REST = REST_ARM             # the arms' (abduction, forward flexion, elbow bend) from the bind pose: round 39, they hang
-    #                                 against the belly's sides (round 38: .10, .03, .06 held them 40 degrees out, like a mannequin's)
-    # the hoof check: the right hoof comes up round the side of the cup to in front of the shoulder (chest's bind frame),
-    # turned to her face; it drops away under its own weight (DROP: start, length), as in Exasperated
-    # round 43: in front of her, just above and outside the cup, palm up and turned to her eyes, elbow down and out, as
-    # a person looks at their nails (round 42 held it out to the side at shoulder height, hand up, which read as a wave;
-    # the owner: "looks a bit off"; in front of the chin it covered her face)
-    INSPECT_AT = (-.30, 1.30, .37)
-    INSPECT_POLE = (-.64, .98, -.06)
-    INSPECT_PATH = ((.44, 1.10, .05), (.42, 1.24, .26))     # out round the side of the cup, then up and forward (x mirrored)
-    INSPECT_FINGERS = (-.25, .45, .85)                         # where the hoof points (x mirrored): forward, up and a little in
-    DROP = (12.85, .55)
-    BUMP = (.022, .016, 1.4, .30)
-    TAPS = (14.75, 16.45, 4)        # the foot taps: from, to, how many
+            (10.0, dict(weight=-.85, nose=.25, glance=.15)), (10.2, dict(weight=-.85, nose=.25, glance=.15, tap=1.)),
+            (12.2, dict(weight=-.85, nose=.3, glance=.2, tap=1.)), (12.6, dict(weight=-.7, nose=.2)),
+            (13.0, dict(weight=-.6)), (14.5, dict(weight=-.45, roll=1.)), (15.6, dict(weight=-.15))]
+    FIELDS = ['weight', 'glance', 'nose', 'inhale', 'slump', 'shake', 'tap', 'roll']
+    ARM_REST = REST_ARM             # the arms' (abduction, forward flexion, elbow bend) from the bind pose
+    IDLE_ARMS = {'L': (0., -.02, .07), 'R': (.02, .03, -.04)}   # round 45: each arm's own offset from it (not mirror images)
+    TAPS = (10.35, 12.05, 4)        # the foot taps: from, to, how many
 
-    def __init__(self, B):
-        super().__init__(B)
-        self._inspect_local = None
-
-    def key(self, t, weight=0., glance=0., nose=0., look=0., inhale=0., slump=0., shake=0., inspect=0., tap=0., roll=0.):
+    def key(self, t, weight=0., glance=0., nose=0., inhale=0., slump=0., shake=0., tap=0., roll=0.):
         p = neutral(self)
         w = weight
         # the eye roll: the head tips up, round to one side and back down (roll 0..1 through the circle)
@@ -195,8 +183,8 @@ class Idle(AN.Dance):
         p['hips'] = np.array([.01, -.06 * w, .055 * w])
         p['spine'] = np.array([.015 + .04 * slump - .02 * inhale, .03 * w, -.035 * w])
         p['chest'] = np.array([.0 - .05 * inhale + .05 * slump, .02 * w + .10 * glance, -.025 * w])
-        p['neck'] = np.array([.02 - .12 * nose + .05 * slump - .25 * look - .03 * inhale, .25 * glance + .4 * sh, .0]) + .4 * er
-        p['head'] = np.array([-.01 - .14 * nose + .06 * slump - .30 * look - .04 * inhale, .45 * glance + .6 * sh,
+        p['neck'] = np.array([.02 - .12 * nose + .05 * slump - .03 * inhale, .25 * glance + .4 * sh, .0]) + .4 * er
+        p['head'] = np.array([-.01 - .14 * nose + .06 * slump - .04 * inhale, .45 * glance + .6 * sh,
                               -.05 * w + .06 * nose * np.sign(glance or 1)]) + .6 * er
         # the foot taps: the free (left) foot's toe comes up and slaps down, a quick lift and a quicker drop
         taps = 0.
@@ -212,44 +200,10 @@ class Idle(AN.Dance):
             p['feet'][side] = {'pos': pos, 'pitch': pitch, 'yaw': 0.}
         for side, s in [('L', 1), ('R', -1)]:
             load = max(0., s * w)                 # the arm on the standing side hangs a little further out
-            a, f, b = self.ARM_REST
-            fk = np.array([a + .03 * load, f + .03 * (1 - load) - .04 * inhale, b + .05 * (1 - load)])
-            p['clav'][side] = -.02 * load + .05 * inhale - .05 * slump
-            if side == 'L':
-                p['fk'][side] = fk
-                continue
-            # the right arm leaves its FK rest for the hoof check by an IK target blended in (anim.Dance.pose, ik_blend)
-            p['fk'][side] = fk
-            rest, pole_rest = fk_wrist(self, side, *fk), fk_pole(self, side, *fk)
-            dropping = t >= self.DROP[0]
-            u, turn, land, bump, tau = drop_curve(t, self.DROP, self.BUMP) if dropping else (inspect, 1., 0., np.zeros(2), 0.)
-            if u <= 0 and not dropping:
-                continue
-            at = np.array(self.INSPECT_AT) + [0, .012 * np.sin(2 * np.pi * .7 * t), 0]
-            c1, c2 = (np.array(c) * [s, 1, 1] for c in self.INSPECT_PATH)
-            tgt = bspline_reach(rest, c1, c2, at, u)
-            pw = u if not dropping else smooth(0, 1, 1 - tau)
-            # the bump after the drop rides on the FK rest as well, so the weight stays on while it settles
-            p['ik_blend'] = {side: (tgt + np.array([s * bump[0], 0, bump[1]]), pole_rest * (1 - pw) + np.array(self.INSPECT_POLE) * pw,
-                                    smooth(0, .3, u) if not dropping else (1. if tau < 1 else 1 - smooth(.6, .95, t - self.DROP[0] - self.DROP[1])))}
-            # turned to her face, rolled a little this way and that as she looks it over, with a flick at the end
-            fdir = np.array(self.INSPECT_FINGERS) * [s, 1, 1]
-            face = np.array([0, 1.55, .14])
-            Rh = self.hand_rot(side, fdir, face - at)
-            look_over = .35 * smooth(10.8, 11.2, t) * (1 - smooth(12.2, 12.5, t)) * np.sin(2 * np.pi * .55 * (t - 10.8))
-            Rh = rot(fdir, look_over) @ Rh
-            if self._inspect_local is None:
-                self._inspect_local = local_hand(self, side, self.hand_rot(side, fdir, face - np.array(self.INSPECT_AT)),
-                                                 np.array(self.INSPECT_AT), np.array(self.INSPECT_POLE))
-            hw = smooth(.5, 1., u) if not dropping else turn
-            p['hrot'][side] = ('blend', ('blend', relaxed_hand(self, side), self._inspect_local, hw), Rh, smooth(.8, 1., hw))
-            p['clav'][side] += .04 * u - .04 * land
-        # she picks at the hoof (the toes curl and part), then flicks it; the drop leaves them loose
-        pick = smooth(11.0, 11.3, t) * (1 - smooth(12.3, 12.6, t))
-        flick = np.exp(-((t - 12.72) / .07) ** 2)
-        p['fingers'] = -.12 - .30 * pick * (.6 + .4 * np.sin(2 * np.pi * 1.3 * t)) + .35 * flick
-        p['thumb'] = .10 + .20 * pick
-        p['spread'] = .15 * pick + .25 * flick
+            a, f, b = np.add(self.ARM_REST, self.IDLE_ARMS[side])
+            # the arm on the free side swings a little forward with the hips; the elbows sag as she slumps
+            p['fk'][side] = np.array([a + .03 * load, f + .03 * (1 - load) - .04 * inhale + .03 * slump, b + .05 * (1 - load) + .08 * slump])
+            p['clav'][side] = -.03 - .02 * load + .05 * inhale - .05 * slump
         return p
 
     def sample(self, t):
@@ -282,7 +236,8 @@ class Walk(AN.Dance):
         p['head'] = np.array([-.02, -.03 * np.sin(w), .015 * np.sin(w)])
         for side, s in [('L', 1), ('R', -1)]:
             swing = -s * np.sin(w)               # arm swings opposite its own leg
-            p['fk'][side] = np.array([self.ARM_ABD, .30 * swing + .05, .22 + .12 * max(0, swing)])
+            # round 45: the elbows a little softer (.32; round 39-44: .22)
+            p['fk'][side] = np.array([self.ARM_ABD, .30 * swing + .05, .32 + .12 * max(0, swing)])
         return p
 
 

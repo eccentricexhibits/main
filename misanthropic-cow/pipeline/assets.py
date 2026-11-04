@@ -48,6 +48,41 @@ def glove_transform(src, old_prefix, side):
     return lambda v: (v - top) @ Rm.T * GLOVE_SIZE + anchor, Rm
 
 
+def close_wire_gaps(v, f, touch=.002, reach=.012, bend=.015):
+    """Round 45: the exposed wires on the broken horn are five separate tubes; four meet end to end in pairs at the
+    top to make two loops, but the fifth stopped 7 mm short of the junction it belongs to and showed as a gap (the
+    owner: "a small gap in the left wire horn").  Each upper end of a tube that touches no other tube is bent over its
+    last `bend` to meet the nearest junction (or end) within `reach`."""
+    from scipy import sparse
+    from scipy.sparse.csgraph import connected_components
+    v = np.asarray(v, float).copy()
+    key = np.round(v / 1e-5).astype(np.int64)
+    _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True); inv = inv.ravel()
+    fw = inv[np.asarray(f)]; n = len(first)
+    A = sparse.coo_matrix((np.ones(fw.size), (fw[:, [0, 1, 2]].ravel(), fw[:, [1, 2, 0]].ravel())), shape=(n, n))
+    nc, lab = connected_components(A, directed=False)
+    lab = lab[inv]
+    tubes = []
+    for c in range(nc):
+        idx = np.nonzero(lab == c)[0]; pts = v[idx]; ctr = pts.mean(0)
+        ax = np.linalg.svd(pts - ctr, full_matrices=False)[2][0]
+        t = (pts - ctr) @ ax
+        ends = [pts[t > t.max() - .002].mean(0), pts[t < t.min() + .002].mean(0)]
+        up = 0 if ends[0][1] > ends[1][1] else 1                # the upper end, out of the horn
+        tubes.append(dict(idx=idx, t=t if up == 0 else -t, end=ends[up]))
+    tops = np.array([tb['end'] for tb in tubes])
+    for k, tb in enumerate(tubes):
+        d = np.linalg.norm(tops - tb['end'], axis=1); d[k] = np.inf
+        if d.min() < touch or d.min() > reach:
+            continue
+        j = int(d.argmin())
+        dj = np.linalg.norm(tops - tops[j], axis=1); dj[[j, k]] = np.inf
+        target = .5 * (tops[j] + tops[int(dj.argmin())]) if dj.min() < touch else tops[j]
+        u = np.clip((tb['t'] - (tb['t'].max() - bend)) / bend, 0, 1)
+        v[tb['idx']] += (u * u * (3 - 2 * u))[:, None] * (target - tb['end'])
+    return v
+
+
 def load(src, keep_gloves=False, keep_slippers=False):
     """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}.
     The v08 gloves are replaced by the rebuilt ones in gloves.py, and the v04 slippers by the owner's
@@ -61,6 +96,8 @@ def load(src, keep_gloves=False, keep_slippers=False):
         p['v'] = D.head_pose(p['v'])
         if p.get('n') is not None:
             p['n'] = np.asarray(p['n']) @ D.HEAD_R.T
+        if 'Wires' in name:
+            p['v'] = close_wire_gaps(p['v'], p['f'])
         p['v'] = p['v'].astype(np.float32)
         p['name'] = NEW_NAMES[name]
         out.append((p, 'head'))

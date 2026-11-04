@@ -266,13 +266,24 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             model.parts.append(q)
     # --- tail: gold satin bow on the back of the hem, a lamp cord down to the floor, a two-prong plug
     import tail as TL
-    tm = {'bow': model.add_material({'name': 'Tail_gold_satin_bow', 'pbrMetallicRoughness': {
-              'baseColorFactor': [.80, .56, .20, 1], 'metallicFactor': 0, 'roughnessFactor': .34}, 'extensions': SHEEN(.55, .35)}),
-          'cord': model.add_material({'name': 'Tail_tan_lamp_cord_plastic', 'pbrMetallicRoughness': {
-              'baseColorFactor': [.72, .52, .24, 1], 'metallicFactor': 0, 'roughnessFactor': .38}})}
-    tm['plug'] = tm['cord']
-    tm['blades'] = model.add_material({'name': 'Tail_plug_brass_blades', 'pbrMetallicRoughness': {
-        'baseColorFactor': [.86, .72, .45, 1], 'metallicFactor': 1, 'roughnessFactor': .32}})
+    # round 45: textured (tail_textures): satin weave and sheen streaks on the bow, ribs, the polarity rib and the
+    # embossed rating line on the cord, a moulded grain on the plug, brushed brass on the blades
+    import tail_textures as TT
+    def textured(name, maps, nscale, pbr, ext=None):
+        col, nrm = maps
+        m = {'name': name, 'pbrMetallicRoughness': dict(pbr, baseColorTexture={'image': model.add_image(col), 'texCoord': 0}),
+             'normalTexture': {'image': model.add_image(nrm), 'texCoord': 0, 'scale': nscale}}
+        if ext:
+            m['extensions'] = ext
+        return model.add_material(m)
+    tm = {'bow': textured('Tail_gold_satin_bow', TT.bow_textures(), .55,
+                          {'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 0, 'roughnessFactor': .30}, SHEEN(.55, .35)),
+          'cord': textured('Tail_tan_lamp_cord_plastic', TT.cord_textures(), .8,
+                           {'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 0, 'roughnessFactor': .38}),
+          'plug': textured('Tail_plug_plastic', TT.plug_textures(), .5,
+                           {'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 0, 'roughnessFactor': .45}),
+          'blades': textured('Tail_plug_brass_blades', TT.blade_textures(), .4,
+                             {'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': 1, 'roughnessFactor': .30})}
     tail_parts = TL.build(step=.0011 if quick else .0008)
     cv, cf, cuv, cs = TL.cord_mesh()
     tail_parts.append(('Tail_tan_lamp_cord', cv, cf, 'cord'))
@@ -283,7 +294,8 @@ def build(v09_path, tex_dir, out_dir, quick=False):
             uv = cuv
         else:
             W = np.zeros((len(v), RG.NB)); W[:, RG.TAIL_BOW if kind == 'bow' else RG.TAIL[-1]] = 1
-            uv = None
+            end = TL.plug_frame()[0]
+            uv = TT.bow_uv(v, TL.KNOT) if kind == 'bow' else TT.plug_uv(v, end) if kind == 'plug' else TT.blade_uv(v, end)
         model.parts.append({'name': name, 'v': v.astype(np.float32), 'n': n.astype(np.float32), 'f': f.astype(np.int32),
                             'uv': None if uv is None else uv.astype(np.float32), 'uv1': None,
                             'ao': None, 'material': tm[kind], 'group': 'tail', 'W': W})

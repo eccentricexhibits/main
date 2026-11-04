@@ -147,6 +147,67 @@ def _taper(mag, m):
     return u * u * (3 - 2 * u)
 
 
+SLEEVE_HEAD_MAX = .025               # round 45: the most the sleeve head is widened (m)
+SLEEVE_HEAD = (.004, .45, .16)   # round 45: the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
+
+
+def sleeve_head(model, gap=None, slope=None, reach=None):
+    """Round 45: the body's shoulder (the root of the Tripo arm) is a rounded cap wider than the sleeve, and the sleeve
+    came out from under its lower edge: the corner under the overhang read as a groove down the front and back of the
+    shoulder, standing and more so as the arm swings (the owner: "the run shoulder still has a visible groove").  The
+    sleeve's top is widened, round its own axis, to just inside the body's surface wherever the cap is wider, and
+    below the cap's edge it tapers back to its own width (`slope`), so it fills the corner like a puffy sleeve head
+    without breaking out through the cap.  Measured along rays out from the arm's axis against the body's distance
+    field (design.torso_sdf), at the sleeve's own vertices."""
+    import sdf as S
+    gap, slope, reach = [x if x is not None else d for x, d in zip((gap, slope, reach), SLEEVE_HEAD)]
+    out = {}
+    rs = np.arange(0., .16, .002)
+    for side, s in [('L', 1), ('R', -1)]:
+        p = [q for q in model.parts if q['name'].startswith(f'Suit_sleeve_{side}')][0]
+        V = np.asarray(p['v'], float); Fc = np.asarray(p['f'])
+        sh, el, _ = D.arm_points(s)
+        du = (el - sh) / np.linalg.norm(el - sh)
+        ta = (V - sh) @ du
+        radial = (V - sh) - np.outer(ta, du); rv = np.linalg.norm(radial, axis=1)
+        dirs = radial / np.maximum(rv, 1e-9)[:, None]
+        sel = np.nonzero((ta > -.08) & (ta < reach))[0]
+        # the body's extent along each vertex's ray, at every station along the arm up to the vertex (for the taper)
+        stations = np.arange(-.08, reach, .004)
+        target = rv.copy()
+        for k in sel:
+            best = 0.
+            for t0 in stations[stations <= ta[k] + 1e-9]:
+                c0 = sh + du * t0
+                pts = c0[None] + rs[:, None] * dirs[k][None]
+                ins = D.torso_sdf(pts) < 0
+                if not ins[0] or ins.all():
+                    continue                                    # outside the cap here, or a ray into the chest
+                r_out = rs[np.argmin(ins)]
+                best = max(best, r_out - gap - slope * (ta[k] - t0))
+            target[k] = max(rv[k], min(best, rv[k] + SLEEVE_HEAD_MAX))
+        grow = target - rv
+        # smooth the growth over the sleeve's surface, so the widened head has no ridges
+        key = np.round(V / 2e-5).astype(np.int64)
+        _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True); inv = inv.ravel()
+        from scipy import sparse
+        Fw = inv[Fc]; nw = len(first)
+        i = np.concatenate([Fw[:, 0], Fw[:, 1], Fw[:, 2]]); j = np.concatenate([Fw[:, 1], Fw[:, 2], Fw[:, 0]])
+        A = sparse.coo_matrix((np.ones(len(i)), (i, j)), shape=(nw, nw)); A = ((A + A.T) > 0).astype(float)
+        Mavg = sparse.diags(1 / np.maximum(np.asarray(A.sum(1)).ravel(), 1)) @ A
+        gw = np.zeros(nw); np.maximum.at(gw, inv, grow)
+        for _ in range(4):
+            gw = .5 * gw + .5 * (Mavg @ gw)
+        d = dirs * gw[inv][:, None]
+        p['v'] = (V + d).astype(np.float32)
+        Vw = (V + d)[first]
+        nn = S.vertex_normals(Vw, Fw[(Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])])[inv]
+        moved = gw[inv] > 1e-5
+        p['n'] = np.asarray(p['n'], np.float32).copy(); p['n'][moved] = nn[moved].astype(np.float32)
+        out[side] = (int(moved.sum()), round(float(gw.max()) * 1000, 1))
+    return {'sleeve_head': out}
+
+
 def relax_targets(model, B, iters=RELAX_ITERS):
     """Round 44: the shoulder correctives.  Linear-blend skinning folds the body into a sharp crease in front of a
     raised arm and cuts a crescent crease where the sleeve's underside meets it (the owner's screenshots of Run and

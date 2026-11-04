@@ -48,6 +48,9 @@ def assemble(d, quick):
         v = np.vstack([p['v'] for p in gloves[side]])
         v = v[(v - o) @ hd > 0]
         palm[side] = float(np.percentile((v - o) @ pn, 99.5))
+    # round 45: the sleeve heads widened to fill the corner under the shoulder caps (before tangents and correctives)
+    import correctives as CO
+    report.update(CO.sleeve_head(model))
     for p in model.parts:
         p['j'], p['w'] = RG.quantize(p.pop('W'))
         nt = model.materials[p['material']].get('normalTexture')
@@ -55,7 +58,6 @@ def assemble(d, quick):
             uvn = p['uv1'] if nt.get('texCoord', 0) == 1 else p['uv']
             p['tangent'] = G.tangents(p['v'], p['n'], uvn, p['f'])
     # round 44: the shoulder correctives (delta mush, socket fill and fillet at key arm poses), from the final weights
-    import correctives as CO
     report.update(CO.relax_targets(model, B))
     groups = [p.get('group') for p in model.parts]
     model.parts = [{k: v for k, v in p.items() if k not in ('group', 'hoof_w', 'thumb_w', 'toe_w', 'part')} for p in model.parts]
