@@ -83,6 +83,65 @@ def close_wire_gaps(v, f, touch=.002, reach=.012, bend=.015):
     return v
 
 
+def wire_uv(v, f, v_unit=.03, step=.001):
+    """Round 47: UVs for the exposed wires (v09 left them all at one point): u round each wire, v along it from its
+    lower end, one unit every v_unit m.  Along: the distance over the surface from the lower end's cap (Dijkstra on
+    the mesh's edges); round: the angle about a centreline (the mean of each step of that distance), in a frame
+    carried along it without twist.  Faces across the u seam get duplicated vertices.  Returns (uv, f, src): the
+    new faces and, per output vertex, the input vertex it copies."""
+    from scipy import sparse
+    from scipy.sparse.csgraph import connected_components, dijkstra
+    v = np.asarray(v, float); f = np.asarray(f)
+    key = np.round(v / 1e-5).astype(np.int64)
+    _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True); inv = inv.ravel()
+    fw = inv[f]; n = len(first); vw = v[first]
+    a, b = fw[:, [0, 1, 2]].ravel(), fw[:, [1, 2, 0]].ravel()
+    L = sparse.coo_matrix((np.linalg.norm(vw[a] - vw[b], axis=1) + 1e-9, (a, b)), shape=(n, n)).tocsr()
+    nc, lab = connected_components(L, directed=False)
+    U = np.zeros(n); V = np.zeros(n)
+    for c in range(nc):
+        idx = np.nonzero(lab == c)[0]; pts = vw[idx]; ctr = pts.mean(0)
+        ax = np.linalg.svd(pts - ctr, full_matrices=False)[2][0]
+        t = (pts - ctr) @ ax
+        if pts[t > t.max() - .002, 1].mean() < pts[t < t.min() + .002, 1].mean():
+            t = -t                                                  # start at the lower end, inside the horn
+        src = idx[t < t.min() + .002]
+        d = dijkstra(L, directed=False, indices=src, min_only=True)[idx]
+        d = np.where(np.isfinite(d), d, 0)
+        nb = int(d.max() / step) + 2
+        bi = np.minimum((d / step).astype(int), nb - 1)
+        cnt = np.bincount(bi, minlength=nb)
+        cl = np.stack([np.bincount(bi, pts[:, k], nb) for k in range(3)], 1)
+        have = cnt > 0
+        cl = np.stack([np.interp(np.arange(nb), np.nonzero(have)[0], cl[have, k] / cnt[have]) for k in range(3)], 1)
+        for _ in range(3):
+            cl[1:-1] = .25 * cl[:-2] + .5 * cl[1:-1] + .25 * cl[2:]
+        T = np.gradient(cl, axis=0); T /= np.maximum(np.linalg.norm(T, axis=1, keepdims=True), 1e-12)
+        N = np.zeros_like(T); ref = np.cross(T[0], [0, 1, 0] if abs(T[0][1]) < .9 else [1, 0, 0])
+        N[0] = ref / np.linalg.norm(ref)
+        for i in range(1, nb):
+            q = N[i - 1] - T[i] * (N[i - 1] @ T[i]); N[i] = q / max(np.linalg.norm(q), 1e-12)
+        B = np.cross(T, N)
+        off = pts - cl[bi]
+        U[idx] = (np.arctan2(np.einsum('ij,ij->i', off, B[bi]), np.einsum('ij,ij->i', off, N[bi])) / (2 * np.pi)) % 1
+        V[idx] = d / v_unit
+    # back to the input's vertices, then split the seam
+    u, vv = U[inv], V[inv]
+    fu = u[f]
+    wrap = np.ptp(fu, axis=1) > .5
+    src = list(range(len(v))); uu = list(u); vl = list(vv); dup = {}
+    f2 = f.copy()
+    for fi in np.nonzero(wrap)[0]:
+        for k in range(3):
+            i = f[fi, k]
+            if u[i] < .5:
+                if i not in dup:
+                    dup[i] = len(src); src.append(i); uu.append(u[i] + 1); vl.append(vv[i])
+                f2[fi, k] = dup[i]
+    uv = np.stack([uu, vl], 1).astype(np.float32)
+    return uv, f2, np.array(src)
+
+
 def load(src, keep_gloves=False, keep_slippers=False):
     """Return list of (part, group) with transformed geometry. group in {mask, horn, glove_L, ...}.
     The v08 gloves are replaced by the rebuilt ones in gloves.py, and the v04 slippers by the owner's
@@ -98,6 +157,15 @@ def load(src, keep_gloves=False, keep_slippers=False):
             p['n'] = np.asarray(p['n']) @ D.HEAD_R.T
         if 'Wires' in name:
             p['v'] = close_wire_gaps(p['v'], p['f'])
+            uv, f2, src = wire_uv(p['v'], p['f'])                 # round 47: for the wire's texture
+            nv = len(p['v'])
+            for k, x in list(p.items()):
+                if k not in ('f', 'uv') and isinstance(x, np.ndarray) and len(x) == nv:
+                    p[k] = x[src]
+            p['v'] = np.asarray(p['v'])[src]
+            if p.get('n') is not None:
+                p['n'] = np.asarray(p['n'])[src]
+            p['uv'], p['f'] = uv, f2
         p['v'] = p['v'].astype(np.float32)
         p['name'] = NEW_NAMES[name]
         out.append((p, 'head'))

@@ -54,7 +54,7 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
     bc = np.stack([1 - s1, s1 * (1 - r2), s1 * r2], 1)
     root = np.einsum('ij,ijk->ik', bc, v[f[fi]])
     nr = _unit(np.einsum('ij,ijk->ik', bc, n[f[fi]]))
-    down = np.array([0, -1, 0.]) + rng.normal(0, P['noise'], (nc, 3))
+    down = np.array(P.get('down', (0, -1, 0.))) + rng.normal(0, P['noise'], (nc, 3))
     hang = down - nr * np.einsum('ij,ij->i', down, nr)[:, None]
     bad = np.linalg.norm(hang, axis=1) < 1e-3
     hang[bad] = np.cross(nr[bad], [1, 0, 0])
@@ -141,10 +141,15 @@ def _layer(rng, v, f, n, m, sdf, P, scale):
 
 
 # round 46: armpit hair (the owner: "is it possible to add armpit hair?"): short, dense, curly, black, a few tufts
-# (half the strands first tried, a little thicker: they cost 1.4 kB each in the GLB, which must stay under 100 MiB)
-ARMPIT = dict(density=6.0e4, length=(.024, .044), e0=(30, 70), e1=(-25, 25), noise=1.1, per=(4, 7),
+# (each strand costs about 1.4 kB in the GLB, which must stay under 100 MiB)
+# round 47 (the owner: "the armpit hair isn't quite functioning as armpit hair"): round 46's patch lay on the side
+# wall below the armpit, 13 cm front to back, and its strands hung down, so with the arm up it read as one more
+# black spot on her side.  Now it sits in the hollow itself, where the raised sleeve's underside meets the body (y
+# 1.18-1.24 m at rest: inside the sleeve's root while the arm is down), 10 cm front to back, and the strands point up into the hollow (`down` is the direction they
+# lean, +y here); at rest they lie inside the sleeve.
+ARMPIT = dict(density=1.45e5, length=(.028, .050), e0=(35, 70), e1=(-10, 25), noise=.6, per=(4, 7), down=(0, 1, 0),
               rc=(.002, .004), clump=(.30, .60), frizz=(.004, .008), r0=(.00036, .00052), segs=3, stray=.25)
-ARMPIT_AT = ((.198, 1.178, -.010), (.032, .062, .052))    # each armpit (x mirrored) and its half-sizes (m)
+ARMPIT_AT = ((.232, 1.205, -.025), (.030, .028, .040))    # each armpit (x mirrored) and its half-sizes (m)
 
 
 def armpit_mask(cen, s):

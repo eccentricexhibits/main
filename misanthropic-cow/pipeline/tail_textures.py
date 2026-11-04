@@ -43,6 +43,12 @@ def _noise(h, w, scale, seed, octaves=3):
     return out / tot
 
 
+def _hp(a, px):
+    """a less its gaussian blur over px pixels (wrapping): the detail of a brightness map, for a height."""
+    from scipy.ndimage import gaussian_filter
+    return a - gaussian_filter(a, px, mode='wrap')
+
+
 def _normal_from_height(hgt, strength):
     """Tangent-space normal map from a height field (rows = v, top row = v 1)."""
     dy, dx = np.gradient(hgt)
@@ -91,6 +97,11 @@ def bow_textures():
         hs = supplied('tail_bow_height')
         if hs is not None:
             nrm = _normal_from_height(fit_bow_image(hs, n).mean(-1) / 255 * 8, 1.)
+        else:
+            # round 47: no height image: the folds' relief from the photo's own shading (its broad light and dark
+            # follow the folds), with the fine satin weave on top
+            lum = col.mean(-1) / 255
+            nrm = _normal_from_height(_hp(lum, 18) * 9 + .4 * weave, .9)
     return _jpeg(col), _jpeg(nrm)
 
 
@@ -182,7 +193,8 @@ def cord_textures():
             hh = np.asarray(Image.fromarray(np.clip(_cord_tile(hs), 0, 255).astype(np.uint8)).resize((w * 2, h * 2), Image.LANCZOS), float).mean(-1) / 255
             nrm = _normal_from_height(hh * 6, 1.)
         else:
-            nrm = np.asarray(Image.fromarray(np.clip(nrm, 0, 255).astype(np.uint8)).resize((w * 2, h * 2)), float)
+            # round 47: the ribs' relief from the photo's shading (the procedural ribs would not line up with its)
+            nrm = _normal_from_height(_hp(col.mean(-1) / 255, 6) * 7, 1.)
     return _jpeg(col), _jpeg(nrm)
 
 

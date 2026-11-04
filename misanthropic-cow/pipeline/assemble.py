@@ -16,6 +16,7 @@ import gloves as GL
 import glb as G
 import noise as N
 import rig as RG
+import horn_textures as HT
 
 SHEEN = lambda c, r: {'KHR_materials_sheen': {'sheenColorFactor': [c, c, c], 'sheenRoughnessFactor': r}}
 
@@ -219,6 +220,7 @@ def build(v09_path, tex_dir, out_dir, quick=False):
         mi = p['material']
         if mi not in remap:
             mat = json.loads(json.dumps(src.materials[mi]))
+            horn_n = None
             for holder in [mat.get('pbrMetallicRoughness', {}), mat]:
                 for k in list(holder):
                     if k.endswith('Texture') and isinstance(holder[k], dict) and 'image' in holder[k]:
@@ -232,7 +234,21 @@ def build(v09_path, tex_dir, out_dir, quick=False):
                             # the real horn's second ring above the middle one
                             arr = np.asarray(Image.open(io.BytesIO(data)).convert('RGB'))
                             data, mime = T.to_jpeg(T.add_horn_ring(arr) / 255., 93), 'image/jpeg'
+                        if mat['name'] in ('Right_Horn_Yellow_Bands', 'Broken_Left_Horn_Yellow_Bands') and k == 'baseColorTexture':
+                            # round 47: a normal map (paper layers, fibre, brush marks, the black paint's edges;
+                            # horn_textures), and the colour refined by a supplied photo swatch if there is one
+                            arr = np.asarray(Image.open(io.BytesIO(data)).convert('RGB'), float)
+                            data, horn_n = HT.horn_maps(arr, p, seed=0 if 'Broken' in mat['name'] else 10)
+                            mime = 'image/jpeg'
                         holder[k]['image'] = model.add_image(data, mime)
+            if horn_n is not None:
+                mat['normalTexture'] = {'image': model.add_image(horn_n), 'texCoord': 0, 'scale': 1.0}
+            if mat['name'] == 'Exposed_Dark_Wires':
+                # round 47: dark galvanised wire (horn_textures.wire_textures; UVs from assets.wire_uv)
+                wc, wn = HT.wire_textures()
+                mat['pbrMetallicRoughness'] = {'baseColorFactor': [1, 1, 1, 1], 'metallicFactor': .6, 'roughnessFactor': .48,
+                                               'baseColorTexture': {'image': model.add_image(wc), 'texCoord': 0}}
+                mat['normalTexture'] = {'image': model.add_image(wn), 'texCoord': 0, 'scale': 1.0}
             ext = mat.get('extensions', {})
             for e in ext.values():
                 for k in list(e):

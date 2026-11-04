@@ -1,7 +1,10 @@
-# Image prompts for the tail textures (round 46)
+# Image prompts for the tail, horn and wire textures (rounds 46-47)
 
-The tail's bow and cord are textured procedurally (round 45; the cord is a worn off-white since round 46).
-Images made from the prompts below replace those textures: save them in `misanthropic-cow/textures/` under the
+**Status (round 47):** the owner's bow and cord images are in `textures/` (`tail_bow.png`, `tail_cord.png`) and the
+round 47 model uses them; their normal maps come from the images' own shading. The horn and wire prompts (sections 3
+and 4) are new in round 47; until their images arrive, the horns and wires use procedural maps (`horn_textures.py`).
+
+Images made from the prompts below replace the procedural textures: save them in `misanthropic-cow/textures/` under the
 names given and rebuild (`pipeline/tail_textures.py` picks them up; nothing else needs changing). PNG or JPG both work.
 
 ## 1. Electrical cord: `textures/tail_cord.png`
@@ -47,19 +50,41 @@ Optional height map, `textures/tail_bow_height.png`: "The same bow as a grayscal
 fabric bulges toward the viewer, black in the deep pleats and creases, the background black; same framing, no
 lighting."
 
-## 3. The rest of the cow
+## 3. Horns: `textures/horn_paint.png`
 
-Every other part already has a proper texture: the fur suit, hood, sleeves and horn tube (fur), the mask and jaws
+The horns are papier-mache, painted yellow with black bands. The bands stay where they are (from the horns' own
+colour maps); a photo swatch adds the real surface: its brightness detail is laid over the colour and it makes the
+relief in the normal map. Ask for a **square** image (1024 × 1024):
+
+> A seamless, tileable texture swatch of a hand-made papier-mache surface painted with bright yellow acrylic
+> paint, seen straight on and filling the whole frame, as a flat material scan: even, shadowless lighting, no
+> perspective, no background. Soft uneven lumps and faint overlapping edges of the pasted paper strips under the
+> paint, fine brush marks, slightly matte paint with a little sheen on the raised bits, a few tiny paper fibres and
+> specks in the paint. One even yellow overall, no stripes, no bands, no text. The left and right edges and the top
+> and bottom edges must match exactly so the image tiles seamlessly in both directions. Photorealistic, high detail.
+
+Notes: the swatch is taken as about 3 cm across, so lumps a few millimetres across look right; keep the yellow even
+(dark patches would read as stains on every horn).
+
+## 4. Exposed horn wires: `textures/horn_wire.png`
+
+Ask for a **square** image (1024 × 1024):
+
+> A seamless, tileable texture swatch of the surface of old dark galvanised steel wire (the bare armature wire
+> inside a craft prop), seen straight on and filling the whole frame, as a flat material scan: even, shadowless
+> lighting, no perspective, no background, no wire edges visible. Fine drawing lines run vertically from top to
+> bottom of the image; a mottled grey zinc coat with darker dull patches, small dark specks, and a few tiny rust
+> freckles. Metallic, slightly worn. No text. The left and right edges and the top and bottom edges must match
+> exactly so the image tiles seamlessly in both directions. Photorealistic, high detail.
+
+Notes: the wires are only 1.5 mm thick, so this is detail you see only close up; the swatch spans a wire's girth
+across and repeats along it.
+
+## 5. The rest of the cow
+
+Every other part has a proper texture: the fur suit, hood, sleeves and horn tube (fur), the mask and jaws
 (projected from the reference photos), the slippers and gloves (4096-pixel photo textures), the leggings, briefs
-and udders (fabric tiles), the horns (colour maps) and the black shag (real strands, so no texture is needed).
-Three could be better:
-
-1. **The exposed wires on the horns** (`Exposed_Dark_Wires`) are still one flat dark grey. They would look better
-   as dark rubber-insulated wire with a little sheen and some scuffs. This can be done procedurally in the next
-   round (no image needed), or from a prompt like the cord's: "seamless tileable texture swatch of worn black
-   rubber-insulated electrical wire, fine lengthwise texture, flat even lighting, no text".
-2. **The horns** have colour but no normal map, so their surface reads smooth up close. A normal map for their
-   material can also be made procedurally.
-3. **The udders, briefs and leggings** use made-up fabric tiles. They read correctly at viewing distance; if you
-   want them closer to the real costume, square seamless photo swatches of each fabric (as for the cord, "flat
-   material scan, even lighting, seamless") would replace them.
+and udders (fabric tiles), the black shag (real strands, so no texture is needed), and from round 47 the tail
+(your images), the horns (normal maps) and the wires (texture and normal map). The udders, briefs and leggings use
+made-up fabric tiles; they read correctly at viewing distance, but square seamless photo swatches of each fabric
+("flat material scan, even lighting, seamless") would bring them closer to the costume.
