@@ -1,7 +1,7 @@
 # The Misanthropic Cow, v10: start here
 
 This is the v10 handoff as of feedback round 48 (4 November 2026): the round 37 body rigged and animated, with less robotic animations, steady teats, smooth shoulders and armpits (with corrective shapes where arm and body meet), hooves that hang down, an Idle with attitude, a textured tail, armpit hair, a faster Chicken Dance and blended transitions between animations. Only the round 40 to 48 models are kept; the earlier ones were removed at the owner's request (they remain in git history). The folder holds:
-- the models (round 37 static, every earlier new-body round from 25 to 36 static for comparison, and round 18 animated);
+- the animated models of rounds 40 to 48 (every round kept; earlier ones are in git history);
 - the web viewer;
 - review renders;
 - every source file that builds them;
@@ -25,28 +25,29 @@ This is the v10 handoff as of feedback round 48 (4 November 2026): the round 37 
 ```
 Misanthropic_Cow_v10_Handoff/
   START_HERE.md            this file
-  AI_HANDOFF.md            full project context for a new AI session (rounds 1-25)
+  AI_HANDOFF.md            full project context for a new AI session (rounds 1-48)
   CONTINUE_PROMPT.txt      a ready-to-paste opening message for that session
   PROJECT_STATUS.json      versions, files, commits, open items
   MANIFEST.json            size and SHA-256 of every file
   validate_handoff.py      checks the folder against MANIFEST.json
   start_viewer.py          serves Cow_v10/viewer locally and opens it
   Start_Viewer.bat         Windows double-click version of the above
-  Cow_v10/                 the project (the misanthropic-cow/ folder of the git branch), plus the round 25–37 GLBs
+  Cow_v10/                 the project (the misanthropic-cow/ folder of the git branch)
     README.md
-    models/                round 25–37 static GLBs (arms down, arms raised) and the round 18 GLBs
+    models/                the animated GLBs of rounds 40 to 48 (round 48 is the newest)
     viewer/                three.js viewer page and its web-sized model copies
-    reviews/               renders and comparison sheets (rounds_19_24/ for the new body)
+    reviews/               renders, before/after sheets and checks (round_26/ to round_48/, rounds_19_24/); no videos since round 48
     references/            your four approved Gemini views
     assets/                your gloves, your slippers, and the cleaned Tripo body volume (tripo_body.npz)
     textures/              your black shag swatch and tuft sheets (tail_bow.png, tail_cord.png since round 47; horn_paint.png, horn_wire.png since round 48)
-    pipeline/              Python sources; pipeline/review_tools/ builds and checks rounds 19-24
+    pipeline/              Python sources; pipeline/review_tools/rig_bench.py builds, bakes and checks the animated rounds
     handoff/               copies of these handoff documents (kept in git)
   Rebuild_Inputs/          the parts of the v09 handoff the pipeline reuses (mask scan, horns, fabric textures)
   Reference_Photos/
     original_photo_shoot/  "Cow - Original Photo Shoot" (20 photos): proportions, udders, teats
     round_19_to_24/        your photo of the empty suit, and your screenshots from rounds 19-25
     round_26_to_32/        your screenshots and costume photos from rounds 26-31, and the "Things To Do" folder
+    round_39_to_48/        your screenshots and images from rounds 39-48 (the bow, cord, horn and wire images among them)
     ...                    the earlier folders (2012 Hasselblad shoot, mask, hood, gloves, slippers, round screenshots)
 ```
 
