@@ -36,7 +36,7 @@ body { background: var(--paper); color: var(--ink); font-family: var(--body); fo
 header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
 h1 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 46px); line-height: 1; margin: 0; letter-spacing: .01em; text-wrap: balance; }
 .tag { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
 @media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
 .stage { position: relative; border-radius: 6px; overflow: hidden; background: radial-gradient(120% 90% at 50% 18%, var(--stage-top), var(--stage-bottom)); aspect-ratio: 4 / 5; max-height: 78vh; width: 100%; max-width: 100%; }
 .stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -84,34 +84,14 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; round 44D &middot; 11 animations + alt set</span>
+    <span class="tag">v10 &middot; 44B &middot; 11 animations, each standard and lumbering</span>
   </header>
 
   <div class="main">
     <section class="controls" aria-label="Viewer">
       <div class="stage" id="stage">
         <div class="phase-now" id="phaseNow">Idle</div>
-        <div class="figlabel" id="lab44" hidden>Round 44</div>
-        <div class="figlabel" id="lab44b" hidden>Round 44B</div>
-        <div class="figlabel" id="lab44d" hidden>Round 44D</div>
         <div class="status" id="status">Loading the model (17 MB)&hellip;</div>
-      </div>
-
-      <div class="row" id="versions">
-        <span class="label">Rounds</span>
-        <button data-round="r44" aria-pressed="false" disabled><span class="swatch" style="background:#6a1b9a"></span>Round 44</button>
-        <button data-round="r44b" aria-pressed="false" disabled><span class="swatch" style="background:#00838f"></span>Round 44B</button>
-        <button data-round="r44d" aria-pressed="true" disabled><span class="swatch" style="background:#c2185b"></span>Round 44D</button>
-        <span class="note" id="verNote">Round 44D, animated.</span>
-      </div>
-
-      <div class="row" id="layout">
-        <span class="label">Compare</span>
-        <button data-layout="side" aria-pressed="true" disabled>Side by side</button>
-        <button data-layout="overlay" aria-pressed="false" disabled>Overlay</button>
-        <button id="guides" aria-pressed="false" disabled>Height lines</button>
-        <button id="arms" aria-pressed="false" disabled hidden>Arms raised</button>
-        <span class="note" id="layoutNote">Pick two or more rounds above to compare them.</span>
       </div>
 
       <div class="row" id="clips">
@@ -134,7 +114,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <span class="label">Style</span>
         <button data-style="std" aria-pressed="true">Standard</button>
         <button data-style="alt" aria-pressed="false">Alt &middot; lumbering</button>
-        <span class="note" id="styleNote">Heavier, slower, slumped versions of the first seven.</span>
+        <span class="note" id="styleNote">Heavier, slower, slumped versions of every animation.</span>
       </div>
 
       <div class="row" id="blends">
@@ -174,10 +154,10 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 
       <div class="row" id="lights">
         <span class="label">Light</span>
-        <button data-light="studio" aria-pressed="true">Studio</button>
+        <button data-light="studio" aria-pressed="false">Studio</button>
         <button data-light="soft" aria-pressed="false">Soft</button>
         <button data-light="spot" aria-pressed="false">Spotlight</button>
-        <button data-light="daylight" aria-pressed="false">Daylight</button>
+        <button data-light="daylight" aria-pressed="true">Daylight</button>
         <button data-light="golden" aria-pressed="false">Golden hour</button>
         <button data-light="night" aria-pressed="false">Moonlight</button>
         <button data-light="stage" aria-pressed="false">Stage</button>
@@ -211,58 +191,6 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
       </div>
     </section>
 
-    <aside>
-      <section>
-        <h2>What changed</h2>
-        <ul>
-          <li><strong>Round 44D:</strong> 44B with the groove under the shoulder cap filled while the arm swings. The top of each sleeve widens to just inside the cap&rsquo;s surface (up to 2 cm) as the arm swings away from rest, fully in Run and partly at the ends of Walk&rsquo;s swing; nothing is added to the body. Standing, she is exactly 44B. (Round 44C, which trimmed the cap instead and added more armpit hair, was dropped.)</li>
-          <li>Round 44B &middot; round 44 again, with only these from the later rounds: Idle without the hoof check (round 45), the face staying joined to the hood as she turns her head (round 46), the slimmer chin (round 46), the armpit hair (rounds 46 and 47), the mended horn wire (round 45), and every texture (the tail from your bow and cord images, the horns and their wires from your photos). Round 44&rsquo;s shoulders (no sleeve heads, round 44&rsquo;s armpit fill) and its arms are kept as they were.</li>
-          <li>Round 50 &middot; <strong>Round 44&rsquo;s shoulders:</strong> <em>Round 44&rsquo;s shoulders:</em> since round 45 the top of each sleeve was widened in every pose, to fill the groove under the shoulder cap that showed as the arm swung (Run). It also softened the cap&rsquo;s edge at rest, so the shoulders read fuller and less defined than round 44&rsquo;s. The widening is now a corrective shape that blends in only as the arm swings away from rest: none while she stands, partly at the ends of Walk&rsquo;s swing, fully through Run&rsquo;s. At rest the shoulders are round 44&rsquo;s again; in Run the groove stays filled.</li>
-          <li>Round 49 &middot; <strong>Round 44&rsquo;s arms:</strong> <em>Round 44&rsquo;s arms:</em> rounds 44 and 48 have the same body (their shapes match in the default pose); what changed was how the arms hang at rest. Rounds 45 to 48 swung the upper arms back, bent the elbows more and turned the forearms, so the forearms and hooves stood further out and the shoulders read differently. Round 49 has round 44&rsquo;s resting arms again (straighter, a touch forward, the hooves square to the side; Idle&rsquo;s two arms alike; Walk&rsquo;s elbows as in round 44), with everything else since: the face joined to the hood, the slimmer chin, the smooth shoulders, the armpit fill and hair, the Idle without the hoof check, the horn wire mended and every texture.</li>
-          <li>Round 48 &middot; <strong>Horns, wires, shoulders:</strong> <em>Horns and wires:</em> your two photos are on them now. The horns keep their black bands; the photo adds the painted papier-m&acirc;ch&eacute; surface over their colour and gives their relief (brush and palette-knife strokes). The wires are wrapped in the galvanised-steel photo, its lines running along each wire. <em>Shoulders:</em> the widened top of each sleeve (round 45&rsquo;s fill for the groove under the shoulder) was computed point by point and only lightly smoothed, so it came out lumpy, with a ridge down the top of the arm and bumps at the back of the shoulder. It is now smoothed over about 5 cm (it was about 1 cm) and capped softly, so it blends into the sleeve; the groove under the shoulder stays filled.</li>
-          <li>Round 47 &middot; <strong>Armpit hair, tail, horns, wires:</strong> <em>Armpit hair:</em> round 46&rsquo;s tuft sat on her side below the armpit and hung down, so with the arms up it read as one more black spot. It now grows in the armpit itself, where the raised sleeve meets the body, pointing up into the hollow, and it stays hidden inside the sleeve with the arms down. <em>Tail:</em> the bow and the cord now use your images, with their relief taken from the images&rsquo; own shading. <em>Horns:</em> each horn has a normal map: the lumps of the pasted paper under the paint, fine paper fibre and brush marks, and the black bands&rsquo; paint standing a little proud. <em>Wires:</em> the broken horn&rsquo;s wires were one flat grey with no texture coordinates; they now have their own (round each wire and along it) and a dark galvanised-steel texture: drawing lines along the wire, a mottled zinc coat, dark specks and a few rust freckles. Photos made from the prompts in <code>handoff/TEXTURE_PROMPTS.md</code> can replace the horn and wire textures. <em>Rounds:</em> round 44 is back for comparison.</li>
-          <li>Round 46 &middot; <strong>Face, chin, hands, shoulders, armpit hair:</strong> <em>Face and hood:</em> as she turned her head (the side-eye in Idle) the bottom of the hood stayed with the neck while the face went with the head, so a gap opened under the jaw. The hood now follows the head wherever it touches the mask, blending back to the neck below. The neck under the chin is also a little slimmer. <em>Hands:</em> round 45 turned the forearms the wrong way, so the palms faced forward, and bent the wrists back to make up for an elbow that was bent too far. The hands now hang palms-in and a little back, the thumb side forward, with a softer elbow (about 25 degrees) and a straight wrist. <em>Shoulders and armpits:</em> round 45&rsquo;s widened sleeve heads were too big, so the shoulders read bulky and a seam showed where the sleeve head ended; they now widen the sleeve by at most 14 mm instead of 25, stop 1 cm inside the shoulderthey are about half as wide now and blend into the body more smoothlyrsquo;s surface instead of 4 mm, and the rounded fill where the body meets the sleeve under the arm is tighter (4.5 cm instead of 6), so the armpits are less bulky. <em>Armpit hair:</em> a short, curly, black tuft in each armpit, hidden under the arm at rest and showing as she lifts it (Jumping jacks, the Wings in the Chicken dance). <em>Tail:</em> the cord and plug are a worn off-white, as in the costume; images made from the prompts in <code>handoff/TEXTURE_PROMPTS.md</code> can replace the bow and cord textures.</li>
-          <li>Round 45 &middot; <strong>Shoulder groove, arms, Idle, tail:</strong> <em>Shoulder groove:</em> the body's shoulder is a rounded cap wider than the sleeve, and the sleeve came out from under its edge, so a groove ran down the front and back of the shoulder, standing and more so as the arm swings. The top of each sleeve is now widened to fill it, like a puffy sleeve head, staying just inside the shoulder's surface and tapering back to the sleeve's own width. <em>Arms:</em> the relaxed arms hang more loosely: the elbows softly bent (about 23 degrees instead of 8), the upper arms a touch further back, the shoulders dropped a little, the forearms turned in so the palms face the thighs, and in Idle the two arms are no longer mirror images. The walk's elbows are a little softer too. <em>Idle:</em> the hoof check is gone; Idle is now 15.6 seconds: settle, sigh, side-eye, foot tap, eye roll. <em>Horn:</em> one of the exposed wires on the broken horn stopped 7&nbsp;mm short of the others; it now joins them. <em>Tail:</em> the bow, cord and plug are textured: satin with fine weave, sheen and creases into the knot on the bow; fine ribs, the polarity rib and an embossed rating line on the cord; a moulded grain on the plug and brushed brass on its blades. Rounds 44 and 45 are here; pick <em>Round 44</em> to compare.</li>
-          <li>Round 44 &middot; <strong>Armpits:</strong> <em>Armpits and the join of arm and body:</em> where the sleeve meets the body, the two are separate pieces of the costume, and as an arm moved they cut into each other in a sharp crease: a crescent fold under the arm in Jumping jacks, and a groove at the front of the shoulder as the arm swings forward in the run. The body round each shoulder now has corrective shapes for nine arm positions (out to the side at four heights, overhead, forward, further forward, back, and forward and up) that blend in as the arm moves: at each, the body rises to meet the sleeve in a rounded join, the hollow the sleeve's top sits in is filled once the arm lifts out of it, and folds are smoothed out. Round 43's shoulder settings are kept.</li>
-          <li>Round 43 &middot; <strong>Shoulders, hooves, hoof check, transitions:</strong> <em>Armpits and shoulders:</em> the body round each shoulder now moves with the arm instead of standing still while the sleeve turned inside it, so the join no longer opens into a ridge at the back of the shoulder as the arms swing (Walk, Run and the rest), the notch on top of the shoulder with the arm out level is gone, and with the arms overhead in Jumping jacks the sleeve no longer looks like a tube pushed into the body. <em>Hooves:</em> every curl of the hoof toes was bending them the wrong way, back and outwards, since the rig was made; they now curl in towards the palm, so a resting hoof sits straight with a slight curl, the Wings fists are fists and the running hooves are curled. <em>Idle:</em> in the hoof check she now brings the hoof up in front of her, just above the udder, palm up, and looks down at it, instead of holding it out to the side like a wave. <em>Transitions:</em> picking another animation now blends into it (the <em>Transition</em> row: <em>Blend</em> or <em>Cut</em>); walks and runs carry on from the same point in the step, and the Default pose fades in and out. <em>Shuffle</em> plays the animations one after another, blending between them.</li>
-          <li>Round 42 &middot; <strong>Idle, hooves, glitch, dance:</strong> <em>Idle</em> is now 20 seconds of standing about with some attitude, and much calmer (the constant wiggle is gone): she settles onto one leg, heaves a long bored sigh, gives the room a slow side-eye down her nose with a little shake of the head, lifts a hoof to inspect it, picks at it, flicks it and lets the arm drop, taps a foot while she waits, and rolls her eyes. The label on the view names each beat. <em>Hands:</em> a resting hoof now hangs straight down, a touch behind the wrist, instead of angling forward and up. <em>Exasperated:</em> the glitch on the arm (the hoof spun half a turn in a single frame as the arms flung out) is gone, and so are two similar ones: in the Chicken dance going from Wings into Wiggle, and in the face-palm. When she takes her hoof off her face, her head comes up first; then the arm drops away under its own weight, slow to leave and gathering speed, bumps off her side and settles, the hoof trailing behind and her shoulder sagging as it lands. <em>Chicken dance:</em> faster: the standard dance now takes 9.6 seconds, and the lumbering one plays at the old standard speed (12 seconds). <em>Run:</em> the arms pump closer to the sides. <em>Horn:</em> the new black ring now sits between the two existing ones.</li>
-          <li>Round 41 &middot; <strong>Hands, spots, horn:</strong> <em>Hands:</em> a relaxed hand now hangs straight down from the wrist, so the hooves point down at rest and dangle as the arms swing; before, each hand tipped forward at the wrist, so the hooves pointed forward and up. Hands that are doing something (claps, the hooves at the eyes or the brow, the running pump, the arms overhead) keep their set angle. <em>Spots:</em> the thin black sliver on the cow&rsquo;s right side beside the udder, and the small black flecks next to the big patch on the back, are gone. <em>Horn:</em> the cow&rsquo;s left horn has the real horn&rsquo;s second black ring, just above the middle one. <em>Idle</em> now loops in full in this viewer (it is 8 seconds long; the viewer was cutting it at 4).</li>
-          <li>Round 40 &middot; <strong>Teats and armpits:</strong> <em>Teats:</em> no more twitching. The two lower teats hang just above the belly, and they were being pushed off it and springing back on every frame, so they flickered, most of all in Sneak. They now rest against the belly and swing smoothly. <em>Armpits:</em> with the arms raised (Jumping jacks, Look around, the Chicken dance) the costume no longer bunches into a flap and a shelf at each armpit. The stuffed body now stays put at the shoulder, the sleeve turns in it like a ball in a socket, and the body&rsquo;s side runs smoothly up into the shoulder as each arm lifts.</li>
-          <li>Round 39 &middot; <strong>Less robotic:</strong> <em>Less robotic:</em> every clip now moves like a person inside the suit rather than a machine. The body no longer moves in lockstep: the chest follows the hips a moment later, the head follows the chest, and the arms trail and settle with a little overshoot after quick moves. Left and right are no longer mirror images, and a slow, gentle sway means she is never perfectly still. She breathes, and in the walks her head floats steadily over the step instead of nodding with it. The relaxed arms hang against the belly instead of being held out like a mannequin&rsquo;s. <em>Idle</em> is new: 8 seconds of standing about, settling her weight onto one leg and then the other, glancing aside and fidgeting with a hoof. <em>Walk:</em> the body is lowest just after each step lands and highest over the standing leg (it was the other way round). <em>Jumping Jacks:</em> no two jacks are alike, and she tires a little.</li>
-          <li>Round 38 &middot; <strong>Rigged:</strong> <em>The rig:</em> the round 37 body now has round 18&rsquo;s 58-joint skeleton and all 18 animations (11 clips and 7 alt versions), with the baked physics: the udders, belly, teats, black shag and tail cord swing as before. Changes for the new body: the pink cloth of each udder and the fur round it now move as one, so the seam never opens when the cups bounce; the stuffed sack under the udders moves with the chest, so the teats no longer dip into the belly; the hem helpers fit the lower round 37 hem, so the belly rides up over a raised knee in Run, Sneak and Sit Cross-Legged; and four arm moves were adjusted so the arms clear the bigger udders (Crying&rsquo;s hooves come up to the eyes from further in front, the face-palm and the claps lift the elbows higher, and the Wings fists sit 4&nbsp;cm further forward). <em>Arms raised</em> still shows rounds 25 to 37; round 38 raises its arms in the clips.</li>
-          <li>Earlier rounds (1 to 37) built the costume from the 2012 photo shoot, your Tripo model and the four approved views: the body, udders, hood, mask, gloves, slippers, shag and spots. Their models have been removed; they stay in the project&rsquo;s git history.</li>
-        </ul>
-      </section>
-      <section>
-        <h2>Measured per animation</h2>
-        <div style="overflow-x:auto">
-        <table class="metrics">
-          <thead><tr><th>Animation</th><th>Arms into body</th><th>Teats into belly</th><th>Belly into legs</th><th>Legs into belly</th><th>Lowest sole</th></tr></thead>
-          <tbody>
-            <tr><td>Idle</td><td>0 mm</td><td>0.4 mm</td><td>0 mm</td><td>18.0 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Walk</td><td>0 mm</td><td>1.3 mm</td><td>0.6 mm</td><td>45.1 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Run</td><td>0 mm</td><td>2.1 mm</td><td>0 mm</td><td>17.8 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sneak</td><td>0 mm</td><td>1.2 mm</td><td>0 mm</td><td>20.7 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Jumping Jacks</td><td>0 mm</td><td>1.2 mm</td><td>2.8 mm</td><td>35.0 mm</td><td>3.2 mm</td></tr>
-            <tr><td>Look Around</td><td>0 mm</td><td>0.3 mm</td><td>0 mm</td><td>6.9 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Chicken Dance</td><td>0 mm</td><td>3.7 mm</td><td>0 mm</td><td>31.7 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Depressed Walk</td><td>0 mm</td><td>1.2 mm</td><td>2.8 mm</td><td>43.7 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sit Cross-Legged</td><td>0 mm</td><td>5.8 mm</td><td>8.6 mm</td><td>26.1 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Crying</td><td>0 mm</td><td>1.9 mm</td><td>0 mm</td><td>26.5 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Exasperated</td><td>0 mm</td><td>0.7 mm</td><td>0 mm</td><td>9.5 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Idle <span class="note">alt</span></td><td>0 mm</td><td>0.9 mm</td><td>0 mm</td><td>25.8 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Walk <span class="note">alt</span></td><td>0 mm</td><td>1.4 mm</td><td>1.0 mm</td><td>44.2 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Run <span class="note">alt</span></td><td>0 mm</td><td>2.0 mm</td><td>0 mm</td><td>18.5 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Sneak <span class="note">alt</span></td><td>0 mm</td><td>1.6 mm</td><td>0 mm</td><td>19.9 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Jumping Jacks <span class="note">alt</span></td><td>0 mm</td><td>0.8 mm</td><td>3.1 mm</td><td>32.7 mm</td><td>3.1 mm</td></tr>
-            <tr><td>Look Around <span class="note">alt</span></td><td>0 mm</td><td>0.2 mm</td><td>0 mm</td><td>16.8 mm</td><td>3.0 mm</td></tr>
-            <tr><td>Chicken Dance <span class="note">alt</span></td><td>0 mm</td><td>4.1 mm</td><td>0 mm</td><td>32.7 mm</td><td>3.0 mm</td></tr>
-          </tbody>
-        </table>
-        </div>
-        <p class="note">Round 44D. Depths are 99.5th percentiles over every frame, counting only surface you can see. In every animation the gloves stay out of the body and tucked into the sleeves. <em>Legs into belly</em> is mostly the top of the briefs passing behind the belly&rsquo;s hem as she moves, which the hem hides. The teats rest against the belly fur, so at the deepest they sit a few millimetres into it.</p>
-      </section>
-    </aside>
   </div>
 </div>
 
@@ -288,15 +216,16 @@ const playBtn = document.getElementById('play');
 const PHASES = ['Beaks', 'Wings', 'Wiggle', 'Claps'];
 // the Idle's beats (start in s; round 45: 15.6 s, the hoof check gone; the alt plays them 25 % slower)
 const IDLE_BEATS = [[0, 'settle'], [3, 'sigh'], [6, 'side-eye'], [9.6, 'foot tap'], [13, 'eye roll']];
-// Round 44D (44B with the shoulder groove filled as the arm swings) is the main model; rounds 44 and 44B load on first use, to compare (side by side or overlaid).
+// One model: 44B, the final one.  (The rounds and compare rows were removed; the code below still handles a list of
+// figures, now just this one.)
 // (round 47: round 44 brought back at the owner's request, "for comparison")
-const ROUNDS = ['r44', 'r44b', 'r44d'];
-const COLORS = { r44: '#6a1b9a', r44b: '#00838f', r44d: '#c2185b' };
-const NAMES = { r44: 'Round 44', r44b: 'Round 44B', r44d: 'Round 44D' };
+const ROUNDS = ['r44b'];
+const COLORS = { r44b: '#c2185b' };
+const NAMES = { r44b: 'Round 44B' };
 const short = k => NAMES[k].replace('Round ', '');      // '44', '50', '44B'
-let mainRoot = null, shown = ['r44d'], layout = 'side', guidesOn = false, currentView = 'front';
+let mainRoot = null, shown = ['r44b'], layout = 'side', guidesOn = false, currentView = 'front';
 const SPACING = 0.94;                      // side by side: distance between neighbouring figures (m)
-const LABELS = { r44: document.getElementById('lab44'), r44b: document.getElementById('lab44b'), r44d: document.getElementById('lab44d') };
+const LABELS = {};
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -347,7 +276,7 @@ const BACKDROPS = {
   grey: ['#d9d9de', '#8d8d96'], white: ['#ffffff', '#e4e4e8'], dark: ['#26222a', '#060507'],
   sky: ['#cfe6ff', '#8fb6e0'], sunset: ['#ffcf9a', '#6a4a8a'], night: ['#1c2a48', '#05070d'],
 };
-let lightMode = 'studio', clayOn = false, lightTurn = 0, lightHeight = 0, exposure = 1, shadowsOn = false, bgChoice = 'auto';
+let lightMode = 'daylight', clayOn = false, lightTurn = 0, lightHeight = 0, exposure = 1, shadowsOn = true, bgChoice = 'auto';   // opens in daylight
 
 // soft floor shadow
 const sh = document.createElement('canvas'); sh.width = sh.height = 128;
@@ -449,7 +378,7 @@ async function load(base, useMeshopt) {
 async function start() {
   let gltf;
   await MeshoptDecoder.ready;
-  gltf = await load('cow-r44D-meshopt', true);
+  gltf = await load('cow-r44B-meshopt', true);
   const root = gltf.scene;
   prepare(root, meshes, restPose);
   mainRoot = root;
@@ -460,7 +389,7 @@ async function start() {
   selectClip('Idle');                // open on Idle, not the Chicken Dance
   status.hidden = true;
   enableCompare(true);
-  setRounds(['r44d']);               // open on the newest round
+  setRounds(['r44b']);               // open on the newest round
 }
 
 function prepare(root, list, rest) {
@@ -480,13 +409,12 @@ function prepare(root, list, rest) {
 }
 
 // Rounds 44 and 44B, each loaded the first time it is shown; each plays the clip picked on its own clock.
-const FIGS = { r44: { file: 'cow-r44-meshopt', mb: 16.8, f: null, loading: null, name: '44' },
-               r44b: { file: 'cow-r44B-meshopt', mb: 18.0, f: null, loading: null, name: '44B' } };
+const FIGS = {};
 // rounds 25 and 28 to 37 can stand with their arms lifted (a second static model each, swapped in its place)
 let armsUp = false;
 const STATIC = [];   // every round shown is animated
 const figKey = k => (STATIC.includes(k) && armsUp) ? k + 'up' : k;
-const ALLK = ['r44', 'r44b', 'r44d'];
+const ALLK = ['r44b'];
 function ensureFig(key) {
   const F = FIGS[key];
   if (F.f) return Promise.resolve(F.f);
@@ -539,15 +467,12 @@ function sideCount() { return layout === 'side' ? shown.length : 1; }   // figur
 // in an overlay the newest round shown is solid and the others are ghosts in their own colour
 const ghostOf = k => layout === 'overlay' && shown.length > 1 && shown.includes(k) && k !== shown[shown.length - 1];
 const xOf = k => sideCount() > 1 ? (shown.indexOf(k) - (shown.length - 1) / 2) * SPACING : 0;
-const rootOf = k => k === 'r44d' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
-const meshesOf = k => k === 'r44d' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
+const rootOf = k => k === 'r44b' ? mainRoot : (FIGS[k].f ? FIGS[k].f.root : null);
+const meshesOf = k => k === 'r44b' ? meshes : (FIGS[k].f ? FIGS[k].f.meshes : []);
 const modeKey = k => k.endsWith('up') ? k.slice(0, -2) : k;          // which round a figure belongs to
 const list = ks => ks.length > 1 ? ks.slice(0, -1).join(', ') + ' and ' + ks[ks.length - 1] : ks[0];
 function describe() {
-  const ONE = {
-    r44d: 'Round 44D: 44B with the shoulder groove filled as the arm swings (Walk, Run); standing, she is 44B.',
-    r44b: 'Round 44B: round 44 with Idle without the hoof check, the face joined to the hood, the slimmer chin, armpit hair, the mended horn wire and every texture.',
-    r44: 'Round 44: the armpits and the join of arm and body smoothed with corrective shapes (stiffer arms, no sleeve heads, an untextured tail).' };
+  const ONE = { r44b: '44B, animated.' };
   if (shown.length === 1) return ONE[shown[0]];
   const ns = shown.map(short);
   return layout === 'side' ? `Rounds ${list(ns)} side by side, round ${ns[0]} on the left.`
@@ -559,12 +484,12 @@ function refreshButtons() {
     b.setAttribute('aria-pressed', String(b.dataset.layout === layout));
     b.disabled = shown.length < 2;
   });
-  armsBtn.disabled = !shown.some(k => STATIC.includes(k));
+  if (armsBtn) armsBtn.disabled = !shown.some(k => STATIC.includes(k));
 }
 async function setRounds(next, nextLayout = layout) {
   next = ROUNDS.filter(k => next.includes(k));
   if (!next.length) return;
-  for (const k of next) if (k !== 'r44d' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
+  for (const k of next) if (k !== 'r44b' && !(await ensureFig(figKey(k)))) { refreshButtons(); return; }
   const wasMulti = shown.length > 1;
   shown = next; layout = nextLayout;
   for (const k of ALLK) {
@@ -580,8 +505,8 @@ async function setRounds(next, nextLayout = layout) {
   if (shown.length > 1 && !wasMulti && !guidesOn) setGuides(true);
   applyMaterials();
   setView(currentView);
-  document.getElementById('verNote').textContent = describe();
-  document.getElementById('layoutNote').textContent = shown.length > 1 ? (layout === 'side' ? 'Each round stands in its own place.' : 'The rounds stand in the same place.') : 'Pick two or more rounds above to compare them.';
+  const vn = document.getElementById('verNote'); if (vn) vn.textContent = describe();
+  const ln = document.getElementById('layoutNote'); if (ln) ln.textContent = shown.length > 1 ? (layout === 'side' ? 'Each round stands in its own place.' : 'The rounds stand in the same place.') : 'Pick two or more rounds above to compare them.';
   refreshButtons();
 }
 // a round button adds that round to the view or takes it away (one round always stays)
@@ -592,7 +517,7 @@ document.querySelectorAll('#versions button[data-round]').forEach(b => b.addEven
 }));
 document.querySelectorAll('#layout button[data-layout]').forEach(b => b.addEventListener('click', () => setRounds(shown, b.dataset.layout)));
 const armsBtn = document.getElementById('arms');
-armsBtn.addEventListener('click', async () => {
+armsBtn?.addEventListener('click', async () => {
   armsUp = !armsUp;
   armsBtn.setAttribute('aria-pressed', String(armsUp));
   for (const k of shown.filter(k => STATIC.includes(k)))
@@ -601,14 +526,7 @@ armsBtn.addEventListener('click', async () => {
 });
 
 // Height lines: each shown round's crotch and the bottom of its belly, drawn across the figures facing the camera
-const GUIDES = [
-  { y: 0.747, text: 'R44 crotch 0.75 m', round: 'r44' },
-  { y: 0.811, text: 'R44 belly 0.81 m', round: 'r44' },
-  { y: 0.747, text: 'R44B crotch 0.75 m', round: 'r44b' },
-  { y: 0.811, text: 'R44B belly 0.81 m', round: 'r44b' },
-  { y: 0.747, text: 'R44D crotch 0.75 m', round: 'r44d' },
-  { y: 0.811, text: 'R44D belly 0.81 m', round: 'r44d' },
-];
+const GUIDES = [];
 GUIDES.forEach(gd => { gd.color = COLORS[gd.round]; });
 const guideGroup = new THREE.Group(); guideGroup.visible = false; scene.add(guideGroup);
 GUIDES.forEach(gd => {
@@ -621,9 +539,9 @@ GUIDES.forEach(gd => {
 const guidesBtn = document.getElementById('guides');
 function setGuides(on) {
   guidesOn = on; guideGroup.visible = on;
-  guidesBtn.setAttribute('aria-pressed', String(on));
+  guidesBtn?.setAttribute('aria-pressed', String(on));
 }
-guidesBtn.addEventListener('click', () => setGuides(!guidesOn));
+guidesBtn?.addEventListener('click', () => setGuides(!guidesOn));
 const _v = new THREE.Vector3();
 function toScreen(p) {
   _v.copy(p).project(camera);
@@ -668,6 +586,7 @@ function updateOverlays() {
   const overlay = layout === 'overlay' && shown.length > 1;
   for (const k of ROUNDS) {
     const r = rootOf(figKey(k)), l = LABELS[k];
+    if (!l) continue;
     if (!(r && r.visible && !ghostOf(k))) { l.hidden = true; continue; }
     const base = STATIC.includes(k) && armsUp ? NAMES[k] + ' \u00b7 arms raised' : NAMES[k];
     l.textContent = overlay ? base + ' \u00b7 ghosts: ' + shown.filter(ghostOf).map(short).join(', ') : base;
@@ -717,8 +636,8 @@ function selectClip(name) {
   const dance = name === 'Chicken Dance';
   ticks.hidden = !dance; phaseRow.hidden = !dance;
   const altOk = name !== '__pose' && hasAlt(name);
-  styleNote.textContent = name === '__pose' ? 'Heavier, slower, slumped versions of the first seven.'
-    : altOk ? (alt ? 'Playing the heavy, lumbering version.' : 'Heavier, slower, slumped versions of the first seven.')
+  styleNote.textContent = name === '__pose' ? 'Heavier, slower, slumped versions of every animation.'
+    : altOk ? (alt ? 'Playing the heavy, lumbering version.' : 'Heavier, slower, slumped versions of every animation.')
     : 'This one is already played heavy; it has no alt version.';
   if (name !== '__pose' && alt && altOk) name = name + ' (alt)';
   const prevName = clipName, prevAction = action;

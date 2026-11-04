@@ -25,7 +25,7 @@ SOCKET_FILL = float(__import__("os").environ.get("COW_SOCKET_FILL", 1.))
 RELAX_ITERS = int(__import__("os").environ.get("COW_RELAX_ITERS", 30))                     # the delta mush's smoothing
 # round 44B: the sleeve heads (rounds 45-50) are off by default, as in round 44 (COW_SLEEVE_HEADS=1 turns them back on, as
 # round 50's corrective shapes)
-SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '1') == '1'   # round 44D: on (round 44B: off)
+SLEEVE_HEADS = __import__('os').environ.get('COW_SLEEVE_HEADS', '0') == '1'   # off: 44B, the final model (on: round 44D)
 # round 52: the shoulder trim (shoulder_trim), on by default: the cap's lip drawn in to the sleeve as the arm swings
 SHOULDER_TRIM = __import__('os').environ.get('COW_SHOULDER_TRIM', '0') == '1'   # 44C only (the owner: it didn't work)
 NAMES = ['ArmUp_L', 'ArmUp_R'] + [f'Relax{k}_{side}' for side in 'LR' for k in range(len(RELAX_KEYS))] + (['SleeveHead_L', 'SleeveHead_R'] if SLEEVE_HEADS else []) + (['ShoulderTrim_L', 'ShoulderTrim_R'] if SHOULDER_TRIM else [])

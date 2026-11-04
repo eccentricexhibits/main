@@ -257,8 +257,10 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
         G[:, :3, 3] = bind
         first = len(doc['nodes'])
         from scipy.spatial.transform import Rotation
+        rest_T = np.zeros((len(names), 3))
         for i, name in enumerate(names):
             L = G[i] if parents[i] < 0 else np.linalg.inv(G[parents[i]]) @ G[i]
+            rest_T[i] = L[:3, 3]
             node = {'name': name, 'translation': L[:3, 3].tolist()}
             q = Rotation.from_matrix(L[:3, :3]).as_quat()
             if np.abs(q[:3]).max() > 1e-9:
@@ -275,6 +277,15 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
             doc['nodes'][ni]['skin'] = 0
         doc['scenes'][0]['nodes'] += roots
         anims = []
+        # 44B final: a joint's translation track is left out when it never leaves the joint's rest translation in any
+        # clip (most joints only rotate); the node's own translation then holds, so nothing changes, and a clip switch
+        # can't leave a stale value in an engine that doesn't reset nodes (about 2 MB of the file)
+        still = set()
+        if skinned and model.animations:
+            for ji in range(len(rest_T)):
+                if all(an['tracks'].get(ji, (None, None))[0] is None or
+                       np.abs(np.asarray(an['tracks'][ji][0], float) - rest_T[ji]).max() < 1e-6 for an in model.animations):
+                    still.add(ji)
         for an in model.animations:
             t = np.asarray(an['times'], '<f4')
             tin = acc(t[:, None], 'SCALAR', 5126, minmax=True)
@@ -292,7 +303,7 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
                         A['channels'].append({'sampler': s, 'target': {'node': ni, 'path': 'weights'}})
             for ji, (T, Q) in an['tracks'].items():
                 for channel, vals, kind in [('translation', T, 'VEC3'), ('rotation', Q, 'VEC4')]:
-                    if vals is None:
+                    if vals is None or (channel == 'translation' and ji in still):
                         continue
                     s = len(A['samplers'])
                     A['samplers'].append({'input': tin, 'output': acc(np.asarray(vals, '<f4'), kind, 5126), 'interpolation': 'LINEAR'})

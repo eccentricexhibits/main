@@ -532,8 +532,10 @@ class SitCrossLegged(AN.Dance):
         p['spine'] = np.array([.10 * bal + .12 * fall + .16 * slump, 0, 0])
         # the chest stays back as she slumps, so the cups don't fold down onto the belly
         p['chest'] = np.array([.04 * bal - .03 * fall - .03 * slump + .015 * sigh, 0, 0])
-        p['neck'] = np.array([.05 * bal + .33 * fall + .10 * slump - .12 * bal * fall, 0, 0])
-        p['head'] = np.array([.20 * fall + .20 * slump + .02 * sigh, .06 * slump * np.sin(2 * np.pi * u), .05 * slump])
+        # round 44B final: the head dropped 47 degrees (neck and head) on top of the slumped spine, and the mask's muzzle
+        # sank into her chest (the owner: "the cow's face sinks into her belly"); now about half, still looking down
+        p['neck'] = np.array([.05 * bal + .20 * fall + .05 * slump - .12 * bal * fall, 0, 0])
+        p['head'] = np.array([.08 * fall + .10 * slump + .02 * sigh, .06 * slump * np.sin(2 * np.pi * u), .05 * slump])
         p['hem'] = 1.                                # the front hem rides up over the lifted thighs
         # round 38: seated, the stuffed belly rides up onto the crossed legs (the Belly bone; spine frame)
         p['belly_lift'] = np.array(self.BELLY_SEAT_LIFT) * fall
@@ -775,10 +777,73 @@ def lumbering(Base, slow=SLOW, lag=.07):
     return Alt
 
 
+# ---------------------------------------------------------------- brisk versions of the mood clips (44B final)
+FAST = SLOW         # the brisk versions play 25 % faster than the mood clips (which were made heavy)
+
+
+def unlumber(clip, p, u, feet=False, head=True):
+    """The reverse of lumber: the back straighter, the chest up, shoulders lifted, the neck less forward with the head
+    tipped down to keep the gaze level (spine -.05, chest -.02, neck -.03, head +.10), less sway, and for a walk the
+    feet lifting higher.  head=False keeps the neck and head as they were (where the hooves are put to the face,
+    Crying and Exasperated: their targets are worked out from the head's pose in the chest's frame)."""
+    p['spine'] = np.asarray(p['spine'], float) + [-.05, 0, 0]
+    p['chest'] = np.asarray(p['chest'], float) + [-.02, 0, 0]
+    if head:
+        p['neck'] = np.asarray(p['neck'], float) + [-.03, 0, 0]
+        p['head'] = np.asarray(p['head'], float) + [.10, 0, 0]
+    p['hips'] = np.asarray(p['hips'], float) * [1, 1, .8]
+    sh = np.asarray(p['shift'], float)
+    p['shift'] = np.array([.8 * sh[0], sh[1] + .006, sh[2]])
+    p['clav'] = {s_: v + .03 for s_, v in p['clav'].items()}
+    for side, (abd, flex, bend) in list(p.get('fk', {}).items()):
+        p['fk'][side] = np.array([abd, 1.15 * flex, bend])
+    if feet and p.get('feet'):
+        out = {}
+        for side, ft in p['feet'].items():
+            pos = np.array(ft['pos'], float)
+            pos[1] = clip.ankle_height(ft['pitch']) + 1.3 * (pos[1] - clip.ankle_height(ft['pitch']))
+            out[side] = dict(ft, pos=pos)
+        p['feet'] = out
+    return p
+
+
+def brisk(Base, fast=FAST):
+    """A mood clip played brisker and lighter (the owner: "non-lumbering versions" of the four clips that had only a
+    heavy one); the heavy original becomes its alt (heavy, below)."""
+    class Std(Base):
+        __doc__ = f'{Base.name}, played brisker and lighter.'
+        name = Base.name
+        duration = Base.duration / fast
+        phases = [(n, a / fast, b / fast) for n, a, b in Base.phases]
+        spring_k, spring_gain = 1., 1.
+
+        def sample(self, t):
+            tb = ((t % self.duration) * fast) % Base.duration
+            self.duration = Base.duration
+            try:
+                p = Base.sample(self, tb)
+            finally:
+                del self.duration
+            return unlumber(self, p, tb / Base.duration, feet=Base is DepressedWalk, head=Base not in (Crying, Exasperated))
+    Std.__name__ = Base.__name__ + 'Std'
+    return Std
+
+
+def heavy(Base):
+    """A mood clip as it was made (heavy), under its alt name."""
+    class Alt(Base):
+        __doc__ = f'{Base.name}, played heavy and lumbering (as it was made).'
+        name = Base.name + ' (alt)'
+    Alt.__name__ = Base.__name__ + 'Alt'
+    return Alt
+
+
 BASE = [AN.Dance, Idle, Walk, Run, Sneak, JumpingJacks, LookAround]
-MOOD = [DepressedWalk, SitCrossLegged, Crying, Exasperated]
-ALT = [lumbering(C) for C in BASE]
+MOOD_MADE = [DepressedWalk, SitCrossLegged, Crying, Exasperated]
+MOOD = [brisk(C) for C in MOOD_MADE]                  # the standard set: brisk
+ALT = [lumbering(C) for C in BASE] + [heavy(C) for C in MOOD_MADE]
 ALL = BASE + MOOD + ALT
 ORDER = (['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']
          + [C.name for C in MOOD]
-         + [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']])
+         + [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']]
+         + [C.name + ' (alt)' for C in MOOD_MADE])
