@@ -20,7 +20,7 @@ import numpy as np
 from PIL import Image
 import tail_textures as TT
 
-HORN_SWATCH = .03            # m across a supplied horn_paint swatch
+HORN_SWATCH = .05            # m across a supplied horn_paint swatch (round 48: .03 made its grain read as fuzz)
 WIRE_R = .00075              # the exposed wires' radius (m; 4.6 mm round, from their UVs)
 WIRE_V = .03                 # m of wire per texture unit along it
 WIRE_W, WIRE_H = 128, 512
@@ -87,7 +87,9 @@ def horn_maps(col, part, seed=0, size=(512, 1024)):
         sw = _swatch(sup, w, h, mpu, mpv)
         lum = sw.mean(-1)
         col = col * (lum / lum.mean())[..., None] ** .8
-        hgt = .5 * lumps + 1.0 * _z(lum) + 2.2 * paint
+        # round 48: the relief from the photo's brightness, its finest grain softened (at the horns' size it read
+        # as fuzz)
+        hgt = .4 * lumps + .7 * _z(_blur(lum, 1.3)) + 2.2 * paint
     nrm = _normal(hgt * .00018, mpu / w, mpv / h)                  # about .18 mm of relief per unit
     return TT._jpeg(col, 90), TT._jpeg(nrm, 84)        # (the GLB must stay under 100 MiB)
 

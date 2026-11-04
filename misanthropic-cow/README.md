@@ -1,6 +1,8 @@
 # The Misanthropic Cow, v10
 
-> **Round 47 (newest, animated).** `models/Misanthropic_Cow_v10_r47_Animated.glb`: round 46 with the armpit hair moved into the armpits (where the raised sleeve meets the body, hidden in the sleeve at rest; `groom.ARMPIT_AT`), the owner's bow and cord images on the tail (`textures/tail_bow.png`, `tail_cord.png`, relief from their own shading), normal maps on the horns (paper layers, brush marks, the black paint's edges) and the horn wires textured as dark galvanised wire with new UVs (`horn_textures.py`, `assets.wire_uv`). Photo prompts for the horns and wires: `handoff/TEXTURE_PROMPTS.md`. The viewer holds rounds 44, 46 and 47. Models kept: rounds 40 to 47. See `reviews/round_47/`.
+> **Round 48 (newest, animated).** `models/Misanthropic_Cow_v10_r48_Animated.glb`: round 47 with the owner's horn and wire photos (`textures/horn_paint.png`, `horn_wire.png`; `horn_textures.py`) and smoother shoulders (the widened sleeve heads smoothed over about 5 cm with a soft cap, `correctives.SLEEVE_HEAD_SPREAD`). The viewer holds rounds 44, 47 and 48. Models kept: rounds 40 to 48. See `reviews/round_48/`.
+>
+> **Round 47 (animated).** `models/Misanthropic_Cow_v10_r47_Animated.glb`: round 46 with the armpit hair moved into the armpits (where the raised sleeve meets the body, hidden in the sleeve at rest; `groom.ARMPIT_AT`), the owner's bow and cord images on the tail (`textures/tail_bow.png`, `tail_cord.png`, relief from their own shading), normal maps on the horns (paper layers, brush marks, the black paint's edges) and the horn wires textured as dark galvanised wire with new UVs (`horn_textures.py`, `assets.wire_uv`). Photo prompts for the horns and wires: `handoff/TEXTURE_PROMPTS.md`. See `reviews/round_47/`.
 >
 > **Round 46 (animated).** `models/Misanthropic_Cow_v10_r46_Animated.glb`: round 45 with the hood following the head wherever it touches the mask, so no gap opens under the jaw as she turns her head (`rig.hood_follow_mask`), the neck under the chin 5 % slimmer, the relaxed hands turned palms-in with a softer elbow and a straight wrist (`clips.RELAXED_TWIST`, `REST_ARM`), smaller sleeve heads and a tighter armpit fill (no seam at the shoulder, less bulk), armpit hair (`groom.armpit_strands`) and the cord and plug a worn off-white; owner-made bow and cord images can replace the tail textures (`handoff/TEXTURE_PROMPTS.md`). See `reviews/round_46/`.
 >
@@ -56,7 +58,8 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10_r47_Animated.glb` | Round 47, the current model: armpit hair in the armpits, the owner's bow and cord images, horn normal maps, textured horn wires. 58 joints, 18 animations, 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. |
+| `models/Misanthropic_Cow_v10_r48_Animated.glb` | Round 48, the current model: the owner's horn and wire photos, smoother shoulders. 58 joints, 18 animations, 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. |
+| `models/Misanthropic_Cow_v10_r47_Animated.glb` | Round 47: armpit hair in the armpits, the owner's bow and cord images, horn normal maps, textured horn wires. |
 | `models/Misanthropic_Cow_v10_r46_Animated.glb` | Round 46: face and hood joined, a slimmer chin, hands palms-in, smaller sleeve heads, armpit hair, an off-white cord. |
 | `models/Misanthropic_Cow_v10_r45_Animated.glb` | Round 45: sleeve heads filling the shoulder groove, looser arms, Idle without the hoof check, the horn wire mended, the tail textured. |
 | `models/Misanthropic_Cow_v10_r44_Animated.glb` | Round 44: the shoulder correctives (rounded joins of arm and body). |
@@ -65,7 +68,7 @@ Later v10 passes added:
 | `models/Misanthropic_Cow_v10_r41_Animated.glb` | Round 41: relaxed hands, three stray black spots removed, the left horn's second ring. |
 | `models/Misanthropic_Cow_v10_r40_Animated.glb` | Round 40: round 39 with steady teats and clean armpits (two morph targets, driven per frame by the arms' lift). 96.0 MB. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`), the showcase video, the standard-vs-alt video and the validation JSON. |
-| `viewer/` | A three.js web viewer (rounds 44, 46 and 47) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
+| `viewer/` | A three.js web viewer (rounds 44, 47 and 48) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
 | `assets/` | `slippers_cow_mule.glb`: the owner's own model of the costume slippers, open-back cow mules (made by `pipeline/cow_mule_slippers.py`). `gloves_hoof.glb` and `gloves_hoof.json`: the owner's own model of the costume gloves, a terry mitten with a thumb and two painted hoof toes (made by `pipeline/hoof_gloves.py`). |
 | `pipeline/` | The Python sources that generate everything above. |
@@ -387,7 +390,7 @@ Where things live:
 
 The viewer's *Rounds* row shows any combination of round 17, round 18 and rounds 25 and 28–37 (the static previews of the new body), and its *Compare* row shows them side by side, oldest on the left, or overlaid: the newest round shown is solid and the others are translucent ghosts in their own colour (17 amber, 18 blue, 25 red, 28 green, 29 purple, 30 dark cyan, 31 dark gold, 32 raspberry, 33 orange, 34 brown, 35 teal, 36 crimson, 37 indigo). Rounds 17 and 18 play the same animation at the same time. Height lines mark each round's crotch and belly bottom in the same colours. The page opens on round 37 with Idle selected. It loads `cow-r17-meshopt.glb` (round 17's web copy, unchanged) and the round 25 and 28–37 copies the first time they are shown.
 
-The web copies in `viewer/` (`cow-r44-meshopt.glb`, `cow-r46-meshopt.glb`, `cow-r47-meshopt.glb`) are made from the animated GLB with `python web_textures.py <in> <out> 1024` (images capped at 1024 px; skin, animations and morph targets kept byte for byte) and then gltfpack 0.22 with `-cc -kn -km -ke`. Never write them with a generic GLB reader/writer: an earlier one dropped the rig.
+The web copies in `viewer/` (`cow-r44-meshopt.glb`, `cow-r47-meshopt.glb`, `cow-r48-meshopt.glb`) are made from the animated GLB with `python web_textures.py <in> <out> 1024` (images capped at 1024 px; skin, animations and morph targets kept byte for byte) and then gltfpack 0.22 with `-cc -kn -km -ke`. Never write them with a generic GLB reader/writer: an earlier one dropped the rig.
 
 To view them locally, run `python3 -m http.server` inside `viewer/` and open the page. three.js loads from the jsDelivr CDN.
 

@@ -147,6 +147,10 @@ def _taper(mag, m):
     return u * u * (3 - 2 * u)
 
 
+SLEEVE_HEAD_SPREAD = .049           # round 48: how far the growth is smoothed over the sleeve (m): passes enough to
+#                                     spread it this far on the mesh's own edge length (round 45-47: 4 passes, about
+#                                     1 cm on the full build, which left it lumpy: the owner, "a bit of a lumpy bit on
+#                                     the shoulders")
 SLEEVE_HEAD_MAX = .014               # round 45-46: the most the sleeve head is widened (m; round 45: .025, which showed as a seam and bulk)
 SLEEVE_HEAD = (.010, .45, .16)   # round 45 (46: kept 1 cm inside the cap, not 4 mm, so it doesn't cut through as the arm moves): the sleeve head: kept inside the body's surface by (m), taper (m of radius per m along the arm), reach along the arm (m)
 
@@ -185,8 +189,9 @@ def sleeve_head(model, gap=None, slope=None, reach=None):
                     continue                                    # outside the cap here, or a ray into the chest
                 r_out = rs[np.argmin(ins)]
                 best = max(best, r_out - gap - slope * (ta[k] - t0))
-            target[k] = max(rv[k], min(best, rv[k] + SLEEVE_HEAD_MAX))
-        grow = target - rv
+            target[k] = max(rv[k], best)
+        # round 48: a soft cap (a hard min() left a ridge where it took over) and a wider smoothing below
+        grow = SLEEVE_HEAD_MAX * np.tanh((target - rv) / SLEEVE_HEAD_MAX)
         # smooth the growth over the sleeve's surface, so the widened head has no ridges
         key = np.round(V / 2e-5).astype(np.int64)
         _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True); inv = inv.ravel()
@@ -196,7 +201,9 @@ def sleeve_head(model, gap=None, slope=None, reach=None):
         A = sparse.coo_matrix((np.ones(len(i)), (i, j)), shape=(nw, nw)); A = ((A + A.T) > 0).astype(float)
         Mavg = sparse.diags(1 / np.maximum(np.asarray(A.sum(1)).ravel(), 1)) @ A
         gw = np.zeros(nw); np.maximum.at(gw, inv, grow)
-        for _ in range(4):
+        edge = float(np.median(np.linalg.norm(V[first][i] - V[first][j], axis=1)))
+        passes = int(round((SLEEVE_HEAD_SPREAD / max(edge, 1e-4)) ** 2))
+        for _ in range(passes):
             gw = .5 * gw + .5 * (Mavg @ gw)
         d = dirs * gw[inv][:, None]
         p['v'] = (V + d).astype(np.float32)
@@ -204,7 +211,7 @@ def sleeve_head(model, gap=None, slope=None, reach=None):
         nn = S.vertex_normals(Vw, Fw[(Fw[:, 0] != Fw[:, 1]) & (Fw[:, 1] != Fw[:, 2]) & (Fw[:, 0] != Fw[:, 2])])[inv]
         moved = gw[inv] > 1e-5
         p['n'] = np.asarray(p['n'], np.float32).copy(); p['n'][moved] = nn[moved].astype(np.float32)
-        out[side] = (int(moved.sum()), round(float(gw.max()) * 1000, 1))
+        out[side] = (int(moved.sum()), round(float(gw.max()) * 1000, 1), passes)
     return {'sleeve_head': out}
 
 

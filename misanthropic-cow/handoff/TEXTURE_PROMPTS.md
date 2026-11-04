@@ -1,8 +1,8 @@
 # Image prompts for the tail, horn and wire textures (rounds 46-47)
 
-**Status (round 47):** the owner's bow and cord images are in `textures/` (`tail_bow.png`, `tail_cord.png`) and the
-round 47 model uses them; their normal maps come from the images' own shading. The horn and wire prompts (sections 3
-and 4) are new in round 47; until their images arrive, the horns and wires use procedural maps (`horn_textures.py`).
+**Status (round 48):** all four images are in `textures/` and in use: the bow and cord (`tail_bow.png`,
+`tail_cord.png`) since round 47, the horns and wires (`horn_paint.png`, `horn_wire.png`) since round 48. Their normal
+maps come from the images' own shading. Replacing a file and rebuilding is all a new image needs.
 
 Images made from the prompts below replace the procedural textures: save them in `misanthropic-cow/textures/` under the
 names given and rebuild (`pipeline/tail_textures.py` picks them up; nothing else needs changing). PNG or JPG both work.
