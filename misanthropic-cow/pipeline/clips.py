@@ -36,7 +36,7 @@ def neutral(clip):
 # turn in a frame (the owner's "glitch on the left arm").
 RELAXED_HANG, RELAXED_MAX = .95, np.deg2rad(70.)
 RELAXED_TWIST = float(__import__('os').environ.get('COW_RELAXED_TWIST', 0.))   # the forearm's turn (round 49: 0, round 44's, square to the side, the owner preferring round 44's look; round 46-48: -.35, palms in and back; round 45: +.35)
-RELAXED_DIR = (0., -1., -.27)    # where the relaxed hand's line points: down, 15 degrees back (rounds 42-45 and 49; 46-48: 6; the hoof itself curves forward)
+RELAXED_DIR = (0., -1., float(__import__('os').environ.get('COW_RELAXED_DIR_Z', .10)))    # where the relaxed hand's line points: down and 6 degrees forward (44B final: the owner, "it's angled backwards weirdly": with round 44's arms, 15 degrees back bent the wrist back 42 degrees; now 22, the hand following the forearm's line; rounds 42-45, 49 and 44B: 15 back; 46-48: 6 back)
 RELAXED_HAND = ('hang', .6)      # round 41's (kept for reference; the clips use relaxed_hand)
 
 
@@ -767,7 +767,7 @@ class LooseIdle(Idle):
             # the arm hangs a touch further out and the elbow a little softer; it swings against the body's moves
             p['fk'][side] = np.array([a + .02 + sway_a - .35 * s * v[0], f + sway_f - .5 * v[2] + .3 * v[1], b + .04 + sway_b])
             vf = 2 * np.pi * kf / T * af * np.cos(2 * np.pi * kf * t / T + pf)
-            p['hrot'][side] = flop_hand(self, side, .06 + .9 * vf + .04 * np.sin(2 * np.pi * kf * t / T + pf - 1.1))
+            p['hrot'][side] = flop_hand(self, side, .9 * vf + .04 * np.sin(2 * np.pi * kf * t / T + pf - 1.1))   # (centred: no backward bias)
         return p
 
 
@@ -789,7 +789,7 @@ class LooseWalk(Walk):
             p['fk'][side] = np.array([self.ARM_ABD + .03 + .025 * abs(arm) ** 2,
                                       .34 * arm + .05,      # (the looser spring swings it about 20 % further)
                                       .24 + .16 * max(0, fore) + .05 * (1 - abs(fore))])
-            p['hrot'][side] = flop_hand(self, side, .10 + .22 * hand)
+            p['hrot'][side] = flop_hand(self, side, .18 * hand)   # centred on the relaxed hand (it was biased .10 back)
             p['clav'][side] = .012 * np.cos(land)          # the shoulders bob with each step
         return p
 

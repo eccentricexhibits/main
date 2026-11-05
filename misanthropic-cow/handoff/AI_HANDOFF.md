@@ -343,6 +343,11 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
     - Viewer: "Idle · loose arms" and "Walk · loose arms" buttons; Walk (loose) counts as a gait (phase-matched blends), and a clip and its loose version blend at the same point of the loop (`base` strips " (loose)" as it does " (alt)").
     - Checks (quick build, `reviews/loose_arms/`): nothing goes into the body; the sleeve stretches a little more (Walk 1.83 -> 2.10, Idle 1.83 -> 1.95), below the Chicken Dance's 2.66; the torso 1.41 -> 1.54 (Walk). GLB 103.7 MB with 24 animations (1.15 MB under GitHub's limit), glTF validator 0 errors and 0 warnings.
 
+56. The owner's note, with a screenshot (her left side, the hoof hanging behind the wrist): **"did we change her hand position? it's angled backwards weirdly."**
+    - Not since 44B in the standard clips, but the relaxed hand had been set (round 42, `clips.RELAXED_DIR`) to hang 15 degrees behind straight down, and with round 44's arms (the forearm about 28 degrees forward) that bent the wrist back about 42 degrees: a cocked-back hand, behind the vertical by up to 30 degrees in Walk's swing. The loose versions (55) added a further backward bias in their flop (.06 rad in Idle, .10 in Walk) and took Walk (loose) to 35 degrees.
+    - Now the hand's line points 6 degrees forward of straight down (`RELAXED_DIR` (0, -1, .10); `COW_RELAXED_DIR_Z` to try others): the hand follows the forearm's line with the wrist bent back about 22 degrees, and the hoof still points down (not forward and up, the round 41 complaint). Straight down (28 degrees at the wrist) was tried too. The loose flop is centred on the relaxed hand (Walk ±.18 rad, Idle with no bias). `relaxed_hand` is every clip's relaxed hand, so all 24 animations were re-baked.
+    - Checks (`reviews/hand_fix/`): nothing goes into the body in any clip and no depth changed; the sleeve stretches less where the hands hang (Idle and Walk 1.83 -> 1.56, Walk (loose) 2.10 -> 1.73). GLB 103.7 MB, glTF validator 0 errors and 0 warnings. Before/after: `reviews/hand_fix/Hand_fix_review.jpg`.
+
 ## Where things are
 
 Rounds 19–24 added these modules and functions (everything else is as in round 18, listed further down).
