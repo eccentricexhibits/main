@@ -712,6 +712,88 @@ class Exasperated(AN.Dance):
         return self.key(t % self.duration, **keyed(self.KEYS, t, self.duration, self.FIELDS))
 
 
+# ---------------------------------------------------------------- loose-armed Idle and Walk (44B final)
+# The owner: "Can we add additional Idle / Walk animations with looser / more relaxed feeling arms? She's feeling very
+# stiff."  The arms of the standard clips follow the body through a stiff, nearly critically damped spring (motion.py,
+# 2.7 Hz) and the wrists hold one pose against the forearm.  The loose versions let the arms hang and swing: a slower,
+# looser spring (they drift on after the body moves and settle with a little overshoot), the forearm following through
+# after the upper arm, the hand flopping after the forearm, and, standing, a slow uneven sway of each arm of its own.
+
+def flop_hand(clip, side, d):
+    """The relaxed hand (relaxed_hand) with its hang turned a further d rad about the same axis (d > 0: further down
+    and back, the hand trailing a forward swing)."""
+    cache = clip.__dict__.setdefault('_flop', {})
+    if side not in cache:
+        s = 1 if side == 'L' else -1
+        a = RG.ARM[side]; B = clip.B
+        bu0 = B[a['fore']] - B[a['upper']]; bf0 = B[a['hand']] - B[a['fore']]
+        hinge0 = np.cross(bu0, bf0); hinge0 /= np.linalg.norm(hinge0)
+        abd, flex, bend = REST_ARM
+        Rf = rot([0, 0, 1], s * abd) @ rot([1, 0, 0], -flex) @ rot(hinge0, clip.flex_sign[side] * bend)
+        fdir = Rf @ (bf0 / np.linalg.norm(bf0))
+        down = np.asarray(RELAXED_DIR) / np.linalg.norm(RELAXED_DIR)
+        ax = np.cross(fdir, down); sn = np.linalg.norm(ax)
+        ang = min(RELAXED_HANG * np.arctan2(sn, fdir @ down), RELAXED_MAX)
+        bfn = bf0 / np.linalg.norm(bf0)
+        cache[side] = (Rf.T @ (ax / sn), ang, rot(bfn, -s * RELAXED_TWIST))
+    axis, ang, twist = cache[side]
+    return ('local', rot(axis, ang + d) @ twist)
+
+
+LOOSE_MOTION = {'fk': (1.7, .36), 'clav': (2.2, .45)}     # the arms' spring: slower and looser (motion.py: 2.7 Hz, .58)
+
+
+class LooseIdle(Idle):
+    """Idle (15.6 s, the same beats) with loose arms: each arm sways slowly and unevenly of its own accord (forward and
+    back, out and in, the elbow easing; a whole number of cycles per loop, different on each side), swings against
+    her weight shifts and the sigh as a hanging arm would, and the hand flops a moment behind; through a slower,
+    looser spring than the standard clips'."""
+    name = 'Idle (loose)'
+    MOTION = LOOSE_MOTION
+    # per side: (cycles per loop, amplitude in rad, phase) of the forward/back sway, the out/in sway and the elbow's ease
+    LOOSE = {'L': ((5, .072, .4), (3, .032, 1.9), (4, .065, 2.6)), 'R': ((6, .065, 2.2), (4, .029, .7), (3, .07, 4.1))}
+
+    def sample(self, t):
+        p = Idle.sample(self, t)
+        T = self.duration; dt = .05
+        sh0 = Idle.sample(self, t - dt)['shift']; sh1 = Idle.sample(self, t + dt)['shift']
+        v = (np.asarray(sh1) - np.asarray(sh0)) / (2 * dt)      # how the body is moving (m/s)
+        for side, s in [('L', 1), ('R', -1)]:
+            (kf, af, pf), (ka, aa, pa), (kb, ab, pb) = self.LOOSE[side]
+            sway_f = af * np.sin(2 * np.pi * kf * t / T + pf)
+            sway_a = aa * np.sin(2 * np.pi * ka * t / T + pa)
+            sway_b = ab * (.5 + .5 * np.sin(2 * np.pi * kb * t / T + pb))
+            a, f, b = p['fk'][side]
+            # the arm hangs a touch further out and the elbow a little softer; it swings against the body's moves
+            p['fk'][side] = np.array([a + .02 + sway_a - .35 * s * v[0], f + sway_f - .5 * v[2] + .3 * v[1], b + .04 + sway_b])
+            vf = 2 * np.pi * kf / T * af * np.cos(2 * np.pi * kf * t / T + pf)
+            p['hrot'][side] = flop_hand(self, side, .06 + .9 * vf + .04 * np.sin(2 * np.pi * kf * t / T + pf - 1.1))
+        return p
+
+
+class LooseWalk(Walk):
+    """Walk with loose arms: a wider swing that lags the body, the forearm following through after the upper arm (the
+    elbow opening and closing a moment later), the hand flopping after the forearm, the arms brushing out a little as
+    they pass the hip, and the shoulders bobbing with each step; through a slower, looser spring."""
+    name = 'Walk (loose)'
+    MOTION = LOOSE_MOTION
+    LAG_ARM, LAG_FORE, LAG_HAND = .05, .13, .20     # each link's lag behind the body's swing (share of a cycle)
+
+    def sample(self, t):
+        p = Walk.sample(self, t)
+        ph = (t / self.duration) % 1.0
+        land = 2 * np.pi * ((2 * ph + .94) % 1.0)
+        for side, s in [('L', 1), ('R', -1)]:
+            sw = lambda lag: -s * np.sin(2 * np.pi * (ph - lag))
+            arm, fore, hand = sw(self.LAG_ARM), sw(self.LAG_FORE), sw(self.LAG_HAND)
+            p['fk'][side] = np.array([self.ARM_ABD + .03 + .025 * abs(arm) ** 2,
+                                      .34 * arm + .05,      # (the looser spring swings it about 20 % further)
+                                      .24 + .16 * max(0, fore) + .05 * (1 - abs(fore))])
+            p['hrot'][side] = flop_hand(self, side, .10 + .22 * hand)
+            p['clav'][side] = .012 * np.cos(land)          # the shoulders bob with each step
+        return p
+
+
 # ---------------------------------------------------------------- the alt (lumbering) set
 SLOW = 1.25         # alt clips play 25 % slower
 
@@ -842,8 +924,9 @@ BASE = [AN.Dance, Idle, Walk, Run, Sneak, JumpingJacks, LookAround]
 MOOD_MADE = [DepressedWalk, SitCrossLegged, Crying, Exasperated]
 MOOD = [brisk(C) for C in MOOD_MADE]                  # the standard set: brisk
 ALT = [lumbering(C) for C in BASE] + [heavy(C) for C in MOOD_MADE]
-ALL = BASE + MOOD + ALT
+LOOSE = [LooseIdle, LooseWalk]                        # 44B final: loose-armed Idle and Walk (no lumbering version)
+ALL = BASE + MOOD + LOOSE + ALT
 ORDER = (['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']
-         + [C.name for C in MOOD]
+         + [C.name for C in MOOD] + [C.name for C in LOOSE]
          + [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']]
          + [C.name + ' (alt)' for C in MOOD_MADE])

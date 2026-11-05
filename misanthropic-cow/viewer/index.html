@@ -84,7 +84,7 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
 <div class="wrap">
   <header>
     <h1>The Misanthropic Cow</h1>
-    <span class="tag">v10 &middot; 44B &middot; 11 animations, each standard and lumbering</span>
+    <span class="tag">v10 &middot; 44B &middot; 11 animations, each standard and lumbering, and loose-armed Idle and Walk</span>
   </header>
 
   <div class="main">
@@ -98,7 +98,9 @@ figcaption { font-size: 12.5px; color: var(--ink-soft); }
         <span class="label">Animation</span>
         <button data-clip="__pose">Default pose</button>
         <button data-clip="Idle">Idle</button>
+        <button data-clip="Idle (loose)">Idle &middot; loose arms</button>
         <button data-clip="Walk">Walk</button>
+        <button data-clip="Walk (loose)">Walk &middot; loose arms</button>
         <button data-clip="Run">Run</button>
         <button data-clip="Sneak">Sneak</button>
         <button data-clip="Jumping Jacks">Jumping jacks</button>
@@ -601,8 +603,8 @@ const hasAlt = name => (name + ' (alt)') in clipMap;
 // round 43: transitions.  A new clip blends in over a moment instead of cutting.  The gaits (and a clip and its own alt
 // version) carry on from the same point of the stride; everything else starts from its beginning, which is a standing
 // pose in every clip.  The Default pose fades the clip out to the rest pose (and back in).
-const GAITS = ['Walk', 'Run', 'Sneak', 'Depressed Walk'];
-const base = n => n.replace(' (alt)', '');
+const GAITS = ['Walk', 'Run', 'Sneak', 'Depressed Walk'];   // (a clip's alt and loose versions count as the clip)
+const base = n => n.replace(' (alt)', '').replace(' (loose)', '');
 const isGait = n => GAITS.includes(base(n));
 let blendOn = true;
 const blendTime = (from, to) => (isGait(from) && isGait(to)) || base(from) === base(to) ? 0.45 : 0.8;
@@ -638,7 +640,7 @@ function selectClip(name) {
   const altOk = name !== '__pose' && hasAlt(name);
   styleNote.textContent = name === '__pose' ? 'Heavier, slower, slumped versions of every animation.'
     : altOk ? (alt ? 'Playing the heavy, lumbering version.' : 'Heavier, slower, slumped versions of every animation.')
-    : 'This one is already played heavy; it has no alt version.';
+    : 'The loose-armed versions have no lumbering version.';
   if (name !== '__pose' && alt && altOk) name = name + ' (alt)';
   const prevName = clipName, prevAction = action;
   if (name === '__pose') {

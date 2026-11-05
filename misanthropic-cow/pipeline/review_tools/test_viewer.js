@@ -2,7 +2,7 @@
 // 44B, the final model: one figure (the rounds and compare rows and the sidebar are gone).  Checks that the page opens
 // on Idle (15.6 s) in daylight, that seeking works and the label names the Idle's beat, that every animation has both
 // styles (the four mood clips gained brisk standard versions: Sit Cross-Legged 8.8 s standard, 11 s lumbering), and
-// that clips play and blend.
+// that clips play and blend; and that the loose-armed Idle (15.6 s) and Walk (1.12 s) are there.
 const { chromium } = require('playwright');
 const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
 (async () => {
@@ -33,6 +33,11 @@ const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
     }
   }
   await p.click('button[data-style="std"]');
+  for (const c of ['Idle (loose)', 'Walk (loose)']) {       // the loose-armed versions (no lumbering version)
+    await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(1500);
+    console.log(`${c}:`, await p.$eval('#scrub', e => e.max), 's |', await p.$eval('#styleNote', e => e.textContent));
+    await shot('44b_' + c.replace(/[ ()]/g, '_'));
+  }
   for (const c of ['Sit Cross-Legged', 'Chicken Dance']) {
     await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(1500);
     await shot('44b_' + c.replace(/ /g, '_'));

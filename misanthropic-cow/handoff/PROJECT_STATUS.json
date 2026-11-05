@@ -6,6 +6,7 @@
  "git_commit": "round 38 is the latest commit on branch claude/upbeat-gates-7dtea4; rounds 33-37 are on claude/peaceful-ride-pz9yub, rounds 26-32 on claude/amazing-davinci-sc9bc8 (round 25: 551cc25)",
  "units": "metres, +Y up, +Z forward, +X = character left",
  "round_26_change": "hood as in rounds 17/18 (no cowl down the back) on a padded suit top (design.padded_yoke); the padding read as a hunchback and was removed in round 27",
+ "loose_arms_change": "the owner: 'She's feeling very stiff': Idle (loose) and Walk (loose) added (clips.LooseIdle, LooseWalk; looser arm spring LOOSE_MOTION, follow-through, wrist flop flop_hand, idle sway); 24 animations, 103.7 MB; viewer buttons",
  "final_44B_change": "the owner chose 44B; only it is kept (44 and 44D removed); viewer: Rounds, Compare and the sidebar removed, opens in daylight; the four mood clips gained brisk standard versions (clips.brisk/unlumber) with the originals as their alt (22 animations); seated, the head drops half as far (the face no longer sinks into the chest); unchanging joint translation tracks left out of the GLB (glb.py; 103.1 MB)",
  "round_44D_change": "44B with the shoulder groove filled while the arm swings (round 50's sleeve-head corrective shapes, stronger: SLEEVE_HEAD gap .006, SLEEVE_HEAD_MAX .020; SLEEVE_HEADS on, SHOULDER_TRIM and ARMPIT_FOLDS off); standing she is exactly 44B; 44C dropped (shoulder trim and extra armpit hair did not work), rounds 49 and 50 removed; viewer rounds 44, 44B, 44D; if the owner does not take 44D, 44B is final",
  "round_44C_change": "44B with the Run shoulder fixed by removing material (correctives.shoulder_trim: the cap's front and back overhang drawn in by 60 % as the arm swings, ShoulderTrim_L/R) and more armpit hair (groom.ARMPIT_LOW: tufts at the armpit's front and back folds, visible at rest and in Walk/Run); 1,877 armpit strands; RELAX_MIN .0015, ARMUP_MIN .0012 to stay under 100 MiB; viewer rounds 44, 44B, 44C",
@@ -660,7 +661,7 @@
  "validation_per_clip_round_40": "Cow_v10/reviews/round_40/validation_round40.json (and .md, against round 39) and teat_steadiness_round40.md",
  "next_steps": [
   "Optional photo swatches for the udders, briefs and leggings (the tail, horns and wires have the owner's images since rounds 47-48)",
-  "GLB size: the final 44B is 1.76 MB under of GitHub's 100 MiB file limit; new detail needs room made elsewhere (e.g. Git LFS, or trimming the slippers' 9.5 MB meshes)",
+  "GLB size: the final 44B is 1.15 MB under of GitHub's 100 MiB file limit; new detail needs room made elsewhere (e.g. Git LFS, or trimming the slippers' 9.5 MB meshes)",
   "Animations beyond procedural: motion capture from the owner's own video, or hand-keyed clips on the round 39 GLB (motion.perform can run on top of either)",
   "Lace side panels on the briefs (offered, not yet done)"
  ],

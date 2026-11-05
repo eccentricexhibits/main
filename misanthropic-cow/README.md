@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10
 
-> **44B, the final model (animated).** `models/Misanthropic_Cow_v10_r44B_Animated.glb` is the only model kept: round 44 (the owner's favourite) with Idle without the hoof check, the face joined to the hood, the slimmer chin, the armpit hair, the mended horn wire and every texture (the owner's bow, cord, horn and wire images). After it was chosen: the four mood animations gained brisk standard versions (the heavy originals are now their `(alt)` versions: 22 animations, every one in both styles); seated in Sit Cross-Legged, the head drops half as far, so the mask no longer sinks into her chest; and joints whose position never changes no longer carry a position track (`glb.py`), which saved about 2 MB (103.1 MB). The viewer shows only this model and opens in daylight. Rounds 44D, 44C, 50 and 49 were tried after 44B and dropped (44D filled the shoulder groove as the arm swings; the owner kept 44B); every earlier model is in git history.
+> **44B, the final model (animated).** `models/Misanthropic_Cow_v10_r44B_Animated.glb` is the only model kept: round 44 (the owner's favourite) with Idle without the hoof check, the face joined to the hood, the slimmer chin, the armpit hair, the mended horn wire and every texture (the owner's bow, cord, horn and wire images). After it was chosen: the four mood animations gained brisk standard versions (the heavy originals are now their `(alt)` versions: 22 animations, every one in both styles); seated in Sit Cross-Legged, the head drops half as far, so the mask no longer sinks into her chest; and joints whose position never changes no longer carry a position track (`glb.py`), which saved about 2 MB (103.1 MB). Loose-armed Idle and Walk were added after that (`clips.LooseIdle`, `LooseWalk`: 24 animations, 103.7 MB). The viewer shows only this model and opens in daylight. Rounds 44D, 44C, 50 and 49 were tried after 44B and dropped (44D filled the shoulder groove as the arm swings; the owner kept 44B); every earlier model is in git history.
 >
 > **Round 44B as first built (after round 50).** `models/Misanthropic_Cow_v10_r44B_Animated.glb`: round 44 again, the owner's favourite, with only these from the later rounds: Idle without the hoof check (45), the face joined to the hood (46, `rig.hood_follow_mask`), the slimmer chin (46), the armpit hair (46-47), the mended horn wire (45) and every texture (the owner's bow, cord, horn and wire images; 45-48). Round 44's shoulders (no sleeve heads: `correctives.SLEEVE_HEADS` off; round 44's 6 cm armpit fill, `FILLET` .06) and arms. 20 morph targets; the arm-raise shapes' sub-millimetre offsets trimmed (`correctives.trim_armup`) to stay under 100 MiB. See `reviews/round_44B/`.
 >
@@ -66,7 +66,7 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10_r44B_Animated.glb` | 44B, the final model and the only one kept: round 44 with Idle without the hoof check, the face joined to the hood, the slimmer chin, armpit hair, the mended horn wire and every texture. 58 joints, 22 animations (11, each standard and lumbering), 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. 103.1 MB. |
+| `models/Misanthropic_Cow_v10_r44B_Animated.glb` | 44B, the final model and the only one kept: round 44 with Idle without the hoof check, the face joined to the hood, the slimmer chin, armpit hair, the mended horn wire and every texture. 58 joints, 24 animations (11, each standard and lumbering, and loose-armed Idle and Walk), 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. 103.7 MB. |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`) and the validation JSON. The review videos (the showcase, standard-vs-alt, and the round 38-40 comparisons) were removed in round 48 at the owner's request; they are in git history up to commit 807d1bc, and `render_dance.py` re-renders them. |
 | `viewer/` | A three.js web viewer (44B; it opens in daylight) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
@@ -216,12 +216,14 @@ The owner tried a different modelling approach with Tripo and judged two results
 
 ## Animations
 
-All 22 animations (11, each in a standard and a lumbering version) loop seamlessly and play in place, with no root travel.
+All 24 animations (11, each in a standard and a lumbering version, and loose-armed versions of Idle and Walk) loop seamlessly and play in place, with no root travel.
 
 | Animation | Length | What it does |
 |---|---|---|
 | Idle | 15.6 s | Standing about with attitude (rounds 42-45): settles onto one leg, heaves a bored sigh, gives a slow side-eye down her nose with a little head shake, taps a foot while she waits, and rolls her eyes; the arms hang loosely, elbows soft, not mirror images. |
+| Idle (loose) | 15.6 s | Idle with loose, relaxed arms: each arm sways slowly and unevenly of its own accord (forward and back, out and in, the elbow easing), swings against her weight shifts and the sigh, and the hoof flops a moment behind; through a slower, looser spring than the other clips' (`clips.LooseIdle`, `LOOSE_MOTION`). |
 | Walk | 1.12 s cycle | 36 cm stride; heel strike and toe-off; hips sway and roll; the arms swing opposite the legs, clear of the belly. |
+| Walk (loose) | 1.12 s cycle | Walk with loose arms: a wider swing that lags the body, the forearm following through after the upper arm, the hoof flopping after the forearm, the arms brushing out a little past the hip and the shoulders bobbing with each step (`clips.LooseWalk`): the upper arm moves through 42 degrees (22 in Walk), the elbow 14 (6) and the wrist 25 (0). |
 | Run | 0.72 s cycle | Flight phase, high knee lift, forward lean, bent pumping arms kept close to the sides. |
 | Sneak | 2.6 s cycle | Cartoon tiptoe: crouched, high knees, pointed toes, hooves dangling in front of the chest, head scanning side to side. |
 | Jumping Jacks | 4.0 s (4 jacks) | Airborne between the open and closed positions; arms overhead; knees bend on landing. |
