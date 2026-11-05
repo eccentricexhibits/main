@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10
 
-> **44B, the final model (animated).** `models/Misanthropic_Cow_v10_r44B_Animated.glb` is the only model kept: round 44 (the owner's favourite) with Idle without the hoof check, the face joined to the hood, the slimmer chin, the armpit hair, the mended horn wire and every texture (the owner's bow, cord, horn and wire images). After it was chosen: the four mood animations gained brisk standard versions (the heavy originals are now their `(alt)` versions: 22 animations, every one in both styles); seated in Sit Cross-Legged, the head drops half as far, so the mask no longer sinks into her chest; and joints whose position never changes no longer carry a position track (`glb.py`), which saved about 2 MB (103.1 MB). Loose-armed Idle and Walk were added after that (`clips.LooseIdle`, `LooseWalk`: 24 animations, 103.7 MB). The viewer shows only this model and opens in daylight. Rounds 44D, 44C, 50 and 49 were tried after 44B and dropped (44D filled the shoulder groove as the arm swings; the owner kept 44B); every earlier model is in git history.
+> **44B, the final model (animated).** `models/Misanthropic_Cow_v10_r44B_Animated.glb` is the only model kept: round 44 (the owner's favourite) with Idle without the hoof check, the face joined to the hood, the slimmer chin, the armpit hair, the mended horn wire and every texture (the owner's bow, cord, horn and wire images). After it was chosen: the four mood animations gained brisk standard versions (the heavy originals are now their `(alt)` versions: 22 animations, every one in both styles); seated in Sit Cross-Legged, the head drops half as far, so the mask no longer sinks into her chest; and joints whose position never changes no longer carry a position track (`glb.py`), which saved about 2 MB (103.1 MB). Loose-armed Idle and Walk were added after that (`clips.LooseIdle`, `LooseWalk`: 24 animations, 103.7 MB), and then a platformer set of ten (`platformer.py`: jump start, rise, apex, fall, landing, hard landing, skid, hurt, death, victory), the 24 left exactly as they were: 34 animations, 104.2 MB. The viewer shows only this model and opens in daylight. Rounds 44D, 44C, 50 and 49 were tried after 44B and dropped (44D filled the shoulder groove as the arm swings; the owner kept 44B); every earlier model is in git history.
 >
 > **Round 44B as first built (after round 50).** `models/Misanthropic_Cow_v10_r44B_Animated.glb`: round 44 again, the owner's favourite, with only these from the later rounds: Idle without the hoof check (45), the face joined to the hood (46, `rig.hood_follow_mask`), the slimmer chin (46), the armpit hair (46-47), the mended horn wire (45) and every texture (the owner's bow, cord, horn and wire images; 45-48). Round 44's shoulders (no sleeve heads: `correctives.SLEEVE_HEADS` off; round 44's 6 cm armpit fill, `FILLET` .06) and arms. 20 morph targets; the arm-raise shapes' sub-millimetre offsets trimmed (`correctives.trim_armup`) to stay under 100 MiB. See `reviews/round_44B/`.
 >
@@ -66,7 +66,7 @@ Later v10 passes added:
 
 | File | What it is |
 |---|---|
-| `models/Misanthropic_Cow_v10_r44B_Animated.glb` | 44B, the final model and the only one kept: round 44 with Idle without the hoof check, the face joined to the hood, the slimmer chin, armpit hair, the mended horn wire and every texture. 58 joints, 24 animations (11, each standard and lumbering, and loose-armed Idle and Walk), 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. 103.7 MB. |
+| `models/Misanthropic_Cow_v10_r44B_Animated.glb` | 44B, the final model and the only one kept: round 44 with Idle without the hoof check, the face joined to the hood, the slimmer chin, armpit hair, the mended horn wire and every texture. 58 joints, 34 animations (11, each standard and lumbering, loose-armed Idle and Walk, and 10 platformer moves), 20 morph targets (`ArmUp_L`, `ArmUp_R` and the shoulder correctives `Relax0_L` ... `Relax8_R`), all driven by the animations. 104.2 MB (GitHub's limit is 104.9 MB). |
 | `reviews/` | Turntable and close-up renders, the before/after sheet, the head-vs-photo sheet, the animation sheets, the dance pose sheet, the Tripo comparison sheet (`Tripo_References_vs_v10.jpg`) and the validation JSON. The review videos (the showcase, standard-vs-alt, and the round 38-40 comparisons) were removed in round 48 at the owner's request; they are in git history up to commit 807d1bc, and `render_dance.py` re-renders them. |
 | `viewer/` | A three.js web viewer (44B; it opens in daylight) with an animation picker, a Standard/Alt toggle, a Default pose button, camera presets, lighting and a clay toggle. |
 | `textures/` | The user-supplied black shag swatch (under the strands), the first tuft sheet and the long-lock sheet. The two sheets were the lock cards' textures; the strands no longer use them. |
@@ -216,7 +216,7 @@ The owner tried a different modelling approach with Tripo and judged two results
 
 ## Animations
 
-All 24 animations (11, each in a standard and a lumbering version, and loose-armed versions of Idle and Walk) loop seamlessly and play in place, with no root travel.
+34 animations: 11, each in a standard and a lumbering version, loose-armed versions of Idle and Walk, and the platformer set (below). All play in place, with no root travel, and all loop seamlessly except the seven platformer one-shots.
 
 | Animation | Length | What it does |
 |---|---|---|
@@ -246,6 +246,25 @@ All 24 animations (11, each in a standard and a lumbering version, and loose-arm
 - The belly, cups and shag springs are slightly softer and swing a little further.
 
 The four mood animations were written in that style; their originals are now their alt versions (`clips.heavy`), and their standard versions are brisker and lighter (`clips.brisk`, `unlumber`): 25 % faster, the back straighter and the chest up, the shoulders lifted, the neck less forward with the head tipped to keep the gaze level (not in Crying and Exasperated, whose hooves go to the face), less sway, and in Depressed Walk the feet lifting 30 % higher. Depressed Walk 1.3 s, Sit Cross-Legged 8.8 s, Crying 5.6 s, Exasperated 5.2 s (the alt versions: 1.6, 11.0, 7.0, 6.5 s).
+
+### Platformer set
+
+Ten clips for a platform game (`pipeline/platformer.py`), added after the 24 above, which they leave as they were. They play in place, as a game uses them: the game moves the character (the jump's height, the fall, the slide of a skid) and the clip poses her for it; in the air the root stays at its standing height and the feet are drawn up under her. Three loop; the other seven are one-shots that play once and hold their last frame. Each one's glTF extras say whether it loops (`loop`), what normally follows it (`transition.next`) and how quickly to blend into it (`transition.blend_seconds`).
+
+| Animation | Length | Plays | What it does |
+|---|---|---|---|
+| Jump Start | 0.4 s | once | Standing to take-off: a quick crouch with the arms swinging back, then the push off the toes with the arms swinging up. Then Jump Rise. |
+| Jump Rise | 0.6 s cycle | loops | Going up: knees drawn up (the left higher), toes pointed, the left fist up; a little kick of the legs. Then Jump Apex as she stops rising. |
+| Jump Apex | 0.3 s | once | The top of the jump: the legs come together and the arms open, from the rising pose to the falling one. Then Fall. |
+| Fall | 0.8 s cycle | loops | Coming down: arms out and flapping, legs pedalling, looking down for the ground. Then Land or Hard Landing. |
+| Land | 0.5 s | once | Touching down: the knees give, the arms drop, and she stands back up. |
+| Hard Landing | 1.1 s | once | A heavy landing from high up: a deep squat with the hooves towards the knees, a dazed shake of the head, and up again slowly. |
+| Skid | 0.6 s | once | Braking hard or turning round: leaning back on her left heel with the toes up, the right foot behind, the arms out in front, juddering as the slipper slides; then upright. |
+| Hurt | 0.6 s | once | Hit: the head and chest thrown back, the arms flung up, a stumble back, a flinch forward, and standing again. |
+| Death | 2.6 s | once, holds | Knocked out: the hit, a wobble, the knees buckle, she sits down hard, tips over backwards with the legs flying up, and ends lying on her back, arms flopped out. |
+| Victory | 2.4 s cycle | loops | Bouncing on her toes with both fists up in a V, pumping them in turn, the head bobbing side to side. |
+
+A jump runs Jump Start → Jump Rise (while rising) → Jump Apex → Fall (while falling) → Land or Hard Landing → Idle or a gait; the viewer's **Jump sequence** button plays it (every other pass with a longer fall and a hard landing). A one-shot is baked as a loop that holds its first pose for a second, plays the shot and plays it back slowly to the start, and only the shot is kept, so the springs and the physics (belly, cups, shag, teats, tail) start it settled and carry real follow-through into it. Checks: `reviews/platformer/`.
 
 The **default pose** is the rest pose: arms relaxed and down at the sides. In the viewer the Default pose button resets the skeleton to it, and the static master is exported in it.
 

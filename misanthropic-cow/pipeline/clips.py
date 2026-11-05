@@ -930,3 +930,9 @@ ORDER = (['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chick
          + [C.name for C in MOOD] + [C.name for C in LOOSE]
          + [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']]
          + [C.name + ' (alt)' for C in MOOD_MADE])
+
+# 44B final: the platformer set (platformer.py: jump, fall, landings, skid, hurt, death, victory), added after the
+# clips above, which it leaves as they are.  (Import clips before platformer.)
+import platformer as _PF                              # noqa: E402
+ALL = ALL + _PF.CLIPS
+ORDER = ORDER + _PF.NAMES
