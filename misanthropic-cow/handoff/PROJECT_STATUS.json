@@ -114,7 +114,7 @@
   "round_40_viewer_copy": "removed from viewer/ in round 42 (the viewer holds rounds 41 and 42)",
   "round_40_reviews": "Cow_v10/reviews/round_40/",
   "earlier_models": "removed in round 41 at the owner's request (rounds 17, 18, 25-39); recover them from git history if needed",
-  "handoff_package": "Misanthropic_Cow_v10_Handoff (after round 48): Cow_v10/ (this folder), Rebuild_Inputs/, Reference_Photos/ (with round_39_to_48/), MANIFEST.json, validate_handoff.py, viewer launchers; sent as numbered ZIPs that extract into one folder",
+  "handoff_package": "Misanthropic_Cow_v10_Handoff (44B final, 2026-11-05): Cow_v10/ (this folder), Rebuild_Inputs/, Reference_Photos/ (with round_39_to_48/ and round_49_to_44B_final/), History/ (the full git history as a bundle in parts, restore_history.py), Conversation_Log.md, MANIFEST.json, validate_handoff.py, viewer launchers; sent as numbered ZIPs that extract into one folder",
   "review_videos": "removed in round 48 at the owner's request (in git history up to commit 807d1bc)"
  },
  "animations_round_18": {

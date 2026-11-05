@@ -1,6 +1,6 @@
 # The Misanthropic Cow, v10: start here
 
-This is the v10 handoff as of the final model, 44B (4 November 2026): the round 37 body rigged and animated, with less robotic animations, steady teats, smooth shoulders and armpits (with corrective shapes where arm and body meet), hooves that hang down, an Idle with attitude, a textured tail, armpit hair, a faster Chicken Dance and blended transitions between animations. Only the final model, 44B, is kept; the others were removed at the owner's request (rounds 40 to 48 are all in the round 48 handoff ZIPs, and every round is in git history). The folder holds:
+This is the v10 handoff as of the final model, 44B (5 November 2026): the round 37 body rigged and animated, with less robotic animations, steady teats, smooth shoulders and armpits (with corrective shapes where arm and body meet), hooves that hang down, an Idle with attitude, a textured tail, armpit hair, a faster Chicken Dance and blended transitions between animations. Only the final model, 44B, is kept; the others were removed at the owner's request (rounds 40 to 48 are all in the round 48 handoff ZIPs, and every round is in git history). The folder holds:
 - the final animated model, 44B (round 44 with chosen later fixes; every other model is in git history);
 - the web viewer;
 - review renders;
@@ -19,24 +19,28 @@ This is the v10 handoff as of the final model, 44B (4 November 2026): the round 
 | Make new texture images (the tail, horns and wires have yours since rounds 47 and 48) | `Cow_v10/handoff/TEXTURE_PROMPTS.md`: image prompts (for ChatGPT or another image generator) and where to save the results (`Cow_v10/textures/`). |
 | Hand the project to another AI session | Read `AI_HANDOFF.md`. Then paste `CONTINUE_PROMPT.txt` into the new session along with this folder. |
 | Check nothing is missing or damaged | Run `python validate_handoff.py`. It checks every file against `MANIFEST.json`. |
+| Get back any earlier model or round (49, 50, 44C, 44D, 44, 40-48, ...) | `History/`: the whole git history of the project as a bundle in parts. Run `python History/restore_history.py`; it joins and checks the parts and makes `Cow_v10_git/`, a full git clone with every commit since round 1 (then `git checkout <commit> -- misanthropic-cow/models/...`). The commits for each removed model are given in `AI_HANDOFF.md`. |
+| Read the whole conversation behind rounds 38 to 44B final | `Conversation_Log.md`: your messages and the replies, in order (tool output left out). |
 
 ## Folder layout
 
 ```
 Misanthropic_Cow_v10_Handoff/
   START_HERE.md            this file
-  AI_HANDOFF.md            full project context for a new AI session (rounds 1-48)
+  AI_HANDOFF.md            full project context for a new AI session (rounds 1 to 44B final, feedback 1-59)
+  Conversation_Log.md      the conversation from round 38 on: your messages and the replies
   CONTINUE_PROMPT.txt      a ready-to-paste opening message for that session
   PROJECT_STATUS.json      versions, files, commits, open items
   MANIFEST.json            size and SHA-256 of every file
   validate_handoff.py      checks the folder against MANIFEST.json
   start_viewer.py          serves Cow_v10/viewer locally and opens it
   Start_Viewer.bat         Windows double-click version of the above
+  History/                 the project's full git history (Cow_v10_history.bundle.part01 ...) and restore_history.py
   Cow_v10/                 the project (the misanthropic-cow/ folder of the git branch)
     README.md
     models/                the final animated GLB, 44B
     viewer/                three.js viewer page and its web-sized model copies
-    reviews/               renders, before/after sheets and checks (round_26/ to round_48/, rounds_19_24/); no videos since round 48
+    reviews/               renders, before/after sheets and checks (rounds_19_24/, round_26/ to round_50/, round_44B/ to round_44D/, round_44B_final/, loose_arms/, hand_fix/, platformer/, general_moves/); no videos since round 48
     references/            your four approved Gemini views
     assets/                your gloves, your slippers, and the cleaned Tripo body volume (tripo_body.npz)
     textures/              your black shag swatch and tuft sheets (tail_bow.png, tail_cord.png since round 47; horn_paint.png, horn_wire.png since round 48)
@@ -48,6 +52,7 @@ Misanthropic_Cow_v10_Handoff/
     round_19_to_24/        your photo of the empty suit, and your screenshots from rounds 19-25
     round_26_to_32/        your screenshots and costume photos from rounds 26-31, and the "Things To Do" folder
     round_39_to_48/        your screenshots and images from rounds 39-48 (the bow, cord, horn and wire images among them)
+    round_49_to_44B_final/ your screenshots after round 48: the 44B run shoulder, the hand angled back
     ...                    the earlier folders (2012 Hasselblad shoot, mask, hood, gloves, slippers, round screenshots)
 ```
 

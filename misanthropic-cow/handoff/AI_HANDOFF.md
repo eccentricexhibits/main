@@ -365,6 +365,10 @@ The owner reviews on a phone, in the published web viewer and in screenshots, an
     - **Viewer**: Jump, Skid, Death and Victory dance in the Animation row (Style switches them to lumbering; the label names the beat, e.g. "Victory · Raise the roof"), in Shuffle too; the Platformer row's Skid and Death play the game versions, and its Victory button is gone (the dance is in the row above).
     - Checks (full build, `reviews/general_moves/`): nothing goes into the body; Death's leggings stretch 6.27 lying with the legs up (as in the game version), the belly settles 15 mm into the thighs in the get-up squat (Sit Cross-Legged 7.8) and the teats 6.5 mm into the belly; the other three are within the earlier clips' ranges. glTF validator 0 errors, 0 warnings. GLB 103.7 MB, glTF validator 0 errors and 0 warnings. Before/after: `reviews/hand_fix/Hand_fix_review.jpg`.
 
+59. The owner asked: **"Are we able to do a handoff with all the information intact?"**
+    - **Full handoff (44B final, 5 November 2026)**, as numbered ZIPs that extract into one folder, `Misanthropic_Cow_v10_Handoff/`: `Cow_v10/` (this repository folder at the handoff commit), `Rebuild_Inputs/`, `Reference_Photos/` (with `round_49_to_44B_final/`: the owner's screenshots of the 44B run shoulder and the cocked-back hand), and two things the round 48 package did not have: **`History/`**, the whole git history of the branch as a bundle (every commit since round 1, so every model and render ever committed: rounds 49, 50, 44C, 44D, 44, 40-48 and earlier) split into parts, with `restore_history.py` to join, check and clone it; and **`Conversation_Log.md`**, the conversation from round 38 on (the owner's messages and the replies, without tool output). `MANIFEST.json` and `validate_handoff.py` cover every file.
+    - Not included, as before: the Tripo source model (OBJ and 8K textures, in the owner's Google Drive; the build uses `assets/tripo_body.npz`) and the scratch build folders (baked clips, about 1 GB; `rig_bench.py assemble` and `bake` remake them).
+
 ## Where things are
 
 Rounds 19–24 added these modules and functions (everything else is as in round 18, listed further down).
