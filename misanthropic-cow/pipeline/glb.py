@@ -258,6 +258,7 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
         first = len(doc['nodes'])
         from scipy.spatial.transform import Rotation
         rest_T = np.zeros((len(names), 3))
+        rest_Q = np.tile([0., 0., 0., 1.], (len(names), 1))
         for i, name in enumerate(names):
             L = G[i] if parents[i] < 0 else np.linalg.inv(G[parents[i]]) @ G[i]
             rest_T[i] = L[:3, 3]
@@ -265,6 +266,7 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
             q = Rotation.from_matrix(L[:3, :3]).as_quat()
             if np.abs(q[:3]).max() > 1e-9:
                 node['rotation'] = q.tolist()
+                rest_Q[i] = q
             ch = [first + j for j, pp in enumerate(parents) if pp == i]
             if ch:
                 node['children'] = ch
@@ -286,6 +288,16 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
                 if all(an['tracks'].get(ji, (None, None))[0] is None or
                        np.abs(np.asarray(an['tracks'][ji][0], float) - rest_T[ji]).max() < 1e-6 for an in model.animations):
                     still.add(ji)
+        # (after the platformer set) the same for rotation: the belly, udders, shag patches and tail bow move only by
+        # translation (their springs) and never turn from their rest rotation, so their rotation tracks go too (0.8 MB)
+        still_R = set()
+        if skinned and model.animations:
+            for ji in range(len(rest_Q)):
+                def same(Q):
+                    Q = np.asarray(Q, float)
+                    return min(np.abs(Q - rest_Q[ji]).max(), np.abs(Q + rest_Q[ji]).max()) < 1e-6
+                if all(an['tracks'].get(ji, (None, None))[1] is None or same(an['tracks'][ji][1]) for an in model.animations):
+                    still_R.add(ji)
         for an in model.animations:
             t = np.asarray(an['times'], '<f4')
             tin = acc(t[:, None], 'SCALAR', 5126, minmax=True)
@@ -303,7 +315,7 @@ def write(model, path, generator='Misanthropic Cow v10 pipeline'):
                         A['channels'].append({'sampler': s, 'target': {'node': ni, 'path': 'weights'}})
             for ji, (T, Q) in an['tracks'].items():
                 for channel, vals, kind in [('translation', T, 'VEC3'), ('rotation', Q, 'VEC4')]:
-                    if vals is None or (channel == 'translation' and ji in still):
+                    if vals is None or (channel == 'translation' and ji in still) or (channel == 'rotation' and ji in still_R):
                         continue
                     s = len(A['samplers'])
                     A['samplers'].append({'input': tin, 'output': acc(np.asarray(vals, '<f4'), kind, 5126), 'interpolation': 'LINEAR'})

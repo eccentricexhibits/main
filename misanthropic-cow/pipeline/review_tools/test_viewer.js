@@ -3,8 +3,8 @@
 // on Idle (15.6 s) in daylight, that seeking works and the label names the Idle's beat, that every animation has both
 // styles (the four mood clips gained brisk standard versions: Sit Cross-Legged 8.8 s standard, 11 s lumbering), and
 // that clips play and blend; and that the loose-armed Idle (15.6 s) and Walk (1.12 s) are there.  The platformer set:
-// every clip is there at its length, a one-shot (Death) plays once and holds its last frame, and the jump sequence
-// steps on from Jump Start.
+// every clip is there at its length, a one-shot (Death (game)) plays once and holds its last frame, and the jump
+// sequence steps on from Jump Start; the general Jump, Skid, Death and Victory dance in both styles.
 const { chromium } = require('playwright');
 const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
 (async () => {
@@ -44,20 +44,30 @@ const THREE_DIR = process.argv[2], OUT = process.argv[3] || '.';
     await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(1500);
     await shot('44b_' + c.replace(/ /g, '_'));
   }
-  const PLAT = { 'Jump Start': .4, 'Jump Rise': .6, 'Jump Apex': .3, 'Fall': .8, 'Land': .5, 'Hard Landing': 1.1, 'Skid': .6, 'Hurt': .6, 'Death': 2.6, 'Victory': 2.4 };
+  const PLAT = { 'Jump Start': .4, 'Jump Rise': .6, 'Jump Apex': .3, 'Fall': .8, 'Land': .5, 'Hard Landing': 1.1, 'Skid (game)': .6, 'Hurt': .6, 'Death (game)': 2.6 };
   for (const [c, len] of Object.entries(PLAT)) {
     await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(600);
     const max = parseFloat(await p.$eval('#scrub', e => e.max));
     console.log(`${c}: ${max} s`, Math.abs(max - len) < .011 ? 'ok' : 'WRONG LENGTH', '|', await p.$eval('#styleNote', e => e.textContent));
   }
-  await p.click('button[data-clip="Death"]');
+  // the general Jump, Skid, Death and Victory (a dance): standard and lumbering (25 % slower; within a frame, as gltfpack
+  // resamples the web copy at 30 fps)
+  for (const [c, len] of Object.entries({ 'Jump': 2.2, 'Skid': 3.0, 'Death': 7.4, 'Victory': 6.4 })) {
+    for (const [st, k] of [['std', 1], ['alt', 1.25]]) {
+      await p.click(`button[data-style="${st}"]`); await p.click(`button[data-clip="${c}"]`); await p.waitForTimeout(600);
+      const max = parseFloat(await p.$eval('#scrub', e => e.max));
+      console.log(`${c} ${st}: ${max} s`, Math.abs(max - len * k) < 1 / 30 + .006 ? 'ok' : 'WRONG LENGTH', '|', await p.$eval('#phaseNow', e => e.textContent));
+    }
+  }
+  await p.click('button[data-style="std"]');
+  await p.click('button[data-clip="Death (game)"]');
   await p.$eval('#scrub', e => { e.value = '2.5'; e.dispatchEvent(new Event('input')); });
   await p.waitForTimeout(6000);            // past the end: held on the last frame (then it replays after 2.5 s)
-  console.log('Death after its end:', await p.$eval('#time', e => e.textContent), '|', await p.$eval('#phaseNow', e => e.textContent));
+  console.log('Death (game) after its end:', await p.$eval('#time', e => e.textContent), '|', await p.$eval('#phaseNow', e => e.textContent));
   await p.click('#play');
   await p.$eval('#scrub', e => { e.value = '2.6'; e.dispatchEvent(new Event('input')); });
   await shot('platformer_death');
-  await p.click('button[data-clip="Victory"]'); await p.$eval('#scrub', e => { e.value = '0.3'; e.dispatchEvent(new Event('input')); });
+  await p.click('button[data-clip="Victory"]'); await p.$eval('#scrub', e => { e.value = '2.0'; e.dispatchEvent(new Event('input')); });
   await shot('platformer_victory');
   await p.click('#play');
   await p.click('button[data-clip="__jump"]');

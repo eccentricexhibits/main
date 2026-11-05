@@ -27,7 +27,11 @@ REST = np.array(CL.REST_ARM)
 EASE = {'smooth': lambda x: x * x * (3 - 2 * x), 'in': lambda x: x * x, 'out': lambda x: 1 - (1 - x) ** 2,
         'lin': lambda x: x}
 FIELDS = ['y', 'z', 'x', 'lean', 'bend', 'look', 'turn', 'tilt', 'tuck', 'stagger', 'spread', 'toe', 'heel', 'step',
-          'aup', 'aout', 'elbow', 'reach', 'flail', 'fist', 'shake', 'lie', 'legs_up', 'splay', 'clav']
+          'aup', 'aout', 'elbow', 'reach', 'flail', 'fist', 'shake', 'lie', 'legs_up', 'splay', 'clav',
+          # (moves.py) the hips' yaw and roll, the chest's yaw, the whole body lifted off the floor (m, feet and all),
+          # each arm's own (flexion, abduction, elbow) and each foot's own (x, lift, z, pitch) on top of the rest
+          'yaw', 'roll', 'cyaw', 'air', 'lup', 'lout', 'lel', 'rup', 'rout', 'rel',
+          'lfx', 'lfy', 'lfz', 'lpitch', 'rfx', 'rfy', 'rfz', 'rpitch', 'gather', 'gu']
 
 
 def shot_keys(keys, t, fields=FIELDS):
@@ -66,28 +70,31 @@ class Platform(AN.Dance):
     def key(self, t, f):
         p = neutral(self)
         p['hem'] = 1.                       # the front hem rides up over a lifted thigh
-        p['shift'] = np.array([f['x'], f['y'], f['z']])
-        p['hips'] = np.array([f['lean'], 0., 0.])
-        p['spine'] = np.array([.55 * f['bend'], 0., 0.])
-        p['chest'] = np.array([.45 * f['bend'], 0., 0.])
+        p['shift'] = np.array([f['x'], f['y'] + f['air'], f['z']])
+        p['hips'] = np.array([f['lean'], f['yaw'], f['roll']])
+        p['spine'] = np.array([.55 * f['bend'], -.4 * f['yaw'], -.5 * f['roll']])
+        p['chest'] = np.array([.45 * f['bend'], f['cyaw'] - .3 * f['yaw'], -.3 * f['roll']])
         sh = .22 * f['shake'] * np.sin(2 * np.pi * 4.2 * t)
         p['neck'] = np.array([.45 * f['look'], .4 * (f['turn'] + sh), 0.])
         p['head'] = np.array([.55 * f['look'], .6 * (f['turn'] + sh), f['tilt']])
         p['feet'] = {}
         for side, s in [('L', 1), ('R', -1)]:
             rest = self.B[RG.LEG[side]['foot']]
-            pitch = f['toe'] - (f['heel'] if side == 'L' else 0.)
+            o = 'l' if side == 'L' else 'r'
+            pitch = f['toe'] - (f['heel'] if side == 'L' else 0.) + f[o + 'pitch']
             st = s * f['stagger']
-            dz = .35 * f['tuck'] + .30 * st - (f['step'] if side == 'R' else 0.)
-            dy = f['tuck'] + .35 * max(0., st)
-            pos = rest + [s * f['spread'], self.ankle_height(pitch) - self.ankle_height(0.) + dy, dz]
+            dz = .35 * f['tuck'] + .30 * st - (f['step'] if side == 'R' else 0.) + f[o + 'fz']
+            dy = f['tuck'] + .35 * max(0., st) + f['air'] + f[o + 'fy']
+            pos = rest + [s * f['spread'] + f[o + 'fx'], self.ankle_height(pitch) - self.ankle_height(0.) + dy, dz]
             p['feet'][side] = {'pos': pos, 'pitch': pitch, 'yaw': s * .15 * f['spread'] / .1 if f['spread'] > 0 else 0.}
         w = 2 * np.pi * self.FLAIL_HZ * t
         for side, s in [('L', 1), ('R', -1)]:
             fl = f['flail'] * np.sin(w + (0 if side == 'L' else np.pi))
             fo = .5 * f['flail'] * np.cos(w + (0 if side == 'L' else np.pi))
-            p['fk'][side] = REST + [f['aout'] + fo, f['aup'] + s * f['reach'] + fl, f['elbow']]
-            p['clav'][side] = f['clav'] + .06 * max(0., f['aup'] - 1.2) + .05 * max(0., f['aout'] - .8)
+            o = 'l' if side == 'L' else 'r'
+            up, out_ = f['aup'] + f[o + 'up'], f['aout'] + f[o + 'out']
+            p['fk'][side] = REST + [out_ + fo, up + s * f['reach'] + fl, f['elbow'] + f[o + 'el']]
+            p['clav'][side] = f['clav'] + .06 * max(0., up - 1.2) + .05 * max(0., out_ - .8)
         p['fingers'] = -.12 - .6 * f['fist']
         p['thumb'] = .10 + .3 * f['fist']
         return p
@@ -232,7 +239,7 @@ class HardLanding(OneShot):
 class Skid(OneShot):
     """Braking hard from a run (or turning round): leaning back on the left heel, toes up, the right foot behind, the
     arms out forward for balance, juddering as the slipper slides; then upright (standing to standing)."""
-    name = 'Skid'
+    name = 'Skid (game)'      # (the general Skid, in the regular set, is moves.Skid)
     SHOT = duration = .6
     phases = [('Brake', 0, .12), ('Slide', .12, .42), ('Recover', .42, .6)]
     SKID = dict(y=-.07, z=-.04, lean=-.20, bend=-.08, look=.02, heel=.45, step=.12, toe=.0, aup=.95, aout=.7,
@@ -266,7 +273,7 @@ class Hurt(OneShot):
 class Death(OneShot):
     """Knocked out: the hit as in Hurt but harder, a wobble, the knees buckle, she sits down hard, tips over backwards
     with the legs flying up, and ends lying on her back, arms flopped out (standing to lying; holds)."""
-    name = 'Death'
+    name = 'Death (game)'     # (the general Death, which gets up again, is moves.Death)
     SHOT = duration = 2.6
     phases = [('Hit', 0, .12), ('Wobble', .12, .7), ('Sit down', .7, 1.3), ('Tip over', 1.3, 2.0), ('Lie', 2.0, 2.6)]
     HIT = dict(y=-.03, z=-.06, lean=-.24, bend=-.25, look=-.45, turn=.15, tilt=.12, step=.10, aup=1.0, aout=.6,
@@ -282,14 +289,25 @@ class Death(OneShot):
     TRANSITION = {'sync': 'start', 'blend_seconds': .05, 'next': None,
                   'note': 'one-shot; ends lying on her back: hold the last frame'}
     # lying: the hips' pitch, height and how far back the root goes (seated at lie .32, flat on the back at 1)
+    ARM_DOWN = .80                  # lying, the arms lowered this much (rad) on to the floor
     SEAT_Y, SEAT_Z, SEAT_PITCH = -.75, -.30, -.40
     LIE_Y, LIE_Z, LIE_PITCH = -.75, -.62, -1.42
 
     def shot(self, t):
-        f = shot_keys(self.KEYS, t)
+        return self.posef(t, shot_keys(self.KEYS, t))
+
+    def posef(self, t, f):
+        """The pose for settings f: standing (lie 0), on the way down / lying (lie .32 seated, 1 on her back), or getting
+        up (moves.Death: gu 0..1 from the seat with the feet gathered in to a squat over them)."""
         lie = f['lie']
         if lie <= 1e-6:
             return Platform.key(self, t, f)
+        if f['gu'] > 1e-6:
+            return blend_pose(self.lie_pose(t, dict(f, lie=.32, gather=1.)), Platform.key(self, t, f), smooth(0, 1, f['gu']))
+        return self.lie_pose(t, f)
+
+    def lie_pose(self, t, f):
+        lie = f['lie']
         f2 = dict(f, lie=0., y=0., z=0., lean=0., tuck=0., stagger=0., step=0., toe=0.)
         p = Platform.key(self, t, f2)
         # down to the seat (lie 0 .. .32), then over on to the back (.32 .. 1); before the seat the knees buckle
@@ -309,24 +327,24 @@ class Death(OneShot):
             # seated: the legs out in front, knees a little up; lying: out straight, splayed; legs_up: kicked up
             up = f['legs_up']
             out = s * (.10 + .10 * f['splay'])
-            seat_ft = np.array([hip[0] + out, 0., hip[2] + .66])
+            seat_ft = np.array([hip[0] + out, 0., hip[2] + .66 - .40 * f['gather']])    # gather: the feet drawn in
             lie_ft = np.array([hip[0] + out + s * .04, 0., hip[2] + .76])
             ft = seat_ft * (1 - b) + lie_ft * b
             stand = self.B[RG.LEG[side]['foot']] + [0, 0, 0]
             ft = stand * (1 - a) + ft * a
-            pitch_f = -.55 * a - .65 * b
-            ft[1] = self.ankle_height(pitch_f) + up * .55 * (1. + .25 * s)
+            pitch_f = (-.55 * a - .65 * b) * (1 - f['gather'])
+            ft[1] = self.ankle_height(pitch_f) + up * .55 * (1. + .25 * s) + f['lfy' if side == 'L' else 'rfy']
             ft[2] -= up * .25
             knee = np.array([s * .2, .6, .5]) * a + np.array([0, -.35, .8]) * (1 - a)
             p['feet'][side] = {'pos': ft, 'pitch': pitch_f - .5 * up, 'yaw': s * .25 * f['splay'], 'knee': tuple(knee)}
-            p['fk'][side] = np.asarray(p['fk'][side]) + [0, -.80 * b, 0]     # the arms down on to the floor
+            p['fk'][side] = np.asarray(p['fk'][side]) + [0, -self.ARM_DOWN * b, 0]     # the arms down on to the floor
         return p
 
 
-class Victory(Platform):
-    """Celebrating: bouncing on the toes with both fists up in a V, pumping them in turn, the head bobbing side to
+class FistPumpVictory(Platform):
+    """(Until the general set: the platformer's Victory; replaced by moves.Victory, a dance.)  Celebrating: bouncing on the toes with both fists up in a V, pumping them in turn, the head bobbing side to
     side (loops)."""
-    name = 'Victory'
+    name = 'Victory (fist pumps)'
     duration = 2.4
     phases = [('Victory', 0, 2.4)]
     TRANSITION = {'sync': 'start', 'blend_seconds': .3, 'next': None,
@@ -347,5 +365,27 @@ class Victory(Platform):
         return p
 
 
-CLIPS = [JumpStart, JumpRise, JumpApex, Fall, Land, HardLanding, Skid, Hurt, Death, Victory]
+# (Victory, a loop that starts and ends standing, is in the regular set since the general moves (moves.Victory, a
+# little dance) and serves both; the fist-pump Victory below is kept for reference, not baked)
+def blend_pose(a, b, w):
+    """Pose a blended into pose b by w (the vectors and feet linearly; the hands as b has them)."""
+    lerp = lambda x, y: np.asarray(x, float) * (1 - w) + np.asarray(y, float) * w
+    p = dict(b)
+    for k in ('shift', 'hips', 'spine', 'chest', 'neck', 'head'):
+        p[k] = lerp(a[k], b[k])
+    for k in ('fingers', 'thumb'):
+        p[k] = float(lerp(a[k], b[k]))
+    p['fk'] = {sd: lerp(a['fk'][sd], b['fk'][sd]) for sd in 'LR'}
+    p['clav'] = {sd: float(lerp(a['clav'][sd], b['clav'][sd])) for sd in 'LR'}
+    p['feet'] = {}
+    for sd in 'LR':
+        fa, fb = a['feet'][sd], b['feet'][sd]
+        p['feet'][sd] = {'pos': lerp(fa['pos'], fb['pos']), 'pitch': float(lerp(fa['pitch'], fb['pitch'])),
+                         'yaw': float(lerp(fa.get('yaw', 0.), fb.get('yaw', 0.))),
+                         'roll': float(lerp(fa.get('roll', 0.), fb.get('roll', 0.))),
+                         'knee': tuple(lerp(fa.get('knee', (0, -.35, .8)), fb.get('knee', (0, -.35, .8))))}
+    return p
+
+
+CLIPS = [JumpStart, JumpRise, JumpApex, Fall, Land, HardLanding, Skid, Hurt, Death]
 NAMES = [C.name for C in CLIPS]

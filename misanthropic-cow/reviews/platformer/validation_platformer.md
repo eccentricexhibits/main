@@ -1,5 +1,7 @@
 # The platformer set: rig checks per clip
 
+**Since the general moves (`reviews/general_moves/`):** Skid and Death here are now named `Skid (game)` and `Death (game)` (the same clips), and the fist-pump Victory below was replaced by the Victory dance, shared with the regular set.
+
 Full-resolution build (44B), baked with the performance layer and physics. Stretch is the 99.9th-percentile edge stretch over the clip; the depths are 99.5th percentiles of how far one surface passes into the other, the worst frame of the clip; "Belly into legs" and "Legs into belly" count only surface that shows at rest. Sit Cross-Legged (the standard version, from the quick build) is there to compare with: the deepest squat and the only other clip on the floor.
 The one-shots do not loop (their first and last frames differ on purpose), so the loop check does not apply to them. Jump Rise, Fall and Victory loop seamlessly (loop error 0).
 

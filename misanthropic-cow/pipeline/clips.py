@@ -931,8 +931,10 @@ ORDER = (['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chick
          + [n + ' (alt)' for n in ['Idle', 'Walk', 'Run', 'Sneak', 'Jumping Jacks', 'Look Around', 'Chicken Dance']]
          + [C.name + ' (alt)' for C in MOOD_MADE])
 
-# 44B final: the platformer set (platformer.py: jump, fall, landings, skid, hurt, death, victory), added after the
-# clips above, which it leaves as they are.  (Import clips before platformer.)
+# 44B final: the platformer set (platformer.py: jump, fall, landings, skid, hurt, death) and the general Jump, Skid,
+# Death and Victory (moves.py, each with a lumbering alt), added after the clips above, which they leave as they are.
+# (Import clips before platformer or moves.)
 import platformer as _PF                              # noqa: E402
-ALL = ALL + _PF.CLIPS
-ORDER = ORDER + _PF.NAMES
+import moves as _MV                                   # noqa: E402  the general Jump, Skid, Death and Victory (a dance)
+ALL = ALL + _MV.STD + _MV.ALT + _PF.CLIPS
+ORDER = ORDER + _MV.NAMES + [n + ' (alt)' for n in _MV.NAMES] + _PF.NAMES
